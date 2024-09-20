@@ -784,7 +784,7 @@ namespace UltimateXR.UI.UnityInputModule
         /// </summary>
         /// <param name="fingerTip">Finger tip to compute the event data for</param>
         /// <returns>Pointer event data</returns>
-        private UxrPointerEventData GetFingerTipPointerEventData(UxrFingerTip fingerTip)
+        public UxrPointerEventData GetFingerTipPointerEventData(UxrFingerTip fingerTip)
         {
             // Get/create the event data
             FetchPointerEventData(fingerTip, out UxrPointerEventData data, true);
@@ -899,7 +899,7 @@ namespace UltimateXR.UI.UnityInputModule
         /// </summary>
         /// <param name="laserPointer">Laser pointer to compute the event data for</param>
         /// <returns>Pointer event data</returns>
-        private UxrPointerEventData GetLaserPointerEventData(UxrLaserPointer laserPointer)
+        public UxrPointerEventData GetLaserPointerEventData(UxrLaserPointer laserPointer)
         {
             // Get/create the event data
             FetchPointerEventData(laserPointer, out UxrPointerEventData data, true);

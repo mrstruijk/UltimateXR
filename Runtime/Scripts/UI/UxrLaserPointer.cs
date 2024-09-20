@@ -292,7 +292,8 @@ namespace UltimateXR.UI
 
                 if (eventData.HasData)
                 {
-                    hitPosition = eventData.pointerCurrentRaycast.WorldPos;
+                    hitPosition = eventData.pointerCurrentRaycast.worldPosition;
+       
                     return true;
                 }
             }
@@ -309,7 +310,7 @@ namespace UltimateXR.UI
         public bool TryGetPointerEventData(out UxrPointerEventData pointerEventData)
         {
             pointerEventData = UxrPointerInputModule.Instance.GetLaserPointerEventData(this);
-            return eventData.HasData;
+            return  pointerEventData.HasData;
         }
 
         #endregion
