@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {

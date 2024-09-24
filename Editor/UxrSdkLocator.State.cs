@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Editor
 {
     public abstract partial class UxrSdkLocator
@@ -33,12 +34,12 @@ namespace UltimateXR.Editor
             ///     SDK is not installed.
             /// </summary>
             NotInstalled,
-            
+
             /// <summary>
             ///     SDK is registered but support will come soon.
             /// </summary>
             SoonSupported,
-            
+
             /// <summary>
             ///     SDK is installed and available.
             /// </summary>

@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Animation.Interpolation;
 using UltimateXR.Extensions.Unity;
 using UltimateXR.Extensions.Unity.Render;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.Animation.UI
 {
@@ -63,16 +65,17 @@ namespace UltimateXR.Animation.UI
         /// </returns>
         public static UxrColorTween Animate(Graphic graphic, Color startColor, Color endColor, UxrInterpolationSettings settings, Action<UxrTween> finishedCallback = null)
         {
-            UxrColorTween colorTween = graphic.GetOrAddComponent<UxrColorTween>();
+            var colorTween = graphic.GetOrAddComponent<UxrColorTween>();
 
-            colorTween.StartColor            = startColor;
-            colorTween.EndColor              = endColor;
+            colorTween.StartColor = startColor;
+            colorTween.EndColor = endColor;
             colorTween.InterpolationSettings = settings;
-            colorTween.FinishedCallback      = finishedCallback;
+            colorTween.FinishedCallback = finishedCallback;
             colorTween.Restart();
 
             return colorTween;
         }
+
 
         /// <summary>
         ///     Creates and starts an alpha tweening animation for the <see cref="Graphic.color" /> of a Unity UI component.
@@ -91,6 +94,7 @@ namespace UltimateXR.Animation.UI
             return Animate(graphic, graphic.color.WithAlpha(startAlpha), graphic.color.WithAlpha(endAlpha), settings, finishedCallback);
         }
 
+
         /// <summary>
         ///     Creates and starts an alpha blinking tweening animation for the <see cref="Graphic.color" /> of a Unity UI
         ///     component.
@@ -108,17 +112,18 @@ namespace UltimateXR.Animation.UI
         public static UxrColorTween AnimateBlinkAlpha(Graphic graphic, float blinksPerSecond, float durationSeconds, float delaySeconds = 0.0f, bool restoreWhenFinished = true, Action<UxrTween> finishedCallback = null)
         {
             return Animate(graphic,
-                           graphic.color.WithAlpha(1.0f),
-                           graphic.color.WithAlpha(0.0f),
-                           new UxrInterpolationSettings(1.0f / (blinksPerSecond * 2.0f), delaySeconds, UxrEasing.Linear, UxrLoopMode.PingPong, durationSeconds),
-                           t =>
-                           {
-                               if (restoreWhenFinished && t is UxrColorTween colorTween)
-                               {
-                                   colorTween.RestoreOriginalValue();
-                               }
-                               finishedCallback?.Invoke(t);
-                           });
+                graphic.color.WithAlpha(1.0f),
+                graphic.color.WithAlpha(0.0f),
+                new UxrInterpolationSettings(1.0f / (blinksPerSecond * 2.0f), delaySeconds, UxrEasing.Linear, UxrLoopMode.PingPong, durationSeconds),
+                t =>
+                {
+                    if (restoreWhenFinished && t is UxrColorTween colorTween)
+                    {
+                        colorTween.RestoreOriginalValue();
+                    }
+
+                    finishedCallback?.Invoke(t);
+                });
         }
 
         #endregion
@@ -130,6 +135,7 @@ namespace UltimateXR.Animation.UI
         {
             RestoreColor();
         }
+
 
         /// <inheritdoc />
         protected override void Interpolate(float t)

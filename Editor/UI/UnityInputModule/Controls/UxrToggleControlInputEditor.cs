@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.UI.UnityInputModule.Controls;
 using UnityEditor;
+
 
 namespace UltimateXR.Editor.UI.UnityInputModule.Controls
 {
@@ -26,15 +28,15 @@ namespace UltimateXR.Editor.UI.UnityInputModule.Controls
             base.OnEnable();
 
             _propertyInitialStateIsSelected = serializedObject.FindProperty("_initialStateIsSelected");
-            _propertyCanToggleOnlyOnce      = serializedObject.FindProperty("_canToggleOnlyOnce");
-            _propertyText                   = serializedObject.FindProperty("_text");
-            _propertyEnableWhenSelected     = serializedObject.FindProperty("_enableWhenSelected");
-            _propertyEnableWhenNotSelected  = serializedObject.FindProperty("_enableWhenNotSelected");
-            _propertyTextColorChanges       = serializedObject.FindProperty("_textColorChanges");
-            _propertyAudioToggleOn          = serializedObject.FindProperty("_audioToggleOn");
-            _propertyAudioToggleOff         = serializedObject.FindProperty("_audioToggleOff");
-            _propertyAudioToggleOnVolume    = serializedObject.FindProperty("_audioToggleOnVolume");
-            _propertyAudioToggleOffVolume   = serializedObject.FindProperty("_audioToggleOffVolume");
+            _propertyCanToggleOnlyOnce = serializedObject.FindProperty("_canToggleOnlyOnce");
+            _propertyText = serializedObject.FindProperty("_text");
+            _propertyEnableWhenSelected = serializedObject.FindProperty("_enableWhenSelected");
+            _propertyEnableWhenNotSelected = serializedObject.FindProperty("_enableWhenNotSelected");
+            _propertyTextColorChanges = serializedObject.FindProperty("_textColorChanges");
+            _propertyAudioToggleOn = serializedObject.FindProperty("_audioToggleOn");
+            _propertyAudioToggleOff = serializedObject.FindProperty("_audioToggleOff");
+            _propertyAudioToggleOnVolume = serializedObject.FindProperty("_audioToggleOnVolume");
+            _propertyAudioToggleOffVolume = serializedObject.FindProperty("_audioToggleOffVolume");
         }
 
         #endregion

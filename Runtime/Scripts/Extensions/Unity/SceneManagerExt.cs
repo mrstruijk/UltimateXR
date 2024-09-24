@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Threading;
 using System.Threading.Tasks;
 using UltimateXR.Extensions.Unity.IO;
 using UnityEngine.SceneManagement;
+
 
 namespace UltimateXR.Extensions.Unity
 {
@@ -28,6 +30,7 @@ namespace UltimateXR.Extensions.Unity
         {
             return LoadSceneAsync(sceneName, mode).Wait(ct);
         }
+
 
         /// <summary>
         ///     Creates an awaitable task that asynchronously unloads a scene.

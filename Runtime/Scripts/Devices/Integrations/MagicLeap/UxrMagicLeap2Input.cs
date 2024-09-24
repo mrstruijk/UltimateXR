@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core;
+
 
 namespace UltimateXR.Devices.Integrations.MagicLeap
 {
@@ -29,17 +31,18 @@ namespace UltimateXR.Devices.Integrations.MagicLeap
         /// <inheritdoc />
         public override bool MainJoystickIsTouchpad => true;
 
+
         /// <inheritdoc />
         public override bool HasControllerElements(UxrHandSide handSide, UxrControllerElements controllerElements)
         {
-            uint validElements = (uint)(UxrControllerElements.Joystick |
+            var validElements = (uint) (UxrControllerElements.Joystick |
                                         UxrControllerElements.Trigger |
                                         UxrControllerElements.Grip |
                                         UxrControllerElements.Bumper |
                                         UxrControllerElements.Menu |
                                         UxrControllerElements.DPad);
 
-            return (validElements & (uint)controllerElements) == (uint)controllerElements;
+            return (validElements & (uint) controllerElements) == (uint) controllerElements;
         }
 
         #endregion
@@ -61,7 +64,7 @@ namespace UltimateXR.Devices.Integrations.MagicLeap
         {
             base.OnDeviceConnected(e);
 
-#if ULTIMATEXR_USE_MAGICLEAP_SDK            
+            #if ULTIMATEXR_USE_MAGICLEAP_SDK
             if (e.IsConnected)
             {
                 _mlInputs = new MagicLeapInputs();
@@ -75,7 +78,7 @@ namespace UltimateXR.Devices.Integrations.MagicLeap
                     _mlInputs = null;
                 }
             }
-#endif
+            #endif
         }
 
         #endregion
@@ -88,14 +91,15 @@ namespace UltimateXR.Devices.Integrations.MagicLeap
             base.UpdateInput();
 
             // Propagate touchpad touch to press, since only touch is signaled by the API
-            SetButtonFlags(ButtonFlags.PressFlagsLeft,  UxrInputButtons.Joystick, GetButtonsTouch(UxrHandSide.Left,  UxrInputButtons.Joystick));
+            SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.Joystick, GetButtonsTouch(UxrHandSide.Left, UxrInputButtons.Joystick));
             SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.Joystick, GetButtonsTouch(UxrHandSide.Right, UxrInputButtons.Joystick));
         }
+
 
         /// <inheritdoc />
         protected override bool HasButtonContactOther(UxrHandSide handSide, UxrInputButtons button, ButtonContact buttonContact)
         {
-#if ULTIMATEXR_USE_MAGICLEAP_SDK
+            #if ULTIMATEXR_USE_MAGICLEAP_SDK
             if (button == UxrInputButtons.Bumper)
             {
                 return _mlInputs.Controller.Bumper.IsPressed();   
@@ -108,8 +112,8 @@ namespace UltimateXR.Devices.Integrations.MagicLeap
             {
                 return _mlInputs.Controller.Bumper.IsPressed();
             }
-#endif
-            
+            #endif
+
             return false;
         }
 
@@ -117,9 +121,9 @@ namespace UltimateXR.Devices.Integrations.MagicLeap
 
         #region Private Types & Data
 
-#if ULTIMATEXR_USE_MAGICLEAP_SDK
+        #if ULTIMATEXR_USE_MAGICLEAP_SDK
         private MagicLeapInputs _mlInputs;
-#endif
+        #endif
 
         #endregion
     }

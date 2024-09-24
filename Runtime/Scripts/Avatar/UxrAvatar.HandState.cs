@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar.Rig;
 using UltimateXR.Core;
 using UltimateXR.Manipulation.HandPoses;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar
 {
@@ -19,6 +21,45 @@ namespace UltimateXR.Avatar
         /// </summary>
         private class HandState
         {
+            #region Private Methods
+
+            /// <summary>
+            ///     Updates the avatar hand, interpolating between the "from" and "to" poses.
+            /// </summary>
+            /// <param name="avatar">Avatar to update</param>
+            /// <param name="handSide">Hand to update</param>
+            /// <param name="t">Interpolation value [0.0, 1.0]</param>
+            private void BlendPoses(UxrAvatar avatar, UxrHandSide handSide, float t)
+            {
+                if (_currentHandPoseFrom == null || _currentHandPose == null)
+                {
+                    return;
+                }
+
+                // Compute the hand descriptors to interpolate
+
+                _currentDescriptorFrom.CopyFrom(_currentHandPoseFrom.GetHandDescriptor(handSide, UxrBlendPoseType.OpenGrip));
+                _currentDescriptor.CopyFrom(_currentHandPose.GetHandDescriptor(handSide, UxrBlendPoseType.OpenGrip));
+
+                // If any of the hand poses has a blend type, compute the blended pose first
+
+                if (_currentHandPoseFrom.PoseType == UxrHandPoseType.Blend)
+                {
+                    _currentDescriptorFrom.InterpolateTo(_currentHandPoseFrom.GetHandDescriptor(handSide, UxrBlendPoseType.ClosedGrip), _currentBlendValueFrom);
+                }
+
+                if (_currentHandPose.PoseType == UxrHandPoseType.Blend)
+                {
+                    _currentDescriptor.InterpolateTo(_currentHandPose.GetHandDescriptor(handSide, UxrBlendPoseType.ClosedGrip), _currentBlendValue);
+                }
+
+                // Now interpolate between the two and update the hand transforms
+
+                UxrAvatarRig.UpdateHandUsingRuntimeDescriptor(avatar, handSide, _currentDescriptorFrom, _currentDescriptor, t);
+            }
+
+            #endregion
+
             #region Public Types & Data
 
             /// <summary>
@@ -60,6 +101,7 @@ namespace UltimateXR.Avatar
                 return false;
             }
 
+
             /// <summary>
             ///     Changes the current pose.
             /// </summary>
@@ -76,16 +118,16 @@ namespace UltimateXR.Avatar
                         // Start smooth transition to new pose.
 
                         _currentHandPoseFrom = CurrentHandPose;
-                        _currentHandPose     = handPose;
-                        _blendTimer          = PoseTransitionSeconds;
+                        _currentHandPose = handPose;
+                        _blendTimer = PoseTransitionSeconds;
                     }
                     else
                     {
                         // First initialization: transition immediately.
 
                         _currentHandPoseFrom = handPose;
-                        _currentHandPose     = handPose;
-                        _blendTimer          = -1.0f;
+                        _currentHandPose = handPose;
+                        _blendTimer = -1.0f;
                     }
                 }
 
@@ -94,9 +136,10 @@ namespace UltimateXR.Avatar
                 if (!Mathf.Approximately(_currentBlendValue, blendValue) && CurrentHandPose != null && CurrentHandPose.PoseType == UxrHandPoseType.Blend)
                 {
                     _currentBlendValue = blendValue;
-                    _needsBlend        = true;
+                    _needsBlend = true;
                 }
             }
+
 
             /// <summary>
             ///     Updates the hand, mainly transitioning smoothly between poses.
@@ -120,7 +163,7 @@ namespace UltimateXR.Avatar
                 {
                     // Blend the poses
 
-                    float t = Mathf.Clamp01(1.0f - _blendTimer / PoseTransitionSeconds);
+                    var t = Mathf.Clamp01(1.0f - _blendTimer / PoseTransitionSeconds);
                     BlendPoses(avatar, handSide, t);
                 }
 
@@ -128,45 +171,6 @@ namespace UltimateXR.Avatar
                 {
                     _needsBlend = false;
                 }
-            }
-
-            #endregion
-
-            #region Private Methods
-
-            /// <summary>
-            ///     Updates the avatar hand, interpolating between the "from" and "to" poses.
-            /// </summary>
-            /// <param name="avatar">Avatar to update</param>
-            /// <param name="handSide">Hand to update</param>
-            /// <param name="t">Interpolation value [0.0, 1.0]</param>
-            private void BlendPoses(UxrAvatar avatar, UxrHandSide handSide, float t)
-            {
-                if (_currentHandPoseFrom == null || _currentHandPose == null)
-                {
-                    return;
-                }
-
-                // Compute the hand descriptors to interpolate
-
-                _currentDescriptorFrom.CopyFrom(_currentHandPoseFrom.GetHandDescriptor(handSide, UxrBlendPoseType.OpenGrip));
-                _currentDescriptor.CopyFrom(_currentHandPose.GetHandDescriptor(handSide, UxrBlendPoseType.OpenGrip));
-
-                // If any of the hand poses has a blend type, compute the blended pose first
-
-                if (_currentHandPoseFrom.PoseType == UxrHandPoseType.Blend)
-                {
-                    _currentDescriptorFrom.InterpolateTo(_currentHandPoseFrom.GetHandDescriptor(handSide, UxrBlendPoseType.ClosedGrip), _currentBlendValueFrom);
-                }
-
-                if (_currentHandPose.PoseType == UxrHandPoseType.Blend)
-                {
-                    _currentDescriptor.InterpolateTo(_currentHandPose.GetHandDescriptor(handSide, UxrBlendPoseType.ClosedGrip), _currentBlendValue);
-                }
-
-                // Now interpolate between the two and update the hand transforms
-
-                UxrAvatarRig.UpdateHandUsingRuntimeDescriptor(avatar, handSide, _currentDescriptorFrom, _currentDescriptor, t);
             }
 
             #endregion
@@ -179,18 +183,18 @@ namespace UltimateXR.Avatar
             private const float PoseTransitionSeconds = 0.1f;
 
             /// <summary>
-            ///      Value that will be used as epsilon to compare two pose blend values.
+            ///     Value that will be used as epsilon to compare two pose blend values.
             /// </summary>
             private const float BlendEpsilon = 0.005f;
 
-            private readonly UxrRuntimeHandDescriptor _currentDescriptorFrom = new UxrRuntimeHandDescriptor();
-            private readonly UxrRuntimeHandDescriptor _currentDescriptor     = new UxrRuntimeHandDescriptor();
-            private          UxrRuntimeHandPose       _currentHandPoseFrom;
-            private          UxrRuntimeHandPose       _currentHandPose;
-            private          float                    _currentBlendValueFrom;
-            private          float                    _currentBlendValue;
-            private          float                    _blendTimer = -1.0f;
-            private          bool                     _needsBlend;
+            private readonly UxrRuntimeHandDescriptor _currentDescriptorFrom = new();
+            private readonly UxrRuntimeHandDescriptor _currentDescriptor = new();
+            private UxrRuntimeHandPose _currentHandPoseFrom;
+            private UxrRuntimeHandPose _currentHandPose;
+            private float _currentBlendValueFrom;
+            private float _currentBlendValue;
+            private float _blendTimer = -1.0f;
+            private bool _needsBlend;
 
             #endregion
         }

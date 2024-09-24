@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Mechanics.Weapons
 {
     public partial class UxrShotgunPump

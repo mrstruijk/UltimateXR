@@ -3,7 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-using System.Collections.Generic;
+
 using System.Linq;
 using UltimateXR.Avatar;
 using UltimateXR.Extensions.System;
@@ -14,6 +14,7 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor.SceneManagement;
 #endif
+
 
 namespace UltimateXR.Extensions.Unity
 {
@@ -36,6 +37,7 @@ namespace UltimateXR.Extensions.Unity
             return self.GetComponentInParent<T>() ?? self.GetComponentsInParent<T>(true).FirstOrDefault();
         }
 
+
         /// <summary>
         ///     Activates/deactivates the object if it isn't active already.
         /// </summary>
@@ -49,6 +51,7 @@ namespace UltimateXR.Extensions.Unity
             }
         }
 
+
         /// <summary>
         ///     Gets a unique path in the scene for the given GameObject. It will include sibling indices to make it unique.
         /// </summary>
@@ -58,8 +61,10 @@ namespace UltimateXR.Extensions.Unity
         public static string GetUniqueScenePath(this GameObject self)
         {
             self.ThrowIfNull(nameof(self));
+
             return self.transform.GetUniqueScenePath();
         }
+
 
         /// <summary>
         ///     Gets the path in the scene of the given GameObject.
@@ -70,8 +75,10 @@ namespace UltimateXR.Extensions.Unity
         public static string GetPathUnderScene(this GameObject self)
         {
             self.ThrowIfNull(nameof(self));
+
             return self.transform.GetPathUnderScene();
         }
+
 
         /// <summary>
         ///     Checks if the given GameObject is a prefab.
@@ -80,15 +87,16 @@ namespace UltimateXR.Extensions.Unity
         /// <returns>Whether the GameObject is a prefab or not</returns>
         public static bool IsPrefab(this GameObject self)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (PrefabStageUtility.GetCurrentPrefabStage() != null && PrefabStageUtility.GetCurrentPrefabStage().prefabContentsRoot == self)
             {
                 return true;
             }
-#endif
+            #endif
 
             return self.scene.name == null;
         }
+
 
         /// <summary>
         ///     Checks whether the given GameObject is dynamic. Since <see cref="GameObject.isStatic" /> doesn't work at runtime
@@ -105,6 +113,7 @@ namespace UltimateXR.Extensions.Unity
                    self.GetComponentInParent<UxrGrabbableObject>() != null;
         }
 
+
         /// <summary>
         ///     Gets the Component of a given type. If it doesn't exist, it is added to the GameObject.
         /// </summary>
@@ -112,9 +121,9 @@ namespace UltimateXR.Extensions.Unity
         /// <typeparam name="T">Component type to get or add</typeparam>
         /// <returns>Existing component or newly added if it didn't exist before</returns>
         public static T GetOrAddComponent<T>(this GameObject self)
-                    where T : Component
+            where T : Component
         {
-            T component = self.GetComponent<T>();
+            var component = self.GetComponent<T>();
 
             if (component == null)
             {
@@ -123,6 +132,7 @@ namespace UltimateXR.Extensions.Unity
 
             return component;
         }
+
 
         /// <summary>
         ///     Creates a new GameObject in the exact same position as the given one and parents it.
@@ -135,12 +145,14 @@ namespace UltimateXR.Extensions.Unity
         /// <returns>New created GameObject</returns>
         public static GameObject CreateGameObjectAndParentSameTransform(GameObject parent, string newGameObjectName)
         {
-            GameObject newGameObject = new GameObject(newGameObjectName);
-            newGameObject.transform.parent        = parent.transform;
+            var newGameObject = new GameObject(newGameObjectName);
+            newGameObject.transform.parent = parent.transform;
             newGameObject.transform.localPosition = Vector3.zero;
             newGameObject.transform.localRotation = Quaternion.identity;
+
             return newGameObject;
         }
+
 
         /// <summary>
         ///     Computes the geometric center of the given GameObject based on all the MeshRenderers in the hierarchy.
@@ -149,33 +161,34 @@ namespace UltimateXR.Extensions.Unity
         /// <returns>Geometric center</returns>
         public static Vector3 GetGeometricCenter(this GameObject self)
         {
-            MeshRenderer[] meshRenderers = self.GetComponentsInChildren<MeshRenderer>();
-            bool           initialized   = false;
-            Vector3        min           = Vector3.zero;
-            Vector3        max           = Vector3.zero;
+            var meshRenderers = self.GetComponentsInChildren<MeshRenderer>();
+            var initialized = false;
+            var min = Vector3.zero;
+            var max = Vector3.zero;
 
             if (meshRenderers.Length == 0)
             {
                 return Vector3.zero;
             }
 
-            foreach (MeshRenderer renderer in meshRenderers)
+            foreach (var renderer in meshRenderers)
             {
                 if (!initialized)
                 {
                     initialized = true;
-                    min         = renderer.bounds.min;
-                    max         = renderer.bounds.max;
+                    min = renderer.bounds.min;
+                    max = renderer.bounds.max;
                 }
                 else
                 {
-                min = Vector3.Min(min, renderer.bounds.min);
-                max = Vector3.Max(max, renderer.bounds.max);
-            }
+                    min = Vector3.Min(min, renderer.bounds.min);
+                    max = Vector3.Max(max, renderer.bounds.max);
+                }
             }
 
             return (min + max) * 0.5f;
         }
+
 
         /// <summary>
         ///     Calculates the <see cref="GameObject" /> <see cref="Bounds" />. The bounds are the <see cref="Renderer" />'s bounds
@@ -193,25 +206,26 @@ namespace UltimateXR.Extensions.Unity
         /// </returns>
         public static Bounds GetBounds(this GameObject self, bool forceRecurseIntoChildren)
         {
-            Renderer renderer = self.GetComponent<Renderer>();
+            var renderer = self.GetComponent<Renderer>();
 
             if (renderer != null)
             {
                 return renderer.bounds;
             }
 
-            IEnumerable<Renderer> renderers = self.GetComponentsInChildren<Renderer>().Where(r => !r.hideFlags.HasFlag(HideFlags.HideInHierarchy));
+            var renderers = self.GetComponentsInChildren<Renderer>().Where(r => !r.hideFlags.HasFlag(HideFlags.HideInHierarchy));
 
             if (!renderers.Any())
             {
                 return new Bounds(self.transform.position, Vector3.zero);
             }
 
-            Vector3 min = Vector3Ext.Min(renderers.Select(r => r.bounds.min));
-            Vector3 max = Vector3Ext.Max(renderers.Select(r => r.bounds.max));
+            var min = Vector3Ext.Min(renderers.Select(r => r.bounds.min));
+            var max = Vector3Ext.Max(renderers.Select(r => r.bounds.max));
 
             return new Bounds((max + min) * 0.5f, max - min);
         }
+
 
         /// <summary>
         ///     Calculates the <see cref="GameObject" /> <see cref="Bounds" /> in local space. The bounds are the
@@ -230,26 +244,27 @@ namespace UltimateXR.Extensions.Unity
         /// </returns>
         public static Bounds GetLocalBounds(this GameObject self, bool forceRecurseIntoChildren)
         {
-            Renderer renderer = self.GetComponent<Renderer>();
+            var renderer = self.GetComponent<Renderer>();
 
             if (renderer != null && !forceRecurseIntoChildren)
             {
                 return renderer.localBounds;
             }
 
-            IEnumerable<Renderer> renderers = self.GetComponentsInChildren<Renderer>().Where(r => !r.hideFlags.HasFlag(HideFlags.HideInHierarchy));
+            var renderers = self.GetComponentsInChildren<Renderer>().Where(r => !r.hideFlags.HasFlag(HideFlags.HideInHierarchy));
 
             if (!renderers.Any())
             {
                 return new Bounds();
             }
 
-            IEnumerable<Vector3> allMinMaxToLocal = renderers.Select(r => self.transform.InverseTransformPoint(r.transform.TransformPoint(r.localBounds.min))).Concat(renderers.Select(r => self.transform.InverseTransformPoint(r.transform.TransformPoint(r.localBounds.max))));
-            Vector3     min       = Vector3Ext.Min(allMinMaxToLocal);
-            Vector3     max       = Vector3Ext.Max(allMinMaxToLocal);
+            var allMinMaxToLocal = renderers.Select(r => self.transform.InverseTransformPoint(r.transform.TransformPoint(r.localBounds.min))).Concat(renderers.Select(r => self.transform.InverseTransformPoint(r.transform.TransformPoint(r.localBounds.max))));
+            var min = Vector3Ext.Min(allMinMaxToLocal);
+            var max = Vector3Ext.Max(allMinMaxToLocal);
 
             return new Bounds((max + min) * 0.5f, max - min);
         }
+
 
         /// <summary>
         ///     Sets the layer of a GameObject and all its children.
@@ -260,16 +275,17 @@ namespace UltimateXR.Extensions.Unity
         {
             if (self != null)
             {
-                Transform selfTransform = self.transform;
+                var selfTransform = self.transform;
 
                 self.gameObject.layer = layer;
 
-                for (int i = 0; i < selfTransform.childCount; ++i)
+                for (var i = 0; i < selfTransform.childCount; ++i)
                 {
                     SetLayerRecursively(selfTransform.GetChild(i).gameObject, layer);
                 }
             }
         }
+
 
         /// <summary>
         ///     Checks whether the given GameObject's layer is present in a layer mask.
@@ -279,8 +295,9 @@ namespace UltimateXR.Extensions.Unity
         /// <returns>Whether the GameObject's layer is present in the layer mask</returns>
         public static bool IsInLayerMask(this GameObject self, LayerMask layerMask)
         {
-            return (1 << self.layer & layerMask.value) != 0;
+            return ((1 << self.layer) & layerMask.value) != 0;
         }
+
 
         /// <summary>
         ///     Gets the topmost <see cref="UxrCanvas" /> upwards in the hierarchy if it exists.
@@ -289,7 +306,8 @@ namespace UltimateXR.Extensions.Unity
         /// <returns>The topmost <see cref="UxrCanvas" /> component upwards in the hierarchy or null if it doesn't exists</returns>
         public static UxrCanvas GetTopmostCanvas(this GameObject self)
         {
-            UxrCanvas[] canvases = self.GetComponentsInParent<UxrCanvas>();
+            var canvases = self.GetComponentsInParent<UxrCanvas>();
+
             return ComponentExt.GetCommonRootComponentFromSet(canvases);
         }
 

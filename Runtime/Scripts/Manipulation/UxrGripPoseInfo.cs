@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Manipulation.HandPoses;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -17,13 +19,32 @@ namespace UltimateXR.Manipulation
     [Serializable]
     public class UxrGripPoseInfo
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="avatarPrefabGuid">
+        ///     Avatar prefab GUID. Using prefabs allows to share poses among instances and also prefab variants to inherit poses
+        ///     from their parent prefabs in the chain
+        /// </param>
+        public UxrGripPoseInfo(string avatarPrefabGuid)
+        {
+            if (!string.IsNullOrEmpty(avatarPrefabGuid))
+            {
+                _avatarPrefabGuid = avatarPrefabGuid;
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private string           _avatarPrefabGuid;
+        [SerializeField] private string _avatarPrefabGuid;
         [SerializeField] private UxrHandPoseAsset _handPose;
-        [SerializeField] private float            _poseBlendValue;
-        [SerializeField] private Transform        _gripAlignTransformHandLeft;
-        [SerializeField] private Transform        _gripAlignTransformHandRight;
+        [SerializeField] private float _poseBlendValue;
+        [SerializeField] private Transform _gripAlignTransformHandLeft;
+        [SerializeField] private Transform _gripAlignTransformHandRight;
 
         #endregion
 
@@ -81,25 +102,6 @@ namespace UltimateXR.Manipulation
         {
             get => _gripAlignTransformHandRight;
             set => _gripAlignTransformHandRight = value;
-        }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="avatarPrefabGuid">
-        ///     Avatar prefab GUID. Using prefabs allows to share poses among instances and also prefab variants to inherit poses
-        ///     from their parent prefabs in the chain
-        /// </param>
-        public UxrGripPoseInfo(string avatarPrefabGuid)
-        {
-            if (!string.IsNullOrEmpty(avatarPrefabGuid))
-            {
-                _avatarPrefabGuid = avatarPrefabGuid;
-            }
         }
 
         #endregion

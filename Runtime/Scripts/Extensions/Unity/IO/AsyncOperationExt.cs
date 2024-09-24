@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Threading;
 using System.Threading.Tasks;
 using UltimateXR.Extensions.System.Threading;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.IO
 {
@@ -26,6 +28,7 @@ namespace UltimateXR.Extensions.Unity.IO
         public static async Task<AsyncOperation> Wait(this AsyncOperation self, CancellationToken ct = default)
         {
             await TaskExt.WaitUntil(() => self.isDone, ct).ConfigureAwait(false);
+
             return self;
         }
 

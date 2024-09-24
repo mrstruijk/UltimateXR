@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Render
 {
@@ -26,10 +28,10 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <returns>LOD level index that should be enabled</returns>
         public static int GetVisibleLevel(this LODGroup lodGroup, Camera camera)
         {
-            var lods           = lodGroup.GetLODs();
+            var lods = lodGroup.GetLODs();
             var relativeHeight = GetRelativeHeight(lodGroup, camera);
 
-            int lodIndex = lodGroup.lodCount - 1;
+            var lodIndex = lodGroup.lodCount - 1;
 
             for (var i = 0; i < lods.Length; i++)
             {
@@ -38,12 +40,14 @@ namespace UltimateXR.Extensions.Unity.Render
                 if (relativeHeight >= lod.screenRelativeTransitionHeight)
                 {
                     lodIndex = i;
+
                     break;
                 }
             }
 
             return lodIndex;
         }
+
 
         /// <summary>
         ///     Manually enables all renderers belonging to a LOD level.
@@ -56,7 +60,7 @@ namespace UltimateXR.Extensions.Unity.Render
 
             for (var i = 0; i < lods.Length; i++)
             {
-                foreach (Renderer renderer in lods[i].renderers)
+                foreach (var renderer in lods[i].renderers)
                 {
                     renderer.enabled = i == level;
                 }
@@ -76,8 +80,10 @@ namespace UltimateXR.Extensions.Unity.Render
         private static float GetRelativeHeight(LODGroup lodGroup, Camera camera)
         {
             var distance = (lodGroup.transform.TransformPoint(lodGroup.localReferencePoint) - camera.transform.position).magnitude;
+
             return DistanceToRelativeHeight(camera, distance / QualitySettings.lodBias, GetWorldSpaceSize(lodGroup));
         }
+
 
         /// <summary>
         ///     Computes the relative height in the camera view.
@@ -93,10 +99,12 @@ namespace UltimateXR.Extensions.Unity.Render
                 return size * 0.5F / camera.orthographicSize;
             }
 
-            var halfAngle      = Mathf.Tan(Mathf.Deg2Rad * camera.fieldOfView * 0.5F);
+            var halfAngle = Mathf.Tan(Mathf.Deg2Rad * camera.fieldOfView * 0.5F);
             var relativeHeight = size * 0.5F / (distance * halfAngle);
+
             return relativeHeight;
         }
+
 
         /// <summary>
         ///     Computes the largest axis of the <see cref="LODGroup" /> in world-space.
@@ -108,6 +116,7 @@ namespace UltimateXR.Extensions.Unity.Render
             return GetWorldSpaceScale(lodGroup.transform) * lodGroup.size;
         }
 
+
         /// <summary>
         ///     Computes the largest scale axis.
         /// </summary>
@@ -115,10 +124,11 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <returns>Largest scale axis</returns>
         private static float GetWorldSpaceScale(Transform transform)
         {
-            var   scale       = transform.lossyScale;
-            float largestAxis = Mathf.Abs(scale.x);
+            var scale = transform.lossyScale;
+            var largestAxis = Mathf.Abs(scale.x);
             largestAxis = Mathf.Max(largestAxis, Mathf.Abs(scale.y));
             largestAxis = Mathf.Max(largestAxis, Mathf.Abs(scale.z));
+
             return largestAxis;
         }
 

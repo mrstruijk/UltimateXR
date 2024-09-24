@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.UI.UnityInputModule.Controls;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
 
 namespace UltimateXR.UI.UnityInputModule.Utils
 {
@@ -31,7 +33,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
         {
             if (Target)
             {
-                Vector3 pressedLocalOffset = _pressedLocalOffset;
+                var pressedLocalOffset = _pressedLocalOffset;
 
                 if (Target.parent != null)
                 {
@@ -41,6 +43,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
                 Target.localPosition = InitialTargetLocalPosition + pressedLocalOffset;
             }
         }
+
 
         /// <summary>
         ///     Key up event. The original object position is restored.

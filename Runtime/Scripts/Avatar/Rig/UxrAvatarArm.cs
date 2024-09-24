@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Rig
 {
@@ -15,11 +17,23 @@ namespace UltimateXR.Avatar.Rig
     [Serializable]
     public class UxrAvatarArm
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Default constructor.
+        /// </summary>
+        public UxrAvatarArm()
+        {
+            _hand = new UxrAvatarHand();
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private Transform     _clavicle;
-        [SerializeField] private Transform     _upperArm;
-        [SerializeField] private Transform     _forearm;
+        [SerializeField] private Transform _clavicle;
+        [SerializeField] private Transform _upperArm;
+        [SerializeField] private Transform _forearm;
         [SerializeField] private UxrAvatarHand _hand;
 
         #endregion
@@ -48,7 +62,7 @@ namespace UltimateXR.Avatar.Rig
                     yield return Forearm;
                 }
 
-                foreach (Transform transform in _hand.Transforms)
+                foreach (var transform in _hand.Transforms)
                 {
                     yield return transform;
                 }
@@ -89,18 +103,6 @@ namespace UltimateXR.Avatar.Rig
         {
             get => _hand;
             set => _hand = value;
-        }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Default constructor.
-        /// </summary>
-        public UxrAvatarArm()
-        {
-            _hand = new UxrAvatarHand();
         }
 
         #endregion

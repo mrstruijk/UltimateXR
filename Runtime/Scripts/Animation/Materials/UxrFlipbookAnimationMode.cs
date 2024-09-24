@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Animation.Materials
 {
     /// <summary>
@@ -35,6 +36,6 @@ namespace UltimateXR.Animation.Materials
         /// <summary>
         ///     Random frames are played indefinitely but there are never two same frames played one after the other.
         /// </summary>
-        RandomFrameNoRepetition,
+        RandomFrameNoRepetition
     }
 }

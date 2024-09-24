@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Animation.Interpolation;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Lights
 {
@@ -18,6 +20,30 @@ namespace UltimateXR.Animation.Lights
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private Light _light;
+
+        #endregion
+
+        #region Unity
+
+        /// <summary>
+        ///     Stores the initial light intensity
+        /// </summary>
+        protected override void Awake()
+        {
+            base.Awake();
+            _initialIntensity = _light != null ? _light.intensity : 0.0f;
+        }
+
+        #endregion
+
+        #region Event Trigger Methods
+
+        /// <inheritdoc cref="UxrAnimatedComponent{T}.OnFinished" />
+        protected override void OnFinished(UxrAnimatedLightIntensity anim)
+        {
+            base.OnFinished(anim);
+            _finishedCallback?.Invoke();
+        }
 
         #endregion
 
@@ -114,19 +140,20 @@ namespace UltimateXR.Animation.Lights
         /// <returns>Animation component</returns>
         public static UxrAnimatedLightIntensity Animate(Light light, float speed, bool useUnscaledTime = false)
         {
-            UxrAnimatedLightIntensity component = light.gameObject.GetOrAddComponent<UxrAnimatedLightIntensity>();
+            var component = light.gameObject.GetOrAddComponent<UxrAnimatedLightIntensity>();
 
             if (component)
             {
-                component._light          = light;
-                component.AnimationMode   = UxrAnimationMode.Speed;
-                component.Speed           = speed;
+                component._light = light;
+                component.AnimationMode = UxrAnimationMode.Speed;
+                component.Speed = speed;
                 component.UseUnscaledTime = useUnscaledTime;
                 component.StartTimer();
             }
 
             return component;
         }
+
 
         /// <summary>
         ///     Starts an animation using an interpolation curve
@@ -139,21 +166,22 @@ namespace UltimateXR.Animation.Lights
         /// <returns>Animation component</returns>
         public static UxrAnimatedLightIntensity AnimateInterpolation(Light light, float startValue, float endValue, UxrInterpolationSettings settings, Action finishedCallback = null)
         {
-            UxrAnimatedLightIntensity component = light.gameObject.GetOrAddComponent<UxrAnimatedLightIntensity>();
+            var component = light.gameObject.GetOrAddComponent<UxrAnimatedLightIntensity>();
 
             if (component)
             {
-                component._light                 = light;
-                component.AnimationMode          = UxrAnimationMode.Interpolate;
+                component._light = light;
+                component.AnimationMode = UxrAnimationMode.Interpolate;
                 component.InterpolatedValueStart = startValue;
-                component.InterpolatedValueEnd   = endValue;
-                component.InterpolationSettings  = settings;
-                component._finishedCallback      = finishedCallback;
+                component.InterpolatedValueEnd = endValue;
+                component.InterpolationSettings = settings;
+                component._finishedCallback = finishedCallback;
                 component.StartTimer();
             }
 
             return component;
         }
+
 
         /// <summary>
         ///     Starts an animation using noise.
@@ -169,60 +197,36 @@ namespace UltimateXR.Animation.Lights
         /// <param name="useUnscaledTime">If true it will use Time.unscaledTime, if false it will use Time.time</param>
         /// <param name="finishedCallback">Optional callback when the animation finished</param>
         /// <returns>Animation component</returns>
-        public static UxrAnimatedLightIntensity AnimateNoise(Light  light,
-                                                             float  noiseTimeStart,
-                                                             float  noiseTimeDuration,
-                                                             float  noiseValueStart,
-                                                             float  noiseValueEnd,
-                                                             float  noiseValueMin,
-                                                             float  noiseValueMax,
-                                                             float  noiseValueFrequency,
-                                                             bool   useUnscaledTime  = false,
+        public static UxrAnimatedLightIntensity AnimateNoise(Light light,
+                                                             float noiseTimeStart,
+                                                             float noiseTimeDuration,
+                                                             float noiseValueStart,
+                                                             float noiseValueEnd,
+                                                             float noiseValueMin,
+                                                             float noiseValueMax,
+                                                             float noiseValueFrequency,
+                                                             bool useUnscaledTime = false,
                                                              Action finishedCallback = null)
         {
-            UxrAnimatedLightIntensity component = light.gameObject.GetOrAddComponent<UxrAnimatedLightIntensity>();
+            var component = light.gameObject.GetOrAddComponent<UxrAnimatedLightIntensity>();
 
             if (component)
             {
-                component._light               = light;
-                component.AnimationMode        = UxrAnimationMode.Noise;
-                component.NoiseTimeStart       = noiseTimeStart;
+                component._light = light;
+                component.AnimationMode = UxrAnimationMode.Noise;
+                component.NoiseTimeStart = noiseTimeStart;
                 component.NoiseDurationSeconds = noiseTimeDuration;
-                component.NoiseValueStart      = noiseValueStart;
-                component.NoiseValueEnd        = noiseValueEnd;
-                component.NoiseValueMin        = noiseValueMin;
-                component.NoiseValueMax        = noiseValueMax;
-                component.NoiseFrequency       = noiseValueFrequency;
-                component.UseUnscaledTime      = useUnscaledTime;
-                component._finishedCallback    = finishedCallback;
+                component.NoiseValueStart = noiseValueStart;
+                component.NoiseValueEnd = noiseValueEnd;
+                component.NoiseValueMin = noiseValueMin;
+                component.NoiseValueMax = noiseValueMax;
+                component.NoiseFrequency = noiseValueFrequency;
+                component.UseUnscaledTime = useUnscaledTime;
+                component._finishedCallback = finishedCallback;
                 component.StartTimer();
             }
 
             return component;
-        }
-
-        #endregion
-
-        #region Unity
-
-        /// <summary>
-        ///     Stores the initial light intensity
-        /// </summary>
-        protected override void Awake()
-        {
-            base.Awake();
-            _initialIntensity = _light != null ? _light.intensity : 0.0f;
-        }
-
-        #endregion
-
-        #region Event Trigger Methods
-
-        /// <inheritdoc cref="UxrAnimatedComponent{T}.OnFinished" />
-        protected override void OnFinished(UxrAnimatedLightIntensity anim)
-        {
-            base.OnFinished(anim);
-            _finishedCallback?.Invoke();
         }
 
         #endregion
@@ -238,11 +242,13 @@ namespace UltimateXR.Animation.Lights
             }
         }
 
+
         /// <inheritdoc cref="UxrAnimatedComponent{T}.GetParameterValue" />
         protected override Vector4 GetParameterValue()
         {
             return ToVector4(_light != null ? _light.intensity : 0.0f);
         }
+
 
         /// <inheritdoc cref="UxrAnimatedComponent{T}.SetParameterValue" />
         protected override void SetParameterValue(Vector4 value)
@@ -257,7 +263,7 @@ namespace UltimateXR.Animation.Lights
 
         #region Private Types & Data
 
-        private float  _initialIntensity;
+        private float _initialIntensity;
         private Action _finishedCallback;
 
         #endregion

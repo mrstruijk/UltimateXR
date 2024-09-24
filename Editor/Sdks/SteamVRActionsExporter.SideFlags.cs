@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
+
 
 namespace UltimateXR.Editor.Sdks
 {
@@ -17,9 +19,9 @@ namespace UltimateXR.Editor.Sdks
         [Flags]
         private enum SideFlags
         {
-            None      = 0,
-            Left      = 1,
-            Right     = 1 << 1,
+            None = 0,
+            Left = 1,
+            Right = 1 << 1,
             BothSides = Left | Right
         }
 

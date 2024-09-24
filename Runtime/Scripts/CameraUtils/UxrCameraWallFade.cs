@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar;
 using UltimateXR.Core;
 using UltimateXR.Core.Components.Composite;
@@ -11,6 +12,7 @@ using UltimateXR.Extensions.Unity.Render;
 using UltimateXR.Locomotion;
 using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.CameraUtils
 {
@@ -23,16 +25,41 @@ namespace UltimateXR.CameraUtils
     [RequireComponent(typeof(Camera))]
     public class UxrCameraWallFade : UxrAvatarComponent<UxrCameraWallFade>
     {
+        #region Public Methods
+
+        /// <summary>
+        ///     Checks whether an avatar is currently peeking through geometry. The camera object requires to have an
+        ///     <see cref="UxrCameraFade" /> in order to work.
+        /// </summary>
+        /// <param name="avatar">The avatar to check</param>
+        /// <returns>
+        ///     Whether the avatar has an <see cref="UxrCameraFade" /> component and it currently detects the avatar is
+        ///     peeking through geometry
+        /// </returns>
+        public static bool IsAvatarPeekingThroughGeometry(UxrAvatar avatar)
+        {
+            if (avatar == null)
+            {
+                return false;
+            }
+
+            var wallFade = avatar.CameraComponent != null ? avatar.CameraComponent.GetComponent<UxrCameraWallFade>() : null;
+
+            return wallFade && wallFade._quadObject.activeSelf; //.IsInsideWall;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private UxrWallFadeMode _mode = UxrWallFadeMode.AllowTraverse;
-        [SerializeField] private LayerMask       _collisionLayers;
-        [SerializeField] private bool            _ignoreTriggerColliders = true;
-        [SerializeField] private bool            _ignoreDynamicObjects   = true;
-        [SerializeField] private bool            _ignoreGrabbedObjects   = true;
-        [SerializeField] private Color           _fadeColor;
-        [SerializeField] private float           _fadeFarDistance  = 0.24f;
-        [SerializeField] private float           _fadeNearDistance = 0.12f;
+        [SerializeField] private LayerMask _collisionLayers;
+        [SerializeField] private bool _ignoreTriggerColliders = true;
+        [SerializeField] private bool _ignoreDynamicObjects = true;
+        [SerializeField] private bool _ignoreGrabbedObjects = true;
+        [SerializeField] private Color _fadeColor;
+        [SerializeField] private float _fadeFarDistance = 0.24f;
+        [SerializeField] private float _fadeNearDistance = 0.12f;
 
         #endregion
 
@@ -51,33 +78,9 @@ namespace UltimateXR.CameraUtils
             get => _mode;
             set
             {
-                _mode                    = value;
+                _mode = value;
                 _lastValidPosInitialized = false;
             }
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        ///     Checks whether an avatar is currently peeking through geometry. The camera object requires to have an
-        ///     <see cref="UxrCameraFade" /> in order to work.
-        /// </summary>
-        /// <param name="avatar">The avatar to check</param>
-        /// <returns>
-        ///     Whether the avatar has an <see cref="UxrCameraFade" /> component and it currently detects the avatar is
-        ///     peeking through geometry
-        /// </returns>
-        public static bool IsAvatarPeekingThroughGeometry(UxrAvatar avatar)
-        {
-            if (avatar == null)
-            {
-                return false;
-            }
-            
-            UxrCameraWallFade wallFade = avatar.CameraComponent != null ? avatar.CameraComponent.GetComponent<UxrCameraWallFade>() : null;
-            return wallFade && wallFade._quadObject.activeSelf; //.IsInsideWall;
         }
 
         #endregion
@@ -94,6 +97,7 @@ namespace UltimateXR.CameraUtils
             CreateCameraQuad();
         }
 
+
         /// <summary>
         ///     Subscribes to events. It also initializes the component so that whenever it is enabled, it is considered as being
         ///     "outside".
@@ -104,9 +108,10 @@ namespace UltimateXR.CameraUtils
 
             _lastValidPosInitialized = false;
 
-            UxrManager.AvatarMoved    += UxrManager_AvatarMoved;
+            UxrManager.AvatarMoved += UxrManager_AvatarMoved;
             UxrManager.AvatarsUpdated += UxrManager_AvatarsUpdated;
         }
+
 
         /// <summary>
         ///     Unsubscribes from events.
@@ -115,7 +120,7 @@ namespace UltimateXR.CameraUtils
         {
             base.OnDisable();
 
-            UxrManager.AvatarMoved    -= UxrManager_AvatarMoved;
+            UxrManager.AvatarMoved -= UxrManager_AvatarMoved;
             UxrManager.AvatarsUpdated -= UxrManager_AvatarsUpdated;
         }
 
@@ -132,6 +137,7 @@ namespace UltimateXR.CameraUtils
         {
             _lastValidPosInitialized = false;
         }
+
 
         /// <summary>
         ///     Called after all avatars have been updated. This is where the component is updated.
@@ -154,9 +160,9 @@ namespace UltimateXR.CameraUtils
             {
                 // We assume the camera starts in a valid state
                 _lastValidPosInitialized = true;
-                _lastValidPos            = transform.position;
-                _fadeAlpha               = 0.0f;
-                IsInsideWall             = false;
+                _lastValidPos = transform.position;
+                _fadeAlpha = 0.0f;
+                IsInsideWall = false;
             }
 
             if (_lastValidPosInitialized)
@@ -164,24 +170,24 @@ namespace UltimateXR.CameraUtils
                 _fadeAlpha = 0.0f;
 
                 // First check if we are inside a wall or not using the last valid position
-                Vector3 cameraDeltaPos = transform.position - _lastValidPos;
-                
+                var cameraDeltaPos = transform.position - _lastValidPos;
+
                 // We cast rays in both directions, from the last valid position to the current position. We will look for transitions
                 // from inside to outside a wall or the other way around by looking at the number of intersections in both directions
-                RaycastHit[] raycastHitsFromLasValidPos = Physics.RaycastAll(_lastValidPos,
-                                                                             cameraDeltaPos.normalized,
-                                                                             cameraDeltaPos.magnitude,
-                                                                             _collisionLayers,
-                                                                             _ignoreTriggerColliders ? QueryTriggerInteraction.Ignore : QueryTriggerInteraction.Collide);
+                var raycastHitsFromLasValidPos = Physics.RaycastAll(_lastValidPos,
+                    cameraDeltaPos.normalized,
+                    cameraDeltaPos.magnitude,
+                    _collisionLayers,
+                    _ignoreTriggerColliders ? QueryTriggerInteraction.Ignore : QueryTriggerInteraction.Collide);
 
-                RaycastHit[] raycastHitsToLastValidPos = Physics.RaycastAll(transform.position,
-                                                                            -cameraDeltaPos.normalized,
-                                                                            cameraDeltaPos.magnitude,
-                                                                            _collisionLayers,
-                                                                            _ignoreTriggerColliders ? QueryTriggerInteraction.Ignore : QueryTriggerInteraction.Collide);
+                var raycastHitsToLastValidPos = Physics.RaycastAll(transform.position,
+                    -cameraDeltaPos.normalized,
+                    cameraDeltaPos.magnitude,
+                    _collisionLayers,
+                    _ignoreTriggerColliders ? QueryTriggerInteraction.Ignore : QueryTriggerInteraction.Collide);
 
-                int raycastCountFromLastValidPos = GetRaycastCount(raycastHitsFromLasValidPos);
-                int raycastCountToLastValidPos   = GetRaycastCount(raycastHitsToLastValidPos);
+                var raycastCountFromLastValidPos = GetRaycastCount(raycastHitsFromLasValidPos);
+                var raycastCountToLastValidPos = GetRaycastCount(raycastHitsToLastValidPos);
 
                 if (_mode == UxrWallFadeMode.AllowTraverse)
                 {
@@ -207,28 +213,29 @@ namespace UltimateXR.CameraUtils
                 // and fade the screen accordingly
                 if (IsInsideWall == false)
                 {
-                    for (int heightSubdivision = 0; heightSubdivision < CameraCylinderVerticalSteps; ++heightSubdivision)
+                    for (var heightSubdivision = 0; heightSubdivision < CameraCylinderVerticalSteps; ++heightSubdivision)
                     {
-                        float height = Mathf.Lerp(-_fadeFarDistance, _fadeFarDistance, heightSubdivision / (CameraCylinderVerticalSteps - 1.0f));
+                        var height = Mathf.Lerp(-_fadeFarDistance, _fadeFarDistance, heightSubdivision / (CameraCylinderVerticalSteps - 1.0f));
 
-                        for (int radiusIndex = 0; radiusIndex < CameraCylinderSides; ++radiusIndex)
+                        for (var radiusIndex = 0; radiusIndex < CameraCylinderSides; ++radiusIndex)
                         {
-                            float   offsetT   = 1.0f / CameraCylinderSides * 0.5f;
-                            float   radians   = Mathf.PI * 2.0f * (radiusIndex * (1.0f / CameraCylinderSides) + offsetT);
-                            Vector3 direction = new Vector3(Mathf.Cos(radians), height, Mathf.Sin(radians)).normalized;
+                            var offsetT = 1.0f / CameraCylinderSides * 0.5f;
+                            var radians = Mathf.PI * 2.0f * (radiusIndex * (1.0f / CameraCylinderSides) + offsetT);
+                            var direction = new Vector3(Mathf.Cos(radians), height, Mathf.Sin(radians)).normalized;
 
-                            RaycastHit[] raycastHits = Physics.RaycastAll(transform.position,
-                                                                          transform.TransformDirection(direction),
-                                                                          _fadeFarDistance,
-                                                                          _collisionLayers,
-                                                                          _ignoreTriggerColliders ? QueryTriggerInteraction.Ignore : QueryTriggerInteraction.Collide);
+                            var raycastHits = Physics.RaycastAll(transform.position,
+                                transform.TransformDirection(direction),
+                                _fadeFarDistance,
+                                _collisionLayers,
+                                _ignoreTriggerColliders ? QueryTriggerInteraction.Ignore : QueryTriggerInteraction.Collide);
 
-                            if (GetClosestRaycast(raycastHits, out RaycastHit hit))
+                            if (GetClosestRaycast(raycastHits, out var hit))
                             {
                                 // We are close enough to a collider to start fading out
-                                float interval = _fadeFarDistance - _fadeNearDistance;
-                                float alpha = hit.distance < _fadeNearDistance ? 1.0f :
-                                              interval > 0.0f                  ? 1.0f - (hit.distance - _fadeNearDistance) / interval : 1.0f;
+                                var interval = _fadeFarDistance - _fadeNearDistance;
+
+                                var alpha = hit.distance < _fadeNearDistance ? 1.0f :
+                                    interval > 0.0f ? 1.0f - (hit.distance - _fadeNearDistance) / interval : 1.0f;
 
                                 if (alpha > _fadeAlpha)
                                 {
@@ -244,9 +251,9 @@ namespace UltimateXR.CameraUtils
                 if (IsInsideWall == false)
                 {
                     if (Physics.CheckSphere(transform.position,
-                                            0.01f,
-                                            _collisionLayers,
-                                            _ignoreTriggerColliders ? QueryTriggerInteraction.Ignore : QueryTriggerInteraction.Collide) == false)
+                            0.01f,
+                            _collisionLayers,
+                            _ignoreTriggerColliders ? QueryTriggerInteraction.Ignore : QueryTriggerInteraction.Collide) == false)
                     {
                         _lastValidPos = transform.position;
                     }
@@ -262,29 +269,31 @@ namespace UltimateXR.CameraUtils
             }
         }
 
+
         /// <summary>
         ///     Creates the quad that is used to render the fullscreen fade.
         /// </summary>
         private void CreateCameraQuad()
         {
-            Camera camera = GetComponent<Camera>();
+            var camera = GetComponent<Camera>();
 
             _quadObject = new GameObject("Fade");
             _quadObject.transform.SetParent(transform);
-            _quadObject.transform.localPosition    = Vector3.forward * (camera.nearClipPlane + 0.01f);
+            _quadObject.transform.localPosition = Vector3.forward * (camera.nearClipPlane + 0.01f);
             _quadObject.transform.localEulerAngles = new Vector3(0.0f, 180.0f, 0.0f);
 
-            Mesh mesh = MeshExt.CreateQuad(2.0f);
+            var mesh = MeshExt.CreateQuad(2.0f);
 
-            MeshFilter   meshFilter   = _quadObject.AddComponent<MeshFilter>();
-            MeshRenderer meshRenderer = _quadObject.AddComponent<MeshRenderer>();
+            var meshFilter = _quadObject.AddComponent<MeshFilter>();
+            var meshRenderer = _quadObject.AddComponent<MeshRenderer>();
 
             meshFilter.mesh = mesh;
-            _fadeMaterial   = new Material(ShaderExt.UnlitOverlayFade);
+            _fadeMaterial = new Material(ShaderExt.UnlitOverlayFade);
 
             meshRenderer.sharedMaterial = _fadeMaterial;
             _quadObject.SetActive(false);
         }
+
 
         /// <summary>
         ///     Checks whether the given raycast collider hit is valid or should be ignored.
@@ -304,7 +313,7 @@ namespace UltimateXR.CameraUtils
 
             if (_ignoreGrabbedObjects)
             {
-                UxrGrabbableObject grabbableObject = colliderHit.GetComponentInParent<UxrGrabbableObject>();
+                var grabbableObject = colliderHit.GetComponentInParent<UxrGrabbableObject>();
 
                 if (grabbableObject && grabbableObject.IsBeingGrabbed)
                 {
@@ -315,6 +324,7 @@ namespace UltimateXR.CameraUtils
             return !colliderHit.gameObject.GetComponentInParent<UxrIgnoreWallFade>() && !colliderHit.gameObject.GetComponentInParent<UxrAvatar>();
         }
 
+
         /// <summary>
         ///     Gets the number of raycast hits that are valid from the given set.
         /// </summary>
@@ -322,9 +332,9 @@ namespace UltimateXR.CameraUtils
         /// <returns>The valid number of hits</returns>
         private int GetRaycastCount(RaycastHit[] raycastHits)
         {
-            int count = 0;
+            var count = 0;
 
-            foreach (RaycastHit hit in raycastHits)
+            foreach (var hit in raycastHits)
             {
                 if (IsValidRaycastHit(hit.collider))
                 {
@@ -335,6 +345,7 @@ namespace UltimateXR.CameraUtils
             return count;
         }
 
+
         /// <summary>
         ///     Gets the closest valid raycast hit from the set.
         /// </summary>
@@ -343,10 +354,10 @@ namespace UltimateXR.CameraUtils
         /// <returns>Whether a valid raycast was found</returns>
         private bool GetClosestRaycast(RaycastHit[] raycastHits, out RaycastHit raycastHit)
         {
-            int   closestIndex    = -1;
-            float closestDistance = float.MaxValue;
+            var closestIndex = -1;
+            var closestDistance = float.MaxValue;
 
-            for (int i = 0; i < raycastHits.Length; ++i)
+            for (var i = 0; i < raycastHits.Length; ++i)
             {
                 if (IsValidRaycastHit(raycastHits[i].collider))
                 {
@@ -354,7 +365,7 @@ namespace UltimateXR.CameraUtils
 
                     if (raycastHits[i].distance < closestDistance)
                     {
-                        closestIndex    = i;
+                        closestIndex = i;
                         closestDistance = raycastHits[i].distance;
                     }
                 }
@@ -363,10 +374,12 @@ namespace UltimateXR.CameraUtils
             if (closestIndex != -1)
             {
                 raycastHit = raycastHits[closestIndex];
+
                 return true;
             }
 
             raycastHit = new RaycastHit();
+
             return false;
         }
 
@@ -379,14 +392,14 @@ namespace UltimateXR.CameraUtils
         /// </summary>
         private const float CameraInitializationMinY = 0.2f;
 
-        private const float CameraCylinderSides         = 8;
+        private const float CameraCylinderSides = 8;
         private const float CameraCylinderVerticalSteps = 2;
 
-        private Vector3    _lastValidPos;
-        private bool       _lastValidPosInitialized;
+        private Vector3 _lastValidPos;
+        private bool _lastValidPosInitialized;
         private GameObject _quadObject;
-        private Material   _fadeMaterial;
-        private float      _fadeAlpha;
+        private Material _fadeMaterial;
+        private float _fadeAlpha;
 
         #endregion
     }

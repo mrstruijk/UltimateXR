@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Avatar;
 using UltimateXR.Avatar.Rig;
 using UltimateXR.Core;
 using UltimateXR.Core.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation.HandPoses
 {
@@ -64,12 +66,13 @@ namespace UltimateXR.Manipulation.HandPoses
         /// </summary>
         public UxrHandDescriptor()
         {
-            _index  = new UxrFingerDescriptor();
+            _index = new UxrFingerDescriptor();
             _middle = new UxrFingerDescriptor();
-            _ring   = new UxrFingerDescriptor();
+            _ring = new UxrFingerDescriptor();
             _little = new UxrFingerDescriptor();
-            _thumb  = new UxrFingerDescriptor();
+            _thumb = new UxrFingerDescriptor();
         }
+
 
         /// <summary>
         ///     Constructor.
@@ -78,14 +81,15 @@ namespace UltimateXR.Manipulation.HandPoses
         /// <param name="handSide">Which hand to process</param>
         public UxrHandDescriptor(UxrAvatar avatar, UxrHandSide handSide)
         {
-            _index  = new UxrFingerDescriptor();
+            _index = new UxrFingerDescriptor();
             _middle = new UxrFingerDescriptor();
-            _ring   = new UxrFingerDescriptor();
+            _ring = new UxrFingerDescriptor();
             _little = new UxrFingerDescriptor();
-            _thumb  = new UxrFingerDescriptor();
+            _thumb = new UxrFingerDescriptor();
 
             Compute(avatar, handSide);
         }
+
 
         /// <summary>
         ///     Constructor.
@@ -95,11 +99,11 @@ namespace UltimateXR.Manipulation.HandPoses
         /// <param name="fingerLocalAxes">Finger axes system</param>
         public UxrHandDescriptor(UxrAvatarArm arm, UxrUniversalLocalAxes handLocalAxes, UxrUniversalLocalAxes fingerLocalAxes)
         {
-            _index  = new UxrFingerDescriptor();
+            _index = new UxrFingerDescriptor();
             _middle = new UxrFingerDescriptor();
-            _ring   = new UxrFingerDescriptor();
+            _ring = new UxrFingerDescriptor();
             _little = new UxrFingerDescriptor();
-            _thumb  = new UxrFingerDescriptor();
+            _thumb = new UxrFingerDescriptor();
 
             Compute(arm, handLocalAxes, fingerLocalAxes);
         }
@@ -117,14 +121,15 @@ namespace UltimateXR.Manipulation.HandPoses
         {
             switch (fingerType)
             {
-                case UxrFingerType.Thumb:  return Thumb;
-                case UxrFingerType.Index:  return Index;
+                case UxrFingerType.Thumb: return Thumb;
+                case UxrFingerType.Index: return Index;
                 case UxrFingerType.Middle: return Middle;
-                case UxrFingerType.Ring:   return Ring;
+                case UxrFingerType.Ring: return Ring;
                 case UxrFingerType.Little: return Little;
-                default:                   throw new ArgumentOutOfRangeException(nameof(fingerType), fingerType, null);
+                default: throw new ArgumentOutOfRangeException(nameof(fingerType), fingerType, null);
             }
         }
+
 
         /// <summary>
         ///     Computes the hand data.
@@ -136,6 +141,7 @@ namespace UltimateXR.Manipulation.HandPoses
         {
             Compute(handSide == UxrHandSide.Left ? avatar.AvatarRig.LeftArm : avatar.AvatarRig.RightArm, avatar.AvatarRigInfo.GetArmInfo(handSide).HandUniversalLocalAxes, avatar.AvatarRigInfo.GetArmInfo(handSide).FingerUniversalLocalAxes, computeRelativeMatrixOnly);
         }
+
 
         /// <summary>
         ///     Computes the hand data.
@@ -153,18 +159,20 @@ namespace UltimateXR.Manipulation.HandPoses
             _thumb.Compute(arm.Hand.Wrist, arm.Hand.Thumb, handLocalAxes, fingerLocalAxes, computeRelativeMatrixOnly);
         }
 
+
         /// <summary>
         ///     Copies the data from another descriptor.
         /// </summary>
         /// <param name="src">Source data</param>
         public void CopyFrom(UxrHandDescriptor src)
         {
-            _index  = src._index;
+            _index = src._index;
             _middle = src._middle;
-            _ring   = src._ring;
+            _ring = src._ring;
             _little = src._little;
-            _thumb  = src._thumb;
+            _thumb = src._thumb;
         }
+
 
         /// <summary>
         ///     Interpolates the data towards another descriptor.
@@ -180,7 +188,9 @@ namespace UltimateXR.Manipulation.HandPoses
             _thumb.InterpolateTo(to._thumb, t);
         }
 
-#if UNITY_EDITOR
+
+        #if UNITY_EDITOR
+
 
         /// <summary>
         ///     Outputs transform data in the editor window.
@@ -194,7 +204,9 @@ namespace UltimateXR.Manipulation.HandPoses
             _thumb.DrawEditorDebugLabels("thumb: ");
         }
 
-#endif
+
+        #endif
+
 
         /// <summary>
         ///     Returns a hand descriptor with mirrored transforms, so that the data can be used for the opposite hand.
@@ -202,7 +214,7 @@ namespace UltimateXR.Manipulation.HandPoses
         /// <returns>Mirrored hand descriptor</returns>
         public UxrHandDescriptor Mirrored()
         {
-            UxrHandDescriptor mirroredHandDescriptor = new UxrHandDescriptor();
+            var mirroredHandDescriptor = new UxrHandDescriptor();
             mirroredHandDescriptor.CopyFrom(this);
 
             mirroredHandDescriptor._index.Mirror();
@@ -213,6 +225,7 @@ namespace UltimateXR.Manipulation.HandPoses
 
             return mirroredHandDescriptor;
         }
+
 
         /// <summary>
         ///     Checks whether a hand descriptor contains the same transform data.

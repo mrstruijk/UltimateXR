@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+
 namespace UltimateXR.Extensions.System
 {
     /// <summary>
@@ -19,6 +21,12 @@ namespace UltimateXR.Extensions.System
     /// </summary>
     public static class StringExt
     {
+        #region Private Types & Data
+
+        private const char PathFallbackChar = '_';
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>
@@ -43,6 +51,7 @@ namespace UltimateXR.Extensions.System
             return (self.Length - self.ToLower().Replace(key.ToLower(), string.Empty).Length) / key.Length;
         }
 
+
         /// <summary>
         ///     Gets the SHA-256 hash value of a string.
         /// </summary>
@@ -51,8 +60,10 @@ namespace UltimateXR.Extensions.System
         public static byte[] GetSha256(this string self)
         {
             using HashAlgorithm algorithm = SHA256.Create();
+
             return algorithm.ComputeHash(Encoding.ASCII.GetBytes(self));
         }
+
 
         /// <summary>
         ///     Gets the MD5 hash value of a string.
@@ -62,8 +73,10 @@ namespace UltimateXR.Extensions.System
         public static byte[] GetMd5(this string self)
         {
             using HashAlgorithm algorithm = MD5.Create();
+
             return algorithm.ComputeHash(Encoding.ASCII.GetBytes(self));
         }
+
 
         /// <summary>
         ///     Gets the double SHA-256 hash value of a string.
@@ -72,9 +85,11 @@ namespace UltimateXR.Extensions.System
         /// <returns>Double SHA-256 hash value of the string</returns>
         public static string GetSha256x2(this string self)
         {
-            byte[] sha256 = self.GetSha256();
+            var sha256 = self.GetSha256();
+
             return sha256.Aggregate(new StringBuilder(sha256.Length * 2), (sb, b) => sb.AppendFormat("{0:x2}", b)).ToString();
         }
+
 
         /// <summary>
         ///     Gets the double MD5 hash value of a string.
@@ -83,9 +98,11 @@ namespace UltimateXR.Extensions.System
         /// <returns>Double MD5 hash value of the string</returns>
         public static string GetMd5x2(this string self)
         {
-            byte[] md5 = self.GetMd5();
+            var md5 = self.GetMd5();
+
             return md5.Aggregate(new StringBuilder(md5.Length * 2), (sb, b) => sb.AppendFormat("{0:x2}", b)).ToString();
         }
+
 
         /// <summary>
         ///     Replaces the invalid characters in a path with a given character.
@@ -110,6 +127,7 @@ namespace UltimateXR.Extensions.System
             return string.Join(fallbackChar.ToString(), self.Split(invalidChars));
         }
 
+
         /// <summary>
         ///     Replaces the invalid characters in a directory path with a given character.
         /// </summary>
@@ -121,6 +139,7 @@ namespace UltimateXR.Extensions.System
         {
             return self.ReplaceInvalidPathChars(fallbackChar, Path.GetInvalidPathChars());
         }
+
 
         /// <summary>
         ///     Replaces the invalid characters in a file path with a given character.
@@ -134,6 +153,7 @@ namespace UltimateXR.Extensions.System
             return self.ReplaceInvalidPathChars(fallbackChar, Path.GetInvalidFileNameChars());
         }
 
+
         /// <summary>
         ///     Checks if a path is a child of another path.
         ///     Adapted from https://stackoverflow.com/questions/8091829/how-to-check-if-one-path-is-a-child-of-another-path
@@ -145,12 +165,13 @@ namespace UltimateXR.Extensions.System
         public static bool IsSubDirectoryOf(this string candidate, string other, bool canBeSame = true)
         {
             var isChild = false;
+
             try
             {
                 // Some initial corrections to avoid false negatives:
 
                 var candidateInfo = new DirectoryInfo(candidate.Replace(@"\", @"/").TrimEnd('/'));
-                var otherInfo     = new DirectoryInfo(other.Replace(@"\", @"/").TrimEnd('/'));
+                var otherInfo = new DirectoryInfo(other.Replace(@"\", @"/").TrimEnd('/'));
 
                 // Check if same directory
 
@@ -158,7 +179,7 @@ namespace UltimateXR.Extensions.System
                 {
                     return true;
                 }
-                
+
                 // Start traversing upwards
 
                 while (candidateInfo.Parent != null)
@@ -166,6 +187,7 @@ namespace UltimateXR.Extensions.System
                     if (string.Equals(candidateInfo.Parent.FullName, otherInfo.FullName, StringComparison.OrdinalIgnoreCase))
                     {
                         isChild = true;
+
                         break;
                     }
 
@@ -181,6 +203,7 @@ namespace UltimateXR.Extensions.System
             return isChild;
         }
 
+
         /// <summary>
         ///     Creates a random string.
         /// </summary>
@@ -190,18 +213,20 @@ namespace UltimateXR.Extensions.System
         /// <returns>Random string with given length or <see cref="string.Empty" /> if no letters and number were specified</returns>
         public static string RandomString(int length, bool includeLetters, bool includeNumbers)
         {
-            const string lettersOnly       = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            const string numbersOnly       = "0123456789";
+            const string lettersOnly = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string numbersOnly = "0123456789";
             const string lettersAndNumbers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
             if (includeLetters && !includeNumbers)
             {
                 return new string(Enumerable.Repeat(lettersOnly, length).Select(s => s[Random.Range(0, s.Length)]).ToArray());
             }
+
             if (!includeLetters && includeNumbers)
             {
                 return new string(Enumerable.Repeat(numbersOnly, length).Select(s => s[Random.Range(0, s.Length)]).ToArray());
             }
+
             if (includeLetters && includeNumbers)
             {
                 return new string(Enumerable.Repeat(lettersAndNumbers, length).Select(s => s[Random.Range(0, s.Length)]).ToArray());
@@ -209,6 +234,7 @@ namespace UltimateXR.Extensions.System
 
             return string.Empty;
         }
+
 
         /// <summary>
         ///     Splits a string using CamelCase.
@@ -219,6 +245,7 @@ namespace UltimateXR.Extensions.System
         {
             return Regex.Replace(self, "([A-Z])", " $1", RegexOptions.Compiled).Trim();
         }
+
 
         /// <summary>
         ///     Throws an exception if the string is null or only contains whitespaces.
@@ -240,6 +267,7 @@ namespace UltimateXR.Extensions.System
             }
         }
 
+
         /// <summary>
         ///     Throws an exception if the string is null or empty.
         /// </summary>
@@ -259,12 +287,6 @@ namespace UltimateXR.Extensions.System
                 throw new ArgumentException("Empty string is not allowed", paramName);
             }
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private const char PathFallbackChar = '_';
 
         #endregion
     }

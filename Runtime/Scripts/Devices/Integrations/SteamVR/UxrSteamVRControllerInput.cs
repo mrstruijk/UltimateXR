@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Avatar.Controllers;
 using UltimateXR.Core;
@@ -17,7 +18,9 @@ using UltimateXR.Avatar.Rig;
 using UltimateXR.Manipulation;
 #endif
 
+
 #pragma warning disable 414 // Disable warnings due to unused values
+
 
 namespace UltimateXR.Devices.Integrations.SteamVR
 {
@@ -33,12 +36,12 @@ namespace UltimateXR.Devices.Integrations.SteamVR
 
         // These will be shown only in custom inspectors for controllers that use them (f.e. index controllers).
         [SerializeField] [HideInInspector] private string _openHandPoseName;
-        [SerializeField] [HideInInspector] private float  _indexCurlAmount   = 60.0f;
-        [SerializeField] [HideInInspector] private float  _middleCurlAmount  = 60.0f;
-        [SerializeField] [HideInInspector] private float  _ringCurlAmount    = 60.0f;
-        [SerializeField] [HideInInspector] private float  _littleCurlAmount  = 60.0f;
-        [SerializeField] [HideInInspector] private float  _thumbCurlAmount   = 60.0f;
-        [SerializeField] [HideInInspector] private float  _thumbSpreadAmount = 30.0f;
+        [SerializeField] [HideInInspector] private float _indexCurlAmount = 60.0f;
+        [SerializeField] [HideInInspector] private float _middleCurlAmount = 60.0f;
+        [SerializeField] [HideInInspector] private float _ringCurlAmount = 60.0f;
+        [SerializeField] [HideInInspector] private float _littleCurlAmount = 60.0f;
+        [SerializeField] [HideInInspector] private float _thumbCurlAmount = 60.0f;
+        [SerializeField] [HideInInspector] private float _thumbSpreadAmount = 30.0f;
 
         #endregion
 
@@ -66,10 +69,11 @@ namespace UltimateXR.Devices.Integrations.SteamVR
         /// </summary>
         public override string SDKDependency => UxrManager.SdkSteamVR;
 
+
         /// <inheritdoc />
         public override bool IsControllerEnabled(UxrHandSide handSide)
         {
-#if ULTIMATEXR_USE_STEAMVR_SDK
+            #if ULTIMATEXR_USE_STEAMVR_SDK
             if (s_controllerList.TryGetValue(GetType().Name, out List<int> controllerIndices))
             {
                 return controllerIndices.Contains(handSide == UxrHandSide.Left
@@ -78,10 +82,11 @@ namespace UltimateXR.Devices.Integrations.SteamVR
             }
 
             return false;
-#else
+            #else
             return false;
-#endif
+            #endif
         }
+
 
         /// <inheritdoc />
         public override float GetInput1D(UxrHandSide handSide, UxrInput1D input1D, bool getIgnoredInput = false)
@@ -91,7 +96,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                 return 0.0f;
             }
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
+            #if ULTIMATEXR_USE_STEAMVR_SDK
             SteamVR_Input_Sources source = handSide == UxrHandSide.Left ? SteamVR_Input_Sources.LeftHand : SteamVR_Input_Sources.RightHand;
 
             if (_actionsInput1D.TryGetValue(input1D, out SteamVR_Action_Single action))
@@ -99,9 +104,10 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                 return action[source].axis;
             }
 
-#endif
+            #endif
             return 0.0f;
         }
+
 
         /// <inheritdoc />
         public override Vector2 GetInput2D(UxrHandSide handSide, UxrInput2D input2D, bool getIgnoredInput = false)
@@ -111,7 +117,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                 return Vector2.zero;
             }
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
+            #if ULTIMATEXR_USE_STEAMVR_SDK
             SteamVR_Input_Sources source = handSide == UxrHandSide.Left ? SteamVR_Input_Sources.LeftHand : SteamVR_Input_Sources.RightHand;
 
             if (_actionsInput2D.TryGetValue(input2D, out SteamVR_Action_Vector2 action))
@@ -119,9 +125,10 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                 return FilterTwoAxesDeadZone(action[source].axis, JoystickDeadZone);
             }
 
-#endif
+            #endif
             return Vector2.zero;
         }
+
 
         /// <inheritdoc />
         public override void SendHapticFeedback(UxrHandSide handSide, UxrHapticClip hapticClip)
@@ -132,18 +139,20 @@ namespace UltimateXR.Devices.Integrations.SteamVR
             }
         }
 
+
         /// <inheritdoc />
-        public override void SendHapticFeedback(UxrHandSide   handSide,
-                                                float         frequency,
-                                                float         amplitude,
-                                                float         durationSeconds,
+        public override void SendHapticFeedback(UxrHandSide handSide,
+                                                float frequency,
+                                                float amplitude,
+                                                float durationSeconds,
                                                 UxrHapticMode hapticMode = UxrHapticMode.Mix)
         {
-#if ULTIMATEXR_USE_STEAMVR_SDK
+            #if ULTIMATEXR_USE_STEAMVR_SDK
             SteamVR_Input_Sources source = handSide == UxrHandSide.Left ? SteamVR_Input_Sources.LeftHand : SteamVR_Input_Sources.RightHand;
             _handHapticsAction.Execute(0.0f, durationSeconds, frequency, amplitude, source);
-#endif
+            #endif
         }
+
 
         /// <inheritdoc />
         public override void StopHapticFeedback(UxrHandSide handSide)
@@ -163,7 +172,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
         {
             base.Awake();
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
+            #if ULTIMATEXR_USE_STEAMVR_SDK
             // Build actions
             BuildActionObjects();
 
@@ -180,7 +189,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
             {
                 // Disabled by default at the beginning, unless we already these controllers registered.
                 // If we already have the controllers registered it is due to an Awake() when loading a new scene.
-                enabled             = s_controllerList.TryGetValue(InputClassName, out List<int> controllerIndices) && controllerIndices.Count > 0;
+                enabled = s_controllerList.TryGetValue(InputClassName, out List<int> controllerIndices) && controllerIndices.Count > 0;
                 RaiseConnectOnStart = enabled;
 
                 if (!s_initializedSteamVR)
@@ -190,10 +199,11 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                     s_initializedSteamVR = true;
                 }
             }
-#else
+            #else
             enabled = false;
-#endif
+            #endif
         }
+
 
         /// <summary>
         ///     Called when the component is disabled. In the case the component was using skeletal
@@ -210,7 +220,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                     return;
                 }
 
-                UxrStandardAvatarController standardAvatarController = Avatar.AvatarController as UxrStandardAvatarController;
+                var standardAvatarController = Avatar.AvatarController as UxrStandardAvatarController;
 
                 if (standardAvatarController == null)
                 {
@@ -219,13 +229,14 @@ namespace UltimateXR.Devices.Integrations.SteamVR
 
                 if (!string.IsNullOrEmpty(_openHandPoseName))
                 {
-                    standardAvatarController.LeftHandDefaultPoseNameOverride  = null;
+                    standardAvatarController.LeftHandDefaultPoseNameOverride = null;
                     standardAvatarController.RightHandDefaultPoseNameOverride = null;
-                    standardAvatarController.LeftHandGrabPoseNameOverride     = null;
-                    standardAvatarController.RightHandGrabPoseNameOverride    = null;
+                    standardAvatarController.LeftHandGrabPoseNameOverride = null;
+                    standardAvatarController.RightHandGrabPoseNameOverride = null;
                 }
             }
         }
+
 
         /// <summary>
         ///     Initializes SteamVR if necessary and activates the UltimateXR action set.
@@ -235,15 +246,16 @@ namespace UltimateXR.Devices.Integrations.SteamVR
         {
             base.Start();
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
+            #if ULTIMATEXR_USE_STEAMVR_SDK
             if (UsesHandSkeletons)
             {
                 _handSkeletonActionLeft.SetSkeletalTransformSpace(EVRSkeletalTransformSpace.Model);
                 _handSkeletonActionRight.SetSkeletalTransformSpace(EVRSkeletalTransformSpace.Model);
             }
 
-#endif
+            #endif
         }
+
 
         /// <summary>
         ///     If the component has skeleton capabilities, the hand bones will be updated here.
@@ -254,23 +266,23 @@ namespace UltimateXR.Devices.Integrations.SteamVR
             {
             }
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
+            #if ULTIMATEXR_USE_STEAMVR_SDK
             // Update using skeleton if necessary
             if (UsesHandSkeletons)
             {
                 UxrStandardAvatarController avatarControllerStandard = Avatar.AvatarController as UxrStandardAvatarController;
-                UxrAvatarRig                avatarRig                = Avatar.AvatarRig;
+                UxrAvatarRig                avatarRig = Avatar.AvatarRig;
 
                 if (avatarControllerStandard == null)
                 {
                     return;
                 }
 
-                float curlIndex  = _handSkeletonActionLeft.fingerCurls[SteamVR_Skeleton_FingerIndexes.index] * _indexCurlAmount;
+                float curlIndex = _handSkeletonActionLeft.fingerCurls[SteamVR_Skeleton_FingerIndexes.index] * _indexCurlAmount;
                 float curlMiddle = _handSkeletonActionLeft.fingerCurls[SteamVR_Skeleton_FingerIndexes.middle] * _middleCurlAmount;
-                float curlRing   = _handSkeletonActionLeft.fingerCurls[SteamVR_Skeleton_FingerIndexes.ring] * _ringCurlAmount;
+                float curlRing = _handSkeletonActionLeft.fingerCurls[SteamVR_Skeleton_FingerIndexes.ring] * _ringCurlAmount;
                 float curlLittle = _handSkeletonActionLeft.fingerCurls[SteamVR_Skeleton_FingerIndexes.pinky] * _littleCurlAmount;
-                float curlThumb  = _handSkeletonActionLeft.fingerCurls[SteamVR_Skeleton_FingerIndexes.thumb] * _thumbCurlAmount;
+                float curlThumb = _handSkeletonActionLeft.fingerCurls[SteamVR_Skeleton_FingerIndexes.thumb] * _thumbCurlAmount;
                 float splayThumb = _handSkeletonActionLeft.fingerSplays[SteamVR_Skeleton_FingerIndexes.thumb] * _thumbSpreadAmount;
 
                 if (!UxrGrabManager.Instance.IsHandGrabbing(Avatar, UxrHandSide.Left) && !avatarControllerStandard.IsLeftHandInsideFingerPointingVolume)
@@ -278,7 +290,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                     if (!string.IsNullOrEmpty(_openHandPoseName))
                     {
                         avatarControllerStandard.LeftHandDefaultPoseNameOverride = _openHandPoseName;
-                        avatarControllerStandard.LeftHandGrabPoseNameOverride    = _openHandPoseName;
+                        avatarControllerStandard.LeftHandGrabPoseNameOverride = _openHandPoseName;
                         Avatar.SetCurrentHandPoseImmediately(UxrHandSide.Left, _openHandPoseName);
 
                         UxrAvatarRig.CurlFinger(Avatar, UxrHandSide.Left, Avatar.LeftHand.Index,  curlIndex,        curlIndex,        curlIndex);
@@ -296,11 +308,11 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                     }
                 }
 
-                curlIndex  = _handSkeletonActionRight.fingerCurls[SteamVR_Skeleton_FingerIndexes.index] * _indexCurlAmount;
+                curlIndex = _handSkeletonActionRight.fingerCurls[SteamVR_Skeleton_FingerIndexes.index] * _indexCurlAmount;
                 curlMiddle = _handSkeletonActionRight.fingerCurls[SteamVR_Skeleton_FingerIndexes.middle] * _middleCurlAmount;
-                curlRing   = _handSkeletonActionRight.fingerCurls[SteamVR_Skeleton_FingerIndexes.ring] * _ringCurlAmount;
+                curlRing = _handSkeletonActionRight.fingerCurls[SteamVR_Skeleton_FingerIndexes.ring] * _ringCurlAmount;
                 curlLittle = _handSkeletonActionRight.fingerCurls[SteamVR_Skeleton_FingerIndexes.pinky] * _littleCurlAmount;
-                curlThumb  = _handSkeletonActionRight.fingerCurls[SteamVR_Skeleton_FingerIndexes.thumb] * _thumbCurlAmount;
+                curlThumb = _handSkeletonActionRight.fingerCurls[SteamVR_Skeleton_FingerIndexes.thumb] * _thumbCurlAmount;
                 splayThumb = _handSkeletonActionRight.fingerSplays[SteamVR_Skeleton_FingerIndexes.thumb] * _thumbSpreadAmount;
 
                 if (!UxrGrabManager.Instance.IsHandGrabbing(Avatar, UxrHandSide.Right) && !avatarControllerStandard.IsRightHandInsideFingerPointingVolume)
@@ -308,7 +320,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                     if (!string.IsNullOrEmpty(_openHandPoseName))
                     {
                         avatarControllerStandard.RightHandDefaultPoseNameOverride = _openHandPoseName;
-                        avatarControllerStandard.RightHandGrabPoseNameOverride    = _openHandPoseName;
+                        avatarControllerStandard.RightHandGrabPoseNameOverride = _openHandPoseName;
                         Avatar.SetCurrentHandPoseImmediately(UxrHandSide.Right, _openHandPoseName);
 
                         UxrAvatarRig.CurlFinger(Avatar, UxrHandSide.Right, Avatar.RightHand.Index,  curlIndex,        curlIndex,        curlIndex);
@@ -327,7 +339,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                 }
             }
 
-#endif
+            #endif
         }
 
         #endregion
@@ -343,12 +355,12 @@ namespace UltimateXR.Devices.Integrations.SteamVR
             base.UpdateInput();
 
             // Get joystick values
-            Vector2 leftJoystickValue   = GetInput2D(UxrHandSide.Left,  UxrInput2D.Joystick);
-            Vector2 rightJoystickValue  = GetInput2D(UxrHandSide.Right, UxrInput2D.Joystick);
-            Vector2 leftJoystick2Value  = GetInput2D(UxrHandSide.Left,  UxrInput2D.Joystick2);
-            Vector2 rightJoystick2Value = GetInput2D(UxrHandSide.Right, UxrInput2D.Joystick2);
+            var leftJoystickValue = GetInput2D(UxrHandSide.Left, UxrInput2D.Joystick);
+            var rightJoystickValue = GetInput2D(UxrHandSide.Right, UxrInput2D.Joystick);
+            var leftJoystick2Value = GetInput2D(UxrHandSide.Left, UxrInput2D.Joystick2);
+            var rightJoystick2Value = GetInput2D(UxrHandSide.Right, UxrInput2D.Joystick2);
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
+            #if ULTIMATEXR_USE_STEAMVR_SDK
             var system = OpenVR.System;
 
             if (system == null)
@@ -368,7 +380,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                 }
             }
 
-#endif
+            #endif
 
             // These ones are mainly for teleporting functionality when we don't get touch values out of joysticks:
             if (leftJoystickValue != Vector2.zero && leftJoystickValue.magnitude > AnalogAsDPadThreshold)
@@ -393,55 +405,55 @@ namespace UltimateXR.Devices.Integrations.SteamVR
             }
 
             // Update joystick/DPad direction buttons using joystick analog value and pressed state
-            uint leftDirectionFlags = GetButtonFlags(MainJoystickIsTouchpad ? ButtonFlags.PressFlagsLeft : ButtonFlags.TouchFlagsLeft);
+            var leftDirectionFlags = GetButtonFlags(MainJoystickIsTouchpad ? ButtonFlags.PressFlagsLeft : ButtonFlags.TouchFlagsLeft);
 
-            if (leftJoystickValue != Vector2.zero && leftJoystickValue.magnitude > AnalogAsDPadThreshold && (leftDirectionFlags & (int)UxrInputButtons.Joystick) != 0)
+            if (leftJoystickValue != Vector2.zero && leftJoystickValue.magnitude > AnalogAsDPadThreshold && (leftDirectionFlags & (int) UxrInputButtons.Joystick) != 0)
             {
-                float leftJoystickAngle = Input2DToAngle(leftJoystickValue);
+                var leftJoystickAngle = Input2DToAngle(leftJoystickValue);
 
-                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadLeft,  IsInput2dDPadLeft(leftJoystickAngle));
+                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadLeft, IsInput2dDPadLeft(leftJoystickAngle));
                 SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadRight, IsInput2dDPadRight(leftJoystickAngle));
-                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadUp,    IsInput2dDPadUp(leftJoystickAngle));
-                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadDown,  IsInput2dDPadDown(leftJoystickAngle));
+                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadUp, IsInput2dDPadUp(leftJoystickAngle));
+                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadDown, IsInput2dDPadDown(leftJoystickAngle));
             }
             else
             {
-                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadLeft,  false);
+                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadLeft, false);
                 SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadRight, false);
-                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadUp,    false);
-                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadDown,  false);
+                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadUp, false);
+                SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.DPadDown, false);
             }
 
-            uint leftButtonPressFlags = GetButtonFlags(ButtonFlags.PressFlagsLeft);
-            SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.JoystickLeft,  (leftButtonPressFlags & (uint)UxrInputButtons.DPadLeft) != 0);
-            SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.JoystickRight, (leftButtonPressFlags & (uint)UxrInputButtons.DPadRight) != 0);
-            SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.JoystickUp,    (leftButtonPressFlags & (uint)UxrInputButtons.DPadUp) != 0);
-            SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.JoystickDown,  (leftButtonPressFlags & (uint)UxrInputButtons.DPadDown) != 0);
+            var leftButtonPressFlags = GetButtonFlags(ButtonFlags.PressFlagsLeft);
+            SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.JoystickLeft, (leftButtonPressFlags & (uint) UxrInputButtons.DPadLeft) != 0);
+            SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.JoystickRight, (leftButtonPressFlags & (uint) UxrInputButtons.DPadRight) != 0);
+            SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.JoystickUp, (leftButtonPressFlags & (uint) UxrInputButtons.DPadUp) != 0);
+            SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.JoystickDown, (leftButtonPressFlags & (uint) UxrInputButtons.DPadDown) != 0);
 
-            uint rightDirectionFlags = GetButtonFlags(MainJoystickIsTouchpad ? ButtonFlags.PressFlagsRight : ButtonFlags.TouchFlagsRight);
+            var rightDirectionFlags = GetButtonFlags(MainJoystickIsTouchpad ? ButtonFlags.PressFlagsRight : ButtonFlags.TouchFlagsRight);
 
-            if (rightJoystickValue != Vector2.zero && rightJoystickValue.magnitude > AnalogAsDPadThreshold && (rightDirectionFlags & (int)UxrInputButtons.Joystick) != 0)
+            if (rightJoystickValue != Vector2.zero && rightJoystickValue.magnitude > AnalogAsDPadThreshold && (rightDirectionFlags & (int) UxrInputButtons.Joystick) != 0)
             {
-                float rightJoystickAngle = Input2DToAngle(rightJoystickValue);
+                var rightJoystickAngle = Input2DToAngle(rightJoystickValue);
 
-                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadLeft,  IsInput2dDPadLeft(rightJoystickAngle));
+                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadLeft, IsInput2dDPadLeft(rightJoystickAngle));
                 SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadRight, IsInput2dDPadRight(rightJoystickAngle));
-                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadUp,    IsInput2dDPadUp(rightJoystickAngle));
-                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadDown,  IsInput2dDPadDown(rightJoystickAngle));
+                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadUp, IsInput2dDPadUp(rightJoystickAngle));
+                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadDown, IsInput2dDPadDown(rightJoystickAngle));
             }
             else
             {
-                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadLeft,  false);
+                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadLeft, false);
                 SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadRight, false);
-                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadUp,    false);
-                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadDown,  false);
+                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadUp, false);
+                SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.DPadDown, false);
             }
 
-            uint rightButtonPressFlags = GetButtonFlags(ButtonFlags.PressFlagsRight);
-            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.JoystickLeft,  (rightButtonPressFlags & (uint)UxrInputButtons.DPadLeft) != 0);
-            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.JoystickRight, (rightButtonPressFlags & (uint)UxrInputButtons.DPadRight) != 0);
-            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.JoystickUp,    (rightButtonPressFlags & (uint)UxrInputButtons.DPadUp) != 0);
-            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.JoystickDown,  (rightButtonPressFlags & (uint)UxrInputButtons.DPadDown) != 0);
+            var rightButtonPressFlags = GetButtonFlags(ButtonFlags.PressFlagsRight);
+            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.JoystickLeft, (rightButtonPressFlags & (uint) UxrInputButtons.DPadLeft) != 0);
+            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.JoystickRight, (rightButtonPressFlags & (uint) UxrInputButtons.DPadRight) != 0);
+            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.JoystickUp, (rightButtonPressFlags & (uint) UxrInputButtons.DPadUp) != 0);
+            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.JoystickDown, (rightButtonPressFlags & (uint) UxrInputButtons.DPadDown) != 0);
         }
 
         #endregion
@@ -451,16 +463,15 @@ namespace UltimateXR.Devices.Integrations.SteamVR
         private string InputClassName => GetType().Name;
 
         // Global data
-        private static readonly Dictionary<string, List<int>> s_controllerList = new Dictionary<string, List<int>>();
-        private static          bool                          s_initializedSteamVR;
+        private static readonly Dictionary<string, List<int>> s_controllerList = new();
+        private static bool s_initializedSteamVR;
 
         // Local data
         private bool _awakeFinished;
 
         #endregion
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
-
+        #if ULTIMATEXR_USE_STEAMVR_SDK
         /// <summary>
         ///     Given a controller name, gets a list of controller names using the Virtual Desktop controller naming convention.  
         /// </summary>
@@ -495,7 +506,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
             }
 
             var renderModelName = new StringBuilder(ModelNameMaxLength);
-            var error           = ETrackedPropertyError.TrackedProp_Success;
+            var error = ETrackedPropertyError.TrackedProp_Success;
 
             OpenVR.System.GetStringTrackedDeviceProperty((uint)index, ETrackedDeviceProperty.Prop_ModelNumber_String, renderModelName, ModelNameMaxLength, ref error);
 
@@ -636,22 +647,23 @@ namespace UltimateXR.Devices.Integrations.SteamVR
             }
         }
 
-#endif
+        #endif
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
+        #if ULTIMATEXR_USE_STEAMVR_SDK
         private const int ModelNameMaxLength = 256;
 
         private readonly Dictionary<UxrInputButtons, SteamVR_Action_Boolean> _actionsButtonClick = new Dictionary<UxrInputButtons, SteamVR_Action_Boolean>();
         private readonly Dictionary<UxrInputButtons, SteamVR_Action_Boolean> _actionsButtonTouch = new Dictionary<UxrInputButtons, SteamVR_Action_Boolean>();
-        private readonly Dictionary<UxrInput1D, SteamVR_Action_Single>       _actionsInput1D     = new Dictionary<UxrInput1D, SteamVR_Action_Single>();
-        private readonly Dictionary<UxrInput2D, SteamVR_Action_Vector2>      _actionsInput2D     = new Dictionary<UxrInput2D, SteamVR_Action_Vector2>();
+        private readonly Dictionary<UxrInput1D, SteamVR_Action_Single>       _actionsInput1D = new Dictionary<UxrInput1D, SteamVR_Action_Single>();
+        private readonly Dictionary<UxrInput2D, SteamVR_Action_Vector2>      _actionsInput2D = new Dictionary<UxrInput2D, SteamVR_Action_Vector2>();
 
-        private readonly SteamVR_Action_Skeleton  _handSkeletonActionLeft  = SteamVR_Input.GetAction<SteamVR_Action_Skeleton>(UxrSteamVRConstants.ActionSetName, UxrSteamVRConstants.ActionNameHandSkeletonLeft);
+        private readonly SteamVR_Action_Skeleton  _handSkeletonActionLeft = SteamVR_Input.GetAction<SteamVR_Action_Skeleton>(UxrSteamVRConstants.ActionSetName, UxrSteamVRConstants.ActionNameHandSkeletonLeft);
         private readonly SteamVR_Action_Skeleton  _handSkeletonActionRight = SteamVR_Input.GetAction<SteamVR_Action_Skeleton>(UxrSteamVRConstants.ActionSetName, UxrSteamVRConstants.ActionNameHandSkeletonRight);
-        private readonly SteamVR_Action_Vibration _handHapticsAction       = SteamVR_Input.GetAction<SteamVR_Action_Vibration>(UxrSteamVRConstants.ActionSetName, UxrSteamVRConstants.ActionNameHandHaptics);
+        private readonly SteamVR_Action_Vibration _handHapticsAction = SteamVR_Input.GetAction<SteamVR_Action_Vibration>(UxrSteamVRConstants.ActionSetName, UxrSteamVRConstants.ActionNameHandHaptics);
 
-#endif
+        #endif
     }
 }
+
 
 #pragma warning restore 414 // Restore warnings due to unused values

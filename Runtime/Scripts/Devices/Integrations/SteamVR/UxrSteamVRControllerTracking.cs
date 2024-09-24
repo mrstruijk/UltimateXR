@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 #if ULTIMATEXR_USE_STEAMVR_SDK
 using Valve.VR;
 #endif
+
 
 namespace UltimateXR.Devices.Integrations.SteamVR
 {
@@ -33,7 +35,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
         {
             base.OnEnable();
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
+            #if ULTIMATEXR_USE_STEAMVR_SDK
             global::Valve.VR.SteamVR.Initialize();
 
             if (global::Valve.VR.SteamVR.initializedState is global::Valve.VR.SteamVR.InitializedStates.Initializing or global::Valve.VR.SteamVR.InitializedStates.InitializeSuccess)
@@ -44,8 +46,9 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                     poseAction[SteamVR_Input_Sources.RightHand].onUpdate += PoseAction_OnUpdate;
                 }
             }
-#endif
+            #endif
         }
+
 
         /// <summary>
         ///     Subscribes from SteamVR pose update events
@@ -54,7 +57,7 @@ namespace UltimateXR.Devices.Integrations.SteamVR
         {
             base.OnDisable();
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
+            #if ULTIMATEXR_USE_STEAMVR_SDK
             if (global::Valve.VR.SteamVR.initializedState is global::Valve.VR.SteamVR.InitializedStates.Initializing or global::Valve.VR.SteamVR.InitializedStates.InitializeSuccess)
             {
                 if (poseAction != null)
@@ -63,14 +66,14 @@ namespace UltimateXR.Devices.Integrations.SteamVR
                     poseAction[SteamVR_Input_Sources.RightHand].onUpdate -= PoseAction_OnUpdate;
                 }
             }
-#endif
+            #endif
         }
 
         #endregion
 
         #region Event Handling Methods
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
+        #if ULTIMATEXR_USE_STEAMVR_SDK
         /// <summary>
         ///     Handles the pose action update
         /// </summary>
@@ -88,15 +91,15 @@ namespace UltimateXR.Devices.Integrations.SteamVR
             }
         }
 
-#endif
+        #endif
 
         #endregion
 
         #region Private types & Data
 
-#if ULTIMATEXR_USE_STEAMVR_SDK
+        #if ULTIMATEXR_USE_STEAMVR_SDK
         private readonly SteamVR_Action_Pose poseAction = SteamVR_Input.GetAction<SteamVR_Action_Pose>("Pose");
-#endif
+        #endif
 
         #endregion
     }

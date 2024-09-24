@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Avatar.Rig;
 using UltimateXR.Core;
 using UnityEngine;
+
 
 namespace UltimateXR.Devices.Visualization
 {
@@ -18,23 +20,23 @@ namespace UltimateXR.Devices.Visualization
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private UxrElementType        _elementType = UxrElementType.NotSet;
-        [SerializeField] private UxrHandSide           _hand;
+        [SerializeField] private UxrElementType _elementType = UxrElementType.NotSet;
+        [SerializeField] private UxrHandSide _hand;
         [SerializeField] private UxrControllerElements _element;
-        [SerializeField] private GameObject            _gameObject;
-        [SerializeField] private UxrFingerType         _finger;
-        [SerializeField] private GameObject            _fingerContactPoint;
-        [SerializeField] private Vector3               _buttonPressedOffset;
-        [SerializeField] private Vector3               _input1DPressedOffsetAngle;
-        [SerializeField] private Vector3               _input1DPressedOffset;
-        [SerializeField] private Vector3               _input2DFirstAxisOffsetAngle;
-        [SerializeField] private Vector3               _input2DSecondAxisOffsetAngle;
-        [SerializeField] private Vector3               _input2DFirstAxisOffset;
-        [SerializeField] private Vector3               _input2DSecondAxisOffset;
-        [SerializeField] private Vector3               _dpadFirstAxisOffsetAngle;
-        [SerializeField] private Vector3               _dpadSecondAxisOffsetAngle;
-        [SerializeField] private Vector3               _dpadFirstAxisOffset;
-        [SerializeField] private Vector3               _dpadSecondAxisOffset;
+        [SerializeField] private GameObject _gameObject;
+        [SerializeField] private UxrFingerType _finger;
+        [SerializeField] private GameObject _fingerContactPoint;
+        [SerializeField] private Vector3 _buttonPressedOffset;
+        [SerializeField] private Vector3 _input1DPressedOffsetAngle;
+        [SerializeField] private Vector3 _input1DPressedOffset;
+        [SerializeField] private Vector3 _input2DFirstAxisOffsetAngle;
+        [SerializeField] private Vector3 _input2DSecondAxisOffsetAngle;
+        [SerializeField] private Vector3 _input2DFirstAxisOffset;
+        [SerializeField] private Vector3 _input2DSecondAxisOffset;
+        [SerializeField] private Vector3 _dpadFirstAxisOffsetAngle;
+        [SerializeField] private Vector3 _dpadSecondAxisOffsetAngle;
+        [SerializeField] private Vector3 _dpadFirstAxisOffset;
+        [SerializeField] private Vector3 _dpadSecondAxisOffset;
 
         #endregion
 

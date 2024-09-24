@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core.Caching;
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -15,13 +17,6 @@ namespace UltimateXR.Mechanics.Weapons
     /// </summary>
     public class UxrProjectileSource : UxrComponent<UxrProjectileSource>, IUxrPrecacheable
     {
-        #region Inspector Properties/Serialized Fields
-
-        [SerializeField] private Animator                _weaponAnimator;
-        [SerializeField] private List<UxrShotDescriptor> _shotTypes;
-
-        #endregion
-
         #region Public Types & Data
 
         /// <summary>
@@ -38,7 +33,7 @@ namespace UltimateXR.Mechanics.Weapons
         {
             get
             {
-                foreach (UxrShotDescriptor shotType in _shotTypes)
+                foreach (var shotType in _shotTypes)
                 {
                     if (shotType.PrefabInstantiateOnImpact)
                     {
@@ -65,6 +60,13 @@ namespace UltimateXR.Mechanics.Weapons
 
         #endregion
 
+        #region Inspector Properties/Serialized Fields
+
+        [SerializeField] private Animator _weaponAnimator;
+        [SerializeField] private List<UxrShotDescriptor> _shotTypes;
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>
@@ -74,7 +76,7 @@ namespace UltimateXR.Mechanics.Weapons
         /// <returns>Actor component or null if it wasn't found</returns>
         public UxrActor TryGetWeaponOwner()
         {
-            UxrWeapon weapon = GetComponentInParent<UxrWeapon>();
+            var weapon = GetComponentInParent<UxrWeapon>();
 
             if (weapon)
             {
@@ -83,6 +85,7 @@ namespace UltimateXR.Mechanics.Weapons
 
             return GetComponentInParent<UxrActor>();
         }
+
 
         /// <summary>
         ///     Shoots a round.
@@ -96,6 +99,7 @@ namespace UltimateXR.Mechanics.Weapons
             }
         }
 
+
         /// <summary>
         ///     Shoots a round, overriding the source position and orientation.
         /// </summary>
@@ -108,7 +112,7 @@ namespace UltimateXR.Mechanics.Weapons
             {
                 if (_shotTypes[shotTypeIndex].PrefabInstantiateOnTipWhenShot)
                 {
-                    GameObject newInstance = Instantiate(_shotTypes[shotTypeIndex].PrefabInstantiateOnTipWhenShot, _shotTypes[shotTypeIndex].Tip.position, _shotTypes[shotTypeIndex].Tip.rotation);
+                    var newInstance = Instantiate(_shotTypes[shotTypeIndex].PrefabInstantiateOnTipWhenShot, _shotTypes[shotTypeIndex].Tip.position, _shotTypes[shotTypeIndex].Tip.rotation);
 
                     if (_shotTypes[shotTypeIndex].PrefabInstantiateOnTipParent)
                     {
@@ -134,6 +138,7 @@ namespace UltimateXR.Mechanics.Weapons
             }
         }
 
+
         /// <summary>
         ///     Shoots a round pointing to the given target.
         /// </summary>
@@ -143,10 +148,11 @@ namespace UltimateXR.Mechanics.Weapons
         {
             if (shotTypeIndex >= 0 && shotTypeIndex < _shotTypes.Count)
             {
-                Vector3 direction = (target - _shotTypes[shotTypeIndex].ShotSource.position).normalized;
+                var direction = (target - _shotTypes[shotTypeIndex].ShotSource.position).normalized;
                 Shoot(shotTypeIndex, _shotTypes[shotTypeIndex].ShotSource.position, Quaternion.LookRotation(direction));
             }
         }
+
 
         /// <summary>
         ///     Gets the distance where a shot using the current position and orientation will impact.
@@ -158,11 +164,11 @@ namespace UltimateXR.Mechanics.Weapons
             if (shotTypeIndex >= 0 && shotTypeIndex < _shotTypes.Count)
             {
                 if (Physics.Raycast(_shotTypes[shotTypeIndex].ShotSource.position,
-                                    _shotTypes[shotTypeIndex].ShotSource.forward,
-                                    out RaycastHit raycastHit,
-                                    _shotTypes[shotTypeIndex].ProjectileMaxDistance,
-                                    _shotTypes[shotTypeIndex].CollisionLayerMask,
-                                    QueryTriggerInteraction.Ignore))
+                        _shotTypes[shotTypeIndex].ShotSource.forward,
+                        out var raycastHit,
+                        _shotTypes[shotTypeIndex].ProjectileMaxDistance,
+                        _shotTypes[shotTypeIndex].CollisionLayerMask,
+                        QueryTriggerInteraction.Ignore))
                 {
                     return raycastHit.distance;
                 }
@@ -170,6 +176,7 @@ namespace UltimateXR.Mechanics.Weapons
 
             return -1.0f;
         }
+
 
         /// <summary>
         ///     Gets the current world-space origin of projectiles fired using the given shot type.
@@ -185,6 +192,7 @@ namespace UltimateXR.Mechanics.Weapons
 
             return Vector3.zero;
         }
+
 
         /// <summary>
         ///     Gets the current world-space direction of projectiles fired using the given shot type.

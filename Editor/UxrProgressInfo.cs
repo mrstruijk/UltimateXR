@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Editor
 {
     /// <summary>
@@ -10,6 +11,23 @@ namespace UltimateXR.Editor
     /// </summary>
     public class UxrProgressInfo
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="title">Progress title</param>
+        /// <param name="info">Progress info</param>
+        /// <param name="progress">Progress [0.0, 1.0]</param>
+        public UxrProgressInfo(string title, string info, float progress)
+        {
+            Title = title;
+            Info = info;
+            Progress = progress;
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -26,23 +44,6 @@ namespace UltimateXR.Editor
         ///     Current progress in [0.0, 1.0] range
         /// </summary>
         public float Progress { get; }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="title">Progress title</param>
-        /// <param name="info">Progress info</param>
-        /// <param name="progress">Progress [0.0, 1.0]</param>
-        public UxrProgressInfo(string title, string info, float progress)
-        {
-            Title    = title;
-            Info     = info;
-            Progress = progress;
-        }
 
         #endregion
     }

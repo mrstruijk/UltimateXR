@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections;
 using UltimateXR.Animation.Interpolation;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity
 {
@@ -47,17 +49,18 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="forceLastT1">Forces a last loop step with t = 1.0f exactly.</param>
         /// <returns>Coroutine enumerator</returns>
         public static IEnumerator LoopCoroutine(this MonoBehaviour monoBehaviour,
-                                                float              durationSeconds,
-                                                Action<float>      loopAction,
-                                                UxrEasing          easing      = UxrEasing.Linear,
-                                                bool               forceLastT1 = false)
+                                                float durationSeconds,
+                                                Action<float> loopAction,
+                                                UxrEasing easing = UxrEasing.Linear,
+                                                bool forceLastT1 = false)
         {
-            float startTime = Time.time;
+            var startTime = Time.time;
 
             while (Time.time - startTime < durationSeconds)
             {
-                float t = UxrInterpolator.Interpolate(0.0f, 1.0f, Time.time - startTime, new UxrInterpolationSettings(durationSeconds, 0.0f, easing));
+                var t = UxrInterpolator.Interpolate(0.0f, 1.0f, Time.time - startTime, new UxrInterpolationSettings(durationSeconds, 0.0f, easing));
                 loopAction(t);
+
                 yield return null;
             }
 

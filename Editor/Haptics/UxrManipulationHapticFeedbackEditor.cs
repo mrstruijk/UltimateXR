@@ -3,10 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Haptics.Helpers;
 using UnityEditor;
 
+
 #pragma warning disable 0414
+
 
 namespace UltimateXR.Editor.Haptics
 {
@@ -25,22 +28,23 @@ namespace UltimateXR.Editor.Haptics
         private void OnEnable()
         {
             _propContinuousManipulationHaptics = serializedObject.FindProperty("_continuousManipulationHaptics");
-            _propHapticMixMode                 = serializedObject.FindProperty("_hapticMixMode");
-            _propMinAmplitude                  = serializedObject.FindProperty("_minAmplitude");
-            _propMaxAmplitude                  = serializedObject.FindProperty("_maxAmplitude");
-            _propMinFrequency                  = serializedObject.FindProperty("_minFrequency");
-            _propMaxFrequency                  = serializedObject.FindProperty("_maxFrequency");
-            _propMinSpeed                      = serializedObject.FindProperty("_minSpeed");
-            _propMaxSpeed                      = serializedObject.FindProperty("_maxSpeed");
-            _propMinAngularSpeed               = serializedObject.FindProperty("_minAngularSpeed");
-            _propMaxAngularSpeed               = serializedObject.FindProperty("_maxAngularSpeed");
-            _propUseExternalRigidbody          = serializedObject.FindProperty("_useExternalRigidbody");
-            _propExternalRigidbody             = serializedObject.FindProperty("_externalRigidbody");
+            _propHapticMixMode = serializedObject.FindProperty("_hapticMixMode");
+            _propMinAmplitude = serializedObject.FindProperty("_minAmplitude");
+            _propMaxAmplitude = serializedObject.FindProperty("_maxAmplitude");
+            _propMinFrequency = serializedObject.FindProperty("_minFrequency");
+            _propMaxFrequency = serializedObject.FindProperty("_maxFrequency");
+            _propMinSpeed = serializedObject.FindProperty("_minSpeed");
+            _propMaxSpeed = serializedObject.FindProperty("_maxSpeed");
+            _propMinAngularSpeed = serializedObject.FindProperty("_minAngularSpeed");
+            _propMaxAngularSpeed = serializedObject.FindProperty("_maxAngularSpeed");
+            _propUseExternalRigidbody = serializedObject.FindProperty("_useExternalRigidbody");
+            _propExternalRigidbody = serializedObject.FindProperty("_externalRigidbody");
 
-            _propHapticClipOnGrab    = serializedObject.FindProperty("_hapticClipOnGrab");
-            _propHapticClipOnPlace   = serializedObject.FindProperty("_hapticClipOnPlace");
+            _propHapticClipOnGrab = serializedObject.FindProperty("_hapticClipOnGrab");
+            _propHapticClipOnPlace = serializedObject.FindProperty("_hapticClipOnPlace");
             _propHapticClipOnRelease = serializedObject.FindProperty("_hapticClipOnRelease");
         }
+
 
         /// <summary>
         ///     Draws the custom inspector and gathers user input.
@@ -70,8 +74,8 @@ namespace UltimateXR.Editor.Haptics
                 }
             }
 
-            EditorGUILayout.PropertyField(_propHapticClipOnGrab,    true);
-            EditorGUILayout.PropertyField(_propHapticClipOnPlace,   true);
+            EditorGUILayout.PropertyField(_propHapticClipOnGrab, true);
+            EditorGUILayout.PropertyField(_propHapticClipOnPlace, true);
             EditorGUILayout.PropertyField(_propHapticClipOnRelease, true);
 
             serializedObject.ApplyModifiedProperties();
@@ -101,5 +105,6 @@ namespace UltimateXR.Editor.Haptics
         #endregion
     }
 }
+
 
 #pragma warning restore 0414

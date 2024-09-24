@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Linq;
 using UltimateXR.Animation.Interpolation;
@@ -10,6 +11,7 @@ using UltimateXR.Attributes;
 using UltimateXR.Core.Components;
 using UltimateXR.Extensions.System.Collections;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.UI
 {
@@ -28,11 +30,54 @@ namespace UltimateXR.Animation.UI
     /// </summary>
     public abstract class UxrTween : UxrComponent<Canvas, UxrTween>
     {
+        #region Event Trigger Methods
+
+        /// <summary>
+        ///     Event trigger for the <see cref="Finished" /> event.
+        /// </summary>
+        protected virtual void OnFinished()
+        {
+            Finished?.Invoke();
+            FinishedCallback?.Invoke(this);
+
+            if (_finishedActions.HasFlag(UxrTweenFinishedActions.RestoreOriginalValue))
+            {
+                RestoreOriginalValue();
+            }
+
+            if (_finishedActions.HasFlag(UxrTweenFinishedActions.DisableTargetComponent) && TargetBehaviour)
+            {
+                TargetBehaviour.enabled = false;
+            }
+
+            if (_finishedActions.HasFlag(UxrTweenFinishedActions.DeactivateGameObject) && TargetBehaviour && TargetBehaviour.gameObject)
+            {
+                TargetBehaviour.gameObject.SetActive(false);
+            }
+
+            if (_finishedActions.HasFlag(UxrTweenFinishedActions.DestroyTween))
+            {
+                Destroy(this);
+            }
+
+            if (_finishedActions.HasFlag(UxrTweenFinishedActions.DestroyTargetComponent) && TargetBehaviour)
+            {
+                Destroy(TargetBehaviour);
+            }
+
+            if (_finishedActions.HasFlag(UxrTweenFinishedActions.DestroyGameObject))
+            {
+                Destroy(gameObject);
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] [ReadOnly(HideInEditMode = true)] private bool                     _hasFinished;
-        [SerializeField]                                   private UxrInterpolationSettings _interpolationSettings = new UxrInterpolationSettings();
-        [SerializeField]                                   private UxrTweenFinishedActions  _finishedActions       = UxrTweenFinishedActions.None;
+        [SerializeField] [ReadOnly(HideInEditMode = true)] private bool _hasFinished;
+        [SerializeField] private UxrInterpolationSettings _interpolationSettings = new();
+        [SerializeField] private UxrTweenFinishedActions _finishedActions = UxrTweenFinishedActions.None;
 
         #endregion
 
@@ -78,9 +123,11 @@ namespace UltimateXR.Animation.UI
         /// <returns>Whether there is a running animation of the given type.</returns>
         public static bool HasActiveTween<T>(Behaviour behaviour) where T : UxrTween
         {
-            T tween = behaviour.GetComponent<T>();
+            var tween = behaviour.GetComponent<T>();
+
             return tween && !tween.HasFinished;
         }
+
 
         /// <summary>
         ///     Stops all enabled tweens.
@@ -90,6 +137,7 @@ namespace UltimateXR.Animation.UI
         {
             EnabledComponents.ForEach(t => t.Stop(restoreOriginal));
         }
+
 
         /// <summary>
         ///     Stops all enabled tweens of a given type.
@@ -101,6 +149,7 @@ namespace UltimateXR.Animation.UI
             EnabledComponents.OfType<T>().ForEach(t => t.Stop(restoreOriginal));
         }
 
+
         /// <summary>
         ///     Stops all enabled tweens that are in a given canvas.
         /// </summary>
@@ -110,6 +159,7 @@ namespace UltimateXR.Animation.UI
         {
             GetParentChildren(canvas).ForEach(t => t.Stop(restoreOriginal));
         }
+
 
         /// <summary>
         ///     Stops all enabled tweens of a given type that are in a given canvas.
@@ -122,6 +172,7 @@ namespace UltimateXR.Animation.UI
             GetParentChildren(canvas).OfType<T>().ForEach(t => t.Stop(restoreOriginal));
         }
 
+
         /// <summary>
         ///     Stops all the tweening components of a <see cref="Behaviour" />.
         /// </summary>
@@ -129,11 +180,12 @@ namespace UltimateXR.Animation.UI
         /// <param name="restoreOriginal">Whether to reset each animated component to the state before its animation started</param>
         public static void StopAll(Behaviour behaviour, bool restoreOriginal = true)
         {
-            foreach (UxrTween tween in behaviour.gameObject.GetComponents<UxrTween>())
+            foreach (var tween in behaviour.gameObject.GetComponents<UxrTween>())
             {
                 tween.Stop(restoreOriginal);
             }
         }
+
 
         /// <summary>
         ///     Stops the tweening animation on an object if it has a <typeparamref name="T" /> component currently added.
@@ -143,13 +195,14 @@ namespace UltimateXR.Animation.UI
         /// <typeparam name="T">Type of <see cref="UxrTween" /> to stop</typeparam>
         public static void Stop<T>(Behaviour behaviour, bool restoreOriginal = true) where T : UxrTween
         {
-            T tween = behaviour.GetComponent<T>();
+            var tween = behaviour.GetComponent<T>();
 
             if (tween)
             {
                 tween.Stop(restoreOriginal);
             }
         }
+
 
         /// <summary>
         ///     Stops the tweening animation.
@@ -165,6 +218,7 @@ namespace UltimateXR.Animation.UI
             }
         }
 
+
         /// <summary>
         ///     Sets the actions to perform when the animation finished.
         /// </summary>
@@ -173,6 +227,7 @@ namespace UltimateXR.Animation.UI
         public UxrTween SetFinishedActions(UxrTweenFinishedActions actions)
         {
             _finishedActions = actions;
+
             return this;
         }
 
@@ -203,6 +258,7 @@ namespace UltimateXR.Animation.UI
             HasFinished = false;
         }
 
+
         /// <summary>
         ///     Updates the interpolation.
         /// </summary>
@@ -225,44 +281,6 @@ namespace UltimateXR.Animation.UI
 
         #endregion
 
-        #region Event Trigger Methods
-
-        /// <summary>
-        ///     Event trigger for the <see cref="Finished" /> event.
-        /// </summary>
-        protected virtual void OnFinished()
-        {
-            Finished?.Invoke();
-            FinishedCallback?.Invoke(this);
-
-            if (_finishedActions.HasFlag(UxrTweenFinishedActions.RestoreOriginalValue))
-            {
-                RestoreOriginalValue();
-            }
-            if (_finishedActions.HasFlag(UxrTweenFinishedActions.DisableTargetComponent) && TargetBehaviour)
-            {
-                TargetBehaviour.enabled = false;
-            }
-            if (_finishedActions.HasFlag(UxrTweenFinishedActions.DeactivateGameObject) && TargetBehaviour && TargetBehaviour.gameObject)
-            {
-                TargetBehaviour.gameObject.SetActive(false);
-            }
-            if (_finishedActions.HasFlag(UxrTweenFinishedActions.DestroyTween))
-            {
-                Destroy(this);
-            }
-            if (_finishedActions.HasFlag(UxrTweenFinishedActions.DestroyTargetComponent) && TargetBehaviour)
-            {
-                Destroy(TargetBehaviour);
-            }
-            if (_finishedActions.HasFlag(UxrTweenFinishedActions.DestroyGameObject))
-            {
-                Destroy(gameObject);
-            }
-        }
-
-        #endregion
-
         #region Protected Methods
 
         /// <summary>
@@ -270,17 +288,20 @@ namespace UltimateXR.Animation.UI
         /// </summary>
         protected abstract void RestoreOriginalValue();
 
+
         /// <summary>
         ///     Stores the original value before the animation, in order to be able to restore it later using
         ///     <see cref="RestoreOriginalValue" />.
         /// </summary>
         protected abstract void StoreOriginalValue();
 
+
         /// <summary>
         ///     Interpolates and assigns the value corresponding to the given LERP value.
         /// </summary>
         /// <param name="t">LERP interpolation t value [0.0, 1.0]</param>
         protected abstract void Interpolate(float t);
+
 
         /// <summary>
         ///     Restarts the animation with the current parameters.
@@ -289,9 +310,9 @@ namespace UltimateXR.Animation.UI
         {
             if (InterpolationSettings != null)
             {
-                _startTime       = CurrentTime;
+                _startTime = CurrentTime;
                 _finishedActions = UxrTweenFinishedActions.None;
-                HasFinished      = false;
+                HasFinished = false;
             }
         }
 

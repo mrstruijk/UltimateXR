@@ -3,10 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Core;
-using UltimateXR.Core.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Rig
 {
@@ -16,17 +17,51 @@ namespace UltimateXR.Avatar.Rig
     [Serializable]
     public class UxrAvatarFingerInfo
     {
+        #region Internal Methods
+
+        /// <summary>
+        ///     Computes the finger information.
+        /// </summary>
+        /// <param name="avatar">Avatar whose finger information to compute</param>
+        /// <param name="handRenderer">Hand renderer</param>
+        /// <param name="side">Which hand side the finger belongs to</param>
+        /// <param name="finger">Which finger to compute</param>
+        internal void Compute(UxrAvatar avatar, SkinnedMeshRenderer handRenderer, UxrHandSide side, UxrFingerType finger)
+        {
+            _avatar = avatar;
+            _side = side;
+            _finger = finger;
+
+            var fingerAxes = avatar.AvatarRigInfo.GetArmInfo(side).FingerUniversalLocalAxes;
+            var avatarFinger = avatar.GetHand(side).GetFinger(finger);
+
+            _metacarpalInfo = new UxrAvatarFingerBoneInfo();
+            _proximalInfo = new UxrAvatarFingerBoneInfo();
+            _intermediateInfo = new UxrAvatarFingerBoneInfo();
+            _distalInfo = new UxrAvatarFingerBoneInfo();
+
+            _metacarpalInfo.Compute(handRenderer, avatarFinger.Metacarpal, avatarFinger.Proximal, fingerAxes);
+            _proximalInfo.Compute(handRenderer, avatarFinger.Proximal, avatarFinger.Intermediate, fingerAxes);
+            _intermediateInfo.Compute(handRenderer, avatarFinger.Intermediate, avatarFinger.Distal, fingerAxes);
+            _distalInfo.Compute(handRenderer, avatarFinger.Distal, null, fingerAxes);
+
+            _distalLocalTip = fingerAxes.LocalForward * _distalInfo.Length;
+            _distalLocalFingerPrintCenter = fingerAxes.LocalForward * (_distalInfo.Length * 0.66f) - fingerAxes.LocalUp * (_distalInfo.Radius * 0.66f);
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private UxrAvatar               _avatar;
-        [SerializeField] private UxrHandSide             _side;
-        [SerializeField] private UxrFingerType           _finger;
+        [SerializeField] private UxrAvatar _avatar;
+        [SerializeField] private UxrHandSide _side;
+        [SerializeField] private UxrFingerType _finger;
         [SerializeField] private UxrAvatarFingerBoneInfo _metacarpalInfo;
         [SerializeField] private UxrAvatarFingerBoneInfo _proximalInfo;
         [SerializeField] private UxrAvatarFingerBoneInfo _intermediateInfo;
         [SerializeField] private UxrAvatarFingerBoneInfo _distalInfo;
-        [SerializeField] private Vector3                 _distalLocalTip;
-        [SerializeField] private Vector3                 _distalLocalFingerPrintCenter;
+        [SerializeField] private Vector3 _distalLocalTip;
+        [SerializeField] private Vector3 _distalLocalFingerPrintCenter;
 
         #endregion
 
@@ -73,7 +108,7 @@ namespace UltimateXR.Avatar.Rig
             {
                 if (_avatar)
                 {
-                    UxrAvatarFinger avatarFinger = _avatar.GetHand(_side).GetFinger(_finger);
+                    var avatarFinger = _avatar.GetHand(_side).GetFinger(_finger);
 
                     if (avatarFinger.Distal)
                     {
@@ -94,11 +129,12 @@ namespace UltimateXR.Avatar.Rig
             {
                 if (_avatar)
                 {
-                    UxrAvatarFinger avatarFinger = _avatar.GetHand(_side).GetFinger(_finger);
+                    var avatarFinger = _avatar.GetHand(_side).GetFinger(_finger);
 
                     if (avatarFinger.Distal)
                     {
-                        UxrUniversalLocalAxes fingerAxes = _avatar.AvatarRigInfo.GetArmInfo(_side).FingerUniversalLocalAxes;
+                        var fingerAxes = _avatar.AvatarRigInfo.GetArmInfo(_side).FingerUniversalLocalAxes;
+
                         return avatarFinger.Distal.TransformVector(fingerAxes.LocalForward);
                     }
                 }
@@ -117,7 +153,7 @@ namespace UltimateXR.Avatar.Rig
             {
                 if (_avatar)
                 {
-                    UxrAvatarFinger avatarFinger = _avatar.GetHand(_side).GetFinger(_finger);
+                    var avatarFinger = _avatar.GetHand(_side).GetFinger(_finger);
 
                     if (avatarFinger.Distal)
                     {
@@ -138,51 +174,18 @@ namespace UltimateXR.Avatar.Rig
             {
                 if (_avatar)
                 {
-                    UxrAvatarFinger avatarFinger = _avatar.GetHand(_side).GetFinger(_finger);
+                    var avatarFinger = _avatar.GetHand(_side).GetFinger(_finger);
 
                     if (avatarFinger.Distal)
                     {
-                        UxrUniversalLocalAxes fingerAxes = _avatar.AvatarRigInfo.GetArmInfo(_side).FingerUniversalLocalAxes;
+                        var fingerAxes = _avatar.AvatarRigInfo.GetArmInfo(_side).FingerUniversalLocalAxes;
+
                         return -avatarFinger.Distal.TransformVector(fingerAxes.LocalUp);
                     }
                 }
 
                 return Vector3.zero;
             }
-        }
-
-        #endregion
-
-        #region Internal Methods
-
-        /// <summary>
-        ///     Computes the finger information.
-        /// </summary>
-        /// <param name="avatar">Avatar whose finger information to compute</param>
-        /// <param name="handRenderer">Hand renderer</param>
-        /// <param name="side">Which hand side the finger belongs to</param>
-        /// <param name="finger">Which finger to compute</param>
-        internal void Compute(UxrAvatar avatar, SkinnedMeshRenderer handRenderer, UxrHandSide side, UxrFingerType finger)
-        {
-            _avatar = avatar;
-            _side   = side;
-            _finger = finger;
-
-            UxrUniversalLocalAxes fingerAxes   = avatar.AvatarRigInfo.GetArmInfo(side).FingerUniversalLocalAxes;
-            UxrAvatarFinger       avatarFinger = avatar.GetHand(side).GetFinger(finger);
-
-            _metacarpalInfo   = new UxrAvatarFingerBoneInfo();
-            _proximalInfo     = new UxrAvatarFingerBoneInfo();
-            _intermediateInfo = new UxrAvatarFingerBoneInfo();
-            _distalInfo       = new UxrAvatarFingerBoneInfo();
-
-            _metacarpalInfo.Compute(handRenderer, avatarFinger.Metacarpal, avatarFinger.Proximal, fingerAxes);
-            _proximalInfo.Compute(handRenderer, avatarFinger.Proximal, avatarFinger.Intermediate, fingerAxes);
-            _intermediateInfo.Compute(handRenderer, avatarFinger.Intermediate, avatarFinger.Distal, fingerAxes);
-            _distalInfo.Compute(handRenderer, avatarFinger.Distal, null, fingerAxes);
-
-            _distalLocalTip               = fingerAxes.LocalForward * _distalInfo.Length;
-            _distalLocalFingerPrintCenter = fingerAxes.LocalForward * (_distalInfo.Length * 0.66f) - fingerAxes.LocalUp * (_distalInfo.Radius * 0.66f);
         }
 
         #endregion

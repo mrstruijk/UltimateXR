@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Linq;
 using UltimateXR.Avatar;
@@ -12,6 +13,7 @@ using UltimateXR.Core.Components.Composite;
 using UltimateXR.Extensions.Unity;
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -30,10 +32,47 @@ namespace UltimateXR.Manipulation
     /// </summary>
     public partial class UxrGrabber : UxrAvatarComponent<UxrGrabber>
     {
+        #region Public Methods
+
+        /// <summary>
+        ///     Gets the given proximity transform, used to compute distances to<see cref="UxrGrabbableObject" /> entities
+        /// </summary>
+        /// <param name="proximityIndex">
+        ///     Proximity transform index. -1 for the default (the grabber's transform) and 0 to n for any
+        ///     optional proximity transform.
+        /// </param>
+        /// <returns>Proximity transform. If the index is out of range it will return the default transform</returns>
+        public Transform GetProximityTransform(int proximityIndex = -1)
+        {
+            if (proximityIndex >= 0 && proximityIndex < _optionalProximityTransforms.Count)
+            {
+                return _optionalProximityTransforms[proximityIndex];
+            }
+
+            return transform;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Assigns the hand the grabber belongs to.
+        /// </summary>
+        private void InitializeSide()
+        {
+            if (UxrAvatarRig.GetHandSide(transform, out var handSide))
+            {
+                Side = handSide;
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private Renderer        _handRenderer;
-        [SerializeField] private GameObject[]    _objectsToDisableOnGrab;
+        [SerializeField] private Renderer _handRenderer;
+        [SerializeField] private GameObject[] _objectsToDisableOnGrab;
         [SerializeField] private List<Transform> _optionalProximityTransforms;
 
         #endregion
@@ -94,8 +133,8 @@ namespace UltimateXR.Manipulation
         {
             get
             {
-                Vector3 direction = transform.right;
-                
+                var direction = transform.right;
+
                 if (Avatar != null && Avatar.AvatarRigInfo != null)
                 {
                     direction = transform.GetClosestLocalAxis(Avatar.AvatarRigInfo.GetArmInfo(Side).HandUniversalLocalAxes.WorldRight);
@@ -126,12 +165,13 @@ namespace UltimateXR.Manipulation
         {
             get
             {
-                Vector3 other = Vector3.Cross(LocalPalmOutDirection, LocalFingerDirection);
+                var other = Vector3.Cross(LocalPalmOutDirection, LocalFingerDirection);
 
                 if (Mathf.Abs(other.z) > 0.5)
                 {
                     return TransformExt.MirrorType.MirrorXY;
                 }
+
                 if (Mathf.Abs(other.y) > 0.5)
                 {
                     return TransformExt.MirrorType.MirrorXZ;
@@ -162,7 +202,7 @@ namespace UltimateXR.Manipulation
             }
             private set
             {
-                _side            = value;
+                _side = value;
                 _sideInitialized = true;
             }
         }
@@ -193,7 +233,7 @@ namespace UltimateXR.Manipulation
 
                 if ((_handRenderer == null || !_handRenderer.gameObject.activeInHierarchy) && Avatar != null)
                 {
-                    SkinnedMeshRenderer handRenderer = UxrAvatarRig.TryToGetHandRenderer(Avatar, Side);
+                    var handRenderer = UxrAvatarRig.TryToGetHandRenderer(Avatar, Side);
 
                     if (handRenderer != null)
                     {
@@ -237,7 +277,7 @@ namespace UltimateXR.Manipulation
 
                 if (_objectsToDisableOnGrab != null)
                 {
-                    foreach (GameObject go in _objectsToDisableOnGrab)
+                    foreach (var go in _objectsToDisableOnGrab)
                     {
                         go.SetActive(value == null);
                     }
@@ -267,28 +307,6 @@ namespace UltimateXR.Manipulation
 
         #endregion
 
-        #region Public Methods
-
-        /// <summary>
-        ///     Gets the given proximity transform, used to compute distances to<see cref="UxrGrabbableObject" /> entities
-        /// </summary>
-        /// <param name="proximityIndex">
-        ///     Proximity transform index. -1 for the default (the grabber's transform) and 0 to n for any
-        ///     optional proximity transform.
-        /// </param>
-        /// <returns>Proximity transform. If the index is out of range it will return the default transform</returns>
-        public Transform GetProximityTransform(int proximityIndex = -1)
-        {
-            if (proximityIndex >= 0 && proximityIndex < _optionalProximityTransforms.Count)
-            {
-                return _optionalProximityTransforms[proximityIndex];
-            }
-
-            return transform;
-        }
-
-        #endregion
-
         #region Internal Methods
 
         /// <summary>
@@ -309,15 +327,16 @@ namespace UltimateXR.Manipulation
             }
         }
 
+
         /// <summary>
         ///     Updates the throw physics information.
         /// </summary>
         internal void UpdateThrowPhysicsInfo()
         {
-            Transform     sampledTransform     = GrabbedObject != null ? GrabbedObject.transform : this.transform;
-            Vector3       centerOfMassPosition = transform.TransformPoint(ThrowCenterOfMassLocalPosition);
-            Vector3       throwTipPosition     = transform.TransformPoint(ThrowTipLocalPosition);
-            PhysicsSample newSample            = new PhysicsSample(_physicsSampleWindow.LastOrDefault(), sampledTransform, centerOfMassPosition, throwTipPosition, Time.deltaTime);
+            var sampledTransform = GrabbedObject != null ? GrabbedObject.transform : transform;
+            var centerOfMassPosition = transform.TransformPoint(ThrowCenterOfMassLocalPosition);
+            var throwTipPosition = transform.TransformPoint(ThrowTipLocalPosition);
+            var newSample = new PhysicsSample(_physicsSampleWindow.LastOrDefault(), sampledTransform, centerOfMassPosition, throwTipPosition, Time.deltaTime);
 
             // Update timers
             _physicsSampleWindow.ForEach(s => s.Age += Time.deltaTime);
@@ -329,14 +348,14 @@ namespace UltimateXR.Manipulation
             _physicsSampleWindow.Add(newSample);
 
             // Compute instant and smoothed values:
-            Velocity              = newSample.Velocity;
-            AngularVelocity       = newSample.EulerSpeed;
-            SmoothVelocity        = Vector3Ext.Average(_physicsSampleWindow.Select(s => s.TotalVelocity));
+            Velocity = newSample.Velocity;
+            AngularVelocity = newSample.EulerSpeed;
+            SmoothVelocity = Vector3Ext.Average(_physicsSampleWindow.Select(s => s.TotalVelocity));
 
-            Quaternion relative = Quaternion.Inverse(_physicsSampleWindow.First().Rotation) * _physicsSampleWindow.Last().Rotation;
-            relative.ToAngleAxis(out float angle, out Vector3 axis);
-            
-            SmoothAngularVelocity = (angle * sampledTransform.TransformDirection(axis)) / _physicsSampleWindow.First().Age;
+            var relative = Quaternion.Inverse(_physicsSampleWindow.First().Rotation) * _physicsSampleWindow.Last().Rotation;
+            relative.ToAngleAxis(out var angle, out var axis);
+
+            SmoothAngularVelocity = angle * sampledTransform.TransformDirection(axis) / _physicsSampleWindow.First().Age;
         }
 
         #endregion
@@ -350,33 +369,34 @@ namespace UltimateXR.Manipulation
         {
             base.Awake();
 
-            UxrAvatarRig.GetHandSide(transform, out UxrHandSide handSide);
+            UxrAvatarRig.GetHandSide(transform, out var handSide);
             Side = handSide;
 
             if (Avatar != null)
             {
                 // Compute hand bone info
 
-                HandBone            = Avatar.GetHandBone(Side);
+                HandBone = Avatar.GetHandBone(Side);
                 HandBoneRelativePos = HandBone != null ? transform.InverseTransformPoint(HandBone.position) : Vector3.zero;
                 HandBoneRelativeRot = HandBone != null ? Quaternion.Inverse(transform.rotation) * HandBone.rotation : Quaternion.identity;
 
                 // Compute grabber info
 
-                UxrGrabber[] avatarGrabbers = Avatar.GetComponentsInChildren<UxrGrabber>();
+                var avatarGrabbers = Avatar.GetComponentsInChildren<UxrGrabber>();
 
                 OppositeHandGrabber = avatarGrabbers.FirstOrDefault(g => g != null && Side != g.Side);
-                GrabbedObject       = null;
+                GrabbedObject = null;
 
                 // Compute throw physics info
 
-                if (Avatar.GetHand(handSide).GetPalmCenter(out Vector3 palmCenter) && Avatar.GetHand(handSide).GetPalmToFingerDirection(out Vector3 palmToFinger))
+                if (Avatar.GetHand(handSide).GetPalmCenter(out var palmCenter) && Avatar.GetHand(handSide).GetPalmToFingerDirection(out var palmToFinger))
                 {
                     ThrowCenterOfMassLocalPosition = transform.InverseTransformPoint(palmCenter);
-                    ThrowTipLocalPosition          = transform.InverseTransformPoint(palmCenter + palmToFinger * ThrowAxisLength);
+                    ThrowTipLocalPosition = transform.InverseTransformPoint(palmCenter + palmToFinger * ThrowAxisLength);
                 }
             }
         }
+
 
         /// <summary>
         ///     Called when the object is destroyed. Releases any grabbed objects.
@@ -391,6 +411,7 @@ namespace UltimateXR.Manipulation
             }
         }
 
+
         /// <summary>
         ///     Called when the object is disabled. Releases any grabbed objects.
         /// </summary>
@@ -401,21 +422,6 @@ namespace UltimateXR.Manipulation
             if (GrabbedObject != null)
             {
                 UxrGrabManager.Instance.ReleaseObject(this, GrabbedObject, true);
-            }
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Assigns the hand the grabber belongs to.
-        /// </summary>
-        private void InitializeSide()
-        {
-            if (UxrAvatarRig.GetHandSide(transform, out UxrHandSide handSide))
-            {
-                Side = handSide;
             }
         }
 
@@ -443,10 +449,10 @@ namespace UltimateXR.Manipulation
         /// </summary>
         private const float SampleWindowSeconds = 0.15f;
 
-        private readonly List<PhysicsSample> _physicsSampleWindow = new List<PhysicsSample>();
+        private readonly List<PhysicsSample> _physicsSampleWindow = new();
 
-        private bool               _sideInitialized;
-        private UxrHandSide        _side;
+        private bool _sideInitialized;
+        private UxrHandSide _side;
         private UxrGrabbableObject _grabbedObject;
 
         #endregion

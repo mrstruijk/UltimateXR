@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ using UltimateXR.Mechanics.Weapons;
 using UltimateXR.UI.UnityInputModule;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
 
 namespace UltimateXR.Core
 {
@@ -57,9 +59,9 @@ namespace UltimateXR.Core
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private UxrPostUpdateMode _postUpdateMode     = UxrPostUpdateMode.LateUpdate;
-        [SerializeField] private bool              _usePrecaching      = true;
-        [SerializeField] private int               _precacheFrameCount = 50;
+        [SerializeField] private UxrPostUpdateMode _postUpdateMode = UxrPostUpdateMode.LateUpdate;
+        [SerializeField] private bool _usePrecaching = true;
+        [SerializeField] private int _precacheFrameCount = 50;
 
         #endregion
 
@@ -67,26 +69,26 @@ namespace UltimateXR.Core
 
         // SDK strings
 
-        public const string SdkUnityInputSystem    = "Unity Input System";
-        public const string SdkOculus              = "Oculus";
-        public const string SdkSteamVR             = "SteamVR";
+        public const string SdkUnityInputSystem = "Unity Input System";
+        public const string SdkOculus = "Oculus";
+        public const string SdkSteamVR = "SteamVR";
         public const string SdkWindowsMixedReality = "Windows Mixed Reality";
-        public const string SdkUltraleap           = "Ultraleap";
-        public const string SdkWaveXR              = "WaveXR";
-        public const string SdkPicoXR              = "PicoXR";
-        public const string SdkMagicLeap           = "Magic Leap";
+        public const string SdkUltraleap = "Ultraleap";
+        public const string SdkWaveXR = "WaveXR";
+        public const string SdkPicoXR = "PicoXR";
+        public const string SdkMagicLeap = "Magic Leap";
 
         // Events
 
         /// <summary>
         ///     Called right before precaching is about to start. It's called on the first frame that is displayed black.
-        ///     See <see cref="UsePrecaching"/>.
+        ///     See <see cref="UsePrecaching" />.
         /// </summary>
         public static event Action PrecachingStarting;
 
         /// <summary>
         ///     Called right after precaching finished. It's called on the first frame that starts to fade-in from black.
-        ///     See <see cref="UsePrecaching"/>.
+        ///     See <see cref="UsePrecaching" />.
         /// </summary>
         public static event Action PrecachingFinished;
 
@@ -184,6 +186,7 @@ namespace UltimateXR.Core
             Debug.LogError($"{component.GetType().Name} requires to be part of an {nameof(UxrAvatar)} in order to work correctly. GameObject is {component.GetPathUnderScene()}.");
         }
 
+
         /// <summary>
         ///     Given a component that requires an <see cref="UxrAvatar" /> component in the scene in order to work, logs an error
         ///     indicating that it's missing.
@@ -193,6 +196,7 @@ namespace UltimateXR.Core
         {
             Debug.LogError($"{component.GetType().Name} requires an avatar in the scene to work correctly. GameObject is {component.GetPathUnderScene()}.");
         }
+
 
         /// <summary>
         ///     Translates an avatar.
@@ -204,6 +208,7 @@ namespace UltimateXR.Core
         {
             MoveAvatarTo(avatar, avatar.CameraFloorPosition + translation, avatar.ProjectedCameraForward, propagateEvents);
         }
+
 
         /// <summary>
         ///     Moves an avatar to a new position on the floor, keeping the same viewing direction. The eye level is maintained.
@@ -219,6 +224,7 @@ namespace UltimateXR.Core
             MoveAvatarTo(avatar, newFloorPosition, avatar.ProjectedCameraForward, propagateEvents);
         }
 
+
         /// <summary>
         ///     Moves an avatar to a new position on the floor and a viewing direction. The eye level is maintained.
         /// </summary>
@@ -231,12 +237,12 @@ namespace UltimateXR.Core
         /// <param name="propagateEvents">Whether to propagate <see cref="AvatarMoving" />/<see cref="AvatarMoved" /> events</param>
         public void MoveAvatarTo(UxrAvatar avatar, Vector3 newFloorPosition, Vector3 newForward, bool propagateEvents = true)
         {
-            Transform avatarTransform = avatar.transform;
+            var avatarTransform = avatar.transform;
 
-            Vector3    oldPosition = avatarTransform.position;
-            Quaternion oldRotation = avatarTransform.rotation;
-            Vector3    newPosition = oldPosition;
-            Quaternion newRotation = oldRotation;
+            var oldPosition = avatarTransform.position;
+            var oldRotation = avatarTransform.rotation;
+            var newPosition = oldPosition;
+            var newRotation = oldRotation;
 
             TransformExt.ApplyAlignment(ref newPosition, ref newRotation, avatar.CameraFloorPosition, Quaternion.LookRotation(avatar.ProjectedCameraForward), newFloorPosition, Quaternion.LookRotation(newForward), true, true);
 
@@ -253,6 +259,7 @@ namespace UltimateXR.Core
             }
         }
 
+
         /// <summary>
         ///     See <see cref="MoveAvatarTo(UxrAvatar,UnityEngine.Vector3,UnityEngine.Vector3)">MoveAvatarTo</see>.
         /// </summary>
@@ -267,6 +274,7 @@ namespace UltimateXR.Core
             }
         }
 
+
         /// <summary>
         ///     Moves the avatar to a new floor level.
         /// </summary>
@@ -277,11 +285,12 @@ namespace UltimateXR.Core
         {
             if (avatar)
             {
-                Vector3 newPosition = avatar.CameraFloorPosition;
+                var newPosition = avatar.CameraFloorPosition;
                 newPosition.y = floorLevel;
                 MoveAvatarTo(avatar, newPosition, propagateEvents);
             }
         }
+
 
         /// <summary>
         ///     Rotates the avatar around its vertical axis, where a positive angle turns it to the right and a negative angle to
@@ -292,9 +301,10 @@ namespace UltimateXR.Core
         /// <param name="propagateEvents">Whether to propagate <see cref="AvatarMoving" />/<see cref="AvatarMoved" /> events</param>
         public void RotateAvatar(UxrAvatar avatar, float degrees, bool propagateEvents = true)
         {
-            Transform avatarTransform = avatar.transform;
+            var avatarTransform = avatar.transform;
             MoveAvatarTo(avatar, avatar.CameraFloorPosition, avatar.ProjectedCameraForward.GetRotationAround(avatarTransform.up, degrees), propagateEvents);
         }
+
 
         /// <summary>
         ///     Teleports the local <see cref="UxrAvatar" />. The local avatar is the avatar controlled by the user using the
@@ -336,23 +346,24 @@ namespace UltimateXR.Core
         ///     If <see cref="UxrTranslationType.Fade" /> translation mode was specified, the default black fade color can be
         ///     changed using <see cref="TeleportFadeColor" />.
         /// </remarks>
-        public void TeleportLocalAvatar(Vector3            newFloorPosition,
-                                        Quaternion         newRotation,
-                                        UxrTranslationType translationType    = UxrTranslationType.Immediate,
-                                        float              transitionSeconds  = UxrConstants.TeleportTranslationSeconds,
-                                        Action             teleportedCallback = null,
-                                        Action<bool>       finishedCallback   = null,
-                                        bool               propagateEvents    = true)
+        public void TeleportLocalAvatar(Vector3 newFloorPosition,
+                                        Quaternion newRotation,
+                                        UxrTranslationType translationType = UxrTranslationType.Immediate,
+                                        float transitionSeconds = UxrConstants.TeleportTranslationSeconds,
+                                        Action teleportedCallback = null,
+                                        Action<bool> finishedCallback = null,
+                                        bool propagateEvents = true)
         {
             if (_teleportCoroutine != null)
             {
                 StopCoroutine(_teleportCoroutine);
             }
 
-            bool hasFinished = false;
+            var hasFinished = false;
             _teleportCoroutine = StartCoroutine(TeleportLocalAvatarCoroutine(newFloorPosition, newRotation, translationType, transitionSeconds, teleportedCallback, () => hasFinished = true, propagateEvents));
             finishedCallback?.Invoke(hasFinished);
         }
+
 
         /// <summary>
         ///     Teleports the local <see cref="UxrAvatar" /> while making sure to keep relative position/orientation on moving
@@ -409,29 +420,30 @@ namespace UltimateXR.Core
         ///     If <see cref="UxrTranslationType.Fade" /> translation mode was specified, the default black fade color can be
         ///     changed using <see cref="TeleportFadeColor" />.
         /// </remarks>
-        public void TeleportLocalAvatarRelative(Transform          referenceTransform,
-                                                bool               parentToReference,
-                                                Vector3            newFloorPosition,
-                                                Quaternion         newRotation,
-                                                UxrTranslationType translationType    = UxrTranslationType.Immediate,
-                                                float              transitionSeconds  = UxrConstants.TeleportTranslationSeconds,
-                                                Action             teleportedCallback = null,
-                                                Action<bool>       finishedCallback   = null,
-                                                bool               propagateEvents    = true)
+        public void TeleportLocalAvatarRelative(Transform referenceTransform,
+                                                bool parentToReference,
+                                                Vector3 newFloorPosition,
+                                                Quaternion newRotation,
+                                                UxrTranslationType translationType = UxrTranslationType.Immediate,
+                                                float transitionSeconds = UxrConstants.TeleportTranslationSeconds,
+                                                Action teleportedCallback = null,
+                                                Action<bool> finishedCallback = null,
+                                                bool propagateEvents = true)
         {
             if (_teleportCoroutine != null)
             {
                 StopCoroutine(_teleportCoroutine);
             }
 
-            Vector3    newRelativeFloorPosition = referenceTransform != null ? referenceTransform.InverseTransformPoint(newFloorPosition) : newFloorPosition;
-            Quaternion newRelativeRotation      = referenceTransform != null ? Quaternion.Inverse(referenceTransform.rotation) * newRotation : newRotation;
-            bool       hasFinished              = false;
+            var newRelativeFloorPosition = referenceTransform != null ? referenceTransform.InverseTransformPoint(newFloorPosition) : newFloorPosition;
+            var newRelativeRotation = referenceTransform != null ? Quaternion.Inverse(referenceTransform.rotation) * newRotation : newRotation;
+            var hasFinished = false;
 
             _teleportCoroutine = StartCoroutine(TeleportLocalAvatarRelativeCoroutine(referenceTransform, parentToReference, newRelativeFloorPosition, newRelativeRotation, translationType, transitionSeconds, teleportedCallback, () => hasFinished = true, propagateEvents));
 
             finishedCallback?.Invoke(hasFinished);
         }
+
 
         /// <summary>
         ///     <para>
@@ -473,17 +485,17 @@ namespace UltimateXR.Core
         ///     If <see cref="UxrTranslationType.Fade" /> translation mode was specified, the default black fade color can be
         ///     changed using <see cref="TeleportFadeColor" />.
         /// </remarks>
-        public async Task TeleportLocalAvatarAsync(Vector3            newFloorPosition,
-                                                   Quaternion         newRotation,
-                                                   UxrTranslationType translationType    = UxrTranslationType.Immediate,
-                                                   float              transitionSeconds  = UxrConstants.TeleportTranslationSeconds,
-                                                   Action             teleportedCallback = null,
-                                                   CancellationToken  ct                 = default,
-                                                   bool               propagateEvents    = true)
+        public async Task TeleportLocalAvatarAsync(Vector3 newFloorPosition,
+                                                   Quaternion newRotation,
+                                                   UxrTranslationType translationType = UxrTranslationType.Immediate,
+                                                   float transitionSeconds = UxrConstants.TeleportTranslationSeconds,
+                                                   Action teleportedCallback = null,
+                                                   CancellationToken ct = default,
+                                                   bool propagateEvents = true)
         {
-            bool finished = false;
+            var finished = false;
 
-            Coroutine teleportCoroutine = StartCoroutine(TeleportLocalAvatarCoroutine(newFloorPosition, newRotation, translationType, transitionSeconds, teleportedCallback, () => finished = true, propagateEvents));
+            var teleportCoroutine = StartCoroutine(TeleportLocalAvatarCoroutine(newFloorPosition, newRotation, translationType, transitionSeconds, teleportedCallback, () => finished = true, propagateEvents));
             await TaskExt.WaitUntil(() => finished, ct);
 
             if (ct.IsCancellationRequested)
@@ -491,6 +503,7 @@ namespace UltimateXR.Core
                 StopCoroutine(teleportCoroutine);
             }
         }
+
 
         /// <summary>
         ///     <para>
@@ -540,21 +553,21 @@ namespace UltimateXR.Core
         ///     If <see cref="UxrTranslationType.Fade" /> translation mode was specified, the default black fade color can be
         ///     changed using <see cref="TeleportFadeColor" />.
         /// </remarks>
-        public async Task TeleportLocalAvatarRelativeAsync(Transform          referenceTransform,
-                                                           bool               parentToReference,
-                                                           Vector3            newFloorPosition,
-                                                           Quaternion         newRotation,
-                                                           UxrTranslationType translationType    = UxrTranslationType.Immediate,
-                                                           float              transitionSeconds  = UxrConstants.TeleportTranslationSeconds,
-                                                           Action             teleportedCallback = null,
-                                                           CancellationToken  ct                 = default,
-                                                           bool               propagateEvents    = true)
+        public async Task TeleportLocalAvatarRelativeAsync(Transform referenceTransform,
+                                                           bool parentToReference,
+                                                           Vector3 newFloorPosition,
+                                                           Quaternion newRotation,
+                                                           UxrTranslationType translationType = UxrTranslationType.Immediate,
+                                                           float transitionSeconds = UxrConstants.TeleportTranslationSeconds,
+                                                           Action teleportedCallback = null,
+                                                           CancellationToken ct = default,
+                                                           bool propagateEvents = true)
         {
-            Vector3    newRelativeFloorPosition = referenceTransform != null ? referenceTransform.InverseTransformPoint(newFloorPosition) : newFloorPosition;
-            Quaternion newRelativeRotation      = referenceTransform != null ? Quaternion.Inverse(referenceTransform.rotation) * newRotation : newRotation;
-            bool       hasFinished              = false;
+            var newRelativeFloorPosition = referenceTransform != null ? referenceTransform.InverseTransformPoint(newFloorPosition) : newFloorPosition;
+            var newRelativeRotation = referenceTransform != null ? Quaternion.Inverse(referenceTransform.rotation) * newRotation : newRotation;
+            var hasFinished = false;
 
-            Coroutine teleportCoroutine = StartCoroutine(TeleportLocalAvatarRelativeCoroutine(referenceTransform, parentToReference, newRelativeFloorPosition, newRelativeRotation, translationType, transitionSeconds, teleportedCallback, () => hasFinished = true, propagateEvents));
+            var teleportCoroutine = StartCoroutine(TeleportLocalAvatarRelativeCoroutine(referenceTransform, parentToReference, newRelativeFloorPosition, newRelativeRotation, translationType, transitionSeconds, teleportedCallback, () => hasFinished = true, propagateEvents));
             await TaskExt.WaitUntil(() => hasFinished, ct);
 
             if (ct.IsCancellationRequested)
@@ -562,6 +575,7 @@ namespace UltimateXR.Core
                 StopCoroutine(teleportCoroutine);
             }
         }
+
 
         /// <summary>
         ///     Rotates the local avatar around its vertical axis, where a positive angle turns it to the right and a negative
@@ -595,22 +609,23 @@ namespace UltimateXR.Core
         ///     If <see cref="UxrTranslationType.Fade" /> translation mode was specified, the default black fade color can be
         ///     changed using <see cref="TeleportFadeColor" />.
         /// </remarks>
-        public void RotateLocalAvatar(float           degrees,
-                                      UxrRotationType rotationType      = UxrRotationType.Immediate,
-                                      float           transitionSeconds = UxrConstants.TeleportRotationSeconds,
-                                      Action          rotatedCallback   = null,
-                                      Action<bool>    finishedCallback  = null,
-                                      bool            propagateEvents   = true)
+        public void RotateLocalAvatar(float degrees,
+                                      UxrRotationType rotationType = UxrRotationType.Immediate,
+                                      float transitionSeconds = UxrConstants.TeleportRotationSeconds,
+                                      Action rotatedCallback = null,
+                                      Action<bool> finishedCallback = null,
+                                      bool propagateEvents = true)
         {
             if (_teleportCoroutine != null)
             {
                 StopCoroutine(_teleportCoroutine);
             }
 
-            bool hasFinished = false;
+            var hasFinished = false;
             _teleportCoroutine = StartCoroutine(RotateLocalAvatarCoroutine(degrees, rotationType, transitionSeconds, rotatedCallback, () => hasFinished = true, propagateEvents));
             finishedCallback?.Invoke(hasFinished);
         }
+
 
         /// <summary>
         ///     <para>Asynchronous version of <see cref="RotateLocalAvatar" />.</para>
@@ -641,16 +656,16 @@ namespace UltimateXR.Core
         /// <param name="ct">Optional cancellation token to cancel the operation</param>
         /// <param name="propagateEvents">Whether to propagate <see cref="AvatarMoving" />/<see cref="AvatarMoved" /> events</param>
         /// <returns>Awaitable <see cref="Task" /> that will finish when the rotation finished</returns>
-        public async Task RotateLocalAvatarAsync(float             degrees,
-                                                 UxrRotationType   rotationType      = UxrRotationType.Immediate,
-                                                 float             transitionSeconds = UxrConstants.TeleportRotationSeconds,
-                                                 Action            rotatedCallback   = null,
-                                                 CancellationToken ct                = default,
-                                                 bool              propagateEvents   = true)
+        public async Task RotateLocalAvatarAsync(float degrees,
+                                                 UxrRotationType rotationType = UxrRotationType.Immediate,
+                                                 float transitionSeconds = UxrConstants.TeleportRotationSeconds,
+                                                 Action rotatedCallback = null,
+                                                 CancellationToken ct = default,
+                                                 bool propagateEvents = true)
         {
-            bool finished = false;
+            var finished = false;
 
-            Coroutine rotateCoroutine = StartCoroutine(RotateLocalAvatarCoroutine(degrees, rotationType, transitionSeconds, rotatedCallback, () => finished = true, propagateEvents));
+            var rotateCoroutine = StartCoroutine(RotateLocalAvatarCoroutine(degrees, rotationType, transitionSeconds, rotatedCallback, () => finished = true, propagateEvents));
             await TaskExt.WaitUntil(() => finished, ct);
 
             if (ct.IsCancellationRequested)
@@ -670,10 +685,11 @@ namespace UltimateXR.Core
         {
             base.Awake();
 
-            UxrAvatar.GlobalEnabled    += Avatar_Enabled;
-            SceneManager.sceneLoaded   += SceneManager_SceneLoaded;
+            UxrAvatar.GlobalEnabled += Avatar_Enabled;
+            SceneManager.sceneLoaded += SceneManager_SceneLoaded;
             SceneManager.sceneUnloaded += SceneManager_SceneUnloaded;
         }
+
 
         /// <summary>
         ///     Unsubscribes from global events.
@@ -682,12 +698,13 @@ namespace UltimateXR.Core
         {
             base.OnDestroy();
 
-            UxrAvatar.GlobalEnabled    -= Avatar_Enabled;
-            SceneManager.sceneLoaded   -= SceneManager_SceneLoaded;
+            UxrAvatar.GlobalEnabled -= Avatar_Enabled;
+            SceneManager.sceneLoaded -= SceneManager_SceneLoaded;
             SceneManager.sceneUnloaded -= SceneManager_SceneUnloaded;
 
             DestroyPrecachedInstances();
         }
+
 
         /// <summary>
         ///     Tries to find Unity canvases (<see cref="Canvas" /> components) and automatically set them up so that they can be
@@ -697,6 +714,7 @@ namespace UltimateXR.Core
         {
             SetupCanvases();
         }
+
 
         /// <summary>
         ///     Updates the key entities to the current frame. If the <see cref="PostUpdateMode" /> is set to
@@ -708,10 +726,10 @@ namespace UltimateXR.Core
             OnUpdating();
             OnUpdatingStage(UxrUpdateStage.Update);
 
-            foreach (UxrAvatarController avatarController in LocalAvatarControllers)
+            foreach (var avatarController in LocalAvatarControllers)
             {
                 OnAvatarUpdating(avatarController.Avatar, new UxrAvatarUpdateEventArgs(avatarController.Avatar, UxrUpdateStage.Update));
-                ((IUxrAvatarControllerUpdater)avatarController).UpdateAvatar();
+                ((IUxrAvatarControllerUpdater) avatarController).UpdateAvatar();
                 OnAvatarUpdated(avatarController.Avatar, new UxrAvatarUpdateEventArgs(avatarController.Avatar, UxrUpdateStage.Update));
             }
 
@@ -722,6 +740,7 @@ namespace UltimateXR.Core
                 PostUpdate();
             }
         }
+
 
         /// <summary>
         ///     Updates the key entities to the current frame. If the <see cref="PostUpdateMode" /> is set to
@@ -781,16 +800,17 @@ namespace UltimateXR.Core
         ///     If <see cref="UxrTranslationType.Fade" /> translation mode was specified, the default black fade color can be
         ///     changed using <see cref="TeleportFadeColor" />.
         /// </remarks>
-        public IEnumerator TeleportLocalAvatarCoroutine(Vector3            newFloorPosition,
-                                                        Quaternion         newRotation,
-                                                        UxrTranslationType translationType    = UxrTranslationType.Immediate,
-                                                        float              transitionSeconds  = UxrConstants.TeleportTranslationSeconds,
-                                                        Action             teleportedCallback = null,
-                                                        Action             finishedCallback   = null,
-                                                        bool               propagateEvents    = true)
+        public IEnumerator TeleportLocalAvatarCoroutine(Vector3 newFloorPosition,
+                                                        Quaternion newRotation,
+                                                        UxrTranslationType translationType = UxrTranslationType.Immediate,
+                                                        float transitionSeconds = UxrConstants.TeleportTranslationSeconds,
+                                                        Action teleportedCallback = null,
+                                                        Action finishedCallback = null,
+                                                        bool propagateEvents = true)
         {
             yield return TeleportLocalAvatarRelativeCoroutine(null, false, newFloorPosition, newRotation, translationType, transitionSeconds, teleportedCallback, finishedCallback, propagateEvents);
         }
+
 
         /// <summary>
         ///     Public teleporting coroutine that can be yielded from an external coroutine.
@@ -851,29 +871,30 @@ namespace UltimateXR.Core
         ///     If <see cref="UxrTranslationType.Fade" /> translation mode was specified, the default black fade color can be
         ///     changed using <see cref="TeleportFadeColor" />.
         /// </remarks>
-        public IEnumerator TeleportLocalAvatarRelativeCoroutine(Transform          referenceTransform,
-                                                                bool               parentToReference,
-                                                                Vector3            newRelativeFloorPosition,
-                                                                Quaternion         newRelativeRotation,
-                                                                UxrTranslationType translationType    = UxrTranslationType.Immediate,
-                                                                float              transitionSeconds  = UxrConstants.TeleportTranslationSeconds,
-                                                                Action             teleportedCallback = null,
-                                                                Action             finishedCallback   = null,
-                                                                bool               propagateEvents    = true)
+        public IEnumerator TeleportLocalAvatarRelativeCoroutine(Transform referenceTransform,
+                                                                bool parentToReference,
+                                                                Vector3 newRelativeFloorPosition,
+                                                                Quaternion newRelativeRotation,
+                                                                UxrTranslationType translationType = UxrTranslationType.Immediate,
+                                                                float transitionSeconds = UxrConstants.TeleportTranslationSeconds,
+                                                                Action teleportedCallback = null,
+                                                                Action finishedCallback = null,
+                                                                bool propagateEvents = true)
         {
             if (UxrAvatar.LocalAvatar)
             {
-                Vector3    oldFloorPosition         = UxrAvatar.LocalAvatar.CameraFloorPosition;
-                Quaternion oldFloorRotation         = Quaternion.LookRotation(UxrAvatar.LocalAvatar.ProjectedCameraForward);
-                Quaternion inverseReferenceRotation = referenceTransform != null ? Quaternion.Inverse(referenceTransform.rotation) : Quaternion.identity;
-                Matrix4x4  inverseReferenceMatrix   = referenceTransform != null ? referenceTransform.localToWorldMatrix.inverse : Matrix4x4.identity;
-                Vector3    oldRelativePosition      = inverseReferenceMatrix * oldFloorPosition;
-                Quaternion oldRelativeRotation      = inverseReferenceRotation * oldFloorRotation;
+                var oldFloorPosition = UxrAvatar.LocalAvatar.CameraFloorPosition;
+                var oldFloorRotation = Quaternion.LookRotation(UxrAvatar.LocalAvatar.ProjectedCameraForward);
+                var inverseReferenceRotation = referenceTransform != null ? Quaternion.Inverse(referenceTransform.rotation) : Quaternion.identity;
+                var inverseReferenceMatrix = referenceTransform != null ? referenceTransform.localToWorldMatrix.inverse : Matrix4x4.identity;
+                Vector3 oldRelativePosition = inverseReferenceMatrix * oldFloorPosition;
+                var oldRelativeRotation = inverseReferenceRotation * oldFloorRotation;
+
 
                 void TranslateAvatarInternal(float t = 1.0f)
                 {
-                    Vector3    newPos = Vector3.Lerp(oldRelativePosition, newRelativeFloorPosition, t);
-                    Quaternion newRot = oldRelativeRotation;
+                    var newPos = Vector3.Lerp(oldRelativePosition, newRelativeFloorPosition, t);
+                    var newRot = oldRelativeRotation;
 
                     if (Mathf.Approximately(t, 1.0f))
                     {
@@ -889,12 +910,14 @@ namespace UltimateXR.Core
                     MoveAvatarTo(UxrAvatar.LocalAvatar, newPos, newRot * Vector3.forward, propagateEvents);
                 }
 
+
                 switch (translationType)
                 {
                     case UxrTranslationType.Immediate:
 
                         TranslateAvatarInternal();
                         teleportedCallback?.Invoke();
+
                         break;
 
                     case UxrTranslationType.Fade:
@@ -903,6 +926,7 @@ namespace UltimateXR.Core
 
                         TranslateAvatarInternal();
                         teleportedCallback?.Invoke();
+
                         yield return null;
                         yield return UxrAvatar.LocalAvatar.CameraFade.StartFadeCoroutine(transitionSeconds * 0.5f, TeleportFadeColor.WithAlpha(1.0f), TeleportFadeColor.WithAlpha(0.0f));
 
@@ -924,6 +948,7 @@ namespace UltimateXR.Core
             _teleportCoroutine = null;
             finishedCallback?.Invoke();
         }
+
 
         /// <summary>
         ///     Public avatar rotation coroutine that can be yielded from an external coroutine.
@@ -958,22 +983,23 @@ namespace UltimateXR.Core
         ///     If <see cref="UxrRotationType.Fade" /> translation mode was specified, the default black fade color can be changed
         ///     using <see cref="TeleportFadeColor" />.
         /// </remarks>
-        public IEnumerator RotateLocalAvatarCoroutine(float           degrees,
-                                                      UxrRotationType rotationType      = UxrRotationType.Immediate,
-                                                      float           transitionSeconds = UxrConstants.TeleportRotationSeconds,
-                                                      Action          rotatedCallback   = null,
-                                                      Action          finishedCallback  = null,
-                                                      bool            propagateEvents   = true)
+        public IEnumerator RotateLocalAvatarCoroutine(float degrees,
+                                                      UxrRotationType rotationType = UxrRotationType.Immediate,
+                                                      float transitionSeconds = UxrConstants.TeleportRotationSeconds,
+                                                      Action rotatedCallback = null,
+                                                      Action finishedCallback = null,
+                                                      bool propagateEvents = true)
         {
             if (UxrAvatar.LocalAvatar)
             {
                 void RotateAvatarInternal(float t = 1.0f)
                 {
-                    Transform avatarTransform = UxrAvatar.LocalAvatar.transform;
-                    Vector3   initialForward  = UxrAvatar.LocalAvatar.ProjectedCameraForward;
+                    var avatarTransform = UxrAvatar.LocalAvatar.transform;
+                    var initialForward = UxrAvatar.LocalAvatar.ProjectedCameraForward;
 
                     MoveAvatarTo(UxrAvatar.LocalAvatar, UxrAvatar.LocalAvatar.CameraFloorPosition, initialForward.GetRotationAround(avatarTransform.up, degrees * t), propagateEvents);
                 }
+
 
                 switch (rotationType)
                 {
@@ -981,6 +1007,7 @@ namespace UltimateXR.Core
 
                         RotateAvatarInternal();
                         rotatedCallback?.Invoke();
+
                         break;
 
                     case UxrRotationType.Fade:
@@ -989,6 +1016,7 @@ namespace UltimateXR.Core
 
                         RotateAvatarInternal();
                         rotatedCallback?.Invoke();
+
                         yield return null;
                         yield return UxrAvatar.LocalAvatar.CameraFade.StartFadeCoroutine(transitionSeconds * 0.5f, TeleportFadeColor.WithAlpha(1.0f), TeleportFadeColor.WithAlpha(0.0f));
 
@@ -1006,6 +1034,7 @@ namespace UltimateXR.Core
             finishedCallback?.Invoke();
         }
 
+
         /// <summary>
         ///     Precaching coroutine. It will try to find all <see cref="IUxrPrecacheable" /> components in the scene and
         ///     pre-instantiate their objects in front of the camera while the screen is still faded black.
@@ -1019,7 +1048,7 @@ namespace UltimateXR.Core
         /// <returns>Coroutine enumerator</returns>
         private IEnumerator PrecacheCoroutine(Action onStarting = null, Action onFinished = null)
         {
-            UxrAvatar avatar = UxrAvatar.LocalAvatar;
+            var avatar = UxrAvatar.LocalAvatar;
 
             while (avatar == null)
             {
@@ -1027,24 +1056,25 @@ namespace UltimateXR.Core
 
                 avatar = UxrAvatar.LocalAvatar;
             }
-            
+
             onStarting?.Invoke();
 
             DestroyPrecachedInstances();
 
             _dynamicInstances = new Dictionary<int, GameObject>();
 
-            for (int sceneIndex = 0; sceneIndex < SceneManager.sceneCount; ++sceneIndex)
+            for (var sceneIndex = 0; sceneIndex < SceneManager.sceneCount; ++sceneIndex)
             {
-                Scene scene = SceneManager.GetSceneAt(sceneIndex);
+                var scene = SceneManager.GetSceneAt(sceneIndex);
                 AddScenePrecachedInstances(_dynamicInstances, scene, avatar);
             }
 
             AddScenePrecachedInstances(_dynamicInstances, Instance.gameObject.scene, avatar);
 
-            for (int frame = 0; frame < _precacheFrameCount; ++frame)
+            for (var frame = 0; frame < _precacheFrameCount; ++frame)
             {
                 avatar.CameraFade.EnableFadeColor(Color.black, 1.0f);
+
                 yield return null;
             }
 
@@ -1052,12 +1082,13 @@ namespace UltimateXR.Core
 
             onFinished?.Invoke();
 
-            float startFadeTime = Time.time;
-            float fadeDuration  = 0.5f;
+            var startFadeTime = Time.time;
+            var fadeDuration = 0.5f;
 
             while (Time.time - startFadeTime < fadeDuration)
             {
                 avatar.CameraFade.EnableFadeColor(Color.black, 1.0f - (Time.time - startFadeTime) / fadeDuration);
+
                 yield return null;
             }
 
@@ -1081,7 +1112,7 @@ namespace UltimateXR.Core
             {
                 if (UxrPointerInputModule.Instance != null && UxrPointerInputModule.Instance.AutoAssignEventCamera)
                 {
-                    foreach (UxrCanvas canvas in UxrCanvas.AllComponents)
+                    foreach (var canvas in UxrCanvas.AllComponents)
                     {
                         if (canvas.UnityCanvas)
                         {
@@ -1094,6 +1125,7 @@ namespace UltimateXR.Core
             }
         }
 
+
         /// <summary>
         ///     Called when a Unity scene was loaded. It is used to try to automatically set up the canvases in the scene so that
         ///     they can be used with UltimateXR.
@@ -1104,6 +1136,7 @@ namespace UltimateXR.Core
         {
             SetupCanvases();
         }
+
 
         /// <summary>
         ///     Called when a Unity scene was unloaded. It is used to try to automatically set up the canvases in the scene so that
@@ -1120,20 +1153,22 @@ namespace UltimateXR.Core
         #region Event Trigger Methods
 
         /// <summary>
-        ///     <see cref="PrecachingStarting"/> event trigger.
+        ///     <see cref="PrecachingStarting" /> event trigger.
         /// </summary>
         private void OnPrecachingStarting()
         {
             PrecachingStarting?.Invoke();
         }
 
+
         /// <summary>
-        ///     <see cref="PrecachingFinished"/> event trigger.
+        ///     <see cref="PrecachingFinished" /> event trigger.
         /// </summary>
         private void OnPrecachingFinished()
         {
             PrecachingFinished?.Invoke();
         }
+
 
         /// <summary>
         ///     <see cref="AvatarMoving" /> event trigger.
@@ -1143,6 +1178,7 @@ namespace UltimateXR.Core
         {
             AvatarMoving?.Invoke(this, args);
         }
+
 
         /// <summary>
         ///     <see cref="AvatarMoved" /> event trigger.
@@ -1154,6 +1190,7 @@ namespace UltimateXR.Core
             args.Avatar.NotifyAvatarMoved(args);
         }
 
+
         /// <summary>
         ///     <see cref="AvatarsUpdating" /> event trigger.
         /// </summary>
@@ -1161,6 +1198,7 @@ namespace UltimateXR.Core
         {
             AvatarsUpdating?.Invoke();
         }
+
 
         /// <summary>
         ///     <see cref="AvatarsUpdated" /> event trigger.
@@ -1170,6 +1208,7 @@ namespace UltimateXR.Core
             AvatarsUpdated?.Invoke();
         }
 
+
         /// <summary>
         ///     <see cref="StageUpdating" /> event trigger.
         /// </summary>
@@ -1177,6 +1216,7 @@ namespace UltimateXR.Core
         {
             StageUpdating?.Invoke(stage);
         }
+
 
         /// <summary>
         ///     <see cref="StageUpdated" /> event trigger.
@@ -1186,6 +1226,7 @@ namespace UltimateXR.Core
             StageUpdated?.Invoke(stage);
         }
 
+
         /// <summary>
         ///     <see cref="UxrAvatar.AvatarUpdating">UxrAvatar.AvatarUpdating</see> event trigger.
         /// </summary>
@@ -1193,6 +1234,7 @@ namespace UltimateXR.Core
         {
             avatar.RaiseAvatarUpdating(e);
         }
+
 
         /// <summary>
         ///     <see cref="UxrAvatar.AvatarUpdated">UxrAvatar.AvatarUpdated</see> event trigger.
@@ -1220,15 +1262,15 @@ namespace UltimateXR.Core
         private void PostUpdate()
         {
             // Avatar bones that are tracked
-            
+
             OnUpdatingStage(UxrUpdateStage.AvatarUsingTracking);
 
-            foreach (UxrAvatar avatar in UxrAvatar.EnabledComponents)
+            foreach (var avatar in UxrAvatar.EnabledComponents)
             {
-                if (avatar.AvatarMode == UxrAvatarMode.Local && avatar.AvatarController is { enabled: true } avatarController)
+                if (avatar.AvatarMode == UxrAvatarMode.Local && avatar.AvatarController is {enabled: true} avatarController)
                 {
                     OnAvatarUpdating(avatar, new UxrAvatarUpdateEventArgs(avatar, UxrUpdateStage.AvatarUsingTracking));
-                    ((IUxrAvatarControllerUpdater)avatarController).UpdateAvatarUsingTrackingDevices();
+                    ((IUxrAvatarControllerUpdater) avatarController).UpdateAvatarUsingTrackingDevices();
                     OnAvatarUpdated(avatar, new UxrAvatarUpdateEventArgs(avatar, UxrUpdateStage.AvatarUsingTracking));
                 }
             }
@@ -1239,7 +1281,7 @@ namespace UltimateXR.Core
 
             OnUpdatingStage(UxrUpdateStage.Manipulation);
 
-            foreach (UxrAvatarController avatarController in LocalAvatarControllers)
+            foreach (var avatarController in LocalAvatarControllers)
             {
                 OnAvatarUpdating(avatarController.Avatar, new UxrAvatarUpdateEventArgs(avatarController.Avatar, UxrUpdateStage.Manipulation));
             }
@@ -1247,12 +1289,12 @@ namespace UltimateXR.Core
             UxrGrabManager.Instance.UpdateManager();
             UxrWeaponManager.Instance.UpdateManager();
 
-            foreach (UxrAvatarController avatarController in LocalAvatarControllers)
+            foreach (var avatarController in LocalAvatarControllers)
             {
-                ((IUxrAvatarControllerUpdater)avatarController).UpdateAvatarManipulation();
+                ((IUxrAvatarControllerUpdater) avatarController).UpdateAvatarManipulation();
             }
 
-            foreach (UxrAvatarController avatarController in LocalAvatarControllers)
+            foreach (var avatarController in LocalAvatarControllers)
             {
                 OnAvatarUpdated(avatarController.Avatar, new UxrAvatarUpdateEventArgs(avatarController.Avatar, UxrUpdateStage.Manipulation));
             }
@@ -1263,12 +1305,12 @@ namespace UltimateXR.Core
 
             OnUpdatingStage(UxrUpdateStage.Animation);
 
-            foreach (UxrAvatar avatar in UxrAvatar.EnabledComponents)
+            foreach (var avatar in UxrAvatar.EnabledComponents)
             {
-                if (avatar.AvatarMode == UxrAvatarMode.Local && avatar.AvatarController is { enabled: true } avatarController)
+                if (avatar.AvatarMode == UxrAvatarMode.Local && avatar.AvatarController is {enabled: true} avatarController)
                 {
                     OnAvatarUpdating(avatar, new UxrAvatarUpdateEventArgs(avatar, UxrUpdateStage.Animation));
-                    ((IUxrAvatarControllerUpdater)avatarController).UpdateAvatarAnimation();
+                    ((IUxrAvatarControllerUpdater) avatarController).UpdateAvatarAnimation();
                     OnAvatarUpdated(avatar, new UxrAvatarUpdateEventArgs(avatar, UxrUpdateStage.Animation));
                 }
                 else if (avatar.AvatarMode == UxrAvatarMode.UpdateExternally)
@@ -1286,10 +1328,10 @@ namespace UltimateXR.Core
 
             OnUpdatingStage(UxrUpdateStage.PostProcess);
 
-            foreach (UxrAvatarController avatarController in LocalAvatarControllers)
+            foreach (var avatarController in LocalAvatarControllers)
             {
                 OnAvatarUpdating(avatarController.Avatar, new UxrAvatarUpdateEventArgs(avatarController.Avatar, UxrUpdateStage.PostProcess));
-                ((IUxrAvatarControllerUpdater)avatarController).UpdateAvatarPostProcess();
+                ((IUxrAvatarControllerUpdater) avatarController).UpdateAvatarPostProcess();
                 avatarController.Avatar.AvatarRigInfo.UpdateInfo();
                 OnAvatarUpdated(avatarController.Avatar, new UxrAvatarUpdateEventArgs(avatarController.Avatar, UxrUpdateStage.PostProcess));
             }
@@ -1297,6 +1339,7 @@ namespace UltimateXR.Core
             OnStageUpdated(UxrUpdateStage.PostProcess);
             OnUpdated();
         }
+
 
         /// <summary>
         ///     Processes all <see cref="IUxrPrecacheable" /> components in a scene and instantiates all required prefabs in front
@@ -1307,31 +1350,32 @@ namespace UltimateXR.Core
         /// <param name="avatar">Current avatar.</param>
         private void AddScenePrecachedInstances(Dictionary<int, GameObject> dynamicInstances, Scene scene, UxrAvatar avatar)
         {
-            for (int rootIndex = 0; rootIndex < scene.rootCount; ++rootIndex)
+            for (var rootIndex = 0; rootIndex < scene.rootCount; ++rootIndex)
             {
-                MonoBehaviour[] behaviours = scene.GetRootGameObjects()[rootIndex].GetComponentsInChildren<MonoBehaviour>(true);
+                var behaviours = scene.GetRootGameObjects()[rootIndex].GetComponentsInChildren<MonoBehaviour>(true);
 
-                for (int behaviourIndex = 0; behaviourIndex < behaviours.Length; ++behaviourIndex)
+                for (var behaviourIndex = 0; behaviourIndex < behaviours.Length; ++behaviourIndex)
                 {
                     if (behaviours[behaviourIndex] is IUxrPrecacheable)
                     {
-                        IUxrPrecacheable precacheable = behaviours[behaviourIndex] as IUxrPrecacheable;
+                        var precacheable = behaviours[behaviourIndex] as IUxrPrecacheable;
 
-                        foreach (GameObject precachedInstance in precacheable.PrecachedInstances)
+                        foreach (var precachedInstance in precacheable.PrecachedInstances)
                         {
                             if (precachedInstance != null && dynamicInstances.ContainsKey(precachedInstance.GetInstanceID()) == false)
                             {
                                 // Instantiate
-                                GameObject dynamicInstance = Instantiate(precachedInstance,
-                                                                         avatar.CameraTransform.position + avatar.CameraTransform.forward * 5.0f,
-                                                                         avatar.CameraTransform.rotation,
-                                                                         Instance.transform);
+                                var dynamicInstance = Instantiate(precachedInstance,
+                                    avatar.CameraTransform.position + avatar.CameraTransform.forward * 5.0f,
+                                    avatar.CameraTransform.rotation,
+                                    Instance.transform);
 
                                 dynamicInstances.Add(precachedInstance.GetInstanceID(), dynamicInstance);
 
                                 // Avoid sounds
-                                AudioSource[] audioSources = dynamicInstance.GetComponentsInChildren<AudioSource>(true);
-                                for (int audio = 0; audio < audioSources.Length; ++audio)
+                                var audioSources = dynamicInstance.GetComponentsInChildren<AudioSource>(true);
+
+                                for (var audio = 0; audio < audioSources.Length; ++audio)
                                 {
                                     audioSources[audio].enabled = false;
                                 }
@@ -1342,6 +1386,7 @@ namespace UltimateXR.Core
             }
         }
 
+
         /// <summary>
         ///     Destroys the currently loaded pre-cached instances.
         /// </summary>
@@ -1349,7 +1394,7 @@ namespace UltimateXR.Core
         {
             if (_dynamicInstances != null)
             {
-                foreach (KeyValuePair<int, GameObject> dynamicInstancePair in _dynamicInstances)
+                foreach (var dynamicInstancePair in _dynamicInstances)
                 {
                     if (dynamicInstancePair.Value != null)
                     {
@@ -1360,6 +1405,7 @@ namespace UltimateXR.Core
                 _dynamicInstances.Clear();
             }
         }
+
 
         /// <summary>
         ///     Starts the pre-caching process. If a pre-caching process is currently running, it will be stopped before starting
@@ -1378,6 +1424,7 @@ namespace UltimateXR.Core
             }
         }
 
+
         /// <summary>
         ///     Tries to set up all <see cref="Canvas" /> components currently in the scene so that they can work with UltimateXR
         ///     through the <see cref="UxrCanvas" /> component.
@@ -1386,7 +1433,7 @@ namespace UltimateXR.Core
         {
             if (UxrPointerInputModule.Instance)
             {
-                foreach (Canvas canvas in ComponentExt.GetAllComponentsInOpenScenes<Canvas>(true))
+                foreach (var canvas in ComponentExt.GetAllComponentsInOpenScenes<Canvas>(true))
                 {
                     if (canvas.renderMode == RenderMode.WorldSpace && canvas.GetComponent<UxrIgnoreCanvas>() == null)
                     {
@@ -1421,7 +1468,7 @@ namespace UltimateXR.Core
         {
             get
             {
-                foreach (UxrAvatar avatar in UxrAvatar.EnabledComponents)
+                foreach (var avatar in UxrAvatar.EnabledComponents)
                 {
                     if (avatar.AvatarMode == UxrAvatarMode.Local && avatar.AvatarController != null && avatar.AvatarController.enabled)
                     {
@@ -1431,9 +1478,9 @@ namespace UltimateXR.Core
             }
         }
 
-        private Coroutine                   _precacheCoroutine;
+        private Coroutine _precacheCoroutine;
         private Dictionary<int, GameObject> _dynamicInstances;
-        private Coroutine                   _teleportCoroutine;
+        private Coroutine _teleportCoroutine;
 
         #endregion
     }

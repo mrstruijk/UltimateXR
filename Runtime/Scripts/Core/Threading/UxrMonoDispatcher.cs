@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using UltimateXR.Core.Components;
 using UltimateXR.Extensions.System;
 using UltimateXR.Extensions.System.Threading;
 using UnityEngine;
+
 
 namespace UltimateXR.Core.Threading
 {
@@ -57,6 +59,7 @@ namespace UltimateXR.Core.Threading
             }
         }
 
+
         /// <summary>
         ///     Runs code on the main thread.
         /// </summary>
@@ -73,14 +76,14 @@ namespace UltimateXR.Core.Threading
         {
             if (!Application.isPlaying || Thread.CurrentThread == s_mainThread)
             {
-                foreach (Action action in actions)
+                foreach (var action in actions)
                 {
                     action();
                 }
             }
             else
             {
-                foreach (Action action in actions)
+                foreach (var action in actions)
                 {
                     Instance.Enqueue(action);
                 }
@@ -88,6 +91,7 @@ namespace UltimateXR.Core.Threading
                 Instance.StartDispatching();
             }
         }
+
 
         /// <summary>
         ///     Runs code on the main thread, asynchronously.
@@ -114,10 +118,12 @@ namespace UltimateXR.Core.Threading
             if (!Application.isPlaying || Thread.CurrentThread == s_mainThread)
             {
                 action();
+
                 return Task.CompletedTask;
             }
 
             Instance.Enqueue(action);
+
             return Instance.DispatchAsync(ct);
         }
 
@@ -145,6 +151,7 @@ namespace UltimateXR.Core.Threading
             }
         }
 
+
         /// <summary>
         ///     Flushes the queue, executing all remaining actions, and disables the component.
         /// </summary>
@@ -167,12 +174,14 @@ namespace UltimateXR.Core.Threading
         private static void Initialize()
         {
             s_mainThread = Thread.CurrentThread;
-            s_instance   = FindObjectOfType<UxrMonoDispatcher>();
+            s_instance = FindObjectOfType<UxrMonoDispatcher>();
+
             if (!(s_instance is null))
             {
                 Debug.Log($"[{nameof(UxrMonoDispatcher)} singleton successfully found in scene.");
             }
         }
+
 
         /// <summary>
         ///     Dispatches the current actions.
@@ -182,8 +191,10 @@ namespace UltimateXR.Core.Threading
         private Task DispatchAsync(CancellationToken ct)
         {
             StartDispatching();
+
             return TaskExt.WaitWhile(() => IsDispatching, ct);
         }
+
 
         /// <summary>
         ///     Enqueues a new action.
@@ -193,6 +204,7 @@ namespace UltimateXR.Core.Threading
         {
             _workQueue.Enqueue(workItem);
         }
+
 
         /// <summary>
         ///     Enables the component so that it starts dispatching the enqueued actions.
@@ -216,9 +228,9 @@ namespace UltimateXR.Core.Threading
         /// </summary>
         private bool IsDispatching => enabled;
 
-        private static   UxrMonoDispatcher s_instance;
-        private static   Thread            s_mainThread;
-        private readonly WorkDoubleBuffer  _workQueue = new WorkDoubleBuffer(8);
+        private static UxrMonoDispatcher s_instance;
+        private static Thread s_mainThread;
+        private readonly WorkDoubleBuffer _workQueue = new(8);
 
         #endregion
     }

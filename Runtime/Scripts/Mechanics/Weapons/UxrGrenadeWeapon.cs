@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Audio;
 using UltimateXR.Avatar;
@@ -11,6 +12,7 @@ using UltimateXR.Haptics;
 using UltimateXR.Manipulation;
 using UnityEngine;
 
+
 namespace UltimateXR.Mechanics.Weapons
 {
     /// <summary>
@@ -18,34 +20,85 @@ namespace UltimateXR.Mechanics.Weapons
     /// </summary>
     public class UxrGrenadeWeapon : UxrWeapon, IUxrPrecacheable
     {
+        #region Implicit IUxrPrecacheable
+
+        /// <inheritdoc />
+        public IEnumerable<GameObject> PrecachedInstances => _explosionPrefabPool;
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Explodes the grenade, causing explosion and damage.
+        /// </summary>
+        private void Explode()
+        {
+            if (_exploded)
+            {
+                return;
+            }
+
+            _exploded = true;
+
+            if (_explosionPrefabPool.Length > 0)
+            {
+                var newExplosion = Instantiate(_explosionPrefabPool[Random.Range(0, _explosionPrefabPool.Length)], transform.position, Quaternion.LookRotation(-UxrAvatar.LocalAvatar.CameraForward));
+
+                if (_explosionPrefabLife > 0.0f)
+                {
+                    Destroy(newExplosion, _explosionPrefabLife);
+                }
+            }
+
+            if (_createPhysicsExplosion)
+            {
+                var colliders = Physics.OverlapSphere(transform.position, _damageRadius);
+
+                foreach (var targetCollider in colliders)
+                {
+                    if (targetCollider.TryGetComponent<Rigidbody>(out var targetRigidbody))
+                    {
+                        targetRigidbody.AddExplosionForce(_physicsExplosionForce, transform.position, _damageRadius);
+                    }
+                }
+            }
+
+            UxrWeaponManager.Instance.ApplyRadiusDamage(Owner, transform.position, _damageRadius, _damageNear, _damageFar);
+
+            Destroy(gameObject);
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         // General parameters
         [SerializeField] private UxrGrenadeActivationMode _activationTrigger;
-        [SerializeField] private bool                     _explodeOnCollision;
+        [SerializeField] private bool _explodeOnCollision;
 
         // Timer
         [SerializeField] private float _timerSeconds = 3.0f;
 
         // Pin
         [SerializeField] private UxrGrabbableObject _pin;
-        [SerializeField] private UxrAudioSample     _audioRemovePin;
-        [SerializeField] private UxrHapticClip      _hapticRemovePin = new UxrHapticClip(null, UxrHapticClipType.Click);
+        [SerializeField] private UxrAudioSample _audioRemovePin;
+        [SerializeField] private UxrHapticClip _hapticRemovePin = new(null, UxrHapticClipType.Click);
 
         // Impact
         [SerializeField] private LayerMask _impactExplosionCollisionMask = ~0;
 
         // Explosion        
         [SerializeField] private GameObject[] _explosionPrefabPool;
-        [SerializeField] private float        _explosionPrefabLife = 4.0f;
+        [SerializeField] private float _explosionPrefabLife = 4.0f;
 
         // Damage
         [SerializeField] private float _damageRadius = 10.0f;
-        [SerializeField] private float _damageNear   = 10.0f;
+        [SerializeField] private float _damageNear = 10.0f;
         [SerializeField] private float _damageFar;
 
         // Physics
-        [SerializeField] private bool  _createPhysicsExplosion;
+        [SerializeField] private bool _createPhysicsExplosion;
         [SerializeField] private float _physicsExplosionForce = 10.0f;
 
         #endregion
@@ -85,13 +138,6 @@ namespace UltimateXR.Mechanics.Weapons
 
         #endregion
 
-        #region Implicit IUxrPrecacheable
-
-        /// <inheritdoc />
-        public IEnumerable<GameObject> PrecachedInstances => _explosionPrefabPool;
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -102,6 +148,7 @@ namespace UltimateXR.Mechanics.Weapons
             _timer = _timerSeconds;
         }
 
+
         /// <summary>
         ///     Freezes or resumes the detonation timer.
         /// </summary>
@@ -110,6 +157,7 @@ namespace UltimateXR.Mechanics.Weapons
         {
             _timerFrozen = freeze;
         }
+
 
         /// <summary>
         ///     Restores the detonation timer to the initial time.
@@ -144,6 +192,7 @@ namespace UltimateXR.Mechanics.Weapons
             }
         }
 
+
         /// <summary>
         ///     Unsubscribes from events.
         /// </summary>
@@ -165,6 +214,7 @@ namespace UltimateXR.Mechanics.Weapons
             }
         }
 
+
         /// <summary>
         ///     Initializes the component.
         /// </summary>
@@ -176,7 +226,7 @@ namespace UltimateXR.Mechanics.Weapons
             {
                 // Disable collider. We will enable it once the pin is grabbed.
 
-                Collider pinCollider = _pin.GetCachedComponent<Collider>();
+                var pinCollider = _pin.GetCachedComponent<Collider>();
 
                 if (pinCollider)
                 {
@@ -184,6 +234,7 @@ namespace UltimateXR.Mechanics.Weapons
                 }
             }
         }
+
 
         /// <summary>
         ///     Updates the component.
@@ -201,13 +252,14 @@ namespace UltimateXR.Mechanics.Weapons
             }
         }
 
+
         /// <summary>
         ///     Called by Unity when the physics-driven rigidbody collider hit something.
         /// </summary>
         /// <param name="collision">Collision object</param>
         private void OnCollisionEnter(Collision collision)
         {
-            if (_explodeOnCollision && (_impactExplosionCollisionMask.value & 1 << collision.collider.gameObject.layer) != 0)
+            if (_explodeOnCollision && (_impactExplosionCollisionMask.value & (1 << collision.collider.gameObject.layer)) != 0)
             {
                 Explode();
             }
@@ -230,6 +282,7 @@ namespace UltimateXR.Mechanics.Weapons
             }
         }
 
+
         /// <summary>
         ///     Called when the pin was grabbed. It will remove the pin from the grenade.
         /// </summary>
@@ -241,7 +294,7 @@ namespace UltimateXR.Mechanics.Weapons
             {
                 _timer = _timerSeconds;
 
-                Collider pinCollider = _pin.GetCachedComponent<Collider>();
+                var pinCollider = _pin.GetCachedComponent<Collider>();
 
                 if (pinCollider)
                 {
@@ -258,55 +311,11 @@ namespace UltimateXR.Mechanics.Weapons
 
         #endregion
 
-        #region Private Methods
-
-        /// <summary>
-        ///     Explodes the grenade, causing explosion and damage.
-        /// </summary>
-        private void Explode()
-        {
-            if (_exploded)
-            {
-                return;
-            }
-
-            _exploded = true;
-
-            if (_explosionPrefabPool.Length > 0)
-            {
-                GameObject newExplosion = Instantiate(_explosionPrefabPool[Random.Range(0, _explosionPrefabPool.Length)], transform.position, Quaternion.LookRotation(-UxrAvatar.LocalAvatar.CameraForward));
-
-                if (_explosionPrefabLife > 0.0f)
-                {
-                    Destroy(newExplosion, _explosionPrefabLife);
-                }
-            }
-
-            if (_createPhysicsExplosion)
-            {
-                Collider[] colliders = Physics.OverlapSphere(transform.position, _damageRadius);
-
-                foreach (Collider targetCollider in colliders)
-                {
-                    if (targetCollider.TryGetComponent<Rigidbody>(out var targetRigidbody))
-                    {
-                        targetRigidbody.AddExplosionForce(_physicsExplosionForce, transform.position, _damageRadius);
-                    }
-                }
-            }
-
-            UxrWeaponManager.Instance.ApplyRadiusDamage(Owner, transform.position, _damageRadius, _damageNear, _damageFar);
-
-            Destroy(gameObject);
-        }
-
-        #endregion
-
         #region Private Types & Data
 
         private float _timer = -1.0f;
-        private bool  _timerFrozen;
-        private bool  _exploded;
+        private bool _timerFrozen;
+        private bool _exploded;
 
         #endregion
     }

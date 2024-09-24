@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.IO;
 using System.Threading;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using UltimateXR.Extensions.System;
 using UltimateXR.Extensions.System.IO;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.Extensions.Unity.Render
 {
@@ -39,6 +41,7 @@ namespace UltimateXR.Extensions.Unity.Render
             self.overrideSprite = await SpriteExt.ReadSpriteBase64Async(self, base64, ct);
         }
 
+
         /// <summary>
         ///     Loads a sprite asynchronously from an URI and assigns it to the <see cref="Image.overrideSprite" /> property of an
         ///     <see cref="Image" />.
@@ -59,6 +62,7 @@ namespace UltimateXR.Extensions.Unity.Render
             self.overrideSprite = await SpriteExt.ReadSpriteFileAsync(self, uri, ct);
         }
 
+
         /// <summary>
         ///     Tries to load a sprite asynchronously from an URI and assign it to the <see cref="Image.overrideSprite" /> property
         ///     of an <see cref="Image" />.
@@ -75,6 +79,7 @@ namespace UltimateXR.Extensions.Unity.Render
             try
             {
                 await self.OverrideSpriteFromUriAsync(uri, ct);
+
                 return true;
             }
             catch
@@ -82,6 +87,7 @@ namespace UltimateXR.Extensions.Unity.Render
                 return false;
             }
         }
+
 
         /// <summary>
         ///     Tries to load a sprite asynchronously from a base64 encoded string and assign it to the
@@ -99,6 +105,7 @@ namespace UltimateXR.Extensions.Unity.Render
             try
             {
                 await self.OverrideSpriteFromBase64Async(base64, ct);
+
                 return true;
             }
             catch

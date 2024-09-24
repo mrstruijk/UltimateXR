@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Audio
 {
@@ -16,9 +18,30 @@ namespace UltimateXR.Audio
     [RequireComponent(typeof(AudioSource))]
     public class UxrAudioSourceStartPos : UxrComponent
     {
+        #region Unity
+
+        /// <summary>
+        ///     Sets the <see cref="AudioSource" /> play time using the current parameters.
+        /// </summary>
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+            if (UseRandomStartTime)
+            {
+                AudioSourceTarget.time = Random.Range(0.0f, AudioSourceTarget.clip.length);
+            }
+            else
+            {
+                AudioSourceTarget.time = StartTime;
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private bool  _random;
+        [SerializeField] private bool _random;
         [SerializeField] private float _startTime;
 
         #endregion
@@ -47,27 +70,6 @@ namespace UltimateXR.Audio
         {
             get => _startTime;
             set => _startTime = value;
-        }
-
-        #endregion
-
-        #region Unity
-
-        /// <summary>
-        ///     Sets the <see cref="AudioSource" /> play time using the current parameters.
-        /// </summary>
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-
-            if (UseRandomStartTime)
-            {
-                AudioSourceTarget.time = Random.Range(0.0f, AudioSourceTarget.clip.length);
-            }
-            else
-            {
-                AudioSourceTarget.time = StartTime;
-            }
         }
 
         #endregion

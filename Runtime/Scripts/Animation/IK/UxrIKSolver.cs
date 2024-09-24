@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Core;
 using UltimateXR.Core.Components.Composite;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.IK
 {
@@ -17,6 +19,46 @@ namespace UltimateXR.Animation.IK
     /// </summary>
     public abstract class UxrIKSolver : UxrAvatarComponent<UxrIKSolver>
     {
+        #region Public Methods
+
+        /// <summary>
+        ///     Solves the IK. Calls <see cref="InternalSolveIK" />,which is implemented in child classes, but calls the
+        ///     appropriate <see cref="Solving" /> and <see cref="Solved" /> events.
+        /// </summary>
+        public void SolveIK()
+        {
+            Solving?.Invoke();
+            InternalSolveIK();
+            Solved?.Invoke();
+        }
+
+        #endregion
+
+        #region Event Handling Methods
+
+        /// <summary>
+        ///     Will solve the IK chain in case it is not part of an avatar. If it is part of a VR avatar, the VR avatar will take
+        ///     care of calling the SolveIK method so that it is processed in the correct order, after the hands are updated.
+        /// </summary>
+        private void UxrManager_StageUpdating(UxrUpdateStage stage)
+        {
+            if (stage == UxrUpdateStage.PostProcess && Avatar == null && NeedsAutoUpdate)
+            {
+                SolveIK();
+            }
+        }
+
+        #endregion
+
+        #region Protected Methods
+
+        /// <summary>
+        ///     To be implemented in child classes to execute the actual IK solving algorithm for the current frame
+        /// </summary>
+        protected abstract void InternalSolveIK();
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private bool _enabled = true;
@@ -61,21 +103,6 @@ namespace UltimateXR.Animation.IK
 
         #endregion
 
-        #region Public Methods
-
-        /// <summary>
-        ///     Solves the IK. Calls <see cref="InternalSolveIK" />,which is implemented in child classes, but calls the
-        ///     appropriate <see cref="Solving" /> and <see cref="Solved" /> events.
-        /// </summary>
-        public void SolveIK()
-        {
-            Solving?.Invoke();
-            InternalSolveIK();
-            Solved?.Invoke();
-        }
-
-        #endregion
-
         #region Unity
 
         /// <summary>
@@ -87,6 +114,7 @@ namespace UltimateXR.Animation.IK
             UxrManager.StageUpdating += UxrManager_StageUpdating;
         }
 
+
         /// <summary>
         ///     Unsubscribes from events
         /// </summary>
@@ -95,31 +123,6 @@ namespace UltimateXR.Animation.IK
             base.OnDisable();
             UxrManager.StageUpdating -= UxrManager_StageUpdating;
         }
-
-        #endregion
-
-        #region Event Handling Methods
-
-        /// <summary>
-        ///     Will solve the IK chain in case it is not part of an avatar. If it is part of a VR avatar, the VR avatar will take
-        ///     care of calling the SolveIK method so that it is processed in the correct order, after the hands are updated.
-        /// </summary>
-        private void UxrManager_StageUpdating(UxrUpdateStage stage)
-        {
-            if (stage == UxrUpdateStage.PostProcess && Avatar == null && NeedsAutoUpdate)
-            {
-                SolveIK();
-            }
-        }
-
-        #endregion
-
-        #region Protected Methods
-
-        /// <summary>
-        ///     To be implemented in child classes to execute the actual IK solving algorithm for the current frame
-        /// </summary>
-        protected abstract void InternalSolveIK();
 
         #endregion
     }

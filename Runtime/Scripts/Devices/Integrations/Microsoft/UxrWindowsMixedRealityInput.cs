@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core;
 using UnityEngine;
+
 
 namespace UltimateXR.Devices.Integrations.Microsoft
 {
@@ -17,6 +19,20 @@ namespace UltimateXR.Devices.Integrations.Microsoft
         #region Inspector Properties/Serialized Fields
 
         [Header("Windows Mixed Reality:")] [SerializeField] private float _joystickDeadZone = 0.15f;
+
+        #endregion
+
+        #region Public Overrides UxrUnityXRControllerInput
+
+        /// <inheritdoc />
+        public override IEnumerable<string> ControllerNames
+        {
+            get
+            {
+                yield return "Windows MR Controller";
+                yield return "Windows MR Controller OpenXR";
+            }
+        }
 
         #endregion
 
@@ -36,31 +52,18 @@ namespace UltimateXR.Devices.Integrations.Microsoft
         /// <inheritdoc />
         public override float JoystickDeadZone => _joystickDeadZone;
 
+
         /// <inheritdoc />
         public override bool HasControllerElements(UxrHandSide handSide, UxrControllerElements controllerElements)
         {
-            uint validElements = (uint)(UxrControllerElements.Joystick |
+            var validElements = (uint) (UxrControllerElements.Joystick |
                                         UxrControllerElements.Joystick2 |
                                         UxrControllerElements.Grip |
                                         UxrControllerElements.Trigger |
                                         UxrControllerElements.Menu |
                                         UxrControllerElements.DPad);
 
-            return (validElements & (uint)controllerElements) == (uint)controllerElements;
-        }
-
-        #endregion
-
-        #region Public Overrides UxrUnityXRControllerInput
-
-        /// <inheritdoc />
-        public override IEnumerable<string> ControllerNames
-        {
-            get
-            {
-                yield return "Windows MR Controller";
-                yield return "Windows MR Controller OpenXR";
-            }
+            return (validElements & (uint) controllerElements) == (uint) controllerElements;
         }
 
         #endregion

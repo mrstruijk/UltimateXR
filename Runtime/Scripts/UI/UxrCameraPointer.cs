@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Devices;
 using UltimateXR.Extensions.System.Collections;
 using UnityEngine;
+
 
 namespace UltimateXR.UI
 {
@@ -34,9 +36,9 @@ namespace UltimateXR.UI
                 _crosshair.GetComponentsInChildren<Collider>().ForEach(c => c.enabled = false);
             }
 
-            ClickInput     = UxrInputButtons.None;
+            ClickInput = UxrInputButtons.None;
             ShowLaserInput = UxrInputButtons.None;
-            IsInvisible    = true;
+            IsInvisible = true;
 
             // At the end so that the overriden parameters initialize the UxrLaserPointer component correctly.
             base.Awake();

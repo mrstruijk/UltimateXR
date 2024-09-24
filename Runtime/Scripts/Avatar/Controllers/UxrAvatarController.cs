@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UltimateXR.Core.Components.Composite;
 using UltimateXR.Devices;
 using UltimateXR.Locomotion;
 using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Controllers
 {
@@ -45,48 +47,6 @@ namespace UltimateXR.Avatar.Controllers
 
         #endregion
 
-        #region Explicit IUxrAvatarControllerUpdater
-
-        /// <inheritdoc />
-        void IUxrAvatarControllerUpdater.UpdateAvatar()
-        {
-            // Will call the protected method, which is allowed to be overriden by child classes while
-            // hiding the functionality so that it is handled by the framework in the correct order.
-            UpdateAvatar();
-        }
-
-        /// <inheritdoc />
-        void IUxrAvatarControllerUpdater.UpdateAvatarUsingTrackingDevices()
-        {
-            UpdateAvatarUsingTrackingDevices();
-        }
-
-        /// <inheritdoc />
-        void IUxrAvatarControllerUpdater.UpdateAvatarManipulation()
-        {
-            // Will call the protected method, which is allowed to be overriden by child classes while
-            // hiding the functionality so that it is handled by the framework in the correct order.
-            UpdateAvatarManipulation();
-        }
-
-        /// <inheritdoc />
-        void IUxrAvatarControllerUpdater.UpdateAvatarAnimation()
-        {
-            // Will call the protected method, which is allowed to be overriden by child classes while
-            // hiding the functionality so that it is handled by the framework in the correct order.
-            UpdateAvatarAnimation();
-        }
-        
-        /// <inheritdoc />
-        void IUxrAvatarControllerUpdater.UpdateAvatarPostProcess()
-        {
-            // Will call the protected method, which is allowed to be overriden by child classes while
-            // hiding the functionality so that it is handled by the framework in the correct order.
-            UpdateAvatarPostProcess();
-        }
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -104,6 +64,52 @@ namespace UltimateXR.Avatar.Controllers
 
         #endregion
 
+        #region Explicit IUxrAvatarControllerUpdater
+
+        /// <inheritdoc />
+        void IUxrAvatarControllerUpdater.UpdateAvatar()
+        {
+            // Will call the protected method, which is allowed to be overriden by child classes while
+            // hiding the functionality so that it is handled by the framework in the correct order.
+            UpdateAvatar();
+        }
+
+
+        /// <inheritdoc />
+        void IUxrAvatarControllerUpdater.UpdateAvatarUsingTrackingDevices()
+        {
+            UpdateAvatarUsingTrackingDevices();
+        }
+
+
+        /// <inheritdoc />
+        void IUxrAvatarControllerUpdater.UpdateAvatarManipulation()
+        {
+            // Will call the protected method, which is allowed to be overriden by child classes while
+            // hiding the functionality so that it is handled by the framework in the correct order.
+            UpdateAvatarManipulation();
+        }
+
+
+        /// <inheritdoc />
+        void IUxrAvatarControllerUpdater.UpdateAvatarAnimation()
+        {
+            // Will call the protected method, which is allowed to be overriden by child classes while
+            // hiding the functionality so that it is handled by the framework in the correct order.
+            UpdateAvatarAnimation();
+        }
+
+
+        /// <inheritdoc />
+        void IUxrAvatarControllerUpdater.UpdateAvatarPostProcess()
+        {
+            // Will call the protected method, which is allowed to be overriden by child classes while
+            // hiding the functionality so that it is handled by the framework in the correct order.
+            UpdateAvatarPostProcess();
+        }
+
+        #endregion
+
         #region Protected Methods
 
         /// <summary>
@@ -116,12 +122,14 @@ namespace UltimateXR.Avatar.Controllers
         {
         }
 
+
         /// <summary>
         ///     Executes the avatar manipulation actions based on user input.
         /// </summary>
         protected virtual void UpdateAvatarManipulation()
         {
         }
+
 
         /// <summary>
         ///     Updates the animation and rig transforms for the given frame. It is performed in a later stage than
@@ -132,6 +140,7 @@ namespace UltimateXR.Avatar.Controllers
         {
         }
 
+
         /// <summary>
         ///     Updates the avatar for a given frame, at the end of all stages and UltimateXR manager updates such as the
         ///     <see cref="UxrGrabManager" />. It can be used to perform operations that require to be executed at the end of all
@@ -141,61 +150,65 @@ namespace UltimateXR.Avatar.Controllers
         {
         }
 
+
         /// <summary>
         ///     Updates the currently enabled input devices.
         /// </summary>
         protected void UpdateInputDevice()
         {
-            foreach (UxrControllerInput controllerInput in Avatar.EnabledControllerInputs)
+            foreach (var controllerInput in Avatar.EnabledControllerInputs)
             {
                 // Call method using internal interface
-                ((IUxrControllerInputUpdater)controllerInput).UpdateInput();
+                ((IUxrControllerInputUpdater) controllerInput).UpdateInput();
             }
 
             // Refresh render mode
             Avatar.RenderMode = Avatar.RenderMode;
         }
 
+
         /// <summary>
         ///     Updates the tracking devices.
         /// </summary>
         protected void UpdateTrackingDevices()
         {
-            foreach (UxrTrackingDevice trackingDevice in Avatar.TrackingDevices)
+            foreach (var trackingDevice in Avatar.TrackingDevices)
             {
                 if (trackingDevice && trackingDevice.enabled)
                 {
                     // Update tracking by calling internal interface
-                    ((IUxrTrackingUpdater)trackingDevice).UpdateSensors();
+                    ((IUxrTrackingUpdater) trackingDevice).UpdateSensors();
                 }
             }
         }
+
 
         /// <summary>
         ///     Updates the avatar using the current tracking data.
         /// </summary>
         protected void UpdateAvatarUsingTrackingDevices()
         {
-            foreach (UxrTrackingDevice trackingDevice in Avatar.TrackingDevices)
+            foreach (var trackingDevice in Avatar.TrackingDevices)
             {
                 if (trackingDevice && trackingDevice.enabled)
                 {
                     // Update avatar by calling internal interface
-                    ((IUxrTrackingUpdater)trackingDevice).UpdateAvatar();
+                    ((IUxrTrackingUpdater) trackingDevice).UpdateAvatar();
                 }
             }
         }
+
 
         /// <summary>
         ///     Updates the enabled locomotion components in the avatar.
         /// </summary>
         protected void UpdateLocomotion()
         {
-            foreach (UxrLocomotion locomotion in UxrLocomotion.GetComponents<UxrLocomotion>(Avatar))
+            foreach (var locomotion in UxrLocomotion.GetComponents<UxrLocomotion>(Avatar))
             {
                 if (locomotion.gameObject.activeInHierarchy && locomotion.enabled)
                 {
-                    ((IUxrLocomotionUpdater)locomotion).UpdateLocomotion();
+                    ((IUxrLocomotionUpdater) locomotion).UpdateLocomotion();
                 }
             }
         }

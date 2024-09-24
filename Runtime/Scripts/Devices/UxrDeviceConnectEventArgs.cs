@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
+
 
 namespace UltimateXR.Devices
 {
@@ -12,15 +14,6 @@ namespace UltimateXR.Devices
     /// </summary>
     public class UxrDeviceConnectEventArgs : EventArgs
     {
-        #region Public Types & Data
-
-        /// <summary>
-        ///     Gets whether the device was connected (true) or disconnected (false).
-        /// </summary>
-        public bool IsConnected { get; }
-
-        #endregion
-
         #region Constructors & Finalizer
 
         /// <summary>
@@ -31,6 +24,15 @@ namespace UltimateXR.Devices
         {
             IsConnected = isConnected;
         }
+
+        #endregion
+
+        #region Public Types & Data
+
+        /// <summary>
+        ///     Gets whether the device was connected (true) or disconnected (false).
+        /// </summary>
+        public bool IsConnected { get; }
 
         #endregion
     }

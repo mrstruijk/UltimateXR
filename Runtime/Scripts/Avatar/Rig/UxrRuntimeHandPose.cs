@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Core;
 using UltimateXR.Manipulation.HandPoses;
+
 
 namespace UltimateXR.Avatar.Rig
 {
@@ -20,13 +22,6 @@ namespace UltimateXR.Avatar.Rig
     /// </summary>
     public class UxrRuntimeHandPose
     {
-        #region Public Types & Data
-
-        public string          PoseName { get; }
-        public UxrHandPoseType PoseType { get; }
-
-        #endregion
-
         #region Constructors & Finalizer
 
         /// <summary>
@@ -36,13 +31,13 @@ namespace UltimateXR.Avatar.Rig
         /// <param name="handPoseAsset">Hand pose in a well-known coordinate system</param>
         public UxrRuntimeHandPose(UxrAvatar avatar, UxrHandPoseAsset handPoseAsset)
         {
-            PoseName                  = handPoseAsset.name;
-            PoseType                  = handPoseAsset.PoseType;
-            HandDescriptorLeft        = new UxrRuntimeHandDescriptor(avatar, UxrHandSide.Left,  handPoseAsset, UxrHandPoseType.Fixed, UxrBlendPoseType.None);
-            HandDescriptorRight       = new UxrRuntimeHandDescriptor(avatar, UxrHandSide.Right, handPoseAsset, UxrHandPoseType.Fixed, UxrBlendPoseType.None);
-            HandDescriptorOpenLeft    = new UxrRuntimeHandDescriptor(avatar, UxrHandSide.Left,  handPoseAsset, UxrHandPoseType.Blend, UxrBlendPoseType.OpenGrip);
-            HandDescriptorOpenRight   = new UxrRuntimeHandDescriptor(avatar, UxrHandSide.Right, handPoseAsset, UxrHandPoseType.Blend, UxrBlendPoseType.OpenGrip);
-            HandDescriptorClosedLeft  = new UxrRuntimeHandDescriptor(avatar, UxrHandSide.Left,  handPoseAsset, UxrHandPoseType.Blend, UxrBlendPoseType.ClosedGrip);
+            PoseName = handPoseAsset.name;
+            PoseType = handPoseAsset.PoseType;
+            HandDescriptorLeft = new UxrRuntimeHandDescriptor(avatar, UxrHandSide.Left, handPoseAsset, UxrHandPoseType.Fixed, UxrBlendPoseType.None);
+            HandDescriptorRight = new UxrRuntimeHandDescriptor(avatar, UxrHandSide.Right, handPoseAsset, UxrHandPoseType.Fixed, UxrBlendPoseType.None);
+            HandDescriptorOpenLeft = new UxrRuntimeHandDescriptor(avatar, UxrHandSide.Left, handPoseAsset, UxrHandPoseType.Blend, UxrBlendPoseType.OpenGrip);
+            HandDescriptorOpenRight = new UxrRuntimeHandDescriptor(avatar, UxrHandSide.Right, handPoseAsset, UxrHandPoseType.Blend, UxrBlendPoseType.OpenGrip);
+            HandDescriptorClosedLeft = new UxrRuntimeHandDescriptor(avatar, UxrHandSide.Left, handPoseAsset, UxrHandPoseType.Blend, UxrBlendPoseType.ClosedGrip);
             HandDescriptorClosedRight = new UxrRuntimeHandDescriptor(avatar, UxrHandSide.Right, handPoseAsset, UxrHandPoseType.Blend, UxrBlendPoseType.ClosedGrip);
         }
 
@@ -63,22 +58,29 @@ namespace UltimateXR.Avatar.Rig
         {
             return PoseType switch
                    {
-                               UxrHandPoseType.Fixed                                                   => handSide == UxrHandSide.Left ? HandDescriptorLeft : HandDescriptorRight,
-                               UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.OpenGrip   => handSide == UxrHandSide.Left ? HandDescriptorOpenLeft : HandDescriptorOpenRight,
-                               UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.ClosedGrip => handSide == UxrHandSide.Left ? HandDescriptorClosedLeft : HandDescriptorClosedRight,
-                               _                                                                       => throw new ArgumentOutOfRangeException(nameof(blendPoseType), blendPoseType, null)
+                       UxrHandPoseType.Fixed => handSide == UxrHandSide.Left ? HandDescriptorLeft : HandDescriptorRight,
+                       UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.OpenGrip => handSide == UxrHandSide.Left ? HandDescriptorOpenLeft : HandDescriptorOpenRight,
+                       UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.ClosedGrip => handSide == UxrHandSide.Left ? HandDescriptorClosedLeft : HandDescriptorClosedRight,
+                       _ => throw new ArgumentOutOfRangeException(nameof(blendPoseType), blendPoseType, null)
                    };
         }
 
         #endregion
 
+        #region Public Types & Data
+
+        public string PoseName { get; }
+        public UxrHandPoseType PoseType { get; }
+
+        #endregion
+
         #region Private Types & Data
 
-        private UxrRuntimeHandDescriptor HandDescriptorLeft        { get; }
-        private UxrRuntimeHandDescriptor HandDescriptorRight       { get; }
-        private UxrRuntimeHandDescriptor HandDescriptorOpenLeft    { get; }
-        private UxrRuntimeHandDescriptor HandDescriptorOpenRight   { get; }
-        private UxrRuntimeHandDescriptor HandDescriptorClosedLeft  { get; }
+        private UxrRuntimeHandDescriptor HandDescriptorLeft { get; }
+        private UxrRuntimeHandDescriptor HandDescriptorRight { get; }
+        private UxrRuntimeHandDescriptor HandDescriptorOpenLeft { get; }
+        private UxrRuntimeHandDescriptor HandDescriptorOpenRight { get; }
+        private UxrRuntimeHandDescriptor HandDescriptorClosedLeft { get; }
         private UxrRuntimeHandDescriptor HandDescriptorClosedRight { get; }
 
         #endregion

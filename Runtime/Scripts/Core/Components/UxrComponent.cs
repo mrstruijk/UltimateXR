@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UltimateXR.Extensions.System;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
+
 
 namespace UltimateXR.Core.Components
 {
@@ -144,12 +146,12 @@ namespace UltimateXR.Core.Components
         public Vector3 InitialEulerAngles { get; private set; } = Vector3.zero;
 
         /// <summary>
-        ///     Gets the transformation matrix relative to the parent transform at the moment of <see cref="Awake"/> 
+        ///     Gets the transformation matrix relative to the parent transform at the moment of <see cref="Awake" />
         /// </summary>
         public Matrix4x4 InitialRelativeMatrix { get; private set; } = Matrix4x4.identity;
-        
+
         /// <summary>
-        ///     Gets the <see cref="Transform.localToWorldMatrix"/> value at the moment of <see cref="Awake"/> 
+        ///     Gets the <see cref="Transform.localToWorldMatrix" /> value at the moment of <see cref="Awake" />
         /// </summary>
         public Matrix4x4 InitialLocalToWorldMatrix { get; private set; } = Matrix4x4.identity;
 
@@ -162,22 +164,24 @@ namespace UltimateXR.Core.Components
         /// </summary>
         public static void DestroyAllComponents()
         {
-            foreach (UxrComponent component in AllComponents)
+            foreach (var component in AllComponents)
             {
                 Destroy(component);
             }
         }
+
 
         /// <summary>
         ///     Destroys all gameObjects the components belong to.
         /// </summary>
         public static void DestroyAllGameObjects()
         {
-            foreach (UxrComponent component in AllComponents)
+            foreach (var component in AllComponents)
             {
                 Destroy(component.gameObject);
             }
         }
+
 
         /// <summary>
         ///     Tries to get a component by its unique id.
@@ -189,6 +193,7 @@ namespace UltimateXR.Core.Components
         {
             return s_componentsById.TryGetValue(id, out component);
         }
+
 
         /// <summary>
         ///     Changes the object's unique Id if it doesn't exist.
@@ -208,11 +213,13 @@ namespace UltimateXR.Core.Components
                 UniqueId = newUniqueId;
                 s_componentsById.Add(UniqueId, this);
                 OnUniqueIdChanged(UniqueId, newUniqueId);
+
                 return true;
             }
 
             return false;
         }
+
 
         /// <summary>
         ///     Caches the data of the GameObject's <see cref="Transform" /> component.
@@ -222,19 +229,20 @@ namespace UltimateXR.Core.Components
         /// </summary>
         public void RecomputeInitialTransformData()
         {
-            Transform tf = transform;
-            InitialParent             = tf.parent;
-            InitialLocalPosition      = tf.localPosition;
-            InitialLocalRotation      = tf.localRotation;
-            InitialLocalEulerAngles   = tf.localEulerAngles;
-            InitialLocalScale         = tf.localScale;
-            InitialLossyScale         = tf.lossyScale;
-            InitialPosition           = tf.position;
-            InitialRotation           = tf.rotation;
-            InitialEulerAngles        = tf.eulerAngles;
-            InitialRelativeMatrix     = Matrix4x4.TRS(tf.localPosition, tf.localRotation, tf.localScale);
+            var tf = transform;
+            InitialParent = tf.parent;
+            InitialLocalPosition = tf.localPosition;
+            InitialLocalRotation = tf.localRotation;
+            InitialLocalEulerAngles = tf.localEulerAngles;
+            InitialLocalScale = tf.localScale;
+            InitialLossyScale = tf.lossyScale;
+            InitialPosition = tf.position;
+            InitialRotation = tf.rotation;
+            InitialEulerAngles = tf.eulerAngles;
+            InitialRelativeMatrix = Matrix4x4.TRS(tf.localPosition, tf.localRotation, tf.localScale);
             InitialLocalToWorldMatrix = tf.localToWorldMatrix;
         }
+
 
         /// <summary>
         ///     Returns a Unity <see cref="Component" /> cached by type given that there is only one in the GameObject.
@@ -245,9 +253,9 @@ namespace UltimateXR.Core.Components
         /// <returns>Cached component or null if there is none.</returns>
         public T GetCachedComponent<T>() where T : Component
         {
-            if (_cachedComponents.TryGetValue(typeof(T), out Component component))
+            if (_cachedComponents.TryGetValue(typeof(T), out var component))
             {
-                return (T)component;
+                return (T) component;
             }
 
             component = GetComponent<T>();
@@ -257,7 +265,7 @@ namespace UltimateXR.Core.Components
                 _cachedComponents.Add(typeof(T), component);
             }
 
-            return (T)component;
+            return (T) component;
         }
 
         #endregion
@@ -282,7 +290,7 @@ namespace UltimateXR.Core.Components
             }
             else
             {
-                int collisionCount = s_idCollisions[this.GetUniqueScenePath()]++;
+                var collisionCount = s_idCollisions[this.GetUniqueScenePath()]++;
                 UniqueId = (this.GetUniqueScenePath() + $"Collision{collisionCount}").GetMd5x2();
             }
 
@@ -298,6 +306,7 @@ namespace UltimateXR.Core.Components
             OnRegistered();
         }
 
+
         /// <summary>
         ///     Unity <see cref="OnDestroy" /> handling.
         /// </summary>
@@ -308,6 +317,7 @@ namespace UltimateXR.Core.Components
             OnUnregistered();
         }
 
+
         /// <summary>
         ///     Sets the <see cref="IsApplicationQuitting" /> value to indicate that the application is quitting.
         /// </summary>
@@ -315,6 +325,7 @@ namespace UltimateXR.Core.Components
         {
             IsApplicationQuitting = true;
         }
+
 
         /// <summary>
         ///     Unity <see cref="OnEnable" /> handling.
@@ -324,6 +335,7 @@ namespace UltimateXR.Core.Components
             OnEnabled();
         }
 
+
         /// <summary>
         ///     Unity <see cref="OnDisable" /> handling.
         /// </summary>
@@ -332,13 +344,14 @@ namespace UltimateXR.Core.Components
             OnDisabled();
         }
 
+
         /// <summary>
         ///     Unity <see cref="Reset" /> handling.
         /// </summary>
         protected virtual void Reset()
         {
-
         }
+
 
         /// <summary>
         ///     Unity <see cref="Start" /> handling.
@@ -347,12 +360,12 @@ namespace UltimateXR.Core.Components
         {
         }
 
+
         /// <summary>
         ///     Unity <see cref="OnValidate" /> handling.
         /// </summary>
         protected virtual void OnValidate()
         {
-            
         }
 
         #endregion
@@ -367,6 +380,7 @@ namespace UltimateXR.Core.Components
             GlobalRegistering?.Invoke(this);
         }
 
+
         /// <summary>
         ///     <see cref="GlobalRegistered" /> event trigger.
         /// </summary>
@@ -374,6 +388,7 @@ namespace UltimateXR.Core.Components
         {
             GlobalRegistered?.Invoke(this);
         }
+
 
         /// <summary>
         ///     <see cref="GlobalUnregistering" /> event trigger.
@@ -383,6 +398,7 @@ namespace UltimateXR.Core.Components
             GlobalUnregistering?.Invoke(this);
         }
 
+
         /// <summary>
         ///     <see cref="GlobalUnregistered" /> event trigger.
         /// </summary>
@@ -390,6 +406,7 @@ namespace UltimateXR.Core.Components
         {
             GlobalUnregistered?.Invoke(this);
         }
+
 
         /// <summary>
         ///     <see cref="GlobalEnabled" /> event trigger.
@@ -399,6 +416,7 @@ namespace UltimateXR.Core.Components
             GlobalEnabled?.Invoke(this);
         }
 
+
         /// <summary>
         ///     <see cref="GlobalDisabled" /> event trigger.
         /// </summary>
@@ -406,6 +424,7 @@ namespace UltimateXR.Core.Components
         {
             GlobalDisabled?.Invoke(this);
         }
+
 
         /// <summary>
         ///     <see cref="GlobalIdChanging" /> event trigger.
@@ -416,6 +435,7 @@ namespace UltimateXR.Core.Components
         {
             GlobalIdChanging?.Invoke(oldId, newId);
         }
+
 
         /// <summary>
         ///     <see cref="GlobalIdChanged" /> event trigger.
@@ -434,17 +454,17 @@ namespace UltimateXR.Core.Components
         /// <summary>
         ///     Static dictionary of all <see cref="UxrComponent" /> components by id.
         /// </summary>
-        private static readonly Dictionary<string, UxrComponent> s_componentsById = new Dictionary<string, UxrComponent>();
+        private static readonly Dictionary<string, UxrComponent> s_componentsById = new();
 
         /// <summary>
         ///     Static dictionary of path collisions so that unique ids are generated.
         /// </summary>
-        private static readonly Dictionary<string, int> s_idCollisions = new Dictionary<string, int>();
+        private static readonly Dictionary<string, int> s_idCollisions = new();
 
         /// <summary>
         ///     Dictionary of cached components by type.
         /// </summary>
-        private readonly Dictionary<Type, Component> _cachedComponents = new Dictionary<Type, Component>();
+        private readonly Dictionary<Type, Component> _cachedComponents = new();
 
         #endregion
     }

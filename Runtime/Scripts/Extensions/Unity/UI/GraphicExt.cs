@@ -3,8 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-using UnityEngine;
+
 using UnityEngine.UI;
+
 
 namespace UltimateXR.Extensions.Unity.UI
 {
@@ -22,8 +23,8 @@ namespace UltimateXR.Extensions.Unity.UI
         /// <param name="alpha">New alpha value</param>
         public static void SetAlpha(this Graphic graphic, float alpha)
         {
-            Color color = graphic.color;
-            color.a       = alpha;
+            var color = graphic.color;
+            color.a = alpha;
             graphic.color = color;
         }
 

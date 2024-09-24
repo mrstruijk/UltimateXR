@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Manipulation
 {
     /// <summary>
@@ -19,6 +20,6 @@ namespace UltimateXR.Manipulation
         /// <summary>
         ///     Grabbed object rotate based on the hand position around the object's pivot. Useful for levers, steering wheels...
         /// </summary>
-        HandPositionAroundPivot,
+        HandPositionAroundPivot
     }
 }

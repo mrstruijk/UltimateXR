@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
+
 
 namespace UltimateXR.Extensions.System.Collections
 {
@@ -37,6 +39,7 @@ namespace UltimateXR.Extensions.System.Collections
             }
         }
 
+
         /// <summary>
         ///     Gets a given value defined by a key in a dictionary. If the key is not found, it is added and the value is given
         ///     the default value.
@@ -50,9 +53,9 @@ namespace UltimateXR.Extensions.System.Collections
         ///     value
         /// </returns>
         public static TValue GetOrAddValue<TKey, TValue>(this IDictionary<TKey, TValue> self, TKey key)
-                    where TValue : new()
+            where TValue : new()
         {
-            if (!self.TryGetValue(key, out TValue value))
+            if (!self.TryGetValue(key, out var value))
             {
                 value = new TValue();
                 self.Add(key, value);

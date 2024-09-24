@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Core;
+
 
 namespace UltimateXR.Devices
 {
@@ -13,6 +15,23 @@ namespace UltimateXR.Devices
     /// </summary>
     public sealed class UxrInput1DEventArgs : EventArgs
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="handSide">Target hand</param>
+        /// <param name="target">Input target</param>
+        /// <param name="newValue">New input value</param>
+        public UxrInput1DEventArgs(UxrHandSide handSide, UxrInput1D target, float newValue)
+        {
+            HandSide = handSide;
+            Target = target;
+            Value = newValue;
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -29,23 +48,6 @@ namespace UltimateXR.Devices
         ///     Gets the new input value.
         /// </summary>
         public float Value { get; }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="handSide">Target hand</param>
-        /// <param name="target">Input target</param>
-        /// <param name="newValue">New input value</param>
-        public UxrInput1DEventArgs(UxrHandSide handSide, UxrInput1D target, float newValue)
-        {
-            HandSide = handSide;
-            Target   = target;
-            Value    = newValue;
-        }
 
         #endregion
     }

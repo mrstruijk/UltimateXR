@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ using UltimateXR.Core;
 using UltimateXR.Devices;
 using UltimateXR.Manipulation;
 using Object = UnityEngine.Object;
+
 
 namespace UltimateXR.Editor
 {
@@ -37,6 +39,7 @@ namespace UltimateXR.Editor
             return Object.FindObjectOfType<UxrManager>() != null;
         }
 
+
         /// <summary>
         ///     Checks for the presence of an <see cref="UxrAvatar" /> in scene.
         /// </summary>
@@ -46,6 +49,7 @@ namespace UltimateXR.Editor
             return Object.FindObjectOfType<UxrAvatar>() != null;
         }
 
+
         /// <summary>
         ///     Checks for the presence of an <see cref="UxrAvatar" /> in scene that has <see cref="UxrGrabber" />
         ///     components set up.
@@ -53,7 +57,7 @@ namespace UltimateXR.Editor
         /// <returns>Boolean telling the result</returns>
         public static bool CheckAvatarInSceneWithGrabbing()
         {
-            UxrAvatar avatar = Object.FindObjectOfType<UxrAvatar>();
+            var avatar = Object.FindObjectOfType<UxrAvatar>();
 
             if (avatar == null)
             {
@@ -63,6 +67,7 @@ namespace UltimateXR.Editor
             return avatar.GetComponentInChildren<UxrGrabber>() != null;
         }
 
+
         /// <summary>
         ///     Checks for the presence of an <see cref="UxrAvatar" /> in scene that has <see cref="UxrGrabber" />
         ///     components set up and a controller that has grab events.
@@ -70,7 +75,7 @@ namespace UltimateXR.Editor
         /// <returns>Boolean telling the result</returns>
         public static bool CheckAvatarInSceneWithGrabController()
         {
-            UxrAvatar avatar = Object.FindObjectOfType<UxrAvatar>();
+            var avatar = Object.FindObjectOfType<UxrAvatar>();
 
             if (avatar == null)
             {
@@ -82,9 +87,9 @@ namespace UltimateXR.Editor
                 return false;
             }
 
-            UxrStandardAvatarController controller = avatar.GetComponentInChildren<UxrStandardAvatarController>();
+            var controller = avatar.GetComponentInChildren<UxrStandardAvatarController>();
 
-            foreach (UxrAvatarControllerEvent controllerEvent in controller.LeftControllerEvents.Concat(controller.RightControllerEvents))
+            foreach (var controllerEvent in controller.LeftControllerEvents.Concat(controller.RightControllerEvents))
             {
                 if (controllerEvent.TypeOfAnimation == UxrAnimationType.LeftHandGrab || controllerEvent.TypeOfAnimation == UxrAnimationType.RightHandGrab)
                 {
@@ -95,13 +100,14 @@ namespace UltimateXR.Editor
             return false;
         }
 
+
         /// <summary>
         ///     Returns a list of button names to be used in inspector components (EditorGUI.MaskField specifically).
         /// </summary>
         /// <returns>List with names of available buttons</returns>
         public static List<string> GetControllerButtonNames()
         {
-            List<string> buttonNames = new List<string>(Enum.GetNames(typeof(UxrInputButtons)));
+            var buttonNames = new List<string>(Enum.GetNames(typeof(UxrInputButtons)));
             buttonNames.Remove(UxrInputButtons.None.ToString());
             buttonNames.Remove(UxrInputButtons.Any.ToString());
             buttonNames.Remove(UxrInputButtons.Everything.ToString());
@@ -109,16 +115,18 @@ namespace UltimateXR.Editor
             return buttonNames;
         }
 
+
         /// <summary>
         ///     Returns a list of avatar render modes removing composition flags
         /// </summary>
         /// <returns>List of available buttons</returns>
         public static List<string> GetAvatarRenderModeNames()
         {
-            List<string> renderModeNames = new List<string>(Enum.GetNames(typeof(UxrAvatarRenderModes)));
+            var renderModeNames = new List<string>(Enum.GetNames(typeof(UxrAvatarRenderModes)));
             renderModeNames.Remove(UxrAvatarRenderModes.None.ToString());
             renderModeNames.Remove(UxrAvatarRenderModes.AllControllers.ToString());
             renderModeNames.Remove(UxrAvatarRenderModes.AllControllersAndAvatar.ToString());
+
             return renderModeNames;
         }
 

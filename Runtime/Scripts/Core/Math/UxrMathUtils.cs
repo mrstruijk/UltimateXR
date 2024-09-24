@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Core.Math
 {
@@ -37,35 +39,41 @@ namespace UltimateXR.Core.Math
         public static int FindLineCircleIntersections2D(Vector2 linePoint1, Vector2 linePoint2, Vector2 circlePos, float radius, out Vector2 intersection1, out Vector2 intersection2)
         {
             float t;
-            float dx  = linePoint2.x - linePoint1.x;
-            float dy  = linePoint2.y - linePoint1.y;
-            float a   = dx * dx + dy * dy;
-            float b   = 2 * (dx * (linePoint1.x - circlePos.x) + dy * (linePoint1.y - circlePos.y));
-            float c   = (linePoint1.x - circlePos.x) * (linePoint1.x - circlePos.x) + (linePoint1.y - circlePos.y) * (linePoint1.y - circlePos.y) - radius * radius;
-            float det = b * b - 4 * a * c;
+            var dx = linePoint2.x - linePoint1.x;
+            var dy = linePoint2.y - linePoint1.y;
+            var a = dx * dx + dy * dy;
+            var b = 2 * (dx * (linePoint1.x - circlePos.x) + dy * (linePoint1.y - circlePos.y));
+            var c = (linePoint1.x - circlePos.x) * (linePoint1.x - circlePos.x) + (linePoint1.y - circlePos.y) * (linePoint1.y - circlePos.y) - radius * radius;
+            var det = b * b - 4 * a * c;
 
             if (a <= 0.0000001 || det < 0)
             {
                 // No real solutions.
                 intersection1 = new Vector3(float.NaN, float.NaN);
                 intersection2 = new Vector3(float.NaN, float.NaN);
+
                 return 0;
             }
+
             if (det == 0)
             {
                 // One solution.
-                t             = -b / (2 * a);
+                t = -b / (2 * a);
                 intersection1 = new Vector3(linePoint1.x + t * dx, linePoint1.y + t * dy);
-                intersection2 = new Vector3(float.NaN,             float.NaN);
+                intersection2 = new Vector3(float.NaN, float.NaN);
+
                 return 1;
             }
+
             // Two solutions.
-            t             = (-b + Mathf.Sqrt(det)) / (2 * a);
+            t = (-b + Mathf.Sqrt(det)) / (2 * a);
             intersection1 = new Vector3(linePoint1.x + t * dx, linePoint1.y + t * dy);
-            t             = (-b - Mathf.Sqrt(det)) / (2 * a);
+            t = (-b - Mathf.Sqrt(det)) / (2 * a);
             intersection2 = new Vector3(linePoint1.x + t * dx, linePoint1.y + t * dy);
+
             return 2;
         }
+
 
         /// <summary>
         ///     Applies to <paramref name="position" /> and <paramref name="rotation" /> the transformation to make a transform
@@ -81,15 +89,15 @@ namespace UltimateXR.Core.Math
         /// <param name="rotate">Allows to control whether to rotate or not</param>
         /// <param name="translate">Allows to control whether to translate or not</param>
         /// <param name="t">Optional interpolation value [0.0, 1.0]</param>
-        public static void ApplyAlignment(ref Vector3    position,
+        public static void ApplyAlignment(ref Vector3 position,
                                           ref Quaternion rotation,
-                                          Vector3        sourcePosition,
-                                          Quaternion     sourceRotation,
-                                          Vector3        targetPosition,
-                                          Quaternion     targetRotation,
-                                          bool           rotate,
-                                          bool           translate,
-                                          float          t = 1.0f)
+                                          Vector3 sourcePosition,
+                                          Quaternion sourceRotation,
+                                          Vector3 targetPosition,
+                                          Quaternion targetRotation,
+                                          bool rotate,
+                                          bool translate,
+                                          float t = 1.0f)
         {
             if (rotate)
             {
@@ -101,6 +109,7 @@ namespace UltimateXR.Core.Math
                 position += (targetPosition - sourcePosition) * t;
             }
         }
+
 
         /// <summary>
         ///     Checks if a box is completely (all corners) inside a BoxCollider
@@ -115,8 +124,8 @@ namespace UltimateXR.Core.Math
         /// <returns>True if all corners are inside the BoxCollider plus margin</returns>
         public static bool IsBoxInsideBox(Vector3 boxPosition, Quaternion boxRotation, Vector3 boxScale, Vector3 boxCenter, Vector3 boxSize, BoxCollider boxVolume, Vector3 margin = default)
         {
-            Matrix4x4 boxMatrix = Matrix4x4.TRS(boxPosition, boxRotation, boxScale);
-            Vector3[] corners   = new Vector3[8];
+            var boxMatrix = Matrix4x4.TRS(boxPosition, boxRotation, boxScale);
+            var corners = new Vector3[8];
 
             corners[0] = boxMatrix.MultiplyPoint(boxCenter + new Vector3(+boxSize.x, +boxSize.y, +boxSize.z) * 0.5f);
             corners[1] = boxMatrix.MultiplyPoint(boxCenter + new Vector3(+boxSize.x, +boxSize.y, -boxSize.z) * 0.5f);
@@ -127,7 +136,7 @@ namespace UltimateXR.Core.Math
             corners[6] = boxMatrix.MultiplyPoint(boxCenter + new Vector3(-boxSize.x, -boxSize.y, +boxSize.z) * 0.5f);
             corners[7] = boxMatrix.MultiplyPoint(boxCenter + new Vector3(-boxSize.x, -boxSize.y, -boxSize.z) * 0.5f);
 
-            for (int i = 0; i < 8; ++i)
+            for (var i = 0; i < 8; ++i)
             {
                 if (!corners[i].IsInsideBox(boxVolume, margin))
                 {
@@ -137,6 +146,7 @@ namespace UltimateXR.Core.Math
 
             return true;
         }
+
 
         /// <summary>
         ///     Checks if box1 is completely (all corners) inside box2
@@ -153,20 +163,20 @@ namespace UltimateXR.Core.Math
         /// <param name="box2Size">Size of box2 in its own local coordinates</param>
         /// <param name="margin">Allowed margin for each x, y, z component</param>
         /// <returns>True if all corners of box1 are inside box2 plus margin</returns>
-        public static bool IsBoxInsideBox(Vector3    box1Position,
+        public static bool IsBoxInsideBox(Vector3 box1Position,
                                           Quaternion box1Rotation,
-                                          Vector3    box1Scale,
-                                          Vector3    box1Center,
-                                          Vector3    box1Size,
-                                          Vector3    box2Position,
+                                          Vector3 box1Scale,
+                                          Vector3 box1Center,
+                                          Vector3 box1Size,
+                                          Vector3 box2Position,
                                           Quaternion box2Rotation,
-                                          Vector3    box2Scale,
-                                          Vector3    box2Center,
-                                          Vector3    box2Size,
-                                          Vector3    margin = default)
+                                          Vector3 box2Scale,
+                                          Vector3 box2Center,
+                                          Vector3 box2Size,
+                                          Vector3 margin = default)
         {
-            Matrix4x4 boxMatrix = Matrix4x4.TRS(box1Position, box1Rotation, box1Scale);
-            Vector3[] corners   = new Vector3[8];
+            var boxMatrix = Matrix4x4.TRS(box1Position, box1Rotation, box1Scale);
+            var corners = new Vector3[8];
 
             corners[0] = boxMatrix.MultiplyPoint(box1Center + new Vector3(+box1Size.x, +box1Size.y, +box1Size.z) * 0.5f);
             corners[1] = boxMatrix.MultiplyPoint(box1Center + new Vector3(+box1Size.x, +box1Size.y, -box1Size.z) * 0.5f);
@@ -177,7 +187,7 @@ namespace UltimateXR.Core.Math
             corners[6] = boxMatrix.MultiplyPoint(box1Center + new Vector3(-box1Size.x, -box1Size.y, +box1Size.z) * 0.5f);
             corners[7] = boxMatrix.MultiplyPoint(box1Center + new Vector3(-box1Size.x, -box1Size.y, -box1Size.z) * 0.5f);
 
-            for (int i = 0; i < 8; ++i)
+            for (var i = 0; i < 8; ++i)
             {
                 if (!corners[i].IsInsideBox(box2Position, box2Rotation, box2Scale, box2Center, box2Size, margin))
                 {

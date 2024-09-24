@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Animation.GameObjects;
 using UltimateXR.Audio;
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -18,16 +20,39 @@ namespace UltimateXR.Mechanics.Weapons
     /// </summary>
     public class UxrExplodeHierarchy : UxrComponent
     {
+        #region Private Types & Data
+
+        private Collider[] _colliders;
+
+        #endregion
+
+        #region Event Handling Methods
+
+        /// <summary>
+        ///     Called when the component was added to an object with an <see cref="UxrActor" /> component and it took damage.
+        /// </summary>
+        /// <param name="sender">Event sender</param>
+        /// <param name="e">Event parameters</param>
+        private void Actor_Damaged(object sender, UxrDamageEventArgs e)
+        {
+            if (e.Dies)
+            {
+                ExplodeNow();
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private UxrAudioSample[] _audioExplodePool;
-        [SerializeField] private float            _minExplodeSpeed        = 5.0f;
-        [SerializeField] private float            _maxExplodeSpeed        = 20.0f;
-        [SerializeField] private float            _minExplodeAngularSpeed = 1.0f;
-        [SerializeField] private float            _maxExplodeAngularSpeed = 8.0f;
-        [SerializeField] private float            _secondsToExplode       = -1.0f;
-        [SerializeField] private float            _piecesLifeSeconds      = 5.0f;
-        [SerializeField] private float            _piecesFadeoutSeconds   = 1.0f;
+        [SerializeField] private float _minExplodeSpeed = 5.0f;
+        [SerializeField] private float _maxExplodeSpeed = 20.0f;
+        [SerializeField] private float _minExplodeAngularSpeed = 1.0f;
+        [SerializeField] private float _maxExplodeAngularSpeed = 8.0f;
+        [SerializeField] private float _secondsToExplode = -1.0f;
+        [SerializeField] private float _piecesLifeSeconds = 5.0f;
+        [SerializeField] private float _piecesFadeoutSeconds = 1.0f;
 
         #endregion
 
@@ -90,7 +115,7 @@ namespace UltimateXR.Mechanics.Weapons
             get => _secondsToExplode;
             set
             {
-                ExplodeTimer      = value;
+                ExplodeTimer = value;
                 _secondsToExplode = value;
             }
         }
@@ -128,13 +153,14 @@ namespace UltimateXR.Mechanics.Weapons
         /// <param name="piecesLifeSeconds">Life in seconds to assign to the chunks, after which they will be destroyed</param>
         public static void Explode(GameObject root, float minExplodeVelocity, float maxExplodeVelocity, float secondsToExplode, float piecesLifeSeconds)
         {
-            UxrExplodeHierarchy explodeHierarchy = root.AddComponent<UxrExplodeHierarchy>();
+            var explodeHierarchy = root.AddComponent<UxrExplodeHierarchy>();
 
-            explodeHierarchy.MinExplodeSpeed   = minExplodeVelocity;
-            explodeHierarchy.MaxExplodeSpeed   = maxExplodeVelocity;
-            explodeHierarchy.SecondsToExplode  = secondsToExplode;
+            explodeHierarchy.MinExplodeSpeed = minExplodeVelocity;
+            explodeHierarchy.MaxExplodeSpeed = maxExplodeVelocity;
+            explodeHierarchy.SecondsToExplode = secondsToExplode;
             explodeHierarchy.PiecesLifeSeconds = piecesLifeSeconds;
         }
+
 
         /// <summary>
         ///     Explodes an object immediately using the current parameters.
@@ -146,22 +172,22 @@ namespace UltimateXR.Mechanics.Weapons
                 return;
             }
 
-            foreach (Collider chunkCollider in _colliders)
+            foreach (var chunkCollider in _colliders)
             {
                 chunkCollider.enabled = true;
                 chunkCollider.transform.SetParent(null);
-                
+
                 if (!chunkCollider.gameObject.TryGetComponent<Rigidbody>(out var rigidBodyChunk))
                 {
                     rigidBodyChunk = chunkCollider.gameObject.AddComponent<Rigidbody>();
                 }
 
-                rigidBodyChunk.isKinematic     = false;
-                rigidBodyChunk.velocity        = Random.insideUnitSphere * Random.Range(MinExplodeSpeed,        MaxExplodeSpeed);
+                rigidBodyChunk.isKinematic = false;
+                rigidBodyChunk.velocity = Random.insideUnitSphere * Random.Range(MinExplodeSpeed, MaxExplodeSpeed);
                 rigidBodyChunk.angularVelocity = Random.insideUnitSphere * Random.Range(MinExplodeAngularSpeed, MaxExplodeAngularSpeed);
 
-                float    startAlpha = 1.0f;
-                Renderer renderer   = chunkCollider.gameObject.GetComponent<Renderer>();
+                var startAlpha = 1.0f;
+                var renderer = chunkCollider.gameObject.GetComponent<Renderer>();
 
                 if (renderer)
                 {
@@ -172,12 +198,12 @@ namespace UltimateXR.Mechanics.Weapons
                 Destroy(rigidBodyChunk.gameObject, PiecesLifeSeconds);
             }
 
-            HasExploded  = true;
+            HasExploded = true;
             ExplodeTimer = -1.0f;
 
             if (_audioExplodePool != null)
             {
-                int i = Random.Range(0, _audioExplodePool.Length);
+                var i = Random.Range(0, _audioExplodePool.Length);
                 _audioExplodePool[i].Play(transform.position);
             }
 
@@ -195,9 +221,10 @@ namespace UltimateXR.Mechanics.Weapons
         {
             base.Awake();
 
-            _colliders  = gameObject.GetComponentsInChildren<Collider>(true);
+            _colliders = gameObject.GetComponentsInChildren<Collider>(true);
             HasExploded = false;
         }
+
 
         /// <summary>
         ///     Subscribes to events and initializes the explosion timer.
@@ -211,13 +238,14 @@ namespace UltimateXR.Mechanics.Weapons
                 ExplodeTimer = SecondsToExplode;
             }
 
-            UxrActor actor = GetCachedComponent<UxrActor>();
+            var actor = GetCachedComponent<UxrActor>();
 
             if (actor)
             {
                 actor.DamageReceived += Actor_Damaged;
             }
         }
+
 
         /// <summary>
         ///     Unsubscribes from events.
@@ -226,13 +254,14 @@ namespace UltimateXR.Mechanics.Weapons
         {
             base.OnDisable();
 
-            UxrActor actor = GetCachedComponent<UxrActor>();
+            var actor = GetCachedComponent<UxrActor>();
 
             if (actor)
             {
                 actor.DamageReceived -= Actor_Damaged;
             }
         }
+
 
         /// <summary>
         ///     Updates the explosion timer and checks if the object needs to explode.
@@ -249,29 +278,6 @@ namespace UltimateXR.Mechanics.Weapons
                 }
             }
         }
-
-        #endregion
-
-        #region Event Handling Methods
-
-        /// <summary>
-        ///     Called when the component was added to an object with an <see cref="UxrActor" /> component and it took damage.
-        /// </summary>
-        /// <param name="sender">Event sender</param>
-        /// <param name="e">Event parameters</param>
-        private void Actor_Damaged(object sender, UxrDamageEventArgs e)
-        {
-            if (e.Dies)
-            {
-                ExplodeNow();
-            }
-        }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private Collider[] _colliders;
 
         #endregion
     }

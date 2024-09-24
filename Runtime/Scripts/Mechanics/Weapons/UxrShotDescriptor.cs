@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -23,27 +25,27 @@ namespace UltimateXR.Mechanics.Weapons
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private Transform      _shotSource;
-        [SerializeField] private Transform      _tip;
-        [SerializeField] private bool           _useAutomaticProjectileTrajectory = true;
-        [SerializeField] private string         _shotAnimationVarName;
-        [SerializeField] private GameObject     _prefabInstantiateOnTipWhenShot;
-        [SerializeField] private float          _prefabInstantiateOnTipLife   = 5.0f;
-        [SerializeField] private bool           _prefabInstantiateOnTipParent = true;
-        [SerializeField] private GameObject     _projectilePrefab;
-        [SerializeField] private float          _projectileSpeed                 = 30.0f;
-        [SerializeField] private float          _projectileMaxDistance           = 300.0f;
-        [SerializeField] private float          _projectileLength                = 0.01f;
-        [SerializeField] private float          _projectileDamageNear            = 20.0f;
-        [SerializeField] private float          _projectileDamageFar             = 20.0f;
-        [SerializeField] private float          _projectileImpactForceMultiplier = 1.0f;
-        [SerializeField] private LayerMask      _collisionLayerMask              = -1;
-        [SerializeField] private GameObject     _prefabInstantiateOnImpact;
-        [SerializeField] private float          _prefabInstantiateOnImpactLife = 5.0f;
+        [SerializeField] private Transform _shotSource;
+        [SerializeField] private Transform _tip;
+        [SerializeField] private bool _useAutomaticProjectileTrajectory = true;
+        [SerializeField] private string _shotAnimationVarName;
+        [SerializeField] private GameObject _prefabInstantiateOnTipWhenShot;
+        [SerializeField] private float _prefabInstantiateOnTipLife = 5.0f;
+        [SerializeField] private bool _prefabInstantiateOnTipParent = true;
+        [SerializeField] private GameObject _projectilePrefab;
+        [SerializeField] private float _projectileSpeed = 30.0f;
+        [SerializeField] private float _projectileMaxDistance = 300.0f;
+        [SerializeField] private float _projectileLength = 0.01f;
+        [SerializeField] private float _projectileDamageNear = 20.0f;
+        [SerializeField] private float _projectileDamageFar = 20.0f;
+        [SerializeField] private float _projectileImpactForceMultiplier = 1.0f;
+        [SerializeField] private LayerMask _collisionLayerMask = -1;
+        [SerializeField] private GameObject _prefabInstantiateOnImpact;
+        [SerializeField] private float _prefabInstantiateOnImpactLife = 5.0f;
         [SerializeField] private UxrImpactDecal _prefabScenarioImpactDecal;
-        [SerializeField] private float          _prefabScenarioImpactDecalLife = 10.0f;
-        [SerializeField] private float          _decalFadeoutDuration          = 7.0f;
-        [SerializeField] private LayerMask      _createDecalLayerMask          = -1;
+        [SerializeField] private float _prefabScenarioImpactDecalLife = 10.0f;
+        [SerializeField] private float _decalFadeoutDuration = 7.0f;
+        [SerializeField] private LayerMask _createDecalLayerMask = -1;
 
         #endregion
 

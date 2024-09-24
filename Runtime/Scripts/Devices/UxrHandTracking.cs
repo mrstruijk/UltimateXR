@@ -3,11 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
-using UltimateXR.Avatar.Rig;
 using UltimateXR.Core;
 using UltimateXR.Manipulation.HandPoses;
 using UnityEngine;
+
 
 namespace UltimateXR.Devices
 {
@@ -17,11 +18,45 @@ namespace UltimateXR.Devices
     /// </summary>
     public abstract partial class UxrHandTracking : UxrTrackingDevice
     {
+        #region Private Types & Data
+
+        private Dictionary<Transform, BoneCalibration> _calibrationCache = new();
+
+        #endregion
+
+        #region Public Overrides UxrTrackingDevice
+
+        /// <inheritdoc />
+        public override int TrackingUpdateOrder => OrderPostprocess;
+
+        #endregion
+
+        #region Event Handling Methods
+
+        /// <summary>
+        ///     Checks whether the component should be enabled or disabled.
+        /// </summary>
+        private void UxrManager_AvatarsUpdating()
+        {
+            #if ULTIMATEXR_USE_OCULUS_SDK
+            if (enabled != IsAvailable && Avatar.AvatarController != null && Avatar.AvatarController.AllowHandTracking)
+            {
+                enabled = IsAvailable;
+
+                string newStatus = enabled ? "Enabled" : "Disabled";
+                Debug.Log($"{GetType().Name}: Status changed to {newStatus}");
+            }
+
+            #endif
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private UxrHandPoseAsset      _calibrationPose;
-        [SerializeField] private List<BoneCalibration> _leftCalibrationData  = new List<BoneCalibration>();
-        [SerializeField] private List<BoneCalibration> _rightCalibrationData = new List<BoneCalibration>();
+        [SerializeField] private UxrHandPoseAsset _calibrationPose;
+        [SerializeField] private List<BoneCalibration> _leftCalibrationData = new();
+        [SerializeField] private List<BoneCalibration> _rightCalibrationData = new();
 
         #endregion
 
@@ -55,13 +90,6 @@ namespace UltimateXR.Devices
 
         #endregion
 
-        #region Public Overrides UxrTrackingDevice
-
-        /// <inheritdoc />
-        public override int TrackingUpdateOrder => OrderPostprocess;
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -77,7 +105,7 @@ namespace UltimateXR.Devices
                 return false;
             }
 
-            UxrAvatarHand avatarHand = Avatar.GetHand(handSide);
+            var avatarHand = Avatar.GetHand(handSide);
 
             if (!avatarHand.HasFingerData())
             {
@@ -86,15 +114,15 @@ namespace UltimateXR.Devices
 
             // Store current rotations without calibration
 
-            bool useCalibration = UseCalibration;
+            var useCalibration = UseCalibration;
             UseCalibration = false;
 
             UpdateSensors();
             UpdateAvatar();
 
-            List<BoneCalibration> calibrationData = new List<BoneCalibration>();
+            var calibrationData = new List<BoneCalibration>();
 
-            foreach (Transform boneTransform in avatarHand.FingerTransforms)
+            foreach (var boneTransform in avatarHand.FingerTransforms)
             {
                 calibrationData.Add(new BoneCalibration(boneTransform, boneTransform.localRotation));
             }
@@ -105,7 +133,7 @@ namespace UltimateXR.Devices
 
             Avatar.SetCurrentHandPoseImmediately(handSide, _calibrationPose);
 
-            foreach (BoneCalibration boneCalibration in calibrationData)
+            foreach (var boneCalibration in calibrationData)
             {
                 boneCalibration.Rotation = Quaternion.Inverse(boneCalibration.Rotation) * boneCalibration.Transform.localRotation;
             }
@@ -127,6 +155,7 @@ namespace UltimateXR.Devices
             return true;
         }
 
+
         /// <summary>
         ///     Clears the calibration data for a given hand.
         /// </summary>
@@ -146,6 +175,7 @@ namespace UltimateXR.Devices
             BuildCalibrationCache();
         }
 
+
         /// <summary>
         ///     Creates the calibration cache to be able to get calibration of a given transform using a dictionary.
         /// </summary>
@@ -153,12 +183,12 @@ namespace UltimateXR.Devices
         {
             _calibrationCache = new Dictionary<Transform, BoneCalibration>();
 
-            foreach (BoneCalibration boneCalibration in _leftCalibrationData)
+            foreach (var boneCalibration in _leftCalibrationData)
             {
                 _calibrationCache.Add(boneCalibration.Transform, boneCalibration);
             }
 
-            foreach (BoneCalibration boneCalibration in _rightCalibrationData)
+            foreach (var boneCalibration in _rightCalibrationData)
             {
                 _calibrationCache.Add(boneCalibration.Transform, boneCalibration);
             }
@@ -183,6 +213,7 @@ namespace UltimateXR.Devices
             enabled = false;
         }
 
+
         /// <summary>
         ///     Unsubscribes from events.
         /// </summary>
@@ -191,28 +222,6 @@ namespace UltimateXR.Devices
             base.OnDestroy();
 
             UxrManager.AvatarsUpdating -= UxrManager_AvatarsUpdating;
-        }
-
-        #endregion
-
-        #region Event Handling Methods
-
-        /// <summary>
-        ///     Checks whether the component should be enabled or disabled.
-        /// </summary>
-        private void UxrManager_AvatarsUpdating()
-        {
-#if ULTIMATEXR_USE_OCULUS_SDK
-
-            if (enabled != IsAvailable && Avatar.AvatarController != null && Avatar.AvatarController.AllowHandTracking)
-            {
-                enabled = IsAvailable;
-
-                string newStatus = enabled ? "Enabled" : "Disabled";
-                Debug.Log($"{GetType().Name}: Status changed to {newStatus}");
-            }
-
-#endif
         }
 
         #endregion
@@ -228,6 +237,7 @@ namespace UltimateXR.Devices
             Avatar.SetCurrentHandPoseImmediately(handSide, _calibrationPose);
         }
 
+
         /// <summary>
         ///     Applies the calibration data collected by <see cref="CollectCalibrationData" /> so that the hands look as close to
         ///     the tracking data as possible.
@@ -240,17 +250,11 @@ namespace UltimateXR.Devices
                 return;
             }
 
-            if (_calibrationCache.TryGetValue(boneTransform, out BoneCalibration calibrationData))
+            if (_calibrationCache.TryGetValue(boneTransform, out var calibrationData))
             {
                 boneTransform.localRotation = boneTransform.localRotation * calibrationData.Rotation;
             }
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private Dictionary<Transform, BoneCalibration> _calibrationCache = new Dictionary<Transform, BoneCalibration>();
 
         #endregion
     }

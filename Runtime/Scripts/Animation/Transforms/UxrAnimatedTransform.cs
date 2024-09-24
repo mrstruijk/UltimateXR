@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Animation.Interpolation;
 using UltimateXR.Core.Components;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Transforms
 {
@@ -19,26 +21,26 @@ namespace UltimateXR.Animation.Transforms
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private UxrAnimationMode             _translationMode;
+        [SerializeField] private UxrAnimationMode _translationMode;
         [SerializeField] private UxrTransformTranslationSpace _translationSpace;
-        [SerializeField] private Vector3                      _translationSpeed;
-        [SerializeField] private Vector3                      _translationStart;
-        [SerializeField] private Vector3                      _translationEnd;
-        [SerializeField] private bool                         _translationUseUnscaledTime;
-        [SerializeField] private UxrInterpolationSettings     _translationInterpolationSettings = new UxrInterpolationSettings();
-        [SerializeField] private UxrAnimationMode             _rotationMode;
-        [SerializeField] private UxrTransformRotationSpace    _rotationSpace;
-        [SerializeField] private Vector3                      _eulerSpeed;
-        [SerializeField] private Vector3                      _eulerStart;
-        [SerializeField] private Vector3                      _eulerEnd;
-        [SerializeField] private bool                         _rotationUseUnscaledTime;
-        [SerializeField] private UxrInterpolationSettings     _rotationInterpolationSettings = new UxrInterpolationSettings();
-        [SerializeField] private UxrAnimationMode             _scalingMode;
-        [SerializeField] private Vector3                      _scalingSpeed;
-        [SerializeField] private Vector3                      _scalingStart;
-        [SerializeField] private Vector3                      _scalingEnd;
-        [SerializeField] private bool                         _scalingUseUnscaledTime;
-        [SerializeField] private UxrInterpolationSettings     _scalingInterpolationSettings = new UxrInterpolationSettings();
+        [SerializeField] private Vector3 _translationSpeed;
+        [SerializeField] private Vector3 _translationStart;
+        [SerializeField] private Vector3 _translationEnd;
+        [SerializeField] private bool _translationUseUnscaledTime;
+        [SerializeField] private UxrInterpolationSettings _translationInterpolationSettings = new();
+        [SerializeField] private UxrAnimationMode _rotationMode;
+        [SerializeField] private UxrTransformRotationSpace _rotationSpace;
+        [SerializeField] private Vector3 _eulerSpeed;
+        [SerializeField] private Vector3 _eulerStart;
+        [SerializeField] private Vector3 _eulerEnd;
+        [SerializeField] private bool _rotationUseUnscaledTime;
+        [SerializeField] private UxrInterpolationSettings _rotationInterpolationSettings = new();
+        [SerializeField] private UxrAnimationMode _scalingMode;
+        [SerializeField] private Vector3 _scalingSpeed;
+        [SerializeField] private Vector3 _scalingStart;
+        [SerializeField] private Vector3 _scalingEnd;
+        [SerializeField] private bool _scalingUseUnscaledTime;
+        [SerializeField] private UxrInterpolationSettings _scalingInterpolationSettings = new();
 
         #endregion
 
@@ -96,19 +98,20 @@ namespace UltimateXR.Animation.Transforms
         /// <returns>The animation component</returns>
         public static UxrAnimatedTransform Translate(GameObject gameObject, UxrTransformTranslationSpace space, Vector3 speed, bool useUnscaledTime = false)
         {
-            UxrAnimatedTransform component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
+            var component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
 
             if (component)
             {
-                component._translationMode                                  = UxrAnimationMode.Speed;
-                component._translationSpace                                 = space;
-                component._translationSpeed                                 = speed;
+                component._translationMode = UxrAnimationMode.Speed;
+                component._translationSpace = space;
+                component._translationSpeed = speed;
                 component._translationInterpolationSettings.UseUnscaledTime = useUnscaledTime;
-                component.HasTranslationFinished                            = false;
+                component.HasTranslationFinished = false;
             }
 
             return component;
         }
+
 
         /// <summary>
         ///     Starts a rotation at a constant speed
@@ -125,20 +128,21 @@ namespace UltimateXR.Animation.Transforms
         /// <returns>The animation component</returns>
         public static UxrAnimatedTransform Rotate(GameObject gameObject, UxrTransformRotationSpace space, Vector3 speed, bool useUnscaledTime = false)
         {
-            UxrAnimatedTransform component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
+            var component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
 
             if (component)
             {
-                component._rotationMode                                  = UxrAnimationMode.Speed;
-                component._rotationSpace                                 = space;
-                component._useEuler                                      = true;
-                component._eulerSpeed                                    = speed;
+                component._rotationMode = UxrAnimationMode.Speed;
+                component._rotationSpace = space;
+                component._useEuler = true;
+                component._eulerSpeed = speed;
                 component._rotationInterpolationSettings.UseUnscaledTime = useUnscaledTime;
-                component.HasRotationFinished                            = false;
+                component.HasRotationFinished = false;
             }
 
             return component;
         }
+
 
         /// <summary>
         ///     Starts scaling at a constant speed
@@ -154,18 +158,19 @@ namespace UltimateXR.Animation.Transforms
         /// <returns>The animation component</returns>
         public static UxrAnimatedTransform Scale(GameObject gameObject, Vector3 speed, bool useUnscaledTime = false)
         {
-            UxrAnimatedTransform component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
+            var component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
 
             if (component)
             {
-                component._scalingMode                                  = UxrAnimationMode.Speed;
-                component._scalingSpeed                                 = speed;
+                component._scalingMode = UxrAnimationMode.Speed;
+                component._scalingSpeed = speed;
                 component._scalingInterpolationSettings.UseUnscaledTime = useUnscaledTime;
-                component.HasScalingFinished                            = false;
+                component.HasScalingFinished = false;
             }
 
             return component;
         }
+
 
         /// <summary>
         ///     Starts a translation using an interpolation curve
@@ -182,20 +187,21 @@ namespace UltimateXR.Animation.Transforms
         /// <returns>The animation component</returns>
         public static UxrAnimatedTransform PositionInterpolation(GameObject gameObject, UxrTransformTranslationSpace space, Vector3 startPos, Vector3 endPos, UxrInterpolationSettings settings, Action finishedCallback = null)
         {
-            UxrAnimatedTransform component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
+            var component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
 
             if (component)
             {
-                component._translationMode                  = UxrAnimationMode.Interpolate;
-                component._translationSpace                 = space;
-                component._translationStart                 = startPos;
-                component._translationEnd                   = endPos;
+                component._translationMode = UxrAnimationMode.Interpolate;
+                component._translationSpace = space;
+                component._translationStart = startPos;
+                component._translationEnd = endPos;
                 component._translationInterpolationSettings = settings;
-                component._translationFinishedCallback      = finishedCallback;
+                component._translationFinishedCallback = finishedCallback;
             }
 
             return component;
         }
+
 
         /// <summary>
         ///     Starts a rotation using an interpolation curve
@@ -212,21 +218,22 @@ namespace UltimateXR.Animation.Transforms
         /// <returns>The animation component</returns>
         public static UxrAnimatedTransform RotationInterpolation(GameObject gameObject, UxrTransformRotationSpace space, Vector3 startEuler, Vector3 endEuler, UxrInterpolationSettings settings, Action finishedCallback = null)
         {
-            UxrAnimatedTransform component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
+            var component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
 
             if (component)
             {
-                component._rotationMode                  = UxrAnimationMode.Interpolate;
-                component._useEuler                      = true;
-                component._rotationSpace                 = space;
-                component._eulerStart                    = startEuler;
-                component._eulerEnd                      = endEuler;
+                component._rotationMode = UxrAnimationMode.Interpolate;
+                component._useEuler = true;
+                component._rotationSpace = space;
+                component._eulerStart = startEuler;
+                component._eulerEnd = endEuler;
                 component._rotationInterpolationSettings = settings;
-                component._rotationFinishedCallback      = finishedCallback;
+                component._rotationFinishedCallback = finishedCallback;
             }
 
             return component;
         }
+
 
         /// <summary>
         ///     Starts a rotation using an interpolation curve
@@ -243,21 +250,22 @@ namespace UltimateXR.Animation.Transforms
         /// <returns>The animation component</returns>
         public static UxrAnimatedTransform RotationInterpolation(GameObject gameObject, UxrTransformRotationSpace space, Quaternion startRot, Quaternion endRot, UxrInterpolationSettings settings, Action finishedCallback = null)
         {
-            UxrAnimatedTransform component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
+            var component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
 
             if (component)
             {
-                component._rotationMode                  = UxrAnimationMode.Interpolate;
-                component._useEuler                      = false;
-                component._rotationSpace                 = space;
-                component._quaternionStart               = startRot;
-                component._quaternionEnd                 = endRot;
+                component._rotationMode = UxrAnimationMode.Interpolate;
+                component._useEuler = false;
+                component._rotationSpace = space;
+                component._quaternionStart = startRot;
+                component._quaternionEnd = endRot;
                 component._rotationInterpolationSettings = settings;
-                component._rotationFinishedCallback      = finishedCallback;
+                component._rotationFinishedCallback = finishedCallback;
             }
 
             return component;
         }
+
 
         /// <summary>
         ///     Starts scaling using an interpolation curve
@@ -273,19 +281,20 @@ namespace UltimateXR.Animation.Transforms
         /// <returns>The animation component</returns>
         public static UxrAnimatedTransform ScalingInterpolation(GameObject gameObject, Vector3 startScale, Vector3 endScale, UxrInterpolationSettings settings, Action finishedCallback = null)
         {
-            UxrAnimatedTransform component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
+            var component = gameObject.GetOrAddComponent<UxrAnimatedTransform>();
 
             if (component)
             {
-                component._scalingMode                  = UxrAnimationMode.Interpolate;
-                component._scalingStart                 = startScale;
-                component._scalingEnd                   = endScale;
+                component._scalingMode = UxrAnimationMode.Interpolate;
+                component._scalingStart = startScale;
+                component._scalingEnd = endScale;
                 component._scalingInterpolationSettings = settings;
-                component._scalingFinishedCallback      = finishedCallback;
+                component._scalingFinishedCallback = finishedCallback;
             }
 
             return component;
         }
+
 
         /// <summary>
         ///     Stops the position/rotation/scaling animations on an object if it has an <see cref="UxrAnimatedTransform" />
@@ -298,13 +307,14 @@ namespace UltimateXR.Animation.Transforms
         /// </param>
         public static void StopAll(GameObject gameObject, bool restoreOriginal = true)
         {
-            UxrAnimatedTransform anim = gameObject.GetComponent<UxrAnimatedTransform>();
+            var anim = gameObject.GetComponent<UxrAnimatedTransform>();
 
             if (anim)
             {
                 anim.StopAll(restoreOriginal);
             }
         }
+
 
         /// <summary>
         ///     Stops the translation animation on an object if it has an <see cref="UxrAnimatedTransform" />
@@ -314,13 +324,14 @@ namespace UltimateXR.Animation.Transforms
         /// <param name="restoreOriginal">Whether to reset the position to the state before the animation started.</param>
         public static void StopTranslation(GameObject gameObject, bool restoreOriginal = true)
         {
-            UxrAnimatedTransform anim = gameObject.GetComponent<UxrAnimatedTransform>();
+            var anim = gameObject.GetComponent<UxrAnimatedTransform>();
 
             if (anim)
             {
                 anim.StopTranslation(restoreOriginal);
             }
         }
+
 
         /// <summary>
         ///     Stops the rotation animation on an object if it has an <see cref="UxrAnimatedTransform" />
@@ -330,13 +341,14 @@ namespace UltimateXR.Animation.Transforms
         /// <param name="restoreOriginal">Whether to reset the rotation to the state before the animation started.</param>
         public static void StopRotation(GameObject gameObject, bool restoreOriginal = true)
         {
-            UxrAnimatedTransform anim = gameObject.GetComponent<UxrAnimatedTransform>();
+            var anim = gameObject.GetComponent<UxrAnimatedTransform>();
 
             if (anim)
             {
                 anim.StopRotation(restoreOriginal);
             }
         }
+
 
         /// <summary>
         ///     Stops the scaling animation on an object if it has an <see cref="UxrAnimatedTransform" />
@@ -346,13 +358,14 @@ namespace UltimateXR.Animation.Transforms
         /// <param name="restoreOriginal">Whether to reset the scale to the state before the animation started.</param>
         public static void StopScaling(GameObject gameObject, bool restoreOriginal = true)
         {
-            UxrAnimatedTransform anim = gameObject.GetComponent<UxrAnimatedTransform>();
+            var anim = gameObject.GetComponent<UxrAnimatedTransform>();
 
             if (anim)
             {
                 anim.StopScaling(restoreOriginal);
             }
         }
+
 
         /// <summary>
         ///     Stops the position/rotation/scaling animations on an object if it has an <see cref="UxrAnimatedTransform" />
@@ -365,16 +378,17 @@ namespace UltimateXR.Animation.Transforms
         public void StopAll(bool restoreOriginal = true)
         {
             HasTranslationFinished = true;
-            HasRotationFinished    = true;
-            HasScalingFinished     = true;
+            HasRotationFinished = true;
+            HasScalingFinished = true;
 
             if (restoreOriginal)
             {
                 transform.localPosition = _initialLocalPosition;
                 transform.localRotation = _initialLocalRotation;
-                transform.localScale    = _initialLocalScale;
+                transform.localScale = _initialLocalScale;
             }
         }
+
 
         /// <summary>
         ///     Stops the translation animation on an object if it has an <see cref="UxrAnimatedTransform" />
@@ -391,6 +405,7 @@ namespace UltimateXR.Animation.Transforms
             }
         }
 
+
         /// <summary>
         ///     Stops the rotation animation on an object if it has an <see cref="UxrAnimatedTransform" />
         ///     component currently attached.
@@ -405,6 +420,7 @@ namespace UltimateXR.Animation.Transforms
                 transform.localRotation = _initialLocalRotation;
             }
         }
+
 
         /// <summary>
         ///     Stops the scaling animation on an object if it has an <see cref="UxrAnimatedTransform" />
@@ -435,6 +451,7 @@ namespace UltimateXR.Animation.Transforms
             _scaleTimer = 0.0f;
         }
 
+
         /// <summary>
         ///     Called each time the object is enabled. Reset timer and set the curve state to unfinished.
         ///     The first time it's called it stores the original transform values.
@@ -444,21 +461,22 @@ namespace UltimateXR.Animation.Transforms
             base.OnEnable();
 
             _startTimeTranslation = GetCurrentTime(_translationUseUnscaledTime, _translationMode, _translationInterpolationSettings);
-            _startTimeRotation    = GetCurrentTime(_rotationUseUnscaledTime,    _rotationMode,    _rotationInterpolationSettings);
-            _startTimeScaling     = GetCurrentTime(_scalingUseUnscaledTime,     _scalingMode,     _scalingInterpolationSettings);
+            _startTimeRotation = GetCurrentTime(_rotationUseUnscaledTime, _rotationMode, _rotationInterpolationSettings);
+            _startTimeScaling = GetCurrentTime(_scalingUseUnscaledTime, _scalingMode, _scalingInterpolationSettings);
 
             HasTranslationFinished = false;
-            HasRotationFinished    = false;
-            HasScalingFinished     = false;
+            HasRotationFinished = false;
+            HasScalingFinished = false;
 
             if (!_originalValuesStored)
             {
                 _originalValuesStored = true;
                 _initialLocalPosition = transform.localPosition;
                 _initialLocalRotation = transform.localRotation;
-                _initialLocalScale    = transform.localScale;
+                _initialLocalScale = transform.localScale;
             }
         }
+
 
         /// <summary>
         ///     Performs transform updates
@@ -475,9 +493,9 @@ namespace UltimateXR.Animation.Transforms
 
                     case UxrAnimationMode.Speed:
                     {
-                        Vector3 xAxis = Vector3.right;
-                        Vector3 yAxis = Vector3.up;
-                        Vector3 zAxis = Vector3.forward;
+                        var xAxis = Vector3.right;
+                        var yAxis = Vector3.up;
+                        var zAxis = Vector3.forward;
 
                         if (_translationSpace == UxrTransformTranslationSpace.Local)
                         {
@@ -495,24 +513,27 @@ namespace UltimateXR.Animation.Transforms
                             }
                         }
 
-                        float deltaTime = GetDeltaTime(_translationUseUnscaledTime);
+                        var deltaTime = GetDeltaTime(_translationUseUnscaledTime);
                         transform.Translate(_translationSpeed.x * deltaTime * xAxis + _translationSpeed.y * deltaTime * yAxis + _translationSpeed.z * deltaTime * zAxis, Space.World);
+
                         break;
                     }
 
                     case UxrAnimationMode.Interpolate:
                     {
-                        float   time     = GetCurrentTime(_translationUseUnscaledTime, _translationMode, _translationInterpolationSettings) - _startTimeTranslation;
+                        var time = GetCurrentTime(_translationUseUnscaledTime, _translationMode, _translationInterpolationSettings) - _startTimeTranslation;
                         Vector3 position = UxrInterpolator.Interpolate(_translationStart, _translationEnd, time, _translationInterpolationSettings);
 
                         switch (_translationSpace)
                         {
                             case UxrTransformTranslationSpace.World:
                                 transform.position = position;
+
                                 break;
 
                             case UxrTransformTranslationSpace.Local:
                                 transform.localPosition = position;
+
                                 break;
 
                             case UxrTransformTranslationSpace.Parent:
@@ -536,6 +557,7 @@ namespace UltimateXR.Animation.Transforms
                             HasTranslationFinished = true;
                             OnTranslationFinished();
                         }
+
                         break;
                     }
 
@@ -554,15 +576,16 @@ namespace UltimateXR.Animation.Transforms
 
                     case UxrAnimationMode.Speed:
                     {
-                        float deltaTime = GetDeltaTime(_rotationUseUnscaledTime);
+                        var deltaTime = GetDeltaTime(_rotationUseUnscaledTime);
                         transform.Rotate(_eulerSpeed * deltaTime, _rotationSpace == UxrTransformRotationSpace.Local ? Space.Self : Space.World);
+
                         break;
                     }
 
                     case UxrAnimationMode.Interpolate:
                     {
-                        float      time     = GetCurrentTime(_rotationUseUnscaledTime, _rotationMode, _rotationInterpolationSettings) - _startTimeRotation;
-                        Quaternion rotation = Quaternion.identity;
+                        var time = GetCurrentTime(_rotationUseUnscaledTime, _rotationMode, _rotationInterpolationSettings) - _startTimeRotation;
+                        var rotation = Quaternion.identity;
 
                         if (_useEuler)
                         {
@@ -578,10 +601,12 @@ namespace UltimateXR.Animation.Transforms
                         {
                             case UxrTransformRotationSpace.World:
                                 transform.rotation = rotation;
+
                                 break;
 
                             case UxrTransformRotationSpace.Local:
                                 transform.localRotation = rotation;
+
                                 break;
 
                             default: throw new ArgumentOutOfRangeException();
@@ -592,6 +617,7 @@ namespace UltimateXR.Animation.Transforms
                             HasRotationFinished = true;
                             OnRotationFinished();
                         }
+
                         break;
                     }
 
@@ -610,13 +636,14 @@ namespace UltimateXR.Animation.Transforms
                     case UxrAnimationMode.None: break;
 
                     case UxrAnimationMode.Speed:
-                        _scaleTimer          += GetDeltaTime(_scalingUseUnscaledTime);
-                        transform.localScale =  _initialLocalScale + Vector3.Scale(_initialLocalScale, _scalingSpeed * _scaleTimer);
+                        _scaleTimer += GetDeltaTime(_scalingUseUnscaledTime);
+                        transform.localScale = _initialLocalScale + Vector3.Scale(_initialLocalScale, _scalingSpeed * _scaleTimer);
+
                         break;
 
                     case UxrAnimationMode.Interpolate:
                     {
-                        float time = GetCurrentTime(_scalingUseUnscaledTime, _scalingMode, _scalingInterpolationSettings) - _startTimeScaling;
+                        var time = GetCurrentTime(_scalingUseUnscaledTime, _scalingMode, _scalingInterpolationSettings) - _startTimeScaling;
                         transform.localScale = UxrInterpolator.Interpolate(_scalingStart, _scalingEnd, time, _scalingInterpolationSettings);
 
                         if (_scalingInterpolationSettings.CheckInterpolationHasFinished(time))
@@ -624,6 +651,7 @@ namespace UltimateXR.Animation.Transforms
                             HasScalingFinished = true;
                             OnScalingFinished();
                         }
+
                         break;
                     }
 
@@ -644,11 +672,13 @@ namespace UltimateXR.Animation.Transforms
             _translationFinishedCallback?.Invoke();
         }
 
+
         private void OnRotationFinished()
         {
             RotationFinished?.Invoke();
             _rotationFinishedCallback?.Invoke();
         }
+
 
         private void OnScalingFinished()
         {
@@ -669,6 +699,7 @@ namespace UltimateXR.Animation.Transforms
         {
             return useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
         }
+
 
         /// <summary>
         ///     Gets the current time in seconds. It computes the correct time, either <see cref="Time.unscaledTime" /> or
@@ -695,19 +726,19 @@ namespace UltimateXR.Animation.Transforms
 
         #region Private Types & Data
 
-        private bool       _useEuler;
+        private bool _useEuler;
         private Quaternion _quaternionStart;
         private Quaternion _quaternionEnd;
-        private float      _scaleTimer;
+        private float _scaleTimer;
 
         private Action _translationFinishedCallback;
         private Action _rotationFinishedCallback;
         private Action _scalingFinishedCallback;
 
-        private bool       _originalValuesStored;
-        private Vector3    _initialLocalPosition;
+        private bool _originalValuesStored;
+        private Vector3 _initialLocalPosition;
         private Quaternion _initialLocalRotation;
-        private Vector3    _initialLocalScale;
+        private Vector3 _initialLocalScale;
 
         private float _startTimeTranslation;
         private float _startTimeRotation;

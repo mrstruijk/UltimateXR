@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Exceptions
 {
     /// <summary>
@@ -10,15 +11,6 @@ namespace UltimateXR.Exceptions
     /// </summary>
     public sealed class HttpUwrException : UwrException
     {
-        #region Public Types & Data
-
-        /// <summary>
-        ///     Gets the HTTP response code.
-        /// </summary>
-        public long ResponseCode { get; }
-
-        #endregion
-
         #region Constructors & Finalizer
 
         /// <summary>
@@ -30,6 +22,15 @@ namespace UltimateXR.Exceptions
         {
             ResponseCode = responseCode;
         }
+
+        #endregion
+
+        #region Public Types & Data
+
+        /// <summary>
+        ///     Gets the HTTP response code.
+        /// </summary>
+        public long ResponseCode { get; }
 
         #endregion
     }

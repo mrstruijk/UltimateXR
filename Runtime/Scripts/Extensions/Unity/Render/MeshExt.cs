@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Linq;
 using UltimateXR.Animation.Splines;
@@ -10,6 +11,7 @@ using UltimateXR.Core;
 using UltimateXR.Extensions.System.Collections;
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Render
 {
@@ -27,15 +29,16 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <returns>Quad <see cref="Mesh" /></returns>
         public static Mesh CreateQuad(float size)
         {
-            Mesh  quadMesh = new Mesh();
-            float halfSize = size * 0.5f;
+            var quadMesh = new Mesh();
+            var halfSize = size * 0.5f;
 
-            quadMesh.vertices  = new[] { new Vector3(halfSize, halfSize, 0.0f), new Vector3(halfSize, -halfSize, 0.0f), new Vector3(-halfSize, -halfSize, 0.0f), new Vector3(-halfSize, halfSize, 0.0f) };
-            quadMesh.uv        = new[] { new Vector2(1.0f, 1.0f), new Vector2(1.0f, 0.0f), new Vector2(0.0f, 0.0f), new Vector2(0.0f, 1.0f) };
-            quadMesh.triangles = new[] { 0, 2, 1, 0, 3, 2 };
+            quadMesh.vertices = new[] {new Vector3(halfSize, halfSize, 0.0f), new Vector3(halfSize, -halfSize, 0.0f), new Vector3(-halfSize, -halfSize, 0.0f), new Vector3(-halfSize, halfSize, 0.0f)};
+            quadMesh.uv = new[] {new Vector2(1.0f, 1.0f), new Vector2(1.0f, 0.0f), new Vector2(0.0f, 0.0f), new Vector2(0.0f, 1.0f)};
+            quadMesh.triangles = new[] {0, 2, 1, 0, 3, 2};
 
             return quadMesh;
         }
+
 
         /// <summary>
         ///     Creates a <see cref="Mesh" /> tessellating a <see cref="UxrSpline" />
@@ -48,38 +51,38 @@ namespace UltimateXR.Extensions.Unity.Render
         public static Mesh CreateSpline(UxrSpline spline, int subdivisions, int sides, float radius)
         {
             subdivisions = Mathf.Max(subdivisions, 2);
-            sides        = Mathf.Max(sides,        3);
+            sides = Mathf.Max(sides, 3);
 
-            Mesh splineMesh = new Mesh();
+            var splineMesh = new Mesh();
 
             // Create mesh
 
-            Vector3[] vertices = new Vector3[subdivisions * (sides + 1)];
-            Vector3[] normals  = new Vector3[vertices.Length];
-            Vector2[] mapping  = new Vector2[vertices.Length];
-            int[]     indices  = new int[(subdivisions - 1) * sides * 2 * 3];
+            var vertices = new Vector3[subdivisions * (sides + 1)];
+            var normals = new Vector3[vertices.Length];
+            var mapping = new Vector2[vertices.Length];
+            var indices = new int[(subdivisions - 1) * sides * 2 * 3];
 
-            for (int sub = 0; sub < subdivisions; ++sub)
+            for (var sub = 0; sub < subdivisions; ++sub)
             {
-                float arcLength           = sub / (subdivisions - 1.0f) * spline.ArcLength;
-                float normalizedArcLength = arcLength / spline.ArcLength;
+                var arcLength = sub / (subdivisions - 1.0f) * spline.ArcLength;
+                var normalizedArcLength = arcLength / spline.ArcLength;
 
-                spline.EvaluateUsingArcLength(arcLength, out Vector3 splinePosition, out Vector3 splineDirection);
+                spline.EvaluateUsingArcLength(arcLength, out var splinePosition, out var splineDirection);
 
-                Vector3 perpendicular = splineDirection.GetPerpendicularVector().normalized * radius;
-                Vector3 vertexStart   = splinePosition + perpendicular;
+                var perpendicular = splineDirection.GetPerpendicularVector().normalized * radius;
+                var vertexStart = splinePosition + perpendicular;
 
-                for (int side = 0; side < sides + 1; ++side)
+                for (var side = 0; side < sides + 1; ++side)
                 {
-                    int vertexIndex = sub * (sides + 1) + side;
-                    int faceBase    = sub * sides * 2 * 3 + side * 2 * 3;
+                    var vertexIndex = sub * (sides + 1) + side;
+                    var faceBase = sub * sides * 2 * 3 + side * 2 * 3;
 
-                    float rotation = side / (float)sides;
-                    float degrees  = 360.0f * rotation;
+                    var rotation = side / (float) sides;
+                    var degrees = 360.0f * rotation;
 
                     vertices[vertexIndex] = vertexStart.GetRotationAround(splinePosition, splineDirection, degrees);
-                    mapping[vertexIndex]  = new Vector2(rotation, normalizedArcLength);
-                    normals[vertexIndex]  = (vertices[vertexIndex] - splinePosition).normalized;
+                    mapping[vertexIndex] = new Vector2(rotation, normalizedArcLength);
+                    normals[vertexIndex] = (vertices[vertexIndex] - splinePosition).normalized;
 
                     if (side < sides && sub < subdivisions - 1)
                     {
@@ -93,13 +96,14 @@ namespace UltimateXR.Extensions.Unity.Render
                 }
             }
 
-            splineMesh.vertices  = vertices;
-            splineMesh.uv        = mapping;
-            splineMesh.normals   = normals;
+            splineMesh.vertices = vertices;
+            splineMesh.uv = mapping;
+            splineMesh.normals = normals;
             splineMesh.triangles = indices;
 
             return splineMesh;
         }
+
 
         /// <summary>
         ///     Creates a new mesh from a skinned mesh renderer based on a reference bone and an extract operation.
@@ -111,57 +115,59 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <returns>New mesh</returns>
         public static Mesh ExtractSubMesh(SkinnedMeshRenderer skin, Transform bone, ExtractSubMeshOperation extractOperation, float weightThreshold = UxrConstants.Geometry.SignificantBoneWeight)
         {
-            Mesh newMesh = new Mesh();
+            var newMesh = new Mesh();
 
             // Create dictionary to check which bones belong to the hierarchy
 
-            Dictionary<int, bool> areHierarchyBones = new Dictionary<int, bool>();
+            var areHierarchyBones = new Dictionary<int, bool>();
 
-            Vector3[]    vertices    = skin.sharedMesh.vertices;
-            Vector3[]    normals     = skin.sharedMesh.normals;
-            Vector2[]    uv          = skin.sharedMesh.uv;
-            BoneWeight[] boneWeights = skin.sharedMesh.boneWeights;
-            Transform[]  bones       = skin.bones;
+            var vertices = skin.sharedMesh.vertices;
+            var normals = skin.sharedMesh.normals;
+            var uv = skin.sharedMesh.uv;
+            var boneWeights = skin.sharedMesh.boneWeights;
+            var bones = skin.bones;
 
-            for (int i = 0; i < bones.Length; ++i)
+            for (var i = 0; i < bones.Length; ++i)
             {
                 areHierarchyBones.Add(i, bones[i].HasParent(bone));
             }
 
             // Create filtered mesh
 
-            List<List<int>>      newTriangles   = new List<List<int>>();
-            Dictionary<int, int> old2New        = new Dictionary<int, int>();
-            List<Vector3>        newVertices    = new List<Vector3>();
-            List<Vector3>        newNormals     = new List<Vector3>();
-            List<Vector2>        newUV          = new List<Vector2>();
-            List<BoneWeight>     newBoneWeights = new List<BoneWeight>();
+            var newTriangles = new List<List<int>>();
+            var old2New = new Dictionary<int, int>();
+            var newVertices = new List<Vector3>();
+            var newNormals = new List<Vector3>();
+            var newUV = new List<Vector2>();
+            var newBoneWeights = new List<BoneWeight>();
+
 
             bool VertexMeetsRequirement(bool isFromHierarchy)
             {
                 switch (extractOperation)
                 {
-                    case ExtractSubMeshOperation.BoneAndChildren:       return isFromHierarchy;
+                    case ExtractSubMeshOperation.BoneAndChildren: return isFromHierarchy;
                     case ExtractSubMeshOperation.NotFromBoneOrChildren: return !isFromHierarchy;
                 }
 
                 return false;
             }
 
-            for (int submesh = 0; submesh < skin.sharedMesh.subMeshCount; ++submesh)
+
+            for (var submesh = 0; submesh < skin.sharedMesh.subMeshCount; ++submesh)
             {
-                int[]     submeshIndices    = skin.sharedMesh.GetTriangles(submesh);
-                List<int> newSubmeshIndices = new List<int>();
+                var submeshIndices = skin.sharedMesh.GetTriangles(submesh);
+                var newSubmeshIndices = new List<int>();
 
-                for (int t = 0; t < submeshIndices.Length / 3; t++)
+                for (var t = 0; t < submeshIndices.Length / 3; t++)
                 {
-                    float totalWeight = 0.0f;
+                    var totalWeight = 0.0f;
 
-                    for (int v = 0; v < 3; v++)
+                    for (var v = 0; v < 3; v++)
                     {
-                        BoneWeight boneWeight = boneWeights[submeshIndices[t * 3 + v]];
+                        var boneWeight = boneWeights[submeshIndices[t * 3 + v]];
 
-                        if (areHierarchyBones.TryGetValue(boneWeight.boneIndex0, out bool isFromHierarchy) && VertexMeetsRequirement(isFromHierarchy))
+                        if (areHierarchyBones.TryGetValue(boneWeight.boneIndex0, out var isFromHierarchy) && VertexMeetsRequirement(isFromHierarchy))
                         {
                             totalWeight += boneWeight.weight0;
                         }
@@ -184,9 +190,9 @@ namespace UltimateXR.Extensions.Unity.Render
 
                     if (totalWeight > weightThreshold)
                     {
-                        for (int v = 0; v < 3; v++)
+                        for (var v = 0; v < 3; v++)
                         {
-                            int oldIndex = submeshIndices[t * 3 + v];
+                            var oldIndex = submeshIndices[t * 3 + v];
 
                             if (!old2New.ContainsKey(oldIndex))
                             {
@@ -208,22 +214,23 @@ namespace UltimateXR.Extensions.Unity.Render
 
             // Create new mesh
 
-            newMesh.vertices    = newVertices.ToArray();
-            newMesh.normals     = newNormals.ToArray();
-            newMesh.uv          = newUV.ToArray();
+            newMesh.vertices = newVertices.ToArray();
+            newMesh.normals = newNormals.ToArray();
+            newMesh.uv = newUV.ToArray();
             newMesh.boneWeights = newBoneWeights.ToArray();
 
             // Create and assign new triangle list
 
             newMesh.subMeshCount = newTriangles.Count;
 
-            for (int submesh = 0; submesh < newTriangles.Count; ++submesh)
+            for (var submesh = 0; submesh < newTriangles.Count; ++submesh)
             {
                 newMesh.SetTriangles(newTriangles[submesh].ToArray(), submesh);
             }
 
             return newMesh;
         }
+
 
         /// <summary>
         ///     Computes the number of vertices that a bone influences in a skinned mesh.
@@ -237,18 +244,19 @@ namespace UltimateXR.Extensions.Unity.Render
         /// </returns>
         public static int GetBoneInfluenceVertexCount(SkinnedMeshRenderer skin, Transform bone, float weightThreshold = UxrConstants.Geometry.SignificantBoneWeight)
         {
-            Transform[] skinBones = skin.bones;
-            int         boneIndex = skinBones.IndexOf(bone);
+            var skinBones = skin.bones;
+            var boneIndex = skinBones.IndexOf(bone);
 
             if (boneIndex == -1)
             {
                 return 0;
             }
 
-            BoneWeight[] boneWeights = skin.sharedMesh.boneWeights;
+            var boneWeights = skin.sharedMesh.boneWeights;
 
             return boneWeights.Count(w => HasBoneInfluence(w, boneIndex, weightThreshold));
         }
+
 
         /// <summary>
         ///     Computes the number of vertices that a bone influences in a skinned mesh.
@@ -262,18 +270,19 @@ namespace UltimateXR.Extensions.Unity.Render
         /// </returns>
         public static bool HasBoneInfluence(SkinnedMeshRenderer skin, Transform bone, float weightThreshold = UxrConstants.Geometry.SignificantBoneWeight)
         {
-            Transform[] skinBones = skin.bones;
-            int         boneIndex = skinBones.IndexOf(bone);
+            var skinBones = skin.bones;
+            var boneIndex = skinBones.IndexOf(bone);
 
             if (boneIndex == -1)
             {
                 return false;
             }
 
-            BoneWeight[] boneWeights = skin.sharedMesh.boneWeights;
+            var boneWeights = skin.sharedMesh.boneWeights;
 
             return boneWeights.Any(w => HasBoneInfluence(w, boneIndex, weightThreshold));
         }
+
 
         /// <summary>
         ///     Checks whether a given bone index has influence on a skinned mesh vertex.
@@ -307,6 +316,7 @@ namespace UltimateXR.Extensions.Unity.Render
             return false;
         }
 
+
         /// <summary>
         ///     Computes the bounding box that contains all the vertices that a bone has influence on in a skinned mesh. The
         ///     bounding box is computed in local bone space.
@@ -319,33 +329,33 @@ namespace UltimateXR.Extensions.Unity.Render
         /// </returns>
         public static Bounds GetBoneInfluenceBounds(SkinnedMeshRenderer skin, Transform bone, float weightThreshold = UxrConstants.Geometry.SignificantBoneWeight)
         {
-            Transform[] skinBones = skin.bones;
-            int         boneIndex = skinBones.IndexOf(bone);
+            var skinBones = skin.bones;
+            var boneIndex = skinBones.IndexOf(bone);
 
             if (boneIndex == -1)
             {
                 return new Bounds();
             }
 
-            Vector3[]    vertices      = skin.sharedMesh.vertices;
-            BoneWeight[] boneWeights   = skin.sharedMesh.boneWeights;
-            Transform[]  bones         = skin.bones;
-            Matrix4x4[]  boneBindPoses = skin.sharedMesh.bindposes;
-            Vector3      min           = Vector3.zero;
-            Vector3      max           = Vector3.zero;
-            bool         initialized   = false;
+            var vertices = skin.sharedMesh.vertices;
+            var boneWeights = skin.sharedMesh.boneWeights;
+            var bones = skin.bones;
+            var boneBindPoses = skin.sharedMesh.bindposes;
+            var min = Vector3.zero;
+            var max = Vector3.zero;
+            var initialized = false;
 
-            for (int i = 0; i < boneWeights.Length; ++i)
+            for (var i = 0; i < boneWeights.Length; ++i)
             {
                 if (HasBoneInfluence(boneWeights[i], boneIndex, weightThreshold))
                 {
-                    Vector3 localVertex = bones[boneIndex].InverseTransformPoint(GetSkinnedWorldVertex(skin, boneWeights[i], vertices[i], bones, boneBindPoses));
+                    var localVertex = bones[boneIndex].InverseTransformPoint(GetSkinnedWorldVertex(skin, boneWeights[i], vertices[i], bones, boneBindPoses));
 
                     if (!initialized)
                     {
                         initialized = true;
-                        min         = localVertex;
-                        max         = localVertex;
+                        min = localVertex;
+                        max = localVertex;
                     }
                     else
                     {
@@ -358,6 +368,7 @@ namespace UltimateXR.Extensions.Unity.Render
             return new Bounds((min + max) * 0.5f, max - min);
         }
 
+
         /// <summary>
         ///     Gets a skinned vertex in world coordinates.
         /// </summary>
@@ -369,7 +380,7 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <returns>Vertex in world coordinates</returns>
         public static Vector3 GetSkinnedWorldVertex(SkinnedMeshRenderer skin, BoneWeight boneWeight, Vector3 vertex, Transform[] bones, Matrix4x4[] boneBindPoses)
         {
-            Vector3 result = Vector3.zero;
+            var result = Vector3.zero;
 
             if (boneWeight.weight0 > UxrConstants.Geometry.SmallestBoneWeight)
             {

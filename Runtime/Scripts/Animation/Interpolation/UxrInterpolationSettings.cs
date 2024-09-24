@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Interpolation
 {
@@ -16,13 +18,13 @@ namespace UltimateXR.Animation.Interpolation
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private float       _durationSeconds;
-        [SerializeField] private float       _delaySeconds;
-        [SerializeField] private UxrEasing   _easing;
+        [SerializeField] private float _durationSeconds;
+        [SerializeField] private float _delaySeconds;
+        [SerializeField] private UxrEasing _easing;
         [SerializeField] private UxrLoopMode _loopMode;
-        [SerializeField] private float       _loopedDurationSeconds;
-        [SerializeField] private bool        _useUnscaledTime;
-        [SerializeField] private bool        _delayUsingEndValue;
+        [SerializeField] private float _loopedDurationSeconds;
+        [SerializeField] private bool _useUnscaledTime;
+        [SerializeField] private bool _delayUsingEndValue;
 
         #endregion
 
@@ -108,14 +110,15 @@ namespace UltimateXR.Animation.Interpolation
         /// </summary>
         public UxrInterpolationSettings()
         {
-            _durationSeconds       = 0.0f;
-            _delaySeconds          = 0.0f;
-            _easing                = UxrEasing.Linear;
-            _loopMode              = UxrLoopMode.None;
+            _durationSeconds = 0.0f;
+            _delaySeconds = 0.0f;
+            _easing = UxrEasing.Linear;
+            _loopMode = UxrLoopMode.None;
             _loopedDurationSeconds = -1.0f;
-            _useUnscaledTime       = false;
-            _delayUsingEndValue    = false;
+            _useUnscaledTime = false;
+            _delayUsingEndValue = false;
         }
+
 
         /// <summary>
         ///     UxrInterpolationSettings constructor.
@@ -141,21 +144,21 @@ namespace UltimateXR.Animation.Interpolation
         ///     <paramref name="delaySeconds" /> specified. By default it's false, which means the interpolation start value is
         ///     used during the delay.
         /// </param>
-        public UxrInterpolationSettings(float       durationSeconds,
-                                        float       delaySeconds          = 0.0f,
-                                        UxrEasing   easing                = UxrEasing.Linear,
-                                        UxrLoopMode loopMode              = UxrLoopMode.None,
-                                        float       loopedDurationSeconds = -1.0f,
-                                        bool        useUnscaledTime       = false,
-                                        bool        delayUsingEndValue    = false)
+        public UxrInterpolationSettings(float durationSeconds,
+                                        float delaySeconds = 0.0f,
+                                        UxrEasing easing = UxrEasing.Linear,
+                                        UxrLoopMode loopMode = UxrLoopMode.None,
+                                        float loopedDurationSeconds = -1.0f,
+                                        bool useUnscaledTime = false,
+                                        bool delayUsingEndValue = false)
         {
-            _durationSeconds       = durationSeconds;
-            _delaySeconds          = delaySeconds;
-            _easing                = easing;
-            _loopMode              = loopMode;
+            _durationSeconds = durationSeconds;
+            _delaySeconds = delaySeconds;
+            _easing = easing;
+            _loopMode = loopMode;
             _loopedDurationSeconds = loopedDurationSeconds;
-            _useUnscaledTime       = useUnscaledTime;
-            _delayUsingEndValue    = delayUsingEndValue;
+            _useUnscaledTime = useUnscaledTime;
+            _delayUsingEndValue = delayUsingEndValue;
         }
 
         #endregion
@@ -171,6 +174,7 @@ namespace UltimateXR.Animation.Interpolation
         {
             return UxrInterpolator.Interpolate(0.0f, 1.0f, _durationSeconds, _delaySeconds, time, _easing, _loopMode, _loopedDurationSeconds, _delayUsingEndValue);
         }
+
 
         /// <summary>
         ///     Checks if the given time has surpassed the interpolation duration.

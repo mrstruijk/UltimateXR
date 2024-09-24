@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.UI.UnityInputModule.Controls;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
 
 namespace UltimateXR.UI.UnityInputModule.Utils
 {
@@ -20,7 +22,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private Vector3 _buttonLocalUpAxis = Vector3.up;
-        [SerializeField] private float   _pressedDegrees    = 2.0f;
+        [SerializeField] private float _pressedDegrees = 2.0f;
 
         #endregion
 
@@ -35,10 +37,11 @@ namespace UltimateXR.UI.UnityInputModule.Utils
         {
             if (Target)
             {
-                Vector3 rotationAxis = Vector3.Cross(_buttonLocalUpAxis, Target.InverseTransformVector(Target.position - transform.position).normalized);
+                var rotationAxis = Vector3.Cross(_buttonLocalUpAxis, Target.InverseTransformVector(Target.position - transform.position).normalized);
                 Target.Rotate(rotationAxis, -_pressedDegrees, Space.Self);
             }
         }
+
 
         /// <summary>
         ///     Key up event. The original object rotation is restored.

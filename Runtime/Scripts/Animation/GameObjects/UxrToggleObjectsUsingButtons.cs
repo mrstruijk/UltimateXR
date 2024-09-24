@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Avatar;
 using UltimateXR.Core;
 using UltimateXR.Core.Components;
 using UltimateXR.Devices;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.GameObjects
 {
@@ -17,14 +19,38 @@ namespace UltimateXR.Animation.GameObjects
     /// </summary>
     public class UxrToggleObjectsUsingButtons : UxrComponent
     {
+        #region Private Types & Data
+
+        private bool _state;
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Sets the object state of the list of objects in this component.
+        /// </summary>
+        /// <param name="value">State they should be changed to</param>
+        private void SetObjectsState(bool value)
+        {
+            _state = value;
+
+            foreach (var obj in ObjectList)
+            {
+                obj.SetActive(value);
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private List<GameObject>   _objectList;
-        [SerializeField] private bool               _startEnabled         = true;
-        [SerializeField] private UxrHandSide        _controllerHand       = UxrHandSide.Left;
-        [SerializeField] private UxrInputButtons    _buttonsEnable        = UxrInputButtons.Button1;
-        [SerializeField] private UxrButtonEventType _buttonsEventEnable   = UxrButtonEventType.PressDown;
-        [SerializeField] private UxrInputButtons    _buttonsDisable       = UxrInputButtons.Button1;
+        [SerializeField] private List<GameObject> _objectList;
+        [SerializeField] private bool _startEnabled = true;
+        [SerializeField] private UxrHandSide _controllerHand = UxrHandSide.Left;
+        [SerializeField] private UxrInputButtons _buttonsEnable = UxrInputButtons.Button1;
+        [SerializeField] private UxrButtonEventType _buttonsEventEnable = UxrButtonEventType.PressDown;
+        [SerializeField] private UxrInputButtons _buttonsDisable = UxrInputButtons.Button1;
         [SerializeField] private UxrButtonEventType _buttonsEventsDisable = UxrButtonEventType.TouchDown;
 
         #endregion
@@ -100,6 +126,7 @@ namespace UltimateXR.Animation.GameObjects
             SetObjectsState(_startEnabled);
         }
 
+
         /// <summary>
         ///     Called each frame. Checks for VR controller button events and toggles states.
         /// </summary>
@@ -119,30 +146,6 @@ namespace UltimateXR.Animation.GameObjects
                 SetObjectsState(false);
             }
         }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Sets the object state of the list of objects in this component.
-        /// </summary>
-        /// <param name="value">State they should be changed to</param>
-        private void SetObjectsState(bool value)
-        {
-            _state = value;
-
-            foreach (GameObject obj in ObjectList)
-            {
-                obj.SetActive(value);
-            }
-        }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private bool _state;
 
         #endregion
     }

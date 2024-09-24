@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Core.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation.HandPoses
 {
@@ -17,12 +19,65 @@ namespace UltimateXR.Manipulation.HandPoses
     [Serializable]
     public struct UxrFingerNodeDescriptor
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Creates a well-known axes system for a node, to handle transforms independently of the coordinate system being used
+        ///     by a hand rig.
+        /// </summary>
+        /// <param name="hand">Hand node</param>
+        /// <param name="parent">Parent node</param>
+        /// <param name="node">Current node being created</param>
+        /// <param name="parentLocalAxes">
+        ///     In local coordinates, which parent axes point to the well-known right, up and forward directions
+        /// </param>
+        /// <param name="nodeLocalAxes">
+        ///     In local coordinates, which node axes point to the well-known right, up and forward directions
+        /// </param>
+        public UxrFingerNodeDescriptor(Transform hand, Transform parent, Transform node, UxrUniversalLocalAxes parentLocalAxes, UxrUniversalLocalAxes nodeLocalAxes)
+        {
+            _right = Vector3.right;
+            _up = Vector3.up;
+            _forward = Vector3.forward;
+
+            _transformRelativeToHand = Matrix4x4.identity;
+
+            if (hand == null || parent == null || node != null)
+            {
+                return;
+            }
+
+            Compute(hand, parent, node, parentLocalAxes, nodeLocalAxes, false);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Gets an inequality value that measures how different two vectors are. It is used to provide a way to compare
+        ///     vectors considering floating point errors.
+        /// </summary>
+        /// <param name="lhs">Vector A</param>
+        /// <param name="rhs">Vector B</param>
+        /// <returns>Inequality value</returns>
+        private double GetInequalityValue(Vector3 lhs, Vector3 rhs)
+        {
+            var num1 = lhs.x - rhs.x;
+            var num2 = lhs.y - rhs.y;
+            var num3 = lhs.z - rhs.z;
+
+            return num1 * (double) num1 + num2 * (double) num2 + num3 * (double) num3;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private Matrix4x4 _transformRelativeToHand;
-        [SerializeField] private Vector3   _right;
-        [SerializeField] private Vector3   _up;
-        [SerializeField] private Vector3   _forward;
+        [SerializeField] private Vector3 _right;
+        [SerializeField] private Vector3 _up;
+        [SerializeField] private Vector3 _forward;
 
         #endregion
 
@@ -54,39 +109,6 @@ namespace UltimateXR.Manipulation.HandPoses
 
         #endregion
 
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Creates a well-known axes system for a node, to handle transforms independently of the coordinate system being used
-        ///     by a hand rig.
-        /// </summary>
-        /// <param name="hand">Hand node</param>
-        /// <param name="parent">Parent node</param>
-        /// <param name="node">Current node being created</param>
-        /// <param name="parentLocalAxes">
-        ///     In local coordinates, which parent axes point to the well-known right, up and forward directions
-        /// </param>
-        /// <param name="nodeLocalAxes">
-        ///     In local coordinates, which node axes point to the well-known right, up and forward directions
-        /// </param>
-        public UxrFingerNodeDescriptor(Transform hand, Transform parent, Transform node, UxrUniversalLocalAxes parentLocalAxes, UxrUniversalLocalAxes nodeLocalAxes)
-        {
-            _right   = Vector3.right;
-            _up      = Vector3.up;
-            _forward = Vector3.forward;
-
-            _transformRelativeToHand = Matrix4x4.identity;
-
-            if (hand == null || parent == null || node != null)
-            {
-                return;
-            }
-
-            Compute(hand, parent, node, parentLocalAxes, nodeLocalAxes, false);
-        }
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -111,17 +133,18 @@ namespace UltimateXR.Manipulation.HandPoses
 
             if (!computeRelativeMatrixOnly)
             {
-                Matrix4x4 matrixParent = new Matrix4x4();
+                var matrixParent = new Matrix4x4();
                 matrixParent.SetColumn(0, parent.TransformVector(parentLocalAxes.LocalRight));
                 matrixParent.SetColumn(1, parent.TransformVector(parentLocalAxes.LocalUp));
                 matrixParent.SetColumn(2, parent.TransformVector(parentLocalAxes.LocalForward));
                 matrixParent.SetColumn(3, new Vector4(parent.position.x, parent.position.y, parent.position.z, 1));
 
-                _right   = matrixParent.inverse.MultiplyVector(node.TransformVector(nodeLocalAxes.LocalRight));
-                _up      = matrixParent.inverse.MultiplyVector(node.TransformVector(nodeLocalAxes.LocalUp));
+                _right = matrixParent.inverse.MultiplyVector(node.TransformVector(nodeLocalAxes.LocalRight));
+                _up = matrixParent.inverse.MultiplyVector(node.TransformVector(nodeLocalAxes.LocalUp));
                 _forward = matrixParent.inverse.MultiplyVector(node.TransformVector(nodeLocalAxes.LocalForward));
             }
         }
+
 
         /// <summary>
         ///     Mirrors the descriptor. Useful to switch between left and right hand data.
@@ -130,11 +153,12 @@ namespace UltimateXR.Manipulation.HandPoses
         {
             // We do not need to mirror position and rotation because we don't use them for mirroring
 
-            _right.x   = -_right.x;
-            _right     = -_right;
-            _up.x      = -_up.x;
+            _right.x = -_right.x;
+            _right = -_right;
+            _up.x = -_up.x;
             _forward.x = -_forward.x;
         }
+
 
         /// <summary>
         ///     Interpolates the axes data towards another descriptor.
@@ -143,9 +167,9 @@ namespace UltimateXR.Manipulation.HandPoses
         /// <param name="t">Interpolation factor [0.0, 1.0]</param>
         public void InterpolateTo(UxrFingerNodeDescriptor to, float t)
         {
-            Quaternion quatSlerp = Quaternion.Slerp(Quaternion.LookRotation(_forward, _up), Quaternion.LookRotation(to._forward, to._up), t);
-            _right   = quatSlerp * Vector3.right;
-            _up      = quatSlerp * Vector3.up;
+            var quatSlerp = Quaternion.Slerp(Quaternion.LookRotation(_forward, _up), Quaternion.LookRotation(to._forward, to._up), t);
+            _right = quatSlerp * Vector3.right;
+            _up = quatSlerp * Vector3.up;
             _forward = quatSlerp * Vector3.forward;
 
             // For performance reasons, _transformRelativeToHand isn't interpolated because it is only used for grab preview poses. Interpolation is used for runtime pose blending.
@@ -154,6 +178,7 @@ namespace UltimateXR.Manipulation.HandPoses
             // _transformRelativeToHand = Matrix4x4Ext.Interpolate(_transformRelativeToHand, to._transformRelativeToHand, t);
         }
 
+
         /// <summary>
         ///     Checks if the content of two FingerNodeDescriptors is equal (they describe the same axes).
         /// </summary>
@@ -161,11 +186,11 @@ namespace UltimateXR.Manipulation.HandPoses
         /// <returns>Boolean telling if the two FingerNodeDescriptors describe the same axes</returns>
         public bool Equals(UxrFingerNodeDescriptor other)
         {
-            float epsilon = 0.00001f;
+            var epsilon = 0.00001f;
 
-            for (int i = 0; i < 4; ++i)
+            for (var i = 0; i < 4; ++i)
             {
-                for (int j = 0; j < 4; ++j)
+                for (var j = 0; j < 4; ++j)
                 {
                     if (Mathf.Abs(_transformRelativeToHand[i, j] - other._transformRelativeToHand[i, j]) > epsilon)
                     {
@@ -174,7 +199,7 @@ namespace UltimateXR.Manipulation.HandPoses
                 }
             }
 
-            bool equal = _right == other._right && _up == other._up && _forward == other._forward;
+            var equal = _right == other._right && _up == other._up && _forward == other._forward;
 /*
             double inequalityThreshold = 9.99999943962493E-11;
 
@@ -203,25 +228,6 @@ namespace UltimateXR.Manipulation.HandPoses
             }*/
 
             return equal;
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Gets an inequality value that measures how different two vectors are. It is used to provide a way to compare
-        ///     vectors considering floating point errors.
-        /// </summary>
-        /// <param name="lhs">Vector A</param>
-        /// <param name="rhs">Vector B</param>
-        /// <returns>Inequality value</returns>
-        private double GetInequalityValue(Vector3 lhs, Vector3 rhs)
-        {
-            float num1 = lhs.x - rhs.x;
-            float num2 = lhs.y - rhs.y;
-            float num3 = lhs.z - rhs.z;
-            return num1 * (double)num1 + num2 * (double)num2 + num3 * (double)num3;
         }
 
         #endregion

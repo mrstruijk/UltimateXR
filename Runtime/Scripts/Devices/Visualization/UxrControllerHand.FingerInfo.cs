@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Animation.IK;
 using UnityEngine;
+
 
 namespace UltimateXR.Devices.Visualization
 {
@@ -23,7 +25,7 @@ namespace UltimateXR.Devices.Visualization
             #region Inspector Properties/Serialized Fields
 
             [SerializeField] private UxrCcdIKSolver _fingerIKSolver;
-            [SerializeField] private float          _fingerToGoalDuration = 0.1f;
+            [SerializeField] private float _fingerToGoalDuration = 0.1f;
 
             #endregion
 

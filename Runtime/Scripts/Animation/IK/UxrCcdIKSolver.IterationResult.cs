@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Animation.IK
 {
     public partial class UxrCcdIKSolver
@@ -27,7 +28,7 @@ namespace UltimateXR.Animation.IK
             /// <summary>
             ///     There was an error and no links were rotated in order to reach the goal.
             /// </summary>
-            Error,
+            Error
         }
 
         #endregion

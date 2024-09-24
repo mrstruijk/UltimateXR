@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -21,7 +23,7 @@ namespace UltimateXR.Manipulation
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] protected UxrGrabPointIndex _grabPointIndex = new UxrGrabPointIndex(0);
+        [SerializeField] protected UxrGrabPointIndex _grabPointIndex = new(0);
 
         #endregion
 
@@ -52,6 +54,7 @@ namespace UltimateXR.Manipulation
         /// </param>
         /// <returns>Distance value</returns>
         public abstract float GetDistanceFromGrabber(UxrGrabber grabber, Transform snapTransform, Transform objectDistanceTransform, Transform grabberDistanceTransform);
+
 
         /// <summary>
         ///     Gets the closest snap position and rotation that should be used when a <see cref="UxrGrabber" /> tries to a grab

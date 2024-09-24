@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Core;
+
 
 namespace UltimateXR.Devices
 {
@@ -13,6 +15,23 @@ namespace UltimateXR.Devices
     /// </summary>
     public sealed class UxrInputButtonEventArgs : EventArgs
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="handSide">Target hand</param>
+        /// <param name="button">Target button</param>
+        /// <param name="buttonEventType">Button input event type</param>
+        public UxrInputButtonEventArgs(UxrHandSide handSide, UxrInputButtons button, UxrButtonEventType buttonEventType)
+        {
+            HandSide = handSide;
+            Button = button;
+            ButtonEventType = buttonEventType;
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -29,23 +48,6 @@ namespace UltimateXR.Devices
         ///     Gets the button input event type.
         /// </summary>
         public UxrButtonEventType ButtonEventType { get; }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="handSide">Target hand</param>
-        /// <param name="button">Target button</param>
-        /// <param name="buttonEventType">Button input event type</param>
-        public UxrInputButtonEventArgs(UxrHandSide handSide, UxrInputButtons button, UxrButtonEventType buttonEventType)
-        {
-            HandSide        = handSide;
-            Button          = button;
-            ButtonEventType = buttonEventType;
-        }
 
         #endregion
     }

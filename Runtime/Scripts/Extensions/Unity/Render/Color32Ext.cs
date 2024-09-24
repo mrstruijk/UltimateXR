@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -10,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UltimateXR.Extensions.System;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Render
 {
@@ -31,13 +33,14 @@ namespace UltimateXR.Extensions.Unity.Render
         {
             switch (data.Length)
             {
-                case 0:  return default;
-                case 1:  return new Color32(data[0], byte.MinValue, byte.MinValue, byte.MaxValue);
-                case 2:  return new Color32(data[0], data[1],       byte.MinValue, byte.MaxValue);
-                case 3:  return new Color32(data[0], data[1],       data[2],       byte.MaxValue);
-                default: return new Color32(data[0], data[1],       data[2],       data[3]);
+                case 0: return default;
+                case 1: return new Color32(data[0], byte.MinValue, byte.MinValue, byte.MaxValue);
+                case 2: return new Color32(data[0], data[1], byte.MinValue, byte.MaxValue);
+                case 3: return new Color32(data[0], data[1], data[2], byte.MaxValue);
+                default: return new Color32(data[0], data[1], data[2], data[3]);
             }
         }
+
 
         /// <summary>
         ///     Transforms a <see cref="Color32" /> value into the int value it encodes the color in.
@@ -46,8 +49,9 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <returns>Int value</returns>
         public static int ToInt(this in Color32 self)
         {
-            return self.r << 24 | self.g << 16 | self.b << 8 | self.a;
+            return (self.r << 24) | (self.g << 16) | (self.b << 8) | self.a;
         }
+
 
         /// <summary>
         ///     Clamps <see cref="Color32" /> values component by component.
@@ -58,14 +62,16 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <returns>Clamped color</returns>
         public static Color32 Clamp(this in Color32 self, in Color32 min, in Color32 max)
         {
-            byte[] result = new byte[VectorLength];
-            for (int i = 0; i < VectorLength; ++i)
+            var result = new byte[VectorLength];
+
+            for (var i = 0; i < VectorLength; ++i)
             {
-                result[i] = (byte)Mathf.Clamp(self[i], min[i], max[i]);
+                result[i] = (byte) Mathf.Clamp(self[i], min[i], max[i]);
             }
 
             return result.ToColor32();
         }
+
 
         /// <summary>
         ///     Multiplies two colors by multiplying each component.
@@ -75,11 +81,12 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <returns>Result color</returns>
         public static Color32 Multiply(this in Color32 self, in Color32 other)
         {
-            return new Color32((byte)(self.r * other.r),
-                               (byte)(self.g * other.g),
-                               (byte)(self.b * other.b),
-                               (byte)(self.a * other.a));
+            return new Color32((byte) (self.r * other.r),
+                (byte) (self.g * other.g),
+                (byte) (self.b * other.b),
+                (byte) (self.a * other.a));
         }
+
 
         /// <summary>
         ///     Compares two colors.
@@ -92,6 +99,7 @@ namespace UltimateXR.Extensions.Unity.Render
             return self.r == other.r && self.g == other.g && self.b == other.b && self.a == other.a;
         }
 
+
         /// <summary>
         ///     Converts the color to a HTML color value (#RRGGBB or #RRGGBBAA).
         /// </summary>
@@ -101,6 +109,7 @@ namespace UltimateXR.Extensions.Unity.Render
         {
             return self.a == 255 ? string.Format(StringFormatRGB, self.r, self.g, self.b) : string.Format(StringFormatRGBA, self.r, self.g, self.b, self.a);
         }
+
 
         /// <summary>
         ///     Tries to parse a <see cref="Color32" /> from an HTML string (#RRGGBB or #RRGGBBAA).
@@ -113,14 +122,17 @@ namespace UltimateXR.Extensions.Unity.Render
             try
             {
                 result = Parse(html);
+
                 return true;
             }
             catch
             {
                 result = default;
+
                 return false;
             }
         }
+
 
         /// <summary>
         ///     Parses a <see cref="Color32" /> from an HTML string (#RRGGBB or #RRGGBBAA).
@@ -132,27 +144,30 @@ namespace UltimateXR.Extensions.Unity.Render
         {
             html.ThrowIfNull(nameof(html));
 
-            Match match = _regex.Match(html);
+            var match = _regex.Match(html);
+
             if (!match.Success)
             {
                 throw new FormatException($"Input string [{html}] does not have the right format: #RRGGBB or #RRGGBBAA");
             }
 
-            byte[] colorBytes = new byte[VectorLength];
+            var colorBytes = new byte[VectorLength];
 
-            for (int i = 0; i < VectorLength - 1; ++i)
+            for (var i = 0; i < VectorLength - 1; ++i)
             {
-                string hex = match.Groups[i + 1].Value;
+                var hex = match.Groups[i + 1].Value;
                 colorBytes[i] = byte.Parse(hex, NumberStyles.HexNumber, CultureInfo.InvariantCulture.NumberFormat);
             }
 
-            string aa = match.Groups[VectorLength].Value;
+            var aa = match.Groups[VectorLength].Value;
+
             colorBytes[VectorLength - 1] = aa == string.Empty
-                                                       ? byte.MaxValue
-                                                       : byte.Parse(aa, NumberStyles.HexNumber, CultureInfo.InvariantCulture.NumberFormat);
+                ? byte.MaxValue
+                : byte.Parse(aa, NumberStyles.HexNumber, CultureInfo.InvariantCulture.NumberFormat);
 
             return colorBytes.ToColor32();
         }
+
 
         /// <summary>
         ///     Parses asynchronously a <see cref="Color32" /> from an HTML string (#RRGGBB or #RRGGBBAA).
@@ -163,19 +178,19 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <exception cref="FormatException">The string had an incorrect format</exception>
         public static Task<Color32?> ParseAsync(string html, CancellationToken ct = default)
         {
-            return Task.Run(() => TryParse(html, out Color32 result) ? result : (Color32?)null, ct);
+            return Task.Run(() => TryParse(html, out var result) ? result : (Color32?) null, ct);
         }
 
         #endregion
 
         #region Private Types & Data
 
-        private const int    VectorLength     = 4;
+        private const int VectorLength = 4;
         private const string StringFormatRGBA = "#{0:X2}{1:X2}{2:X2}{3:X2}";
-        private const string StringFormatRGB  = "#{0:X2}{1:X2}{2:X2}";
-        private const string RegexPattern     = "^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})?$";
+        private const string StringFormatRGB = "#{0:X2}{1:X2}{2:X2}";
+        private const string RegexPattern = "^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})?$";
 
-        private static readonly Regex _regex = new Regex(RegexPattern);
+        private static readonly Regex _regex = new(RegexPattern);
 
         #endregion
     }

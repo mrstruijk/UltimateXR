@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UltimateXR.Core.Threading.TaskControllers;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.System.Threading
 {
@@ -34,16 +36,17 @@ namespace UltimateXR.Extensions.System.Threading
                 return;
             }
 
-            int deltaTimeMs = Mathf.RoundToInt(1000f / rate);
+            var deltaTimeMs = Mathf.RoundToInt(1000f / rate);
 
             while (!ct.IsCancellationRequested)
             {
                 // Start delay timer parallel to action execution
-                Task delayTask = TaskExt.Delay(deltaTimeMs, ct);
+                var delayTask = TaskExt.Delay(deltaTimeMs, ct);
                 self();
                 await delayTask;
             }
         }
+
 
         /// <summary>
         ///     Executes repeatedly this <see cref="Action" />, in a separated thread, at <paramref name="rate" /> Hz until
@@ -59,17 +62,18 @@ namespace UltimateXR.Extensions.System.Threading
                 return;
             }
 
-            int deltaTimeMs = Mathf.RoundToInt(1000f / rate);
+            var deltaTimeMs = Mathf.RoundToInt(1000f / rate);
 
             while (!ct.IsCancellationRequested)
             {
                 // We don't want to abort current thread (Task.Run) with ct
                 // Instead, we wait for action to end, breaking the loop after that.
-                Task delayTask = TaskExt.Delay(deltaTimeMs, ct);
-                Task runTask   = Task.Run(self, CancellationToken.None);
+                var delayTask = TaskExt.Delay(deltaTimeMs, ct);
+                var runTask = Task.Run(self, CancellationToken.None);
                 await Task.WhenAll(delayTask, runTask);
             }
         }
+
 
         /// <summary>
         ///     Creates a <see cref="UxrLoopController" /> which wraps a cancellable loop executing this <see cref="Action" /> in
@@ -101,6 +105,7 @@ namespace UltimateXR.Extensions.System.Threading
         {
             return new UxrLoopController(ct => Loop(self, rate, ct), autoStartDelay);
         }
+
 
         /// <summary>
         ///     Creates a <see cref="UxrLoopController" /> which wraps a cancellable loop executing this <see cref="Action" /> in a

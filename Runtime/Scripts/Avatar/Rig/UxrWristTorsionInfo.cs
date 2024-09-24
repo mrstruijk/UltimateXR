@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Rig
 {
@@ -12,15 +14,6 @@ namespace UltimateXR.Avatar.Rig
     /// </summary>
     public class UxrWristTorsionInfo
     {
-        #region Public Types & Data
-
-        /// <summary>
-        ///     The wrist rotation along the elbow->hand axis.
-        /// </summary>
-        public float WristTorsionAngle { get; private set; }
-
-        #endregion
-
         #region Constructors & Finalizer
 
         /// <summary>
@@ -31,6 +24,15 @@ namespace UltimateXR.Avatar.Rig
             _wristTorsionMinAngle = WristTorsionLimitSideLong;
             _wristTorsionMaxAngle = -WristTorsionLimitSideShort;
         }
+
+        #endregion
+
+        #region Public Types & Data
+
+        /// <summary>
+        ///     The wrist rotation along the elbow->hand axis.
+        /// </summary>
+        public float WristTorsionAngle { get; private set; }
 
         #endregion
 
@@ -46,15 +48,15 @@ namespace UltimateXR.Avatar.Rig
         {
             if (hand && forearm && armInfo.ForearmUniversalLocalAxes != null && armInfo.HandUniversalLocalAxes != null)
             {
-                Vector3 currentHandForwardInForearm = forearm.InverseTransformDirection(armInfo.HandUniversalLocalAxes.WorldForward);
-                Vector3 currentHandUpInForearm      = forearm.InverseTransformDirection(armInfo.HandUniversalLocalAxes.WorldUp);
-                Vector3 currentHandRightInForearm   = forearm.InverseTransformDirection(armInfo.HandUniversalLocalAxes.WorldRight);
+                var currentHandForwardInForearm = forearm.InverseTransformDirection(armInfo.HandUniversalLocalAxes.WorldForward);
+                var currentHandUpInForearm = forearm.InverseTransformDirection(armInfo.HandUniversalLocalAxes.WorldUp);
+                var currentHandRightInForearm = forearm.InverseTransformDirection(armInfo.HandUniversalLocalAxes.WorldRight);
 
-                currentHandUpInForearm    = Vector3.ProjectOnPlane(currentHandUpInForearm,    armInfo.ForearmUniversalLocalAxes.LocalForward);
+                currentHandUpInForearm = Vector3.ProjectOnPlane(currentHandUpInForearm, armInfo.ForearmUniversalLocalAxes.LocalForward);
                 currentHandRightInForearm = Vector3.ProjectOnPlane(currentHandRightInForearm, armInfo.ForearmUniversalLocalAxes.LocalForward);
 
-                float angleRight = Vector3.SignedAngle(armInfo.ForearmUniversalLocalAxes.LocalRight, currentHandRightInForearm, armInfo.ForearmUniversalLocalAxes.LocalForward);
-                float angle      = angleRight; // Works better than angleUp because of hand movement constraints
+                var angleRight = Vector3.SignedAngle(armInfo.ForearmUniversalLocalAxes.LocalRight, currentHandRightInForearm, armInfo.ForearmUniversalLocalAxes.LocalForward);
+                var angle = angleRight; // Works better than angleUp because of hand movement constraints
 
                 // Check for twists greater than 180 degrees, to know which way to turn to
 
@@ -69,7 +71,7 @@ namespace UltimateXR.Avatar.Rig
 
                 // Compute the overshoot if necessary
 
-                float finalAngle = angle;
+                var finalAngle = angle;
 
                 if (_wristTorsionOvershoot > 0)
                 {
@@ -83,12 +85,12 @@ namespace UltimateXR.Avatar.Rig
                 if (finalAngle > _wristTorsionMinAngle && _wristTorsionOvershoot != 0)
                 {
                     _wristTorsionOvershoot = 0;
-                    finalAngle             = finalAngle + 360.0f;
+                    finalAngle = finalAngle + 360.0f;
                 }
                 else if (finalAngle < _wristTorsionMaxAngle && _wristTorsionOvershoot != 0)
                 {
                     _wristTorsionOvershoot = 0;
-                    finalAngle             = finalAngle - 360.0f;
+                    finalAngle = finalAngle - 360.0f;
                 }
 
                 // Rotation
@@ -104,14 +106,14 @@ namespace UltimateXR.Avatar.Rig
         // Constants
 
         private const float WristTorsionOvershootAngleThreshold = 150.0f;
-        private const float WristTorsionLimitSideShort          = 200.0f;
-        private const float WristTorsionLimitSideLong           = 300.0f;
+        private const float WristTorsionLimitSideShort = 200.0f;
+        private const float WristTorsionLimitSideLong = 300.0f;
 
         // Internal vars
 
         private readonly float _wristTorsionMinAngle;
         private readonly float _wristTorsionMaxAngle;
-        private          int   _wristTorsionOvershoot;
+        private int _wristTorsionOvershoot;
 
         #endregion
     }

@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.IO;
 using System.Threading;
@@ -12,6 +13,7 @@ using UltimateXR.Extensions.System;
 using UltimateXR.Extensions.System.IO;
 using UltimateXR.Extensions.Unity.IO;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Audio
 {
@@ -38,12 +40,13 @@ namespace UltimateXR.Extensions.Unity.Audio
         /// <returns>The just created temporal <see cref="AudioSource" />.</returns>
         /// <seealso cref="AudioSourceExt.PlayClip" />
         public static AudioSource PlayClip(AudioClip self,
-                                           float     volume = 1.0f,
-                                           float     delay  = 0.0f,
-                                           float     pitch  = 1.0f)
+                                           float volume = 1.0f,
+                                           float delay = 0.0f,
+                                           float pitch = 1.0f)
         {
             return AudioSourceExt.PlayClip(self, volume, delay, pitch);
         }
+
 
         /// <summary>
         ///     Plays an AudioClip at a given position in world space.
@@ -64,14 +67,15 @@ namespace UltimateXR.Extensions.Unity.Audio
         /// <returns>The just created temporal <see cref="AudioSource" />.</returns>
         /// <seealso cref="AudioSourceExt.PlayClipAtPoint" />
         public static AudioSource PlayClipAtPoint(AudioClip self,
-                                                  Vector3   point,
-                                                  float     volume       = 1.0f,
-                                                  float     delay        = 0.0f,
-                                                  float     pitch        = 1.0f,
-                                                  float     spatialBlend = AudioSourceExt.SpatialBlend3D)
+                                                  Vector3 point,
+                                                  float volume = 1.0f,
+                                                  float delay = 0.0f,
+                                                  float pitch = 1.0f,
+                                                  float spatialBlend = AudioSourceExt.SpatialBlend3D)
         {
             return AudioSourceExt.PlayClipAtPoint(self, point, volume, delay, pitch, spatialBlend);
         }
+
 
         /// <summary>
         ///     Asynchronous and ubiquitously plays the <see cref="AudioClip" />.
@@ -90,11 +94,11 @@ namespace UltimateXR.Extensions.Unity.Audio
         /// <param name="ct"><see cref="CancellationToken" /> to stop playing.</param>
         /// <returns>An awaitable <see cref="Task" />.</returns>
         /// <seealso cref="AudioSourceExt.PlayClipAsync" />
-        public static Task PlayAsync(this AudioClip    self,
-                                     float             volume = 1.0f,
-                                     float             delay  = 0.0f,
-                                     float             pitch  = 1.0f,
-                                     CancellationToken ct     = default)
+        public static Task PlayAsync(this AudioClip self,
+                                     float volume = 1.0f,
+                                     float delay = 0.0f,
+                                     float pitch = 1.0f,
+                                     CancellationToken ct = default)
         {
             return AudioSourceExt.PlayClipAsync(self, volume, delay, pitch, ct);
         }
@@ -119,16 +123,17 @@ namespace UltimateXR.Extensions.Unity.Audio
         /// <param name="ct"><see cref="CancellationToken" /> to stop playing.</param>
         /// <returns>An awaitable <see cref="Task" />.</returns>
         /// <seealso cref="AudioSourceExt.PlayClipAtPointAsync" />
-        public static Task PlayAtPointAsync(this AudioClip    self,
-                                            Vector3           point,
-                                            float             volume       = 1.0f,
-                                            float             delay        = 0.0f,
-                                            float             pitch        = 1.0f,
-                                            float             spatialBlend = AudioSourceExt.SpatialBlend3D,
-                                            CancellationToken ct           = default)
+        public static Task PlayAtPointAsync(this AudioClip self,
+                                            Vector3 point,
+                                            float volume = 1.0f,
+                                            float delay = 0.0f,
+                                            float pitch = 1.0f,
+                                            float spatialBlend = AudioSourceExt.SpatialBlend3D,
+                                            CancellationToken ct = default)
         {
             return AudioSourceExt.PlayClipAtPointAsync(self, point, volume, delay, pitch, spatialBlend, ct);
         }
+
 
         /// <summary>
         ///     Creates an <see cref="AudioClip" /> from a PCM stream.
@@ -139,10 +144,12 @@ namespace UltimateXR.Extensions.Unity.Audio
         public static AudioClip FromPcmStream(Stream sourceStream, string clipName = "pcm")
         {
             clipName.ThrowIfNullOrWhitespace(nameof(clipName));
-            byte[] bytes = new byte[sourceStream.Length];
+            var bytes = new byte[sourceStream.Length];
             sourceStream.Read(bytes, 0, bytes.Length);
+
             return FromPcmBytes(bytes, clipName);
         }
+
 
         /// <summary>
         ///     Creates an <see cref="AudioClip" /> from a PCM stream asynchronously.
@@ -154,10 +161,12 @@ namespace UltimateXR.Extensions.Unity.Audio
         public static async Task<AudioClip> FromPcmStreamAsync(Stream sourceStream, string clipName = "pcm", CancellationToken ct = default)
         {
             clipName.ThrowIfNullOrWhitespace(nameof(clipName));
-            byte[] bytes = new byte[sourceStream.Length];
+            var bytes = new byte[sourceStream.Length];
             await sourceStream.ReadAsync(bytes, 0, bytes.Length, ct);
+
             return await FromPcmBytesAsync(bytes, clipName, ct);
         }
+
 
         /// <summary>
         ///     Creates an <see cref="AudioClip" /> from a PCM byte array.
@@ -168,11 +177,13 @@ namespace UltimateXR.Extensions.Unity.Audio
         public static AudioClip FromPcmBytes(byte[] bytes, string clipName = "pcm")
         {
             clipName.ThrowIfNullOrWhitespace(nameof(clipName));
-            var pcmData   = PcmData.FromBytes(bytes);
+            var pcmData = PcmData.FromBytes(bytes);
             var audioClip = AudioClip.Create(clipName, pcmData.Length, pcmData.Channels, pcmData.SampleRate, false);
             audioClip.SetData(pcmData.Value, 0);
+
             return audioClip;
         }
+
 
         /// <summary>
         ///     Creates an <see cref="AudioClip" /> from a PCM byte array asynchronously.
@@ -184,9 +195,10 @@ namespace UltimateXR.Extensions.Unity.Audio
         public static async Task<AudioClip> FromPcmBytesAsync(byte[] bytes, string clipName = "pcm", CancellationToken ct = default)
         {
             clipName.ThrowIfNullOrWhitespace(nameof(clipName));
-            var pcmData   = await Task.Run(() => PcmData.FromBytes(bytes), ct);
+            var pcmData = await Task.Run(() => PcmData.FromBytes(bytes), ct);
             var audioClip = AudioClip.Create(clipName, pcmData.Length, pcmData.Channels, pcmData.SampleRate, false);
             audioClip.SetData(pcmData.Value, 0);
+
             return audioClip;
         }
 
@@ -240,10 +252,12 @@ namespace UltimateXR.Extensions.Unity.Audio
         /// </exception>
         public static async Task<AudioClip> FromPcmFile(string uri, CancellationToken ct = default)
         {
-            string fileName = Path.GetFileNameWithoutExtension(uri);
-            byte[] bytes    = await FileExt.Read(uri, ct);
+            var fileName = Path.GetFileNameWithoutExtension(uri);
+            var bytes = await FileExt.Read(uri, ct);
+
             return await FromPcmBytesAsync(bytes, fileName, ct);
         }
+
 
         /// <summary>
         ///     Creates a <see cref="StreamedPcmClip" /> object from a stream containing PCM data.

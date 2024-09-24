@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Devices
 {
     /// <summary>
@@ -16,6 +17,7 @@ namespace UltimateXR.Devices
         ///     Updates the sensor information
         /// </summary>
         void UpdateSensors();
+
 
         /// <summary>
         ///     Updates the avatar using the current sensor information

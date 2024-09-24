@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections;
 using System.Threading;
@@ -14,6 +15,7 @@ using UltimateXR.Extensions.Unity;
 using UltimateXR.Extensions.Unity.Render;
 using UnityEngine;
 
+
 namespace UltimateXR.CameraUtils
 {
     /// <summary>
@@ -22,6 +24,41 @@ namespace UltimateXR.CameraUtils
     /// </summary>
     public class UxrCameraFade : UxrAvatarComponent<UxrCameraFade>
     {
+        #region Coroutines
+
+        /// <summary>
+        ///     Coroutine that fades the screen over time. It can be used to be yielded externally from another coroutine.
+        ///     <see cref="FadeAsync" /> is provided as the async alternative.
+        /// </summary>
+        /// <param name="fadeSeconds">Seconds it will take to execute the fade</param>
+        /// <param name="startColor">Start color value</param>
+        /// <param name="endColor">End color value</param>
+        /// <returns>Coroutine IEnumerator</returns>
+        public IEnumerator StartFadeCoroutine(float fadeSeconds, Color startColor, Color endColor)
+        {
+            if (DrawFade)
+            {
+                // Debug.LogWarning("A fade coroutine was requested while a fade already being active");
+            }
+
+            yield return this.LoopCoroutine(fadeSeconds,
+                t =>
+                {
+                    DrawFade = true;
+                    _fadeCurrentColor = Color.Lerp(startColor, endColor, t);
+                    FadeMaterial.color = _fadeCurrentColor;
+                },
+                UxrEasing.Linear,
+                true);
+
+            if (Mathf.Approximately(endColor.a, 0.0f))
+            {
+                DrawFade = false;
+            }
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -66,12 +103,13 @@ namespace UltimateXR.CameraUtils
         /// <returns>The <see cref="UxrCameraFade" /> component which may have been added or was already present</returns>
         public static UxrCameraFade CheckAddToCamera(Camera camera)
         {
-            UxrCameraFade cameraFade = camera.gameObject.GetOrAddComponent<UxrCameraFade>();
+            var cameraFade = camera.gameObject.GetOrAddComponent<UxrCameraFade>();
 
             cameraFade._fadeColor = Color.black;
 
             return cameraFade;
         }
+
 
         /// <summary>
         ///     Checks if the given camera has a <see cref="UxrCameraFade" /> component and a fade is currently active.
@@ -83,10 +121,11 @@ namespace UltimateXR.CameraUtils
         /// </returns>
         public static bool HasCameraFadeActive(Camera camera)
         {
-            UxrCameraFade cameraFade = camera.gameObject.GetComponent<UxrCameraFade>();
+            var cameraFade = camera.gameObject.GetComponent<UxrCameraFade>();
 
             return cameraFade != null && cameraFade.DrawFade;
         }
+
 
         /// <summary>
         ///     Starts a fade over time on the given camera. The camera will fade out to a given color and
@@ -100,15 +139,16 @@ namespace UltimateXR.CameraUtils
         /// <param name="fadeOutFinishedCallback">Optional callback executed right after the fade out finished</param>
         /// <param name="fadeInFinishedCallback">Optional callback executed right after the fade in finished</param>
         public static void StartFade(Camera camera,
-                                     float  fadeOutDurationSeconds,
-                                     float  fadeInDurationSeconds,
-                                     Color  fadeColor,
+                                     float fadeOutDurationSeconds,
+                                     float fadeInDurationSeconds,
+                                     Color fadeColor,
                                      Action fadeOutFinishedCallback = null,
-                                     Action fadeInFinishedCallback  = null)
+                                     Action fadeInFinishedCallback = null)
         {
-            UxrCameraFade cameraFade = CheckAddToCamera(camera);
+            var cameraFade = CheckAddToCamera(camera);
             cameraFade.StartFade(fadeOutDurationSeconds, fadeInDurationSeconds, fadeColor, fadeOutFinishedCallback, fadeInFinishedCallback);
         }
+
 
         /// <summary>
         ///     Starts a fade over time on the camera that has this component. The camera will fade out to a given color and
@@ -120,11 +160,11 @@ namespace UltimateXR.CameraUtils
         /// <param name="fadeColor">The color the component fades out to and fades in from</param>
         /// <param name="fadeOutFinishedCallback">Optional callback that is called just after the fade out finished</param>
         /// <param name="fadeInFinishedCallback">Optional callback that is called just after the fade in finished</param>
-        public void StartFade(float  fadeOutDurationSeconds,
-                              float  fadeInDurationSeconds,
-                              Color  fadeColor,
+        public void StartFade(float fadeOutDurationSeconds,
+                              float fadeInDurationSeconds,
+                              Color fadeColor,
                               Action fadeOutFinishedCallback = null,
-                              Action fadeInFinishedCallback  = null)
+                              Action fadeInFinishedCallback = null)
         {
             if (DrawFade)
             {
@@ -133,20 +173,21 @@ namespace UltimateXR.CameraUtils
 
             _fadeColor = fadeColor;
 
-            DrawFade         = true;
+            DrawFade = true;
             _fadeOutFinished = false;
-            _fadeTimer       = fadeOutDurationSeconds + fadeInDurationSeconds;
+            _fadeTimer = fadeOutDurationSeconds + fadeInDurationSeconds;
             _fadeOutDuration = fadeOutDurationSeconds;
-            _fadeInDuration  = fadeInDurationSeconds;
+            _fadeInDuration = fadeInDurationSeconds;
 
             _fadeOutFinishedCallback = fadeOutFinishedCallback;
-            _fadeInFinishedCallback  = fadeInFinishedCallback;
+            _fadeInFinishedCallback = fadeInFinishedCallback;
 
-            _fadeCurrentColor   = _fadeColor;
+            _fadeCurrentColor = _fadeColor;
             _fadeCurrentColor.a = 0.0f;
 
             FadeMaterial.color = _fadeCurrentColor;
         }
+
 
         /// <summary>
         ///     Enables the camera fade color. It will draw an overlay with the given color until <see cref="DisableFadeColor" />
@@ -156,23 +197,25 @@ namespace UltimateXR.CameraUtils
         /// <param name="quantity">The quantity [0.0, 1.0] of the fade</param>
         public void EnableFadeColor(Color color, float quantity)
         {
-            DrawFade   = true;
+            DrawFade = true;
             _fadeTimer = -1.0f;
 
-            _fadeCurrentColor   =  color;
+            _fadeCurrentColor = color;
             _fadeCurrentColor.a *= quantity;
 
             FadeMaterial.color = _fadeCurrentColor;
         }
+
 
         /// <summary>
         ///     Disables the camera fade rendering.
         /// </summary>
         public void DisableFadeColor()
         {
-            DrawFade   = false;
+            DrawFade = false;
             _fadeTimer = -1.0f;
         }
+
 
         /// <summary>
         ///     Starts a fade over time using an async operation.
@@ -184,15 +227,15 @@ namespace UltimateXR.CameraUtils
         public async Task FadeAsync(CancellationToken ct, float fadeSeconds, Color startColor, Color endColor)
         {
             await TaskExt.Loop(ct,
-                               fadeSeconds,
-                               t =>
-                               {
-                                   DrawFade           = true;
-                                   _fadeCurrentColor  = Color.Lerp(startColor, endColor, t);
-                                   FadeMaterial.color = _fadeCurrentColor;
-                               },
-                               UxrEasing.Linear,
-                               true);
+                fadeSeconds,
+                t =>
+                {
+                    DrawFade = true;
+                    _fadeCurrentColor = Color.Lerp(startColor, endColor, t);
+                    FadeMaterial.color = _fadeCurrentColor;
+                },
+                UxrEasing.Linear,
+                true);
 
             if (Mathf.Approximately(endColor.a, 0.0f))
             {
@@ -214,6 +257,7 @@ namespace UltimateXR.CameraUtils
             CheckInitialize();
         }
 
+
         /// <summary>
         ///     Updates the fade (StartFade version) and calls all callbacks when they need to be triggered.
         /// </summary>
@@ -231,7 +275,7 @@ namespace UltimateXR.CameraUtils
                 }
                 else if (_fadeTimer < _fadeInDuration && _fadeOutFinished == false)
                 {
-                    _fadeOutFinished    = true;
+                    _fadeOutFinished = true;
                     _fadeCurrentColor.a = 1.0f * _fadeColor.a;
 
                     _fadeOutFinishedCallback?.Invoke();
@@ -254,41 +298,6 @@ namespace UltimateXR.CameraUtils
 
         #endregion
 
-        #region Coroutines
-
-        /// <summary>
-        ///     Coroutine that fades the screen over time. It can be used to be yielded externally from another coroutine.
-        ///     <see cref="FadeAsync" /> is provided as the async alternative.
-        /// </summary>
-        /// <param name="fadeSeconds">Seconds it will take to execute the fade</param>
-        /// <param name="startColor">Start color value</param>
-        /// <param name="endColor">End color value</param>
-        /// <returns>Coroutine IEnumerator</returns>
-        public IEnumerator StartFadeCoroutine(float fadeSeconds, Color startColor, Color endColor)
-        {
-            if (DrawFade)
-            {
-                // Debug.LogWarning("A fade coroutine was requested while a fade already being active");
-            }
-
-            yield return this.LoopCoroutine(fadeSeconds,
-                                            t =>
-                                            {
-                                                DrawFade           = true;
-                                                _fadeCurrentColor  = Color.Lerp(startColor, endColor, t);
-                                                FadeMaterial.color = _fadeCurrentColor;
-                                            },
-                                            UxrEasing.Linear,
-                                            true);
-
-            if (Mathf.Approximately(endColor.a, 0.0f))
-            {
-                DrawFade = false;
-            }
-        }
-
-        #endregion
-
         #region Private Methods
 
         /// <summary>
@@ -299,13 +308,14 @@ namespace UltimateXR.CameraUtils
             if (!_initialized)
             {
                 _initialized = true;
-                _camera      = Avatar.CameraComponent;
-                _fadeTimer   = -1.0f;
+                _camera = Avatar.CameraComponent;
+                _fadeTimer = -1.0f;
 
                 DrawFade = false;
                 CreateCameraQuad();
             }
         }
+
 
         /// <summary>
         ///     Creates the quad to render in front of the camera.
@@ -314,15 +324,15 @@ namespace UltimateXR.CameraUtils
         {
             _quadObject = new GameObject("Fade");
             _quadObject.transform.SetParent(transform);
-            _quadObject.transform.localPosition    = Vector3.forward * (_camera.nearClipPlane + 0.01f);
+            _quadObject.transform.localPosition = Vector3.forward * (_camera.nearClipPlane + 0.01f);
             _quadObject.transform.localEulerAngles = new Vector3(0.0f, 180.0f, 0.0f);
-            _quadObject.layer                      = _quadLayer;
+            _quadObject.layer = _quadLayer;
 
-            MeshFilter   meshFilter   = _quadObject.AddComponent<MeshFilter>();
-            MeshRenderer meshRenderer = _quadObject.AddComponent<MeshRenderer>();
+            var meshFilter = _quadObject.AddComponent<MeshFilter>();
+            var meshRenderer = _quadObject.AddComponent<MeshRenderer>();
 
             meshFilter.mesh = MeshExt.CreateQuad(2.0f);
-            _fadeMaterial   = new Material(ShaderExt.UnlitOverlayFade);
+            _fadeMaterial = new Material(ShaderExt.UnlitOverlayFade);
 
             meshRenderer.sharedMaterial = _fadeMaterial;
 
@@ -366,18 +376,18 @@ namespace UltimateXR.CameraUtils
             }
         }
 
-        private Color      _fadeColor = Color.black;
-        private bool       _initialized;
-        private Camera     _camera;
-        private Material   _fadeMaterial;
-        private bool       _drawFade;
-        private bool       _fadeOutFinished;
-        private float      _fadeTimer;
-        private float      _fadeInDuration;
-        private float      _fadeOutDuration;
-        private Color      _fadeCurrentColor;
+        private Color _fadeColor = Color.black;
+        private bool _initialized;
+        private Camera _camera;
+        private Material _fadeMaterial;
+        private bool _drawFade;
+        private bool _fadeOutFinished;
+        private float _fadeTimer;
+        private float _fadeInDuration;
+        private float _fadeOutDuration;
+        private Color _fadeCurrentColor;
         private GameObject _quadObject;
-        private int        _quadLayer = 1;
+        private int _quadLayer = 1;
 
         private Action _fadeOutFinishedCallback;
         private Action _fadeInFinishedCallback;

@@ -3,13 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UltimateXR.Core;
 using UltimateXR.Core.Math;
 using UltimateXR.Extensions.Unity.Math;
-using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Rig
 {
@@ -19,22 +20,48 @@ namespace UltimateXR.Avatar.Rig
     [Serializable]
     public class UxrAvatarArmInfo
     {
+        #region Private Types & Data
+
+        /// <summary>
+        ///     Minimum angle between arm and forearm to compute elbow axis using cross product.
+        /// </summary>
+        private const float ElbowMinAngleThreshold = 3.0f;
+
+        #endregion
+
+        #region Internal Methods
+
+        /// <summary>
+        ///     Computes and stores all the arm information of an avatar.
+        /// </summary>
+        /// <param name="avatar">Avatar whose arm to compute the information of</param>
+        /// <param name="side">Which side to compute</param>
+        internal void Compute(UxrAvatar avatar, UxrHandSide side)
+        {
+            _avatar = avatar;
+            _side = side;
+            SolveHandAndFingerAxes(avatar.GetHand(side), side);
+            ComputeArmRigInfo(avatar, avatar.GetArm(side), side);
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private UxrAvatar             _avatar;
-        [SerializeField] private UxrHandSide           _side;
-        [SerializeField] private float                 _upperArmLength;
-        [SerializeField] private float                 _forearmLength;
+        [SerializeField] private UxrAvatar _avatar;
+        [SerializeField] private UxrHandSide _side;
+        [SerializeField] private float _upperArmLength;
+        [SerializeField] private float _forearmLength;
         [SerializeField] private UxrUniversalLocalAxes _fingerUniversalLocalAxes;
         [SerializeField] private UxrUniversalLocalAxes _handUniversalLocalAxes;
         [SerializeField] private UxrUniversalLocalAxes _armUniversalLocalAxes;
         [SerializeField] private UxrUniversalLocalAxes _forearmUniversalLocalAxes;
         [SerializeField] private UxrUniversalLocalAxes _clavicleUniversalLocalAxes;
-        [SerializeField] private UxrAvatarFingerInfo   _thumbInfo;
-        [SerializeField] private UxrAvatarFingerInfo   _indexInfo;
-        [SerializeField] private UxrAvatarFingerInfo   _middleInfo;
-        [SerializeField] private UxrAvatarFingerInfo   _ringInfo;
-        [SerializeField] private UxrAvatarFingerInfo   _littleInfo;
+        [SerializeField] private UxrAvatarFingerInfo _thumbInfo;
+        [SerializeField] private UxrAvatarFingerInfo _indexInfo;
+        [SerializeField] private UxrAvatarFingerInfo _middleInfo;
+        [SerializeField] private UxrAvatarFingerInfo _ringInfo;
+        [SerializeField] private UxrAvatarFingerInfo _littleInfo;
 
         #endregion
 
@@ -150,24 +177,7 @@ namespace UltimateXR.Avatar.Rig
         /// <summary>
         ///     Gets the wrist torsion info.
         /// </summary>
-        public UxrWristTorsionInfo WristTorsionInfo { get; private set; } = new UxrWristTorsionInfo();
-
-        #endregion
-
-        #region Internal Methods
-
-        /// <summary>
-        ///     Computes and stores all the arm information of an avatar.
-        /// </summary>
-        /// <param name="avatar">Avatar whose arm to compute the information of</param>
-        /// <param name="side">Which side to compute</param>
-        internal void Compute(UxrAvatar avatar, UxrHandSide side)
-        {
-            _avatar = avatar;
-            _side   = side;
-            SolveHandAndFingerAxes(avatar.GetHand(side), side);
-            ComputeArmRigInfo(avatar, avatar.GetArm(side), side);
-        }
+        public UxrWristTorsionInfo WristTorsionInfo { get; private set; } = new();
 
         #endregion
 
@@ -183,10 +193,10 @@ namespace UltimateXR.Avatar.Rig
         /// <returns>Elbow rotation axis</returns>
         private static Vector3 GetWorldElbowAxis(UxrAvatar avatar, Transform forearm, Vector3 armForward, Vector3 forearmForward)
         {
-            bool isLeft = avatar.transform.InverseTransformPoint(forearm.position).x < 0.0f;
+            var isLeft = avatar.transform.InverseTransformPoint(forearm.position).x < 0.0f;
 
-            float   elbowAngle = Vector3.Angle(armForward, forearmForward);
-            Vector3 elbowAxis  = Vector3.Cross(forearmForward, armForward).normalized;
+            var elbowAngle = Vector3.Angle(armForward, forearmForward);
+            var elbowAxis = Vector3.Cross(forearmForward, armForward).normalized;
 
             if (elbowAngle < ElbowMinAngleThreshold)
             {
@@ -200,6 +210,7 @@ namespace UltimateXR.Avatar.Rig
             return forearm.TransformDirection(forearm.InverseTransformDirection(elbowAxis).GetClosestAxis());
         }
 
+
         /// <summary>
         ///     Tries to find out which axes are pointing right/up/forward in the hand and finger nodes. These "universal" axes
         ///     will be used to rotate the nodes, so that any coordinate system can be used no matter how the hand was authored.
@@ -209,33 +220,34 @@ namespace UltimateXR.Avatar.Rig
         /// <returns>Boolean telling whether the axes could be solved. If any necessary transform is missing it will fail</returns>
         private bool SolveHandAndFingerAxes(UxrAvatarHand hand, UxrHandSide side)
         {
-            Transform indexProximal  = hand.Index.Proximal;
-            Transform indexDistal    = hand.Index.Distal;
-            Transform middleProximal = hand.Middle.Proximal;
-            Transform ringProximal   = hand.Ring.Proximal;
+            var indexProximal = hand.Index.Proximal;
+            var indexDistal = hand.Index.Distal;
+            var middleProximal = hand.Middle.Proximal;
+            var ringProximal = hand.Ring.Proximal;
 
             if (!hand.Wrist || !indexProximal || !indexDistal || !middleProximal || !ringProximal)
             {
                 return false;
             }
 
-            float handCenter = 0.5f; // [0, 1]
+            var handCenter = 0.5f; // [0, 1]
 
-            Vector3 handAxesRight   = hand.Wrist.InverseTransformDirection(indexProximal.position - middleProximal.position).GetClosestAxis() * (side == UxrHandSide.Left ? 1.0f : -1.0f);
-            Vector3 handAxesForward = hand.Wrist.InverseTransformDirection((Vector3.Lerp(ringProximal.position, middleProximal.position, handCenter) - hand.Wrist.position).normalized);
-            Vector3 handAxesUp      = Vector3.Cross(handAxesForward, handAxesRight).normalized;
+            var handAxesRight = hand.Wrist.InverseTransformDirection(indexProximal.position - middleProximal.position).GetClosestAxis() * (side == UxrHandSide.Left ? 1.0f : -1.0f);
+            var handAxesForward = hand.Wrist.InverseTransformDirection((Vector3.Lerp(ringProximal.position, middleProximal.position, handCenter) - hand.Wrist.position).normalized);
+            var handAxesUp = Vector3.Cross(handAxesForward, handAxesRight).normalized;
             handAxesRight = Vector3.Cross(handAxesUp, handAxesForward).normalized;
 
             HandUniversalLocalAxes = UxrUniversalLocalAxes.FromAxes(hand.Wrist, handAxesRight, handAxesUp, handAxesForward);
 
-            Vector3 fingerAxesRight   = indexProximal.InverseTransformDirection(indexProximal.position - middleProximal.position).GetClosestAxis() * (side == UxrHandSide.Left ? 1.0f : -1.0f);
-            Vector3 fingerAxesForward = indexProximal.InverseTransformDirection(indexDistal.position - indexProximal.position).GetClosestAxis();
-            Vector3 fingerAxesUp      = Vector3.Cross(fingerAxesForward, fingerAxesRight);
+            var fingerAxesRight = indexProximal.InverseTransformDirection(indexProximal.position - middleProximal.position).GetClosestAxis() * (side == UxrHandSide.Left ? 1.0f : -1.0f);
+            var fingerAxesForward = indexProximal.InverseTransformDirection(indexDistal.position - indexProximal.position).GetClosestAxis();
+            var fingerAxesUp = Vector3.Cross(fingerAxesForward, fingerAxesRight);
 
             FingerUniversalLocalAxes = UxrUniversalLocalAxes.FromAxes(indexProximal, fingerAxesRight, fingerAxesUp, fingerAxesForward);
 
             return true;
         }
+
 
         /// <summary>
         ///     Computes and stores information of the arm's rig.
@@ -247,37 +259,37 @@ namespace UltimateXR.Avatar.Rig
         {
             if (arm.UpperArm != null && arm.Forearm != null && arm.Hand.Wrist != null)
             {
-                Vector3 armForward            = (arm.Forearm.position - arm.UpperArm.position).normalized;
-                Vector3 forearmForward        = (arm.Hand.Wrist.position - arm.Forearm.position).normalized;
-                Vector3 elbowAxis             = GetWorldElbowAxis(avatar, arm.Forearm, armForward, forearmForward);
-                Vector3 armLocalForward       = arm.UpperArm.InverseTransformDirection(armForward);
-                Vector3 armLocalElbowAxis     = arm.UpperArm.InverseTransformDirection(elbowAxis);
-                Vector3 forearmLocalForward   = arm.Forearm.InverseTransformDirection(forearmForward);
-                Vector3 forearmLocalElbowAxis = arm.Forearm.InverseTransformDirection(elbowAxis);
+                var armForward = (arm.Forearm.position - arm.UpperArm.position).normalized;
+                var forearmForward = (arm.Hand.Wrist.position - arm.Forearm.position).normalized;
+                var elbowAxis = GetWorldElbowAxis(avatar, arm.Forearm, armForward, forearmForward);
+                var armLocalForward = arm.UpperArm.InverseTransformDirection(armForward);
+                var armLocalElbowAxis = arm.UpperArm.InverseTransformDirection(elbowAxis);
+                var forearmLocalForward = arm.Forearm.InverseTransformDirection(forearmForward);
+                var forearmLocalElbowAxis = arm.Forearm.InverseTransformDirection(elbowAxis);
 
-                ArmUniversalLocalAxes     = UxrUniversalLocalAxes.FromUpForward(arm.UpperArm, armLocalElbowAxis.GetClosestAxis(), armLocalForward);
-                ForearmUniversalLocalAxes = UxrUniversalLocalAxes.FromUpForward(arm.Forearm,  armLocalElbowAxis.GetClosestAxis(), forearmLocalForward);
-                UpperArmLength            = Vector3.Distance(arm.UpperArm.position, arm.Forearm.position);
-                ForearmLength             = Vector3.Distance(arm.Forearm.position,  arm.Hand.Wrist.position);
+                ArmUniversalLocalAxes = UxrUniversalLocalAxes.FromUpForward(arm.UpperArm, armLocalElbowAxis.GetClosestAxis(), armLocalForward);
+                ForearmUniversalLocalAxes = UxrUniversalLocalAxes.FromUpForward(arm.Forearm, armLocalElbowAxis.GetClosestAxis(), forearmLocalForward);
+                UpperArmLength = Vector3.Distance(arm.UpperArm.position, arm.Forearm.position);
+                ForearmLength = Vector3.Distance(arm.Forearm.position, arm.Hand.Wrist.position);
 
                 if (arm.Clavicle != null)
                 {
-                    Vector3 clavicleForward          = (arm.UpperArm.position - arm.Clavicle.position).normalized;
-                    Vector3 clavicleLocalForwardAxis = arm.Clavicle.InverseTransformDirection(clavicleForward).GetClosestAxis();
-                    Vector3 clavicleLocalUpAxis      = arm.Clavicle.InverseTransformDirection(avatar.transform.up).GetClosestAxis();
+                    var clavicleForward = (arm.UpperArm.position - arm.Clavicle.position).normalized;
+                    var clavicleLocalForwardAxis = arm.Clavicle.InverseTransformDirection(clavicleForward).GetClosestAxis();
+                    var clavicleLocalUpAxis = arm.Clavicle.InverseTransformDirection(avatar.transform.up).GetClosestAxis();
 
                     ClavicleUniversalLocalAxes = UxrUniversalLocalAxes.FromUpForward(arm.Clavicle, clavicleLocalUpAxis, clavicleLocalForwardAxis);
                 }
             }
 
-            UxrGrabber grabber = avatar.GetGrabber(side);
+            var grabber = avatar.GetGrabber(side);
 
             if (grabber && grabber.HandRenderer && grabber.HandRenderer is SkinnedMeshRenderer handRenderer)
             {
-                _thumbInfo  = new UxrAvatarFingerInfo();
-                _indexInfo  = new UxrAvatarFingerInfo();
+                _thumbInfo = new UxrAvatarFingerInfo();
+                _indexInfo = new UxrAvatarFingerInfo();
                 _middleInfo = new UxrAvatarFingerInfo();
-                _ringInfo   = new UxrAvatarFingerInfo();
+                _ringInfo = new UxrAvatarFingerInfo();
                 _littleInfo = new UxrAvatarFingerInfo();
 
                 _thumbInfo.Compute(avatar, handRenderer, side, UxrFingerType.Thumb);
@@ -287,15 +299,6 @@ namespace UltimateXR.Avatar.Rig
                 _littleInfo.Compute(avatar, handRenderer, side, UxrFingerType.Little);
             }
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        /// <summary>
-        ///     Minimum angle between arm and forearm to compute elbow axis using cross product.
-        /// </summary>
-        private const float ElbowMinAngleThreshold = 3.0f;
 
         #endregion
     }

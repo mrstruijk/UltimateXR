@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.IO;
 using UltimateXR.Manipulation.HandPoses;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Manipulation.HandPoses
 {
@@ -16,20 +18,6 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
     /// </summary>
     public class UxrHandPosePreset
     {
-        #region Public Types & Data
-
-        /// <summary>
-        ///     Gets the hand pose asset.
-        /// </summary>
-        public UxrHandPoseAsset Pose { get; }
-
-        /// <summary>
-        ///     Gets the thumbnail, or null if it wasn't found.
-        /// </summary>
-        public Texture2D Thumbnail { get; }
-
-        #endregion
-
         #region Constructors & Finalizer
 
         /// <summary>
@@ -43,7 +31,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         {
             Pose = AssetDatabase.LoadAssetAtPath<UxrHandPoseAsset>(file);
 
-            foreach (string otherFile in sameFolderFiles)
+            foreach (var otherFile in sameFolderFiles)
             {
                 if (otherFile != file && Path.GetFileNameWithoutExtension(otherFile) == Path.GetFileNameWithoutExtension(file) && AssetDatabase.GetMainAssetTypeAtPath(otherFile) == typeof(Texture2D))
                 {
@@ -51,6 +39,20 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
                 }
             }
         }
+
+        #endregion
+
+        #region Public Types & Data
+
+        /// <summary>
+        ///     Gets the hand pose asset.
+        /// </summary>
+        public UxrHandPoseAsset Pose { get; }
+
+        /// <summary>
+        ///     Gets the thumbnail, or null if it wasn't found.
+        /// </summary>
+        public Texture2D Thumbnail { get; }
 
         #endregion
     }

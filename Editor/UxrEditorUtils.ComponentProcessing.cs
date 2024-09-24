@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Object = UnityEngine.Object;
+
 
 namespace UltimateXR.Editor
 {
@@ -45,11 +46,11 @@ namespace UltimateXR.Editor
         {
             // Open scenes
 
-            List<Scene> openScenes = new List<Scene>();
+            var openScenes = new List<Scene>();
 
-            for (int i = 0; i < SceneManager.sceneCount; ++i)
+            for (var i = 0; i < SceneManager.sceneCount; ++i)
             {
-                Scene scene = SceneManager.GetSceneAt(i);
+                var scene = SceneManager.GetSceneAt(i);
 
                 if (PathRequiresProcessing(basePath, scene.path))
                 {
@@ -61,11 +62,11 @@ namespace UltimateXR.Editor
 
             // Get all asset files
 
-            string[] allAssetPaths = AssetDatabase.GetAllAssetPaths();
+            var allAssetPaths = AssetDatabase.GetAllAssetPaths();
 
             // Process non-open scenes
 
-            foreach (string scenePath in allAssetPaths.Where(path => path.EndsWith(".unity"))) // path => AssetDatabase.GetMainAssetTypeAtPath(path) == typeof(Scene)))
+            foreach (var scenePath in allAssetPaths.Where(path => path.EndsWith(".unity"))) // path => AssetDatabase.GetMainAssetTypeAtPath(path) == typeof(Scene)))
             {
                 if (openScenes.All(s => s.path != scenePath) && PathRequiresProcessing(basePath, scenePath))
                 {
@@ -73,8 +74,8 @@ namespace UltimateXR.Editor
                     {
                         progressUpdater?.Invoke(new UxrProgressInfo("Opening scene", scenePath, 0.0f));
 
-                        Scene scene        = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
-                        bool  processedAny = ProcessAllNonPrefabGameObjects(scene, componentProcessor, progressUpdater);
+                        var scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+                        var processedAny = ProcessAllNonPrefabGameObjects(scene, componentProcessor, progressUpdater);
 
                         progressUpdater?.Invoke(new UxrProgressInfo("Closing scene", scene.name, 1.0f));
 
@@ -94,29 +95,29 @@ namespace UltimateXR.Editor
 
             // Process prefabs in project
 
-            for (int i = 0; i < allAssetPaths.Length; ++i)
+            for (var i = 0; i < allAssetPaths.Length; ++i)
             {
-                string prefabPath = allAssetPaths[i];
+                var prefabPath = allAssetPaths[i];
 
                 if (AssetDatabase.GetMainAssetTypeAtPath(prefabPath) == typeof(GameObject) && PathRequiresProcessing(basePath, prefabPath))
                 {
-                    Object     assetObject = AssetDatabase.LoadMainAssetAtPath(prefabPath);
-                    GameObject gameObject  = assetObject as GameObject;
-                    bool       processed   = false;
+                    var assetObject = AssetDatabase.LoadMainAssetAtPath(prefabPath);
+                    var gameObject = assetObject as GameObject;
+                    var processed = false;
 
                     // Get all components of the given type in the prefab
 
-                    T[] components = gameObject.GetComponentsInChildren<T>();
+                    var components = gameObject.GetComponentsInChildren<T>();
 
-                    foreach (T component in components)
+                    foreach (var component in components)
                     {
                         // Only process those components that belong to the prefab root, ignoring nested prefabs. This ensures two things:
                         // 1) Processing each component only once.
                         // 2) Modifying components in the innermost prefab to store changes correctly. 
 
-                        if (GetInnermostNon3DModelPrefabRoot(component.gameObject, out GameObject prefab, out GameObject prefabInstance) && prefab == gameObject)
+                        if (GetInnermostNon3DModelPrefabRoot(component.gameObject, out var prefab, out var prefabInstance) && prefab == gameObject)
                         {
-                            progressUpdater?.Invoke(new UxrProgressInfo("Processing prefabs", $"Prefab {prefab.name}", (float)i / allAssetPaths.Length));
+                            progressUpdater?.Invoke(new UxrProgressInfo("Processing prefabs", $"Prefab {prefab.name}", (float) i / allAssetPaths.Length));
 
                             if (componentProcessor != null && componentProcessor.Invoke(new UxrComponentInfo<T>(component, prefab)))
                             {
@@ -151,6 +152,7 @@ namespace UltimateXR.Editor
             return string.IsNullOrEmpty(basePath) || assetPath.StartsWith(basePath);
         }
 
+
         /// <summary>
         ///     Processes all components of a given type in a scene only in gameObjects that are not prefab instances.
         /// </summary>
@@ -167,14 +169,14 @@ namespace UltimateXR.Editor
         /// <returns>True if there was at least one component that was modified</returns>
         private static bool ProcessAllNonPrefabGameObjects<T>(Scene scene, UxrComponentProcessor<T> componentProcessor, UxrProgressUpdater progressUpdater) where T : Component
         {
-            List<T> components   = scene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<T>()).ToList();
-            bool    processedAny = false;
+            var components = scene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<T>()).ToList();
+            var processedAny = false;
 
-            for (int c = 0; c < components.Count; ++c)
+            for (var c = 0; c < components.Count; ++c)
             {
-                if (!GetInnermostNon3DModelPrefabRoot(components[c].gameObject, out GameObject prefab, out GameObject prefabInstance))
+                if (!GetInnermostNon3DModelPrefabRoot(components[c].gameObject, out var prefab, out var prefabInstance))
                 {
-                    progressUpdater?.Invoke(new UxrProgressInfo($"Processing scene {scene.name}", $"Object {components[c].name}", (float)c / components.Count));
+                    progressUpdater?.Invoke(new UxrProgressInfo($"Processing scene {scene.name}", $"Object {components[c].name}", (float) c / components.Count));
 
                     if (componentProcessor != null && componentProcessor.Invoke(new UxrComponentInfo<T>(components[c], null)))
                     {

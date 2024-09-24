@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using UltimateXR.Extensions.System;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Math
 {
@@ -37,6 +39,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return float.IsNaN(self.x) || float.IsNaN(self.y);
         }
 
+
         /// <summary>
         ///     Checks whether the given vector has any infinity component.
         /// </summary>
@@ -46,6 +49,7 @@ namespace UltimateXR.Extensions.Unity.Math
         {
             return float.IsInfinity(self.x) || float.IsInfinity(self.y);
         }
+
 
         /// <summary>
         ///     Checks whether the given vector contains valid data.
@@ -57,6 +61,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return !self.IsNaN() && !self.IsInfinity();
         }
 
+
         /// <summary>
         ///     Replaces NaN component values with <paramref name="other" /> valid values.
         /// </summary>
@@ -65,14 +70,16 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Result vector</returns>
         public static Vector2 FillNanWith(this in Vector2 self, in Vector2 other)
         {
-            float[] result = new float[VectorLength];
-            for (int i = 0; i < VectorLength; ++i)
+            var result = new float[VectorLength];
+
+            for (var i = 0; i < VectorLength; ++i)
             {
                 result[i] = float.IsNaN(self[i]) ? other[i] : self[i];
             }
 
             return result.ToVector2();
         }
+
 
         /// <summary>
         ///     Computes the absolute value of each component in a vector.
@@ -84,6 +91,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return new Vector2(Mathf.Abs(self.x), Mathf.Abs(self.y));
         }
 
+
         /// <summary>
         ///     Clamps <see cref="Vector2" /> values component by component.
         /// </summary>
@@ -93,14 +101,16 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Clamped vector</returns>
         public static Vector2 Clamp(this in Vector2 self, in Vector2 min, in Vector2 max)
         {
-            float[] result = new float[VectorLength];
-            for (int i = 0; i < VectorLength; ++i)
+            var result = new float[VectorLength];
+
+            for (var i = 0; i < VectorLength; ++i)
             {
                 result[i] = Mathf.Clamp(self[i], min[i], max[i]);
             }
 
             return result.ToVector2();
         }
+
 
         /// <summary>
         ///     returns a vector with all components containing 1/component, checking for divisions by 0. Divisions by 0 have a
@@ -111,8 +121,9 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Vector2 Inverse(this in Vector2 self)
         {
             return new Vector2(Mathf.Approximately(self.x, 0f) ? 0f : 1f / self.x,
-                               Mathf.Approximately(self.y, 0f) ? 0f : 1f / self.y);
+                Mathf.Approximately(self.y, 0f) ? 0f : 1f / self.y);
         }
+
 
         /// <summary>
         ///     Multiplies two <see cref="Vector2" /> component by component.
@@ -123,8 +134,9 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Vector2 Multiply(this in Vector2 self, in Vector2 other)
         {
             return new Vector2(self.x * other.x,
-                               self.y * other.y);
+                self.y * other.y);
         }
+
 
         /// <summary>
         ///     Divides a <see cref="Vector2" /> by another, checking for divisions by 0. Divisions by 0 have a result of 0.
@@ -137,6 +149,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return self.Multiply(divisor.Inverse());
         }
 
+
         /// <summary>
         ///     Transforms an array of floats to a <see cref="Vector2" /> component by component. If there are not enough values to
         ///     read, the remaining values are set to NaN.
@@ -147,11 +160,12 @@ namespace UltimateXR.Extensions.Unity.Math
         {
             return data.Length switch
                    {
-                               0 => NaN,
-                               1 => new Vector2(data[0], float.NaN),
-                               _ => new Vector2(data[0], data[1])
+                       0 => NaN,
+                       1 => new Vector2(data[0], float.NaN),
+                       _ => new Vector2(data[0], data[1])
                    };
         }
+
 
         /// <summary>
         ///     Tries to parse a <see cref="Vector2" /> from a string.
@@ -164,14 +178,17 @@ namespace UltimateXR.Extensions.Unity.Math
             try
             {
                 result = Parse(s);
+
                 return true;
             }
             catch
             {
                 result = NaN;
+
                 return false;
             }
         }
+
 
         /// <summary>
         ///     Parses a <see cref="Vector2" /> from a string.
@@ -187,22 +204,24 @@ namespace UltimateXR.Extensions.Unity.Math
             s = s.TrimEnd(' ', ')', ']');
 
             // split the items
-            string[] sArray = s.Split(s_cardinalSeparator, VectorLength);
+            var sArray = s.Split(s_cardinalSeparator, VectorLength);
 
             // store as an array
-            float[] result = new float[VectorLength];
-            for (int i = 0; i < sArray.Length; ++i)
+            var result = new float[VectorLength];
+
+            for (var i = 0; i < sArray.Length; ++i)
             {
                 result[i] = float.TryParse(sArray[i],
-                                           NumberStyles.Float,
-                                           CultureInfo.InvariantCulture.NumberFormat,
-                                           out float f)
-                                        ? f
-                                        : float.NaN;
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture.NumberFormat,
+                    out var f)
+                    ? f
+                    : float.NaN;
             }
 
             return result.ToVector2();
         }
+
 
         /// <summary>
         ///     Tries to parse a <see cref="Vector2" /> from a string, asynchronously.
@@ -212,18 +231,18 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Awaitable task returning the parsed vector or null if there was an error</returns>
         public static Task<Vector2?> ParseAsync(string s, CancellationToken ct = default)
         {
-            return Task.Run(() => TryParse(s, out Vector2 result) ? result : (Vector2?)null, ct);
+            return Task.Run(() => TryParse(s, out var result) ? result : (Vector2?) null, ct);
         }
 
         #endregion
 
         #region Private Types & Data
 
-        private const int    VectorLength      = 2;
+        private const int VectorLength = 2;
         private const string CardinalSeparator = ",";
 
-        private static readonly char[]  s_cardinalSeparator = CardinalSeparator.ToCharArray();
-        private static readonly Vector2 s_nan               = float.NaN * Vector2.one;
+        private static readonly char[] s_cardinalSeparator = CardinalSeparator.ToCharArray();
+        private static readonly Vector2 s_nan = float.NaN * Vector2.one;
 
         #endregion
     }

@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
+
 
 namespace UltimateXR.Extensions.System.Collections
 {
@@ -30,12 +32,15 @@ namespace UltimateXR.Extensions.System.Collections
             {
                 return;
             }
+
             if (string.IsNullOrWhiteSpace(paramName))
             {
                 throw new IndexOutOfRangeException($"Index[{index}] out of range for collection of {typeof(T).Name}");
             }
+
             throw new ArgumentOutOfRangeException(paramName, index, $"Index[{index}] out of range for collection of {typeof(T).Name}");
         }
+
 
         /// <summary>
         ///     Throws an exception if any of the given indexes is out of a <see cref="IReadOnlyCollection{T}" /> bounds.
@@ -50,6 +55,7 @@ namespace UltimateXR.Extensions.System.Collections
             self.ThrowIfInvalidIndex(index1);
             self.ThrowIfInvalidIndex(index2);
         }
+
 
         /// <summary>
         ///     Throws an exception if any of the given indexes is out of a <see cref="IReadOnlyCollection{T}" /> bounds.
@@ -67,6 +73,7 @@ namespace UltimateXR.Extensions.System.Collections
             self.ThrowIfInvalidIndex(index3);
         }
 
+
         /// <summary>
         ///     Throws an exception if any of the given indexes is out of a <see cref="IReadOnlyCollection{T}" /> bounds.
         /// </summary>
@@ -75,11 +82,12 @@ namespace UltimateXR.Extensions.System.Collections
         /// <typeparam name="T">Element type</typeparam>
         public static void ThrowIfInvalidIndexes<T>(this IReadOnlyCollection<T> self, params int[] indexes)
         {
-            foreach (int index in indexes)
+            foreach (var index in indexes)
             {
                 self.ThrowIfInvalidIndex(index);
             }
         }
+
 
         /// <summary>
         ///     Splits a string using <see cref="string.Split(char[])" /> and adds the result to the collection.
@@ -100,13 +108,14 @@ namespace UltimateXR.Extensions.System.Collections
                 return self;
             }
 
-            foreach (string s in toSplit.Split(separator))
+            foreach (var s in toSplit.Split(separator))
             {
                 self.Add(s.Trim());
             }
 
             return self;
         }
+
 
         /// <summary>
         ///     Splits a string using <see cref="string.Split(char[])" /> and sets the result in the collection.
@@ -122,6 +131,7 @@ namespace UltimateXR.Extensions.System.Collections
         {
             self.ThrowIfNull(nameof(self));
             self.Clear();
+
             return self.SplitAddRange(toSplit, separator);
         }
 

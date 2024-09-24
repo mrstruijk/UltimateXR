@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -13,6 +15,23 @@ namespace UltimateXR.Mechanics.Weapons
     /// </summary>
     public class UxrDeflectEventArgs : EventArgs
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="projectileSource">The projectile source</param>
+        /// <param name="raycastHit">The raycast used to detect projectile collision</param>
+        /// <param name="newDirection">The new, deflected, projectile direction</param>
+        public UxrDeflectEventArgs(UxrProjectileSource projectileSource, RaycastHit raycastHit, Vector3 newDirection)
+        {
+            ProjectileSource = projectileSource;
+            RaycastHit = raycastHit;
+            NewDirection = newDirection;
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -29,23 +48,6 @@ namespace UltimateXR.Mechanics.Weapons
         ///     Gets the new projectile direction after being deflected.
         /// </summary>
         public Vector3 NewDirection { get; }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="projectileSource">The projectile source</param>
-        /// <param name="raycastHit">The raycast used to detect projectile collision</param>
-        /// <param name="newDirection">The new, deflected, projectile direction</param>
-        public UxrDeflectEventArgs(UxrProjectileSource projectileSource, RaycastHit raycastHit, Vector3 newDirection)
-        {
-            ProjectileSource = projectileSource;
-            RaycastHit       = raycastHit;
-            NewDirection     = newDirection;
-        }
 
         #endregion
     }

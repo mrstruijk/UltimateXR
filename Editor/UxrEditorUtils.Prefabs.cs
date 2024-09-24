@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar;
 using UltimateXR.Extensions.Unity;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor
 {
@@ -26,10 +28,11 @@ namespace UltimateXR.Editor
         public static bool GetPrefab(GameObject gameObject, out GameObject prefab)
         {
             prefab = PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
-            PrefabAssetType prefabAssetType = prefab != null ? PrefabUtility.GetPrefabAssetType(prefab) : PrefabAssetType.NotAPrefab; 
+            var prefabAssetType = prefab != null ? PrefabUtility.GetPrefabAssetType(prefab) : PrefabAssetType.NotAPrefab;
 
             return prefab && (prefabAssetType == PrefabAssetType.Regular || prefabAssetType == PrefabAssetType.Variant);
         }
+
 
         /// <summary>
         ///     Gets the innermost prefab in a hierarchy.
@@ -48,14 +51,14 @@ namespace UltimateXR.Editor
         {
             // Find gameObject but in prefab hierarchy. CorrespondingObjectFromOriginalSource() gets the GameObject in the root prefab hierarchy.
 
-            prefab         = PrefabUtility.GetCorrespondingObjectFromOriginalSource(gameObject);
+            prefab = PrefabUtility.GetCorrespondingObjectFromOriginalSource(gameObject);
             prefabInstance = gameObject;
 
             // Now travel up to the prefab root if we aren't there already. We do the same with the prefabInstance to travel to the instance in the scene.
 
             while (prefab != null && prefab.transform.parent != null && prefabInstance.transform.parent != null)
             {
-                prefab         = prefab.transform.parent.gameObject;
+                prefab = prefab.transform.parent.gameObject;
                 prefabInstance = prefabInstance.transform.parent.gameObject;
             }
 
@@ -74,6 +77,7 @@ namespace UltimateXR.Editor
             return prefab && (PrefabUtility.GetPrefabAssetType(prefab) == PrefabAssetType.Regular || PrefabUtility.GetPrefabAssetType(prefab) == PrefabAssetType.Variant);
         }
 
+
         /// <summary>
         ///     Prompt the user to save a prefab (or prefab variant) of the given avatar.
         /// </summary>
@@ -89,10 +93,10 @@ namespace UltimateXR.Editor
         /// <returns>Whether the prefab was created successfully</returns>
         public static bool CreateAvatarPrefab(UxrAvatar avatar, string title, string defaultName, out GameObject prefab, out GameObject newInstance)
         {
-            prefab      = null;
+            prefab = null;
             newInstance = null;
 
-            string path = EditorUtility.SaveFilePanelInProject(title, defaultName, "prefab", "Please select the file in your project to save the prefab to");
+            var path = EditorUtility.SaveFilePanelInProject(title, defaultName, "prefab", "Please select the file in your project to save the prefab to");
 
             if (!string.IsNullOrEmpty(path))
             {
@@ -106,7 +110,7 @@ namespace UltimateXR.Editor
                 }
                 else
                 {
-                    prefab = PrefabUtility.SaveAsPrefabAsset(avatar.gameObject, path, out bool success);
+                    prefab = PrefabUtility.SaveAsPrefabAsset(avatar.gameObject, path, out var success);
 
                     if (!success || prefab == null)
                     {

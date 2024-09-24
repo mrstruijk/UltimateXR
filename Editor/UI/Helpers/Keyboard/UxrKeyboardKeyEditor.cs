@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.UI.Helpers.Keyboard;
 using UnityEditor;
+
 
 namespace UltimateXR.Editor.UI.Helpers.Keyboard
 {
@@ -15,66 +17,6 @@ namespace UltimateXR.Editor.UI.Helpers.Keyboard
     [CanEditMultipleObjects]
     public class UxrKeyboardKeyEditor : UnityEditor.Editor
     {
-        #region Unity
-
-        /// <summary>
-        ///     Caches the serialized properties.
-        /// </summary>
-        private void OnEnable()
-        {
-            _propertyKeyType                        = serializedObject.FindProperty("_keyType");
-            _propertyLayout                         = serializedObject.FindProperty("_layout");
-            _propertyPrintShift                     = serializedObject.FindProperty("_printShift");
-            _propertyPrintNoShift                   = serializedObject.FindProperty("_printNoShift");
-            _propertyPrintAltGr                     = serializedObject.FindProperty("_printAltGr");
-            _propertyForceLabel                     = serializedObject.FindProperty("_forceLabel");
-            _propertySingleLayoutValue              = serializedObject.FindProperty("_singleLayoutValue");
-            _propertyMultipleLayoutValueTopLeft     = serializedObject.FindProperty("_multipleLayoutValueTopLeft");
-            _propertyMultipleLayoutValueBottomLeft  = serializedObject.FindProperty("_multipleLayoutValueBottomLeft");
-            _propertyMultipleLayoutValueBottomRight = serializedObject.FindProperty("_multipleLayoutValueBottomRight");
-            _propertyToggleSymbols                  = serializedObject.FindProperty("_toggleSymbols");
-            _propertyNameDirty                      = serializedObject.FindProperty("_nameDirty");
-        }
-
-        /// <summary>
-        ///     Draws the inspector and handles user input.
-        /// </summary>
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
-
-            EditorGUILayout.Space();
-
-            PropertyFieldWithChangeCheck(_propertyKeyType);
-
-            if (_propertyKeyType.enumValueIndex == (int)UxrKeyType.Printable)
-            {
-                PropertyFieldWithChangeCheck(_propertyLayout);
-                PropertyFieldWithChangeCheck(_propertyPrintShift);
-                PropertyFieldWithChangeCheck(_propertyPrintNoShift);
-                PropertyFieldWithChangeCheck(_propertyPrintAltGr);
-            }
-
-            PropertyFieldWithChangeCheck(_propertyForceLabel);
-
-            if (_propertyKeyType.enumValueIndex == (int)UxrKeyType.Printable)
-            {
-                PropertyFieldWithChangeCheck(_propertySingleLayoutValue);
-                PropertyFieldWithChangeCheck(_propertyMultipleLayoutValueTopLeft);
-                PropertyFieldWithChangeCheck(_propertyMultipleLayoutValueBottomLeft);
-                PropertyFieldWithChangeCheck(_propertyMultipleLayoutValueBottomRight);
-            }
-
-            if (_propertyKeyType.enumValueIndex == (int)UxrKeyType.ToggleSymbols)
-            {
-                PropertyFieldWithChangeCheck(_propertyToggleSymbols);
-            }
-
-            serializedObject.ApplyModifiedProperties();
-        }
-
-        #endregion
-
         #region Private Methods
 
         /// <summary>
@@ -88,10 +30,72 @@ namespace UltimateXR.Editor.UI.Helpers.Keyboard
         {
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(serializedProperty, true);
+
             if (EditorGUI.EndChangeCheck())
             {
                 _propertyNameDirty.boolValue = true;
             }
+        }
+
+        #endregion
+
+        #region Unity
+
+        /// <summary>
+        ///     Caches the serialized properties.
+        /// </summary>
+        private void OnEnable()
+        {
+            _propertyKeyType = serializedObject.FindProperty("_keyType");
+            _propertyLayout = serializedObject.FindProperty("_layout");
+            _propertyPrintShift = serializedObject.FindProperty("_printShift");
+            _propertyPrintNoShift = serializedObject.FindProperty("_printNoShift");
+            _propertyPrintAltGr = serializedObject.FindProperty("_printAltGr");
+            _propertyForceLabel = serializedObject.FindProperty("_forceLabel");
+            _propertySingleLayoutValue = serializedObject.FindProperty("_singleLayoutValue");
+            _propertyMultipleLayoutValueTopLeft = serializedObject.FindProperty("_multipleLayoutValueTopLeft");
+            _propertyMultipleLayoutValueBottomLeft = serializedObject.FindProperty("_multipleLayoutValueBottomLeft");
+            _propertyMultipleLayoutValueBottomRight = serializedObject.FindProperty("_multipleLayoutValueBottomRight");
+            _propertyToggleSymbols = serializedObject.FindProperty("_toggleSymbols");
+            _propertyNameDirty = serializedObject.FindProperty("_nameDirty");
+        }
+
+
+        /// <summary>
+        ///     Draws the inspector and handles user input.
+        /// </summary>
+        public override void OnInspectorGUI()
+        {
+            serializedObject.Update();
+
+            EditorGUILayout.Space();
+
+            PropertyFieldWithChangeCheck(_propertyKeyType);
+
+            if (_propertyKeyType.enumValueIndex == (int) UxrKeyType.Printable)
+            {
+                PropertyFieldWithChangeCheck(_propertyLayout);
+                PropertyFieldWithChangeCheck(_propertyPrintShift);
+                PropertyFieldWithChangeCheck(_propertyPrintNoShift);
+                PropertyFieldWithChangeCheck(_propertyPrintAltGr);
+            }
+
+            PropertyFieldWithChangeCheck(_propertyForceLabel);
+
+            if (_propertyKeyType.enumValueIndex == (int) UxrKeyType.Printable)
+            {
+                PropertyFieldWithChangeCheck(_propertySingleLayoutValue);
+                PropertyFieldWithChangeCheck(_propertyMultipleLayoutValueTopLeft);
+                PropertyFieldWithChangeCheck(_propertyMultipleLayoutValueBottomLeft);
+                PropertyFieldWithChangeCheck(_propertyMultipleLayoutValueBottomRight);
+            }
+
+            if (_propertyKeyType.enumValueIndex == (int) UxrKeyType.ToggleSymbols)
+            {
+                PropertyFieldWithChangeCheck(_propertyToggleSymbols);
+            }
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         #endregion

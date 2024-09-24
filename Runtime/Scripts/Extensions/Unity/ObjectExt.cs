@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity
 {
@@ -23,6 +25,7 @@ namespace UltimateXR.Extensions.Unity
         {
             self.ShowInInspector(show, show);
         }
+
 
         /// <summary>
         ///     Controls whether to show the current object in the inspector and whether it is editable.

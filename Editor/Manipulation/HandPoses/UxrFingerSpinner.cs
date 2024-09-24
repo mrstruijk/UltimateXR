@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UltimateXR.Core;
 using UltimateXR.Core.Math;
 using UltimateXR.Extensions.Unity.Render;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Manipulation.HandPoses
 {
@@ -19,22 +21,78 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
     [Serializable]
     public class UxrFingerSpinner
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="angleType">The type of angle this control will rotate (spread or curl)</param>
+        /// <param name="texMouse">The image that has the clickable parts encoded in colors</param>
+        /// <param name="color">The color this control has inside the <paramref name="texMouse" /> texture</param>
+        /// <param name="target">The transform that will be rotated</param>
+        /// <param name="parent">The parent transform</param>
+        /// <param name="targetLocalAxes">The universal right/up/forward axes of the target transform</param>
+        /// <param name="parentLocalAxes">The universal right/up/forward axes of the parent transform</param>
+        /// <param name="minAngle">The minimum allowed value</param>
+        /// <param name="maxAngle">The maximum allowed angle</param>
+        /// <param name="handSide">Which hand</param>
+        /// <param name="isThumbProximal">Is target a proximal bone from the thumb?</param>
+        public UxrFingerSpinner(UxrFingerAngleType angleType,
+                                Texture2D texMouse,
+                                Color32 color,
+                                Transform target,
+                                Transform parent,
+                                UxrUniversalLocalAxes targetLocalAxes,
+                                UxrUniversalLocalAxes parentLocalAxes,
+                                float minAngle,
+                                float maxAngle,
+                                UxrHandSide handSide,
+                                bool isThumbProximal = false)
+        {
+            _angleType = angleType;
+            _texMouse = texMouse;
+            _color = color;
+            _target = target;
+            _parent = parent;
+            _targetLocalAxes = targetLocalAxes;
+            _parentLocalAxes = parentLocalAxes;
+            _minAngle = minAngle;
+            _maxAngle = maxAngle;
+            _handSide = handSide;
+            _isThumbProximal = isThumbProximal;
+
+            if (handSide == UxrHandSide.Left && s_boundsLeftHand == null)
+            {
+                s_boundsLeftHand = GetMouseTextureBounds(texMouse);
+            }
+
+            if (handSide == UxrHandSide.Right && s_boundsRightHand == null)
+            {
+                s_boundsRightHand = GetMouseTextureBounds(texMouse);
+            }
+
+            _quadMin = GetBoundsMin(handSide == UxrHandSide.Left ? s_boundsLeftHand : s_boundsRightHand, color);
+            _quadMax = GetBoundsMax(handSide == UxrHandSide.Left ? s_boundsLeftHand : s_boundsRightHand, color);
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private UxrFingerAngleType    _angleType;
-        [SerializeField] private Texture2D             _texMouse;
-        [SerializeField] private Color32               _color;
-        [SerializeField] private Transform             _target;
-        [SerializeField] private Transform             _parent;
+        [SerializeField] private UxrFingerAngleType _angleType;
+        [SerializeField] private Texture2D _texMouse;
+        [SerializeField] private Color32 _color;
+        [SerializeField] private Transform _target;
+        [SerializeField] private Transform _parent;
         [SerializeField] private UxrUniversalLocalAxes _targetLocalAxes;
         [SerializeField] private UxrUniversalLocalAxes _parentLocalAxes;
-        [SerializeField] private float                 _minAngle;
-        [SerializeField] private float                 _maxAngle;
-        [SerializeField] private UxrHandSide           _handSide;
-        [SerializeField] private bool                  _isThumbProximal;
-        [SerializeField] private Vector2               _quadMax;
-        [SerializeField] private Vector2               _quadMin;
-        [SerializeField] private float                 _offset;
+        [SerializeField] private float _minAngle;
+        [SerializeField] private float _maxAngle;
+        [SerializeField] private UxrHandSide _handSide;
+        [SerializeField] private bool _isThumbProximal;
+        [SerializeField] private Vector2 _quadMax;
+        [SerializeField] private Vector2 _quadMin;
+        [SerializeField] private float _offset;
 
         #endregion
 
@@ -58,7 +116,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         /// <summary>
         ///     Gets the <see cref="Rect" /> of the UI control in local hand image coordinates.
         /// </summary>
-        public Rect MouseRect => new Rect(_quadMin.x, _quadMin.y, _quadMax.x - _quadMin.x, _quadMax.y - _quadMin.y);
+        public Rect MouseRect => new(_quadMin.x, _quadMin.y, _quadMax.x - _quadMin.x, _quadMax.y - _quadMin.y);
 
         /// <summary>
         ///     Gets or sets the angle value in degrees.
@@ -68,8 +126,8 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
             get => GetValueFromObject();
             set
             {
-                float oldValue = GetValueFromObject();
-                float newValue = Mathf.Clamp(value, _minAngle, _maxAngle);
+                var oldValue = GetValueFromObject();
+                var newValue = Mathf.Clamp(value, _minAngle, _maxAngle);
 
                 if (_angleType == UxrFingerAngleType.Spread)
                 {
@@ -91,69 +149,13 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
             get => _offset;
             set
             {
-                float forgiveness = 0.1f;
+                var forgiveness = 0.1f;
 
                 if (Value > _minAngle + forgiveness && Value < _maxAngle - forgiveness)
                 {
                     _offset = value;
                 }
             }
-        }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="angleType">The type of angle this control will rotate (spread or curl)</param>
-        /// <param name="texMouse">The image that has the clickable parts encoded in colors</param>
-        /// <param name="color">The color this control has inside the <paramref name="texMouse" /> texture</param>
-        /// <param name="target">The transform that will be rotated</param>
-        /// <param name="parent">The parent transform</param>
-        /// <param name="targetLocalAxes">The universal right/up/forward axes of the target transform</param>
-        /// <param name="parentLocalAxes">The universal right/up/forward axes of the parent transform</param>
-        /// <param name="minAngle">The minimum allowed value</param>
-        /// <param name="maxAngle">The maximum allowed angle</param>
-        /// <param name="handSide">Which hand</param>
-        /// <param name="isThumbProximal">Is target a proximal bone from the thumb?</param>
-        public UxrFingerSpinner(UxrFingerAngleType    angleType,
-                                Texture2D             texMouse,
-                                Color32               color,
-                                Transform             target,
-                                Transform             parent,
-                                UxrUniversalLocalAxes targetLocalAxes,
-                                UxrUniversalLocalAxes parentLocalAxes,
-                                float                 minAngle,
-                                float                 maxAngle,
-                                UxrHandSide           handSide,
-                                bool                  isThumbProximal = false)
-        {
-            _angleType       = angleType;
-            _texMouse        = texMouse;
-            _color           = color;
-            _target          = target;
-            _parent          = parent;
-            _targetLocalAxes = targetLocalAxes;
-            _parentLocalAxes = parentLocalAxes;
-            _minAngle        = minAngle;
-            _maxAngle        = maxAngle;
-            _handSide        = handSide;
-            _isThumbProximal = isThumbProximal;
-
-            if (handSide == UxrHandSide.Left && s_boundsLeftHand == null)
-            {
-                s_boundsLeftHand = GetMouseTextureBounds(texMouse);
-            }
-
-            if (handSide == UxrHandSide.Right && s_boundsRightHand == null)
-            {
-                s_boundsRightHand = GetMouseTextureBounds(texMouse);
-            }
-
-            _quadMin = GetBoundsMin(handSide == UxrHandSide.Left ? s_boundsLeftHand : s_boundsRightHand, color);
-            _quadMax = GetBoundsMax(handSide == UxrHandSide.Left ? s_boundsLeftHand : s_boundsRightHand, color);
         }
 
         #endregion
@@ -171,7 +173,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
 
             /*
              * Alternative: Get from mouse texture.
-             * 
+             *
             if (mousePos.x >= 0 && mousePos.x < _texMouse.width && mousePos.y >= 0 && mousePos.y < _texMouse.height)
             {
                 Color32 texColor = _texMouse.GetPixels32(0)[((_texMouse.height - Mathf.RoundToInt(mousePos.y)) * _texMouse.width) + Mathf.RoundToInt(mousePos.x)];
@@ -181,6 +183,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
             return false;
             */
         }
+
 
         /// <summary>
         ///     Computes the rotation angle from the object's current transform.
@@ -203,37 +206,40 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         /// <returns>Dictionary</returns>
         private static Dictionary<int, Bounds> GetMouseTextureBounds(Texture2D texture)
         {
-            Dictionary<int, Bounds> colorBounds = new Dictionary<int, Bounds>();
+            var colorBounds = new Dictionary<int, Bounds>();
 
-            Color32[] pixels = texture.GetPixels32(0);
+            var pixels = texture.GetPixels32(0);
 
-            for (int x = 0; x < texture.width; ++x)
+            for (var x = 0; x < texture.width; ++x)
             {
-                for (int y = 0; y < texture.height; ++y)
+                for (var y = 0; y < texture.height; ++y)
                 {
-                    int color = pixels[(texture.height - y - 1) * texture.width + x].ToInt();
+                    var color = pixels[(texture.height - y - 1) * texture.width + x].ToInt();
 
                     if (!colorBounds.ContainsKey(color))
                     {
                         colorBounds.Add(color, new Bounds(new Vector3(x, y, 0.0f), Vector3.zero));
                     }
 
-                    Bounds  bounds = colorBounds[color];
-                    Vector3 min    = bounds.min;
-                    Vector3 max    = bounds.max;
+                    var bounds = colorBounds[color];
+                    var min = bounds.min;
+                    var max = bounds.max;
 
                     if (x < min.x)
                     {
                         min.x = x;
                     }
+
                     if (x > max.x)
                     {
                         max.x = x;
                     }
+
                     if (y < min.y)
                     {
                         min.y = y;
                     }
+
                     if (y > max.y)
                     {
                         max.y = y;
@@ -249,6 +255,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
             return colorBounds;
         }
 
+
         /// <summary>
         ///     Gets the minimum value of a rect for a given color.
         /// </summary>
@@ -257,13 +264,14 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         /// <returns>Maximum rect x and y for the given color</returns>
         private static Vector2 GetBoundsMin(Dictionary<int, Bounds> colorBounds, Color32 color)
         {
-            if (colorBounds.TryGetValue(color.ToInt(), out Bounds bounds))
+            if (colorBounds.TryGetValue(color.ToInt(), out var bounds))
             {
                 return new Vector2(bounds.min.x, bounds.min.y);
             }
 
             return Vector2.zero;
         }
+
 
         /// <summary>
         ///     Gets the maximum value of a rect for a given color.
@@ -273,13 +281,14 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         /// <returns>Maximum rect x and y for the given color</returns>
         private static Vector2 GetBoundsMax(Dictionary<int, Bounds> colorBounds, Color32 color)
         {
-            if (colorBounds.TryGetValue(color.ToInt(), out Bounds bounds))
+            if (colorBounds.TryGetValue(color.ToInt(), out var bounds))
             {
                 return new Vector2(bounds.max.x, bounds.max.y);
             }
 
             return Vector2.zero;
         }
+
 
         /// <summary>
         ///     Computes a rotation angle from the object's current transform.
@@ -292,43 +301,46 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
             // the angle between initial right and current right.
             // The parent reference directions are different for the proximal thumb bone which is a special case.
 
-            Vector3 parentRight = _isThumbProximal
-                                              ? _handSide == UxrHandSide.Left ? _parent.TransformDirection(-_parentLocalAxes.LocalForward) : _parent.TransformDirection(_parentLocalAxes.LocalForward)
-                                              : _parent.TransformDirection(_parentLocalAxes.LocalRight);
-            Vector3 parentUp = _parent.TransformDirection(_parentLocalAxes.LocalUp);
-            Vector3 parentForward = _isThumbProximal
-                                                ? _handSide == UxrHandSide.Left ? _parent.TransformDirection(_parentLocalAxes.LocalRight) : _parent.TransformDirection(-_parentLocalAxes.LocalRight)
-                                                : _parent.TransformDirection(_parentLocalAxes.LocalForward);
+            var parentRight = _isThumbProximal
+                ? _handSide == UxrHandSide.Left ? _parent.TransformDirection(-_parentLocalAxes.LocalForward) : _parent.TransformDirection(_parentLocalAxes.LocalForward)
+                : _parent.TransformDirection(_parentLocalAxes.LocalRight);
 
-            Vector3 targetRight   = _target.TransformDirection(_targetLocalAxes.LocalRight);
-            Vector3 targetUp      = _target.TransformDirection(_targetLocalAxes.LocalUp);
-            Vector3 targetForward = _target.TransformDirection(_targetLocalAxes.LocalForward);
+            var parentUp = _parent.TransformDirection(_parentLocalAxes.LocalUp);
 
-            Quaternion toForward     = Quaternion.FromToRotation(targetForward, parentForward);
-            Vector3    rightOnlyRoll = toForward * targetRight;
-            float      roll          = Vector3.SignedAngle(parentRight, rightOnlyRoll, parentForward);
+            var parentForward = _isThumbProximal
+                ? _handSide == UxrHandSide.Left ? _parent.TransformDirection(_parentLocalAxes.LocalRight) : _parent.TransformDirection(-_parentLocalAxes.LocalRight)
+                : _parent.TransformDirection(_parentLocalAxes.LocalForward);
+
+            var targetRight = _target.TransformDirection(_targetLocalAxes.LocalRight);
+            var targetUp = _target.TransformDirection(_targetLocalAxes.LocalUp);
+            var targetForward = _target.TransformDirection(_targetLocalAxes.LocalForward);
+
+            var toForward = Quaternion.FromToRotation(targetForward, parentForward);
+            var rightOnlyRoll = toForward * targetRight;
+            var roll = Vector3.SignedAngle(parentRight, rightOnlyRoll, parentForward);
 
             // Compute rotation to remove roll component
 
-            Quaternion removeRoll = Quaternion.AngleAxis(-roll, targetForward);
+            var removeRoll = Quaternion.AngleAxis(-roll, targetForward);
 
             if (angleType == UxrFingerAngleType.Spread)
             {
                 // Compute correct spread angle
 
-                Vector3 spreadAxis          = removeRoll * targetUp;
-                Vector3 planeRightNormal    = parentRight;
-                Vector3 spreadVectorOnPlane = Vector3.Cross(planeRightNormal, Vector3.ProjectOnPlane(spreadAxis, planeRightNormal));
+                var spreadAxis = removeRoll * targetUp;
+                var planeRightNormal = parentRight;
+                var spreadVectorOnPlane = Vector3.Cross(planeRightNormal, Vector3.ProjectOnPlane(spreadAxis, planeRightNormal));
 
                 return Vector3.SignedAngle(spreadVectorOnPlane, targetForward, spreadAxis);
             }
+
             if (angleType == UxrFingerAngleType.Curl)
             {
                 // Compute correct curl angle
 
-                Vector3 curlAxis          = removeRoll * targetRight;
-                Vector3 planeUpNormal     = parentUp;
-                Vector3 curlVectorOnPlane = Vector3.Cross(Vector3.ProjectOnPlane(curlAxis, planeUpNormal), planeUpNormal);
+                var curlAxis = removeRoll * targetRight;
+                var planeUpNormal = parentUp;
+                var curlVectorOnPlane = Vector3.Cross(Vector3.ProjectOnPlane(curlAxis, planeUpNormal), planeUpNormal);
 
                 return Vector3.SignedAngle(curlVectorOnPlane, targetForward, curlAxis);
             }

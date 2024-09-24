@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components;
 using UltimateXR.UI.UnityInputModule.Controls;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.UI.UnityInputModule.Utils
 {
@@ -21,9 +23,9 @@ namespace UltimateXR.UI.UnityInputModule.Utils
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] [Tooltip("Number of seconds the user will need to hover over this element to trigger the Click event")]                                                      private float _lookAtSecondsToClick = 2.0f;
-        [SerializeField] [Tooltip("Unscaled time will use the real device timer. If this parameter is unchecked it will use the scaled timer affected by pauses, bullet-times etc.")] private bool  _useUnscaledTime      = true;
-        [SerializeField] [Tooltip("Will update the fill value of the Image component on this same GameObject to represent the timer progress. Needs an Image component.")]            private bool  _useFillImage         = true;
+        [SerializeField] [Tooltip("Number of seconds the user will need to hover over this element to trigger the Click event")] private float _lookAtSecondsToClick = 2.0f;
+        [SerializeField] [Tooltip("Unscaled time will use the real device timer. If this parameter is unchecked it will use the scaled timer affected by pauses, bullet-times etc.")] private bool _useUnscaledTime = true;
+        [SerializeField] [Tooltip("Will update the fill value of the Image component on this same GameObject to represent the timer progress. Needs an Image component.")] private bool _useFillImage = true;
 
         #endregion
 
@@ -36,7 +38,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
         {
             base.Awake();
 
-            _image        = GetComponent<Image>();
+            _image = GetComponent<Image>();
             _controlInput = GetComponent<UxrControlInput>();
 
             _timer = _lookAtSecondsToClick;
@@ -51,6 +53,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
             }
         }
 
+
         /// <summary>
         ///     Subscribes to events.
         /// </summary>
@@ -59,8 +62,9 @@ namespace UltimateXR.UI.UnityInputModule.Utils
             base.OnEnable();
 
             _controlInput.CursorEntered += Input_Entered;
-            _controlInput.CursorExited  += Input_Exited;
+            _controlInput.CursorExited += Input_Exited;
         }
+
 
         /// <summary>
         ///     Unsubscribes from events.
@@ -70,8 +74,9 @@ namespace UltimateXR.UI.UnityInputModule.Utils
             base.OnDisable();
 
             _controlInput.CursorEntered -= Input_Entered;
-            _controlInput.CursorExited  -= Input_Exited;
+            _controlInput.CursorExited -= Input_Exited;
         }
+
 
         /// <summary>
         ///     Updates the progress and checks whether to generate the Click event.
@@ -124,6 +129,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
             _timer = _lookAtSecondsToClick;
         }
 
+
         /// <summary>
         ///     Called whenever the pointer exited the control's Rect.
         /// </summary>
@@ -138,9 +144,9 @@ namespace UltimateXR.UI.UnityInputModule.Utils
 
         #region Private Types & Data
 
-        private Image           _image;
+        private Image _image;
         private UxrControlInput _controlInput;
-        private float           _timer;
+        private float _timer;
 
         #endregion
     }

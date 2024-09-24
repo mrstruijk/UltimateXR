@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Core
 {
     public static partial class UxrConstants
@@ -17,7 +18,7 @@ namespace UltimateXR.Core
             #region Public Types & Data
 
             public const float SignificantBoneWeight = 0.5f;
-            public const float SmallestBoneWeight    = 0.01f;
+            public const float SmallestBoneWeight = 0.01f;
 
             #endregion
         }

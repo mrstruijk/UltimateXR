@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Manipulation;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Manipulation
 {
@@ -31,12 +33,12 @@ namespace UltimateXR.Editor.Manipulation
         /// <inheritdoc />
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            UxrGrabbableObject grabbableObject        = ((MonoBehaviour)property.serializedObject.targetObject).GetComponent<UxrGrabbableObject>();
-            SerializedProperty propertyGrabPointIndex = property.FindPropertyRelative("_index");
+            var grabbableObject = ((MonoBehaviour) property.serializedObject.targetObject).GetComponent<UxrGrabbableObject>();
+            var propertyGrabPointIndex = property.FindPropertyRelative("_index");
 
-            List<string> elements = new List<string>();
+            var elements = new List<string>();
 
-            for (int i = 0; i < grabbableObject.GrabPointCount; ++i)
+            for (var i = 0; i < grabbableObject.GrabPointCount; ++i)
             {
                 elements.Add(UxrGrabPointIndex.GetIndexDisplayName(grabbableObject, i));
             }

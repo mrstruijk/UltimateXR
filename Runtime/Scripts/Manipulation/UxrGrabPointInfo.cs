@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ using UltimateXR.Avatar;
 using UltimateXR.Core;
 using UltimateXR.Devices;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -22,31 +24,40 @@ namespace UltimateXR.Manipulation
     [Serializable]
     public class UxrGrabPointInfo
     {
+        #region Internal Types & Data
+
+        /// <summary>
+        ///     Gets or sets the runtime grab info dictionary.
+        /// </summary>
+        internal Dictionary<UxrGrabber, UxrRuntimeGripInfo> RuntimeGrabs { get; set; } = new();
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private bool                  _editorFoldout         = true;
-        [SerializeField] private string                _editorName            = "";
-        [SerializeField] private UxrGrabMode           _grabMode              = UxrGrabMode.GrabWhilePressed;
-        [SerializeField] private bool                  _useDefaultGrabButtons = true;
-        [SerializeField] private bool                  _bothHandsCompatible   = true;
-        [SerializeField] private UxrHandSide           _handSide              = UxrHandSide.Left;
-        [SerializeField] private UxrInputButtons       _inputButtons          = UxrInputButtons.Grip;
-        [SerializeField] private bool                  _hideHandGrabberRenderer;
-        [SerializeField] private UxrGripPoseInfo       _defaultGripPoseInfo   = new UxrGripPoseInfo(null);
-        [SerializeField] private UxrSnapToHandMode     _snapMode              = UxrSnapToHandMode.PositionAndRotation;
-        [SerializeField] private UxrHandSnapDirection  _snapDirection         = UxrHandSnapDirection.ObjectToHand;
-        [SerializeField] private UxrSnapReference      _snapReference         = UxrSnapReference.UseOtherTransform;
-        [SerializeField] private List<UxrGripPoseInfo> _avatarGripPoseEntries = new List<UxrGripPoseInfo>();
-        [SerializeField] private bool                  _alignToController;
-        [SerializeField] private Transform             _alignToControllerAxes;
-        [SerializeField] private UxrGrabProximityMode  _grabProximityMode = UxrGrabProximityMode.UseProximity;
-        [SerializeField] private BoxCollider           _grabProximityBox;
-        [SerializeField] private float                 _maxDistanceGrab               = 0.2f;
-        [SerializeField] private bool                  _grabProximityTransformUseSelf = true;
-        [SerializeField] private Transform             _grabProximityTransform;
-        [SerializeField] private bool                  _grabberProximityUseDefault = true;
-        [SerializeField] private int                   _grabberProximityIndex;
-        [SerializeField] private GameObject            _enableOnHandNear;
+        [SerializeField] private bool _editorFoldout = true;
+        [SerializeField] private string _editorName = "";
+        [SerializeField] private UxrGrabMode _grabMode = UxrGrabMode.GrabWhilePressed;
+        [SerializeField] private bool _useDefaultGrabButtons = true;
+        [SerializeField] private bool _bothHandsCompatible = true;
+        [SerializeField] private UxrHandSide _handSide = UxrHandSide.Left;
+        [SerializeField] private UxrInputButtons _inputButtons = UxrInputButtons.Grip;
+        [SerializeField] private bool _hideHandGrabberRenderer;
+        [SerializeField] private UxrGripPoseInfo _defaultGripPoseInfo = new(null);
+        [SerializeField] private UxrSnapToHandMode _snapMode = UxrSnapToHandMode.PositionAndRotation;
+        [SerializeField] private UxrHandSnapDirection _snapDirection = UxrHandSnapDirection.ObjectToHand;
+        [SerializeField] private UxrSnapReference _snapReference = UxrSnapReference.UseOtherTransform;
+        [SerializeField] private List<UxrGripPoseInfo> _avatarGripPoseEntries = new();
+        [SerializeField] private bool _alignToController;
+        [SerializeField] private Transform _alignToControllerAxes;
+        [SerializeField] private UxrGrabProximityMode _grabProximityMode = UxrGrabProximityMode.UseProximity;
+        [SerializeField] private BoxCollider _grabProximityBox;
+        [SerializeField] private float _maxDistanceGrab = 0.2f;
+        [SerializeField] private bool _grabProximityTransformUseSelf = true;
+        [SerializeField] private Transform _grabProximityTransform;
+        [SerializeField] private bool _grabberProximityUseDefault = true;
+        [SerializeField] private int _grabberProximityIndex;
+        [SerializeField] private GameObject _enableOnHandNear;
 
         #endregion
 
@@ -281,15 +292,6 @@ namespace UltimateXR.Manipulation
 
         #endregion
 
-        #region Internal Types & Data
-
-        /// <summary>
-        ///     Gets or sets the runtime grab info dictionary.
-        /// </summary>
-        internal Dictionary<UxrGrabber, UxrRuntimeGripInfo> RuntimeGrabs { get; set; } = new Dictionary<UxrGrabber, UxrRuntimeGripInfo>();
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -311,6 +313,7 @@ namespace UltimateXR.Manipulation
             }
         }
 
+
         /// <summary>
         ///     Gets a given grip pose info entry.
         /// </summary>
@@ -331,6 +334,7 @@ namespace UltimateXR.Manipulation
             return null;
         }
 
+
         /// <summary>
         ///     Gets a given grip pose info entry.
         /// </summary>
@@ -340,6 +344,7 @@ namespace UltimateXR.Manipulation
         {
             return _avatarGripPoseEntries.FirstOrDefault(i => i.AvatarPrefabGuid == prefabGuid);
         }
+
 
         /// <summary>
         ///     Gets the grip pose info for the given avatar instance or prefab.
@@ -356,9 +361,9 @@ namespace UltimateXR.Manipulation
         /// </returns>
         public UxrGripPoseInfo GetGripPoseInfo(UxrAvatar avatar, bool usePrefabInheritance = true)
         {
-            foreach (string avatarPrefabGuid in avatar.GetPrefabGuidChain())
+            foreach (var avatarPrefabGuid in avatar.GetPrefabGuidChain())
             {
-                foreach (UxrGripPoseInfo gripPoseInfo in _avatarGripPoseEntries)
+                foreach (var gripPoseInfo in _avatarGripPoseEntries)
                 {
                     if (gripPoseInfo.AvatarPrefabGuid == avatarPrefabGuid)
                     {
@@ -375,6 +380,7 @@ namespace UltimateXR.Manipulation
             return DefaultGripPoseInfo;
         }
 
+
         /// <summary>
         ///     Gets all the grip pose infos that can be used with the given avatar.
         /// </summary>
@@ -383,9 +389,9 @@ namespace UltimateXR.Manipulation
         /// <returns>List of <see cref="UxrGripPoseInfo" /> that are potentially compatible with the given avatar</returns>
         public IEnumerable<UxrGripPoseInfo> GetCompatibleGripPoseInfos(UxrAvatar avatar, bool usePrefabInheritance = true)
         {
-            foreach (string avatarPrefabGuid in avatar.GetPrefabGuidChain())
+            foreach (var avatarPrefabGuid in avatar.GetPrefabGuidChain())
             {
-                foreach (UxrGripPoseInfo gripPoseInfo in _avatarGripPoseEntries)
+                foreach (var gripPoseInfo in _avatarGripPoseEntries)
                 {
                     if (gripPoseInfo.AvatarPrefabGuid == avatarPrefabGuid)
                     {
@@ -399,6 +405,7 @@ namespace UltimateXR.Manipulation
                 }
             }
         }
+
 
         /// <summary>
         ///     Removes the grip pose entry of a given avatar prefab.

@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Mechanics.Weapons
 {
     /// <summary>
@@ -23,6 +24,6 @@ namespace UltimateXR.Mechanics.Weapons
         /// <summary>
         ///     A detonator timer is started after being launched.
         /// </summary>
-        OnHandLaunch,
+        OnHandLaunch
     }
 }

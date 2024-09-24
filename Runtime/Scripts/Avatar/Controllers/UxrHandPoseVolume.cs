@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UltimateXR.Core.Components;
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Controllers
 {
@@ -21,11 +23,56 @@ namespace UltimateXR.Avatar.Controllers
     [RequireComponent(typeof(BoxCollider))]
     public class UxrHandPoseVolume : UxrComponent<UxrHandPoseVolume>
     {
+        #region Event Handling Methods
+
+        /// <summary>
+        ///     Called every frame after the avatars have been updated. Performs the hand check.
+        /// </summary>
+        private void UxrManager_AvatarsUpdated()
+        {
+            if (UxrAvatar.LocalAvatar == null)
+            {
+                return;
+            }
+
+            if (UxrAvatar.LocalAvatar.AvatarController is UxrStandardAvatarController avatarController)
+            {
+            }
+            else
+            {
+                return;
+            }
+
+            if (IsCompatible(UxrHandSide.Left) && IsPointInside(UxrAvatar.LocalAvatar.GetHand(UxrHandSide.Left).Wrist.position))
+            {
+                avatarController.LeftHandDefaultPoseNameOverride = _poseName;
+                _leftWasInside = true;
+            }
+            else if (_leftWasInside)
+            {
+                avatarController.LeftHandDefaultPoseNameOverride = null;
+                _leftWasInside = false;
+            }
+
+            if (IsCompatible(UxrHandSide.Right) && IsPointInside(UxrAvatar.LocalAvatar.GetHand(UxrHandSide.Right).Wrist.position))
+            {
+                avatarController.RightHandDefaultPoseNameOverride = _poseName;
+                _rightWasInside = true;
+            }
+            else if (_rightWasInside)
+            {
+                avatarController.RightHandDefaultPoseNameOverride = null;
+                _rightWasInside = false;
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private string _poseName;
-        [SerializeField] private bool   _leftHand  = true;
-        [SerializeField] private bool   _rightHand = true;
+        [SerializeField] private bool _leftHand = true;
+        [SerializeField] private bool _rightHand = true;
 
         #endregion
 
@@ -68,6 +115,7 @@ namespace UltimateXR.Avatar.Controllers
             UxrManager.AvatarsUpdated += UxrManager_AvatarsUpdated;
         }
 
+
         /// <summary>
         ///     Unsubscribes from the avatars updated event.
         /// </summary>
@@ -76,51 +124,6 @@ namespace UltimateXR.Avatar.Controllers
             base.OnDisable();
 
             UxrManager.AvatarsUpdated -= UxrManager_AvatarsUpdated;
-        }
-
-        #endregion
-
-        #region Event Handling Methods
-
-        /// <summary>
-        ///     Called every frame after the avatars have been updated. Performs the hand check.
-        /// </summary>
-        private void UxrManager_AvatarsUpdated()
-        {
-            if (UxrAvatar.LocalAvatar == null)
-            {
-                return;
-            }
-
-            if (UxrAvatar.LocalAvatar.AvatarController is UxrStandardAvatarController avatarController)
-            {
-            }
-            else
-            {
-                return;
-            }
-
-            if (IsCompatible(UxrHandSide.Left) && IsPointInside(UxrAvatar.LocalAvatar.GetHand(UxrHandSide.Left).Wrist.position))
-            {
-                avatarController.LeftHandDefaultPoseNameOverride = _poseName;
-                _leftWasInside                                   = true;
-            }
-            else if (_leftWasInside)
-            {
-                avatarController.LeftHandDefaultPoseNameOverride = null;
-                _leftWasInside                                   = false;
-            }
-
-            if (IsCompatible(UxrHandSide.Right) && IsPointInside(UxrAvatar.LocalAvatar.GetHand(UxrHandSide.Right).Wrist.position))
-            {
-                avatarController.RightHandDefaultPoseNameOverride = _poseName;
-                _rightWasInside                                   = true;
-            }
-            else if (_rightWasInside)
-            {
-                avatarController.RightHandDefaultPoseNameOverride = null;
-                _rightWasInside                                   = false;
-            }
         }
 
         #endregion
@@ -138,6 +141,7 @@ namespace UltimateXR.Avatar.Controllers
         {
             return point.IsInsideBox(Box, Vector3.one * margin);
         }
+
 
         /// <summary>
         ///     Checks if the volume is compatible with the given hand. This allows some volumes to work for the left or

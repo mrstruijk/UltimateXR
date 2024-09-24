@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UnityEngine;
+
 
 namespace UltimateXR.Devices.Integrations
 {
@@ -29,11 +31,13 @@ namespace UltimateXR.Devices.Integrations
         /// <inheritdoc />
         public override bool IsHandednessSupported => true;
 
+
         /// <inheritdoc />
         public override bool IsControllerEnabled(UxrHandSide handSide)
         {
             return false;
         }
+
 
         /// <inheritdoc />
         public override bool HasControllerElements(UxrHandSide handSide, UxrControllerElements controllerElement)
@@ -41,17 +45,20 @@ namespace UltimateXR.Devices.Integrations
             return false;
         }
 
+
         /// <inheritdoc />
         public override float GetInput1D(UxrHandSide handSide, UxrInput1D input1D, bool getIgnoredInput = false)
         {
             return 0.0f;
         }
 
+
         /// <inheritdoc />
         public override Vector2 GetInput2D(UxrHandSide handSide, UxrInput2D input2D, bool getIgnoredInput = false)
         {
             return Vector2.zero;
         }
+
 
         /// <inheritdoc />
         public override UxrControllerInputCapabilities GetControllerCapabilities(UxrHandSide handSide)

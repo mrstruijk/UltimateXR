@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Animation.IK;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Animation.IK
 {
@@ -25,16 +27,16 @@ namespace UltimateXR.Editor.Animation.IK
         /// <returns>Height in pixels</returns>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            int lines = 7;
+            var lines = 7;
 
             if (property.FindPropertyRelative(PropertyAxis1HasLimits).boolValue)
             {
                 lines += 2;
             }
 
-            int enumIndex = property.FindPropertyRelative(PropertyConstraint).enumValueIndex;
+            var enumIndex = property.FindPropertyRelative(PropertyConstraint).enumValueIndex;
 
-            if (enumIndex == (int)UxrCcdConstraintType.TwoAxes)
+            if (enumIndex == (int) UxrCcdConstraintType.TwoAxes)
             {
                 if (property.FindPropertyRelative(PropertyAxis2HasLimits).boolValue)
                 {
@@ -66,18 +68,18 @@ namespace UltimateXR.Editor.Animation.IK
             EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
             EditorGUI.indentLevel += 1;
 
-            int line = 1;
+            var line = 1;
 
             property.FindPropertyRelative(PropertyWeight).floatValue = EditorGUI.Slider(UxrEditorUtils.GetRect(position, line++),
-                                                                                        ContentWeight,
-                                                                                        property.FindPropertyRelative(PropertyWeight).floatValue,
-                                                                                        0.0f,
-                                                                                        1.0f);
+                ContentWeight,
+                property.FindPropertyRelative(PropertyWeight).floatValue,
+                0.0f,
+                1.0f);
 
             EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyBone), ContentBone);
 
-            EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyConstraint),     ContentConstraint);
-            EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyRotationAxis1),  ContentRotationAxis1);
+            EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyConstraint), ContentConstraint);
+            EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyRotationAxis1), ContentRotationAxis1);
             EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyAxis1HasLimits), ContentAxis1HasLimits);
 
             if (property.FindPropertyRelative(PropertyAxis1HasLimits).boolValue)
@@ -86,11 +88,11 @@ namespace UltimateXR.Editor.Animation.IK
                 EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyAxis1AngleMax), ContentAxis1AngleMax);
             }
 
-            int enumIndex = property.FindPropertyRelative(PropertyConstraint).enumValueIndex;
+            var enumIndex = property.FindPropertyRelative(PropertyConstraint).enumValueIndex;
 
-            if (enumIndex == (int)UxrCcdConstraintType.TwoAxes)
+            if (enumIndex == (int) UxrCcdConstraintType.TwoAxes)
             {
-                EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyRotationAxis2),  ContentRotationAxis2);
+                EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyRotationAxis2), ContentRotationAxis2);
                 EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyAxis2HasLimits), ContentAxis2HasLimits);
 
                 if (property.FindPropertyRelative(PropertyAxis2HasLimits).boolValue)
@@ -110,31 +112,31 @@ namespace UltimateXR.Editor.Animation.IK
 
         #region Private Types & Data
 
-        private GUIContent ContentBone           { get; } = new GUIContent("Bone",                   "");
-        private GUIContent ContentWeight         { get; } = new GUIContent("Weight",                 "");
-        private GUIContent ContentConstraint     { get; } = new GUIContent("Constraint",             "");
-        private GUIContent ContentRotationAxis1  { get; } = new GUIContent("Rotation Axis1",         "");
-        private GUIContent ContentRotationAxis2  { get; } = new GUIContent("Rotation Axis2",         "");
-        private GUIContent ContentAxis1HasLimits { get; } = new GUIContent("Axis1 Has Angle Limits", "");
-        private GUIContent ContentAxis1AngleMin  { get; } = new GUIContent("Axis1 Angle Min",        "");
-        private GUIContent ContentAxis1AngleMax  { get; } = new GUIContent("Axis1 Angle Max",        "");
-        private GUIContent ContentAxis2HasLimits { get; } = new GUIContent("Axis2 Has Angle Limits", "");
-        private GUIContent ContentAxis2AngleMin  { get; } = new GUIContent("Axis2 Angle Min",        "");
-        private GUIContent ContentAxis2AngleMax  { get; } = new GUIContent("Axis2 Angle Max",        "");
-        private GUIContent ContentAlignToGoal    { get; } = new GUIContent("Align To Goal",          "Tries to align this link to the same axes as the goal");
+        private GUIContent ContentBone { get; } = new("Bone", "");
+        private GUIContent ContentWeight { get; } = new("Weight", "");
+        private GUIContent ContentConstraint { get; } = new("Constraint", "");
+        private GUIContent ContentRotationAxis1 { get; } = new("Rotation Axis1", "");
+        private GUIContent ContentRotationAxis2 { get; } = new("Rotation Axis2", "");
+        private GUIContent ContentAxis1HasLimits { get; } = new("Axis1 Has Angle Limits", "");
+        private GUIContent ContentAxis1AngleMin { get; } = new("Axis1 Angle Min", "");
+        private GUIContent ContentAxis1AngleMax { get; } = new("Axis1 Angle Max", "");
+        private GUIContent ContentAxis2HasLimits { get; } = new("Axis2 Has Angle Limits", "");
+        private GUIContent ContentAxis2AngleMin { get; } = new("Axis2 Angle Min", "");
+        private GUIContent ContentAxis2AngleMax { get; } = new("Axis2 Angle Max", "");
+        private GUIContent ContentAlignToGoal { get; } = new("Align To Goal", "Tries to align this link to the same axes as the goal");
 
-        private const string PropertyBone           = "_bone";
-        private const string PropertyWeight         = "_weight";
-        private const string PropertyConstraint     = "_constraint";
-        private const string PropertyRotationAxis1  = "_rotationAxis1";
-        private const string PropertyRotationAxis2  = "_rotationAxis2";
+        private const string PropertyBone = "_bone";
+        private const string PropertyWeight = "_weight";
+        private const string PropertyConstraint = "_constraint";
+        private const string PropertyRotationAxis1 = "_rotationAxis1";
+        private const string PropertyRotationAxis2 = "_rotationAxis2";
         private const string PropertyAxis1HasLimits = "_axis1HasLimits";
-        private const string PropertyAxis1AngleMin  = "_axis1AngleMin";
-        private const string PropertyAxis1AngleMax  = "_axis1AngleMax";
+        private const string PropertyAxis1AngleMin = "_axis1AngleMin";
+        private const string PropertyAxis1AngleMax = "_axis1AngleMax";
         private const string PropertyAxis2HasLimits = "_axis2HasLimits";
-        private const string PropertyAxis2AngleMin  = "_axis2AngleMin";
-        private const string PropertyAxis2AngleMax  = "_axis2AngleMax";
-        private const string PropertyAlignToGoal    = "_alignToGoal";
+        private const string PropertyAxis2AngleMin = "_axis2AngleMin";
+        private const string PropertyAxis2AngleMax = "_axis2AngleMax";
+        private const string PropertyAlignToGoal = "_alignToGoal";
 
         #endregion
     }

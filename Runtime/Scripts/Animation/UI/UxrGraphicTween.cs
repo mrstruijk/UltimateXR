@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.Animation.UI
 {
@@ -17,7 +19,7 @@ namespace UltimateXR.Animation.UI
     {
         #region Public Types & Data
 
-        public Graphic       TargetGraphic       => GetCachedComponent<Graphic>();
+        public Graphic TargetGraphic => GetCachedComponent<Graphic>();
         public RectTransform TargetRectTransform => GetCachedComponent<RectTransform>();
 
         #endregion
@@ -27,13 +29,14 @@ namespace UltimateXR.Animation.UI
         /// <inheritdoc />
         protected override Behaviour TargetBehaviour => TargetGraphic;
 
+
         /// <inheritdoc />
         protected override void StoreOriginalValue()
         {
             _originalAnchoredPosition = TargetRectTransform.anchoredPosition;
-            _originalLocalScale       = TargetRectTransform.localScale;
-            _originalLocalRotation    = TargetRectTransform.localRotation;
-            _originalColor            = TargetGraphic.color;
+            _originalLocalScale = TargetRectTransform.localScale;
+            _originalLocalRotation = TargetRectTransform.localRotation;
+            _originalColor = TargetGraphic.color;
         }
 
         #endregion
@@ -51,6 +54,7 @@ namespace UltimateXR.Animation.UI
             }
         }
 
+
         /// <summary>
         ///     Restores the original Graphic's local scale.
         /// </summary>
@@ -62,6 +66,7 @@ namespace UltimateXR.Animation.UI
             }
         }
 
+
         /// <summary>
         ///     Restores the original Graphic's local rotation.
         /// </summary>
@@ -72,6 +77,7 @@ namespace UltimateXR.Animation.UI
                 TargetRectTransform.localRotation = _originalLocalRotation;
             }
         }
+
 
         /// <summary>
         ///     Restores the original Graphic's color.
@@ -88,10 +94,10 @@ namespace UltimateXR.Animation.UI
 
         #region Private Types & Data
 
-        private Vector2    _originalAnchoredPosition;
-        private Vector3    _originalLocalScale;
+        private Vector2 _originalAnchoredPosition;
+        private Vector3 _originalLocalScale;
         private Quaternion _originalLocalRotation;
-        private Color      _originalColor;
+        private Color _originalColor;
 
         #endregion
     }

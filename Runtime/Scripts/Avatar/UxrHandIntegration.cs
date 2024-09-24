@@ -3,11 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-using UltimateXR.Avatar.Rig;
+
 using UltimateXR.Core;
 using UltimateXR.Core.Components.Composite;
 using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar
 {
@@ -18,16 +19,6 @@ namespace UltimateXR.Avatar
     [DisallowMultipleComponent]
     public partial class UxrHandIntegration : UxrAvatarComponent<UxrHandIntegration>
     {
-        #region Inspector Properties/Serialized Fields
-
-        [SerializeField]                   private GizmoHandSize _gizmoHandSize;
-        [SerializeField]                   private UxrHandSide   _handSide;
-        [SerializeField] [HideInInspector] private int           _selectedRenderPipeline;
-        [SerializeField]                   private string        _objectVariationName;
-        [SerializeField]                   private string        _materialVariationName;
-
-        #endregion
-
         #region Public Types & Data
 
         public UxrHandSide HandSide => _handSide;
@@ -47,14 +38,14 @@ namespace UltimateXR.Avatar
         {
             // Get component and look for requirements:
 
-            UxrAvatar avatar = GetComponentInParent<UxrAvatar>();
+            var avatar = GetComponentInParent<UxrAvatar>();
 
             if (avatar == null)
             {
                 return false;
             }
 
-            UxrAvatarHand hand = avatar.GetHand(_handSide);
+            var hand = avatar.GetHand(_handSide);
 
             if (hand == null || !hand.HasFingerData() || hand.Wrist == null)
             {
@@ -69,9 +60,9 @@ namespace UltimateXR.Avatar
             //  left hand: X = to forearm, Y = backhand, Z = right.
             //  right hand: X = to forearm, Y = palm, Z = left.
 
-            hand.GetPalmCenter(out Vector3 palmCenter);
-            hand.GetPalmToFingerDirection(out Vector3 palmToFinger);
-            hand.GetPalmOutDirection(_handSide, out Vector3 palmOut);
+            hand.GetPalmCenter(out var palmCenter);
+            hand.GetPalmToFingerDirection(out var palmToFinger);
+            hand.GetPalmOutDirection(_handSide, out var palmOut);
 
             if (_handSide == UxrHandSide.Left)
             {
@@ -84,17 +75,17 @@ namespace UltimateXR.Avatar
 
             // Keeping the new orientation, try to offset so that the grabber stays in the center of the palm.
 
-            UxrGrabber grabber = GetComponentInChildren<UxrGrabber>();
+            var grabber = GetComponentInChildren<UxrGrabber>();
 
             if (grabber)
             {
-                Vector3 offset = grabber.transform.position - (palmCenter + palmOut * 0.02f);
+                var offset = grabber.transform.position - (palmCenter + palmOut * 0.02f);
 
                 // Remove left/right/up/down offset
 
-                offset   = transform.InverseTransformDirection(offset);
+                offset = transform.InverseTransformDirection(offset);
                 offset.z = 0.0f;
-                offset   = transform.TransformDirection(offset);
+                offset = transform.TransformDirection(offset);
 
                 // Apply offset
 
@@ -118,7 +109,7 @@ namespace UltimateXR.Avatar
 
             if (Avatar)
             {
-                Transform handBone = Avatar.GetHandBone(_handSide);
+                var handBone = Avatar.GetHandBone(_handSide);
 
                 if (handBone)
                 {
@@ -126,6 +117,16 @@ namespace UltimateXR.Avatar
                 }
             }
         }
+
+        #endregion
+
+        #region Inspector Properties/Serialized Fields
+
+        [SerializeField] private GizmoHandSize _gizmoHandSize;
+        [SerializeField] private UxrHandSide _handSide;
+        [SerializeField] [HideInInspector] private int _selectedRenderPipeline;
+        [SerializeField] private string _objectVariationName;
+        [SerializeField] private string _materialVariationName;
 
         #endregion
     }

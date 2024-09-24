@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Haptics.Helpers
 {
@@ -13,6 +15,27 @@ namespace UltimateXR.Haptics.Helpers
     /// </summary>
     public class UxrHapticImpactEventArgs : EventArgs
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="hitInfo">Hit information</param>
+        /// <param name="forceT">Hit force</param>
+        /// <param name="velocity">Hit velocity</param>
+        /// <param name="angleForwardVelocity">Angle between hit transform world forward and hit transform world velocity</param>
+        /// <param name="anglePenetration">Angle between hit transform world and -normal</param>
+        public UxrHapticImpactEventArgs(RaycastHit hitInfo, float forceT, Vector3 velocity, float angleForwardVelocity, float anglePenetration)
+        {
+            HitInfo = hitInfo;
+            ForceT = forceT;
+            Velocity = velocity;
+            AngleForwardVelocity = angleForwardVelocity;
+            AnglePenetration = anglePenetration;
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -39,27 +62,6 @@ namespace UltimateXR.Haptics.Helpers
         ///     Gets the angle between hit transform world forward and -normal.
         /// </summary>
         public float AnglePenetration { get; }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="hitInfo">Hit information</param>
-        /// <param name="forceT">Hit force</param>
-        /// <param name="velocity">Hit velocity</param>
-        /// <param name="angleForwardVelocity">Angle between hit transform world forward and hit transform world velocity</param>
-        /// <param name="anglePenetration">Angle between hit transform world and -normal</param>
-        public UxrHapticImpactEventArgs(RaycastHit hitInfo, float forceT, Vector3 velocity, float angleForwardVelocity, float anglePenetration)
-        {
-            HitInfo              = hitInfo;
-            ForceT               = forceT;
-            Velocity             = velocity;
-            AngleForwardVelocity = angleForwardVelocity;
-            AnglePenetration     = anglePenetration;
-        }
 
         #endregion
     }

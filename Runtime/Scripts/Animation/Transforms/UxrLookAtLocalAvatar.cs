@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar;
 using UltimateXR.Core;
 using UltimateXR.Core.Components;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Transforms
 {
@@ -16,6 +18,59 @@ namespace UltimateXR.Animation.Transforms
     /// </summary>
     public class UxrLookAtLocalAvatar : UxrComponent
     {
+        #region Private Types & Data
+
+        private bool _repeat = true;
+
+        #endregion
+
+        #region Event Handling Methods
+
+        /// <summary>
+        ///     Called after avatars are updated. Performs look at.
+        /// </summary>
+        private void UxrManager_AvatarsUpdated()
+        {
+            PerformLookAt();
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Performs look at
+        /// </summary>
+        private void PerformLookAt()
+        {
+            if (UxrManager.Instance && UxrAvatar.LocalAvatarCamera && _repeat)
+            {
+                var lookAt = UxrAvatar.LocalAvatar.CameraPosition - transform.position;
+
+                if (_allowRotateAroundX == false)
+                {
+                    lookAt.y = 0.0f;
+                }
+
+                if (_allowRotateAroundY == false)
+                {
+                    lookAt = Vector3.ProjectOnPlane(lookAt, transform.right);
+                }
+
+                if (lookAt != Vector3.zero)
+                {
+                    transform.rotation = Quaternion.LookRotation(_invertedForwardAxis ? -lookAt : lookAt);
+                }
+
+                if (_onlyOnce)
+                {
+                    _repeat = false;
+                }
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private bool _allowRotateAroundY = true;
@@ -89,12 +144,13 @@ namespace UltimateXR.Animation.Transforms
         /// </param>
         public static void MakeLookAt(GameObject gameObject, bool allowRotateAroundVerticalAxis, bool allowRotateAroundHorizontalAxis, bool invertedForwardAxis)
         {
-            UxrLookAtLocalAvatar lookAtComponent = gameObject.GetOrAddComponent<UxrLookAtLocalAvatar>();
+            var lookAtComponent = gameObject.GetOrAddComponent<UxrLookAtLocalAvatar>();
 
-            lookAtComponent._allowRotateAroundY  = allowRotateAroundVerticalAxis;
-            lookAtComponent._allowRotateAroundX  = allowRotateAroundHorizontalAxis;
+            lookAtComponent._allowRotateAroundY = allowRotateAroundVerticalAxis;
+            lookAtComponent._allowRotateAroundX = allowRotateAroundHorizontalAxis;
             lookAtComponent._invertedForwardAxis = invertedForwardAxis;
         }
+
 
         /// <summary>
         ///     Removes an UxrLookAtLocalAvatar component if it exists.
@@ -104,7 +160,7 @@ namespace UltimateXR.Animation.Transforms
         {
             if (gameObject)
             {
-                UxrLookAtLocalAvatar lookAtComponent = gameObject.GetComponent<UxrLookAtLocalAvatar>();
+                var lookAtComponent = gameObject.GetComponent<UxrLookAtLocalAvatar>();
 
                 if (lookAtComponent)
                 {
@@ -127,6 +183,7 @@ namespace UltimateXR.Animation.Transforms
             UxrManager.AvatarsUpdated += UxrManager_AvatarsUpdated;
         }
 
+
         /// <summary>
         ///     Unsubscribes from events.
         /// </summary>
@@ -136,59 +193,6 @@ namespace UltimateXR.Animation.Transforms
 
             UxrManager.AvatarsUpdated -= UxrManager_AvatarsUpdated;
         }
-
-        #endregion
-
-        #region Event Handling Methods
-
-        /// <summary>
-        ///     Called after avatars are updated. Performs look at.
-        /// </summary>
-        private void UxrManager_AvatarsUpdated()
-        {
-            PerformLookAt();
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Performs look at
-        /// </summary>
-        private void PerformLookAt()
-        {
-            if (UxrManager.Instance && UxrAvatar.LocalAvatarCamera && _repeat)
-            {
-                Vector3 lookAt = UxrAvatar.LocalAvatar.CameraPosition - transform.position;
-
-                if (_allowRotateAroundX == false)
-                {
-                    lookAt.y = 0.0f;
-                }
-
-                if (_allowRotateAroundY == false)
-                {
-                    lookAt = Vector3.ProjectOnPlane(lookAt, transform.right);
-                }
-
-                if (lookAt != Vector3.zero)
-                {
-                    transform.rotation = Quaternion.LookRotation(_invertedForwardAxis ? -lookAt : lookAt);
-                }
-
-                if (_onlyOnce)
-                {
-                    _repeat = false;
-                }
-            }
-        }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private bool _repeat = true;
 
         #endregion
     }

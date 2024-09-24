@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -15,14 +17,14 @@ namespace UltimateXR.Manipulation
     [Flags]
     public enum UxrGrabbableModifierFlags
     {
-        None                  = 0,
-        ParentControl         = 1 << 0,
-        Priority              = 1 << 2,
-        MultiGrab             = 1 << 3,
+        None = 0,
+        ParentControl = 1 << 0,
+        Priority = 1 << 2,
+        MultiGrab = 1 << 3,
         TranslationConstraint = 1 << 8,
-        RotationConstraint    = 1 << 12,
+        RotationConstraint = 1 << 12,
         TranslationResistance = 1 << 16,
-        RotationResistance    = 1 << 17,
-        Anchored              = 1 << 18
+        RotationResistance = 1 << 17,
+        Anchored = 1 << 18
     }
 }

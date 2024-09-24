@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Linq;
 using UltimateXR.Animation.IK;
 using UltimateXR.Avatar;
@@ -16,6 +17,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
+
 namespace UltimateXR.Editor.Avatar.Controllers
 {
     /// <summary>
@@ -26,12 +28,12 @@ namespace UltimateXR.Editor.Avatar.Controllers
     {
         #region Public Types & Data
 
-        public const string PropAllowHandTracking    = "_allowHandTracking";
-        public const string PropUseArmIK             = "_useArmIK";
-        public const string PropArmIKElbowAperture   = "_armIKElbowAperture";
-        public const string PropArmIKOverExtendMode  = "_armIKOverExtendMode";
-        public const string PropUseBodyIK            = "_useBodyIK";
-        public const string PropBodyIKSettings       = "_bodyIKSettings";
+        public const string PropAllowHandTracking = "_allowHandTracking";
+        public const string PropUseArmIK = "_useArmIK";
+        public const string PropArmIKElbowAperture = "_armIKElbowAperture";
+        public const string PropArmIKOverExtendMode = "_armIKOverExtendMode";
+        public const string PropUseBodyIK = "_useBodyIK";
+        public const string PropBodyIKSettings = "_bodyIKSettings";
         //public const string PropUseLegIK             = "_useLegIK";
         public const string PropListControllerEvents = "_listControllerEvents";
 
@@ -44,15 +46,15 @@ namespace UltimateXR.Editor.Avatar.Controllers
         /// </summary>
         private void OnEnable()
         {
-            UxrStandardAvatarController selectedController = (UxrStandardAvatarController)serializedObject.targetObject;
-            UxrAvatar                   avatar             = selectedController.Avatar;
+            var selectedController = (UxrStandardAvatarController) serializedObject.targetObject;
+            var avatar = selectedController.Avatar;
 
-            _propAllowHandTracking   = serializedObject.FindProperty(PropAllowHandTracking);
-            _propUseArmIK            = serializedObject.FindProperty(PropUseArmIK);
-            _propArmIKElbowAperture  = serializedObject.FindProperty(PropArmIKElbowAperture);
+            _propAllowHandTracking = serializedObject.FindProperty(PropAllowHandTracking);
+            _propUseArmIK = serializedObject.FindProperty(PropUseArmIK);
+            _propArmIKElbowAperture = serializedObject.FindProperty(PropArmIKElbowAperture);
             _propArmIKOverExtendMode = serializedObject.FindProperty(PropArmIKOverExtendMode);
-            _propUseBodyIK           = serializedObject.FindProperty(PropUseBodyIK);
-            _propBodyIKSettings      = serializedObject.FindProperty(PropBodyIKSettings);
+            _propUseBodyIK = serializedObject.FindProperty(PropUseBodyIK);
+            _propBodyIKSettings = serializedObject.FindProperty(PropBodyIKSettings);
             //_propUseLegIK             = serializedObject.FindProperty(PropUseLegIK);
             _propListControllerEvents = serializedObject.FindProperty(PropListControllerEvents);
 
@@ -64,16 +66,18 @@ namespace UltimateXR.Editor.Avatar.Controllers
             // Get avatar info
 
             _reorderableEventList.elementHeightCallback = index =>
-                                                          {
-                                                              if (index >= selectedController.ControllerEvents.Count)
-                                                              {
-                                                                  return 0;
-                                                              }
+            {
+                if (index >= selectedController.ControllerEvents.Count)
+                {
+                    return 0;
+                }
 
-                                                              UxrHandPoseAsset handPoseAsset = avatar.GetHandPose(selectedController.ControllerEvents[index].PoseName);
-                                                              return EditorGUIUtility.singleLineHeight * 3.5f + (handPoseAsset && handPoseAsset.PoseType == UxrHandPoseType.Blend ? EditorGUIUtility.singleLineHeight : 0.0f);
-                                                          };
+                var handPoseAsset = avatar.GetHandPose(selectedController.ControllerEvents[index].PoseName);
+
+                return EditorGUIUtility.singleLineHeight * 3.5f + (handPoseAsset && handPoseAsset.PoseType == UxrHandPoseType.Blend ? EditorGUIUtility.singleLineHeight : 0.0f);
+            };
         }
+
 
         /// <summary>
         ///     Called by Unity to draw the inspector for the selected component(s).
@@ -82,7 +86,7 @@ namespace UltimateXR.Editor.Avatar.Controllers
         {
             serializedObject.Update();
 
-            UxrAvatar avatar = ((UxrStandardAvatarController)serializedObject.targetObject).GetComponent<UxrAvatar>();
+            var avatar = ((UxrStandardAvatarController) serializedObject.targetObject).GetComponent<UxrAvatar>();
 
             // Handle UI
 
@@ -103,7 +107,7 @@ namespace UltimateXR.Editor.Avatar.Controllers
                 if (_foldoutIK)
                 {
                     EditorGUILayout.PropertyField(_propUseArmIK, ContentUseArmIK);
-                    
+
                     if (!avatar.AvatarRig.HasArmData())
                     {
                         EditorGUILayout.HelpBox($"To use arm IK, the {nameof(UxrAvatar)} component needs arm references in the Avatar Rig section", MessageType.Warning);
@@ -116,6 +120,7 @@ namespace UltimateXR.Editor.Avatar.Controllers
 
                             EditorGUI.BeginChangeCheck();
                             EditorGUILayout.Slider(_propArmIKElbowAperture, 0.0f, 1.0f, ContentArmIKElbowAperture);
+
                             if (EditorGUI.EndChangeCheck() && Application.isPlaying)
                             {
                                 UxrIKSolver.GetComponents(avatar, true).OfType<UxrArmIKSolver>().ForEach(s => s.RelaxedElbowAperture = _propArmIKElbowAperture.floatValue);
@@ -123,16 +128,17 @@ namespace UltimateXR.Editor.Avatar.Controllers
 
                             EditorGUI.BeginChangeCheck();
                             EditorGUILayout.PropertyField(_propArmIKOverExtendMode, ContentArmIKOverExtendMode);
+
                             if (EditorGUI.EndChangeCheck() && Application.isPlaying)
                             {
-                                UxrIKSolver.GetComponents(avatar, true).OfType<UxrArmIKSolver>().ForEach(s => s.OverExtendMode = (UxrArmOverExtendMode)_propArmIKOverExtendMode.enumValueIndex);
+                                UxrIKSolver.GetComponents(avatar, true).OfType<UxrArmIKSolver>().ForEach(s => s.OverExtendMode = (UxrArmOverExtendMode) _propArmIKOverExtendMode.enumValueIndex);
                             }
 
                             EditorGUI.indentLevel--;
                         }
                     }
 
-                    bool hasUpperBodyReferences = avatar.AvatarRig.HasAnyUpperBodyIKReference();
+                    var hasUpperBodyReferences = avatar.AvatarRig.HasAnyUpperBodyIKReference();
 
                     EditorGUILayout.PropertyField(_propUseBodyIK, ContentUseBodyIK);
 
@@ -176,27 +182,28 @@ namespace UltimateXR.Editor.Avatar.Controllers
             serializedObject.ApplyModifiedProperties();
         }
 
+
         /// <summary>
         ///     Called by Unity to draw gizmos. It's used to display some visual aids when the avatar has a
         ///     <see cref="UxrAvatarRigType.HalfOrFullBody" /> configuration.
         /// </summary>
         private void OnSceneGUI()
         {
-            UxrStandardAvatarController standardAvatarController = (UxrStandardAvatarController)serializedObject.targetObject;
-            UxrAvatar                   avatar                   = standardAvatarController.Avatar;
+            var standardAvatarController = (UxrStandardAvatarController) serializedObject.targetObject;
+            var avatar = standardAvatarController.Avatar;
 
             if (standardAvatarController && standardAvatarController.UseBodyIK && avatar && avatar.AvatarRigType == UxrAvatarRigType.HalfOrFullBody)
             {
-                Transform avatarTransform = avatar.transform;
+                var avatarTransform = avatar.transform;
 
-                float neckBaseHeight    = _propBodyIKSettings.FindPropertyRelative(UxrIKBodySettingsDrawer.PropertyNeckBaseHeight).floatValue;
-                float neckForwardOffset = _propBodyIKSettings.FindPropertyRelative(UxrIKBodySettingsDrawer.PropertyNeckForwardOffset).floatValue;
-                float eyesBaseHeight    = _propBodyIKSettings.FindPropertyRelative(UxrIKBodySettingsDrawer.PropertyEyesBaseHeight).floatValue;
-                float eyesForwardOffset = _propBodyIKSettings.FindPropertyRelative(UxrIKBodySettingsDrawer.PropertyEyesForwardOffset).floatValue;
+                var neckBaseHeight = _propBodyIKSettings.FindPropertyRelative(UxrIKBodySettingsDrawer.PropertyNeckBaseHeight).floatValue;
+                var neckForwardOffset = _propBodyIKSettings.FindPropertyRelative(UxrIKBodySettingsDrawer.PropertyNeckForwardOffset).floatValue;
+                var eyesBaseHeight = _propBodyIKSettings.FindPropertyRelative(UxrIKBodySettingsDrawer.PropertyEyesBaseHeight).floatValue;
+                var eyesForwardOffset = _propBodyIKSettings.FindPropertyRelative(UxrIKBodySettingsDrawer.PropertyEyesForwardOffset).floatValue;
 
-                float neckRadius     = 0.08f;
-                float eyesSeparation = 0.065f;
-                float eyesRadius     = 0.01f;
+                var neckRadius = 0.08f;
+                var eyesSeparation = 0.065f;
+                var eyesRadius = 0.01f;
 
                 if (avatar.AvatarRig.Head.Neck == null)
                 {
@@ -204,7 +211,7 @@ namespace UltimateXR.Editor.Avatar.Controllers
                 }
 
                 Handles.DrawSolidDisc(avatarTransform.position + avatarTransform.GetScaledVector(-eyesSeparation * 0.5f, eyesBaseHeight, eyesForwardOffset), avatarTransform.forward, eyesRadius);
-                Handles.DrawSolidDisc(avatarTransform.position + avatarTransform.GetScaledVector(eyesSeparation * 0.5f,  eyesBaseHeight, eyesForwardOffset), avatarTransform.forward, eyesRadius);
+                Handles.DrawSolidDisc(avatarTransform.position + avatarTransform.GetScaledVector(eyesSeparation * 0.5f, eyesBaseHeight, eyesForwardOffset), avatarTransform.forward, eyesRadius);
             }
         }
 
@@ -221,11 +228,13 @@ namespace UltimateXR.Editor.Avatar.Controllers
         /// <returns></returns>
         private static ReorderableList CreateReorderableList(SerializedObject serializedObject, SerializedProperty propertyListControllerEvents, ReorderableList.ElementCallbackDelegate drawCallback)
         {
-            ReorderableList reorderableEventList = new ReorderableList(serializedObject, propertyListControllerEvents, true, true, true, true);
-            reorderableEventList.drawHeaderCallback  = rect => { EditorGUI.LabelField(rect, "Drag elements to reorder them by priority from top to bottom"); };
+            var reorderableEventList = new ReorderableList(serializedObject, propertyListControllerEvents, true, true, true, true);
+            reorderableEventList.drawHeaderCallback = rect => { EditorGUI.LabelField(rect, "Drag elements to reorder them by priority from top to bottom"); };
             reorderableEventList.drawElementCallback = drawCallback;
+
             return reorderableEventList;
         }
+
 
         /// <summary>
         ///     Helper method that draws an event entry in the inspector.
@@ -236,16 +245,18 @@ namespace UltimateXR.Editor.Avatar.Controllers
         /// <param name="isFocused">Whether the element is focused</param>
         private void DrawControllerEventCallback(Rect rect, int index, bool isActive, bool isFocused)
         {
-            UxrStandardAvatarController selectedController = (UxrStandardAvatarController)serializedObject.targetObject;
-            UxrAvatar                   avatar             = selectedController.Avatar;
-            SerializedProperty          element            = _reorderableEventList.serializedProperty.GetArrayElementAtIndex(index);
+            var selectedController = (UxrStandardAvatarController) serializedObject.targetObject;
+            var avatar = selectedController.Avatar;
+            var element = _reorderableEventList.serializedProperty.GetArrayElementAtIndex(index);
 
-            int nLineIndex = 0;
+            var nLineIndex = 0;
+
 
             Rect GetCurrentRect()
             {
                 return new Rect(rect.x, rect.y + EditorGUIUtility.singleLineHeight * nLineIndex, rect.width, EditorGUIUtility.singleLineHeight);
             }
+
 
             // Animation type
 
@@ -255,14 +266,14 @@ namespace UltimateXR.Editor.Avatar.Controllers
 
             // Controller button mask
 
-            int buttons = EditorGUI.MaskField(GetCurrentRect(), new GUIContent("Controller button(s)"), element.FindPropertyRelative("_buttons").intValue, UxrEditorUtils.GetControllerButtonNames().ToArray());
+            var buttons = EditorGUI.MaskField(GetCurrentRect(), new GUIContent("Controller button(s)"), element.FindPropertyRelative("_buttons").intValue, UxrEditorUtils.GetControllerButtonNames().ToArray());
             element.FindPropertyRelative("_buttons").intValue = buttons;
 
             nLineIndex++;
 
             // List animator parameters
 
-            UxrEditorUtils.HandPoseDropdown(GetCurrentRect(), new GUIContent("Hand Pose"), avatar, element.FindPropertyRelative("_handPose"), out UxrHandPoseAsset selectedHandPose);
+            UxrEditorUtils.HandPoseDropdown(GetCurrentRect(), new GUIContent("Hand Pose"), avatar, element.FindPropertyRelative("_handPose"), out var selectedHandPose);
 
             nLineIndex++;
 
@@ -276,13 +287,13 @@ namespace UltimateXR.Editor.Avatar.Controllers
 
         #region Private Types & Data
 
-        private GUIContent ContentAllowHandTracking   { get; } = new GUIContent("Allow Hand Tracking",    "Switches to hand-tracking to update the avatar hands when available");
-        private GUIContent ContentUseArmIK            { get; } = new GUIContent("Use Arm IK",             "Whether to try to naturally orient the arms using the position of the hands");
-        private GUIContent ContentArmIKElbowAperture  { get; } = new GUIContent("Elbow Neutral Aperture", "Controls how close the elbows will be to the body when arms are computed using inverse kinematics");
-        private GUIContent ContentArmIKOverExtendMode { get; } = new GUIContent("Arm Over-Extend",        "Controls what to do when the user extends the hands over the avatar's arm reach");
-        private GUIContent ContentUseBodyIK           { get; } = new GUIContent("Use Body IK",            "Whether to try to naturally orient the avatar body using the positions of the head and hand");
-        private GUIContent ContentBodyIKSettings      { get; } = new GUIContent("Body IK Settings");
-        private GUIContent ContentUseLegIK            { get; } = new GUIContent("Use Leg IK (TBD)", "");
+        private GUIContent ContentAllowHandTracking { get; } = new("Allow Hand Tracking", "Switches to hand-tracking to update the avatar hands when available");
+        private GUIContent ContentUseArmIK { get; } = new("Use Arm IK", "Whether to try to naturally orient the arms using the position of the hands");
+        private GUIContent ContentArmIKElbowAperture { get; } = new("Elbow Neutral Aperture", "Controls how close the elbows will be to the body when arms are computed using inverse kinematics");
+        private GUIContent ContentArmIKOverExtendMode { get; } = new("Arm Over-Extend", "Controls what to do when the user extends the hands over the avatar's arm reach");
+        private GUIContent ContentUseBodyIK { get; } = new("Use Body IK", "Whether to try to naturally orient the avatar body using the positions of the head and hand");
+        private GUIContent ContentBodyIKSettings { get; } = new("Body IK Settings");
+        private GUIContent ContentUseLegIK { get; } = new("Use Leg IK (TBD)", "");
 
         private SerializedProperty _propAllowHandTracking;
         private SerializedProperty _propUseArmIK;
@@ -293,9 +304,9 @@ namespace UltimateXR.Editor.Avatar.Controllers
         //private SerializedProperty _propUseLegIK;
         private SerializedProperty _propListControllerEvents;
 
-        private bool            _foldoutGeneral    = true;
-        private bool            _foldoutIK         = true;
-        private bool            _foldoutHandEvents = true;
+        private bool _foldoutGeneral = true;
+        private bool _foldoutIK = true;
+        private bool _foldoutHandEvents = true;
         private ReorderableList _reorderableEventList;
 
         #endregion

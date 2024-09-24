@@ -3,8 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-using UltimateXR.Extensions.Unity.Math;
+
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -17,6 +18,54 @@ namespace UltimateXR.Manipulation
         /// </summary>
         private class PhysicsSample
         {
+            #region Constructors & Finalizer
+
+            /// <summary>
+            ///     Constructor.
+            /// </summary>
+            /// <param name="lastSample">Last frame data, to compute velocities</param>
+            /// <param name="sampledTransform">
+            ///     Transform, from the grabbed object if there is one currently being grabbed, otherwise
+            ///     from the grabber
+            /// </param>
+            /// <param name="centerOfMass">World position of the throwing center of mass</param>
+            /// <param name="tip">World position of the finger tip approximation, to account for angular velocity in the throw</param>
+            /// <param name="deltaTime">Time in seconds since last frame</param>
+            public PhysicsSample(PhysicsSample lastSample, Transform sampledTransform, Vector3 centerOfMass, Vector3 tip, float deltaTime)
+            {
+                Age = 0.0f;
+                Rotation = sampledTransform.rotation;
+                DeltaTime = deltaTime;
+                CenterOfMass = centerOfMass;
+                Tip = tip;
+
+                if (lastSample != null)
+                {
+                    // Angular
+
+                    var v1 = lastSample.Tip - lastSample.CenterOfMass;
+                    var v2 = tip - centerOfMass;
+                    var rotationAxis = Vector3.Cross(v2, v1);
+
+                    var relative = Quaternion.Inverse(lastSample.Rotation) * sampledTransform.rotation;
+                    relative.ToAngleAxis(out var angle, out var axis);
+                    EulerSpeed = angle * sampledTransform.TransformDirection(axis) / deltaTime;
+
+                    // Linear. TODO: Improve using a mix of linear and angular components?
+
+                    Velocity = (tip - lastSample.Tip) / deltaTime;
+                    TotalVelocity = Velocity;
+                }
+                else
+                {
+                    EulerSpeed = Vector3.zero;
+                    Velocity = Vector3.zero;
+                    TotalVelocity = Velocity;
+                }
+            }
+
+            #endregion
+
             #region Public Types & Data
 
             /// <summary>
@@ -59,51 +108,6 @@ namespace UltimateXR.Manipulation
             ///     Gets or sets the sample age in seconds.
             /// </summary>
             public float Age { get; set; }
-
-            #endregion
-
-            #region Constructors & Finalizer
-
-            /// <summary>
-            ///     Constructor.
-            /// </summary>
-            /// <param name="lastSample">Last frame data, to compute velocities</param>
-            /// <param name="sampledTransform">Transform, from the grabbed object if there is one currently being grabbed, otherwise from the grabber</param>
-            /// <param name="centerOfMass">World position of the throwing center of mass</param>
-            /// <param name="tip">World position of the finger tip approximation, to account for angular velocity in the throw</param>
-            /// <param name="deltaTime">Time in seconds since last frame</param>
-            public PhysicsSample(PhysicsSample lastSample, Transform sampledTransform, Vector3 centerOfMass, Vector3 tip, float deltaTime)
-            {
-                Age             = 0.0f;
-                Rotation        = sampledTransform.rotation;
-                DeltaTime       = deltaTime;
-                CenterOfMass    = centerOfMass;
-                Tip             = tip;
-
-                if (lastSample != null)
-                {
-                    // Angular
-
-                    Vector3 v1           = lastSample.Tip - lastSample.CenterOfMass;
-                    Vector3 v2           = tip - centerOfMass;
-                    Vector3 rotationAxis = Vector3.Cross(v2, v1);
-
-                    Quaternion relative = Quaternion.Inverse(lastSample.Rotation) * sampledTransform.rotation;
-                    relative.ToAngleAxis(out float angle, out Vector3 axis);
-                    EulerSpeed = (angle * sampledTransform.TransformDirection(axis)) / deltaTime;
-
-                    // Linear. TODO: Improve using a mix of linear and angular components?
-
-                    Velocity      = ((tip - lastSample.Tip) / deltaTime);
-                    TotalVelocity = Velocity;
-                }
-                else
-                {
-                    EulerSpeed    = Vector3.zero;
-                    Velocity      = Vector3.zero;
-                    TotalVelocity = Velocity;
-                }
-            }
 
             #endregion
         }

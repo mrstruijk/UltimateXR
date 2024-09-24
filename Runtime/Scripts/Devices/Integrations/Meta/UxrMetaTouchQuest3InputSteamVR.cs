@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core;
 using UltimateXR.Devices.Integrations.SteamVR;
+
 
 namespace UltimateXR.Devices.Integrations.Meta
 {
@@ -38,23 +40,25 @@ namespace UltimateXR.Devices.Integrations.Meta
         /// <inheritdoc />
         public override bool MainJoystickIsTouchpad => false;
 
+
         /// <inheritdoc />
         public override bool HasControllerElements(UxrHandSide handSide, UxrControllerElements controllerElements)
         {
-            uint validElements = (uint)(UxrControllerElements.Joystick | // Joystick
-                                        UxrControllerElements.Grip |     // Grip
-                                        UxrControllerElements.Trigger |  // Trigger
-                                        UxrControllerElements.Button1 |  // Button A
-                                        UxrControllerElements.Button2 |  // Button B
+            var validElements = (uint) (UxrControllerElements.Joystick | // Joystick
+                                        UxrControllerElements.Grip | // Grip
+                                        UxrControllerElements.Trigger | // Trigger
+                                        UxrControllerElements.Button1 | // Button A
+                                        UxrControllerElements.Button2 | // Button B
                                         UxrControllerElements.DPad);
 
             if (handSide == UxrHandSide.Left)
             {
-                validElements |= (uint)UxrControllerElements.Menu;
+                validElements |= (uint) UxrControllerElements.Menu;
             }
 
-            return (validElements & (uint)controllerElements) == (uint)controllerElements;
+            return (validElements & (uint) controllerElements) == (uint) controllerElements;
         }
+
 
         /// <inheritdoc />
         public override UxrControllerInputCapabilities GetControllerCapabilities(UxrHandSide handSide)

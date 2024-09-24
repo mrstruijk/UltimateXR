@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Linq;
 using UltimateXR.Avatar;
 using UltimateXR.Core.Components;
 using UltimateXR.Extensions.System.Collections;
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Audio
 {
@@ -17,15 +19,6 @@ namespace UltimateXR.Audio
     /// </summary>
     public class UxrAudioBoxVolume : UxrComponent
     {
-        #region Inspector Properties/Serialized Fields
-
-        [SerializeField] private AudioSource[] _audioSources;
-        [SerializeField] private BoxCollider[] _boxVolumes;
-        [SerializeField] private float         _volumeWhenOutside = 1.0f;
-        [SerializeField] private float         _volumeWhenInside  = 0.5f;
-
-        #endregion
-
         #region Unity
 
         /// <summary>
@@ -38,10 +31,19 @@ namespace UltimateXR.Audio
                 return;
             }
 
-            bool isInside = _boxVolumes.Any(boxCollider => UxrAvatar.LocalAvatar.CameraPosition.IsInsideBox(boxCollider));
+            var isInside = _boxVolumes.Any(boxCollider => UxrAvatar.LocalAvatar.CameraPosition.IsInsideBox(boxCollider));
 
             _audioSources.ForEach(a => a.volume = isInside ? _volumeWhenInside : _volumeWhenOutside);
         }
+
+        #endregion
+
+        #region Inspector Properties/Serialized Fields
+
+        [SerializeField] private AudioSource[] _audioSources;
+        [SerializeField] private BoxCollider[] _boxVolumes;
+        [SerializeField] private float _volumeWhenOutside = 1.0f;
+        [SerializeField] private float _volumeWhenInside = 0.5f;
 
         #endregion
     }

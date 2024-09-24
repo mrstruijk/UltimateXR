@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -17,6 +19,41 @@ namespace UltimateXR.Manipulation
         /// </summary>
         private class RuntimeGrabInfo
         {
+            #region Private Types & Data
+
+            private Rigidbody _rigidbody;
+
+            #endregion
+
+            #region Constructors & Finalizer
+
+            /// <summary>
+            ///     Constructor.
+            /// </summary>
+            /// <param name="grabber">Grabber of the grab</param>
+            /// <param name="grabPoint">Grab point index of the <see cref="UxrGrabbableObject" /> that was grabbed.</param>
+            /// <param name="anchorFrom">Target if the grabbed object was placed on any.</param>
+            public RuntimeGrabInfo(UxrGrabber grabber, int grabPoint, UxrGrabbableObjectAnchor anchorFrom = null)
+            {
+                Grabbers = new List<UxrGrabber>();
+                GrabbedPoints = new List<int>();
+                Grabbers.Add(grabber);
+                GrabbedPoints.Add(grabPoint);
+
+                LocalPositionBeforeUpdate = grabber.GrabbedObject.transform.localPosition;
+                LocalRotationBeforeUpdate = grabber.GrabbedObject.transform.localRotation;
+
+                LookAtTimer = -1.0f;
+
+                GrabbableParentBeingGrabbed = null;
+                ChildDependentGrabCount = 0;
+                ChildDependentGrabProcessed = 0;
+
+                AnchorFrom = anchorFrom;
+            }
+
+            #endregion
+
             #region Public Types & Data
 
             /// <summary>
@@ -30,7 +67,7 @@ namespace UltimateXR.Manipulation
             {
                 get
                 {
-                    for (int i = 0; i < GrabbedPoints.Count; ++i)
+                    for (var i = 0; i < GrabbedPoints.Count; ++i)
                     {
                         if (GrabbedPoints[i] == 0)
                         {
@@ -109,35 +146,6 @@ namespace UltimateXR.Manipulation
 
             #endregion
 
-            #region Constructors & Finalizer
-
-            /// <summary>
-            ///     Constructor.
-            /// </summary>
-            /// <param name="grabber">Grabber of the grab</param>
-            /// <param name="grabPoint">Grab point index of the <see cref="UxrGrabbableObject" /> that was grabbed.</param>
-            /// <param name="anchorFrom">Target if the grabbed object was placed on any.</param>
-            public RuntimeGrabInfo(UxrGrabber grabber, int grabPoint, UxrGrabbableObjectAnchor anchorFrom = null)
-            {
-                Grabbers      = new List<UxrGrabber>();
-                GrabbedPoints = new List<int>();
-                Grabbers.Add(grabber);
-                GrabbedPoints.Add(grabPoint);
-
-                LocalPositionBeforeUpdate = grabber.GrabbedObject.transform.localPosition;
-                LocalRotationBeforeUpdate = grabber.GrabbedObject.transform.localRotation;
-
-                LookAtTimer = -1.0f;
-
-                GrabbableParentBeingGrabbed = null;
-                ChildDependentGrabCount     = 0;
-                ChildDependentGrabProcessed = 0;
-
-                AnchorFrom = anchorFrom;
-            }
-
-            #endregion
-
             #region Public Methods
 
             /// <summary>
@@ -150,6 +158,7 @@ namespace UltimateXR.Manipulation
                 Grabbers[Grabbers.IndexOf(oldGrabber)] = newGrabber;
             }
 
+
             /// <summary>
             ///     Registers a grabber swap to indicate that a different hand is now grabbing another point.
             /// </summary>
@@ -159,10 +168,11 @@ namespace UltimateXR.Manipulation
             /// <param name="newGrabPoint">New grab point of the <see cref="UxrGrabbableObject" /> the grab switched to</param>
             public void SwapGrabber(UxrGrabber oldGrabber, int oldGrabPoint, UxrGrabber newGrabber, int newGrabPoint)
             {
-                int index = Grabbers.IndexOf(oldGrabber);
-                Grabbers[index]      = newGrabber;
+                var index = Grabbers.IndexOf(oldGrabber);
+                Grabbers[index] = newGrabber;
                 GrabbedPoints[index] = newGrabPoint;
             }
+
 
             /// <summary>
             ///     Registers a new grab.
@@ -187,13 +197,14 @@ namespace UltimateXR.Manipulation
                 }
             }
 
+
             /// <summary>
             ///     Registers a release of a grab.
             /// </summary>
             /// <param name="grabber">Grabber that released the grab.</param>
             public void RemoveGrabber(UxrGrabber grabber)
             {
-                int index = Grabbers.IndexOf(grabber);
+                var index = Grabbers.IndexOf(grabber);
 
                 if (index >= 0)
                 {
@@ -201,6 +212,7 @@ namespace UltimateXR.Manipulation
                     GrabbedPoints.RemoveAt(index);
                 }
             }
+
 
             /// <summary>
             ///     Removes all grabs registered.
@@ -210,12 +222,6 @@ namespace UltimateXR.Manipulation
                 Grabbers.Clear();
                 GrabbedPoints.Clear();
             }
-
-            #endregion
-
-            #region Private Types & Data
-
-            private Rigidbody _rigidbody;
 
             #endregion
         }

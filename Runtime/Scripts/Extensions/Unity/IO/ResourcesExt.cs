@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.IO
 {
@@ -24,11 +26,12 @@ namespace UltimateXR.Extensions.Unity.IO
         /// <typeparam name="T">Resource type to load</typeparam>
         /// <returns>Awaitable <see cref="Task" /> that returns the loaded resource</returns>
         public static async Task<T> Load<T>(string filePath, CancellationToken ct = default)
-                    where T : Object
+            where T : Object
         {
-            ResourceRequest op = Resources.LoadAsync<T>(filePath);
+            var op = Resources.LoadAsync<T>(filePath);
             await op.Wait(ct);
-            return (T)op.asset;
+
+            return (T) op.asset;
         }
 
         #endregion

@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
 using UnityEngine.XR;
 
+
 namespace UltimateXR.Devices
 {
     /// <summary>
@@ -19,15 +21,109 @@ namespace UltimateXR.Devices
     /// </summary>
     public abstract class UxrControllerTracking : UxrTrackingDevice, IUxrControllerTracking
     {
+        #region Coroutines
+
+        /// <summary>
+        ///     Coroutine that tries to set up the camera
+        /// </summary>
+        /// <returns>Coroutine IEnumerator</returns>
+        private IEnumerator RepeatSetupCameraCoroutine()
+        {
+            while (!_cameraInitialized)
+            {
+                _cameraInitialized = SetupCamera();
+
+                yield return null;
+            }
+        }
+
+        #endregion
+
+        #region Event Handling Methods
+
+        /// <summary>
+        ///     Called whenever a controller input device is connected. We will check if it has a related tracking device type
+        ///     associated, and if so enable or disable it accordingly.
+        /// </summary>
+        /// <param name="sender">Derived <see cref="UxrControllerInput" /> object that sent the event</param>
+        /// <param name="e">Event args</param>
+        private void UxrControllerInput_GlobalControllerConnected(object sender, UxrDeviceConnectEventArgs e)
+        {
+            if (RelatedControllerInputType != null && sender.GetType() == RelatedControllerInputType)
+            {
+                // Compatible device.
+                Debug.Log($"Found compatible tracking component {GetType()}. Setting enabled to {e.IsConnected}");
+                enabled = e.IsConnected;
+                OnDeviceConnected(e);
+            }
+        }
+
+        #endregion
+
+        #region Protected Overrides UxrTrackingDevice
+
+        /// <inheritdoc />
+        protected override void UpdateAvatar()
+        {
+            base.UpdateAvatar();
+
+            var wristLeft = Avatar.LeftHandBone;
+            var wristRight = Avatar.RightHandBone;
+
+            if (_updateAvatarLeftHand && wristLeft != null)
+            {
+                wristLeft.SetPositionAndRotation(SensorLeftHandPos, SensorLeftHandRot);
+            }
+
+            if (_updateAvatarRightHand && wristRight != null)
+            {
+                wristRight.SetPositionAndRotation(SensorRightHandPos, SensorRightHandRot);
+            }
+        }
+
+        #endregion
+
+        #region Protected Methods
+
+        /// <summary>
+        ///     Updates the sensor data of an XR controller, using smoothing if required.
+        /// </summary>
+        /// <param name="side">Which side the sensor belongs to</param>
+        /// <param name="localPos">Controller position in local tracking space</param>
+        /// <param name="localRot">Controller rotation in local tracking space</param>
+        protected void UpdateSensor(UxrHandSide side, Vector3 localPos, Quaternion localRot)
+        {
+            if (side == UxrHandSide.Left)
+            {
+                LocalAvatarLeftHandSensorPos = UxrInterpolator.SmoothDampPosition(_lastLeftSensorLocalPos, localPos, _leftSensorInitialized ? _smoothPosition : 0.0f);
+                LocalAvatarLeftHandSensorRot = UxrInterpolator.SmoothDampRotation(_lastLeftSensorLocalRot, localRot, _leftSensorInitialized ? _smoothRotation : 0.0f);
+
+                _leftSensorInitialized = true;
+                _lastLeftSensorLocalPos = LocalAvatarLeftHandSensorPos;
+                _lastLeftSensorLocalRot = LocalAvatarLeftHandSensorRot;
+            }
+            else if (side == UxrHandSide.Right)
+            {
+                LocalAvatarRightHandSensorPos = UxrInterpolator.SmoothDampPosition(_lastRightSensorLocalPos, localPos, _rightSensorInitialized ? _smoothPosition : 0.0f);
+                LocalAvatarRightHandSensorRot = UxrInterpolator.SmoothDampRotation(_lastRightSensorLocalRot, localRot, _rightSensorInitialized ? _smoothRotation : 0.0f);
+
+                _rightSensorInitialized = true;
+                _lastRightSensorLocalPos = LocalAvatarRightHandSensorPos;
+                _lastRightSensorLocalRot = LocalAvatarRightHandSensorRot;
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [Header("Device sensor tracking positions:")] [SerializeField] private Transform _leftHandSensor;
-        [SerializeField]                                               private Transform _rightHandSensor;
+        [SerializeField] private Transform _rightHandSensor;
 
-        [Header("Update avatar using sensors:")] [SerializeField] private bool  _updateAvatarLeftHand  = true;
-        [SerializeField]                                          private bool  _updateAvatarRightHand = true;
-        [SerializeField] [Range(0, 1)]                            private float _smoothPosition;
-        [SerializeField] [Range(0, 1)]                            private float _smoothRotation;
+        [Header("Update avatar using sensors:")] [SerializeField] private bool _updateAvatarLeftHand = true;
+        [SerializeField] private bool _updateAvatarRightHand = true;
+        [SerializeField] [Range(0, 1)] private float _smoothPosition;
+        [SerializeField] [Range(0, 1)] private float _smoothRotation;
 
         #endregion
 
@@ -62,14 +158,15 @@ namespace UltimateXR.Devices
         {
             get
             {
-                Quaternion leftHandSensorRot = SensorLeftRot;
+                var leftHandSensorRot = SensorLeftRot;
 
                 if (!leftHandSensorRot.IsValid())
                 {
                     return Vector3.zero;
                 }
 
-                Matrix4x4 mtxLeftHandSensor = Matrix4x4.TRS(SensorLeftPos, leftHandSensorRot.normalized, Vector3.one);
+                var mtxLeftHandSensor = Matrix4x4.TRS(SensorLeftPos, leftHandSensorRot.normalized, Vector3.one);
+
                 return mtxLeftHandSensor.MultiplyPoint(_localSensorLeftHandPos);
             }
         }
@@ -79,14 +176,15 @@ namespace UltimateXR.Devices
         {
             get
             {
-                Quaternion rightHandSensorRot = SensorRightRot;
+                var rightHandSensorRot = SensorRightRot;
 
                 if (!rightHandSensorRot.IsValid())
                 {
                     return Vector3.zero;
                 }
 
-                Matrix4x4 mtxRightHandSensor = Matrix4x4.TRS(SensorRightPos, rightHandSensorRot.normalized, Vector3.one);
+                var mtxRightHandSensor = Matrix4x4.TRS(SensorRightPos, rightHandSensorRot.normalized, Vector3.one);
+
                 return mtxRightHandSensor.MultiplyPoint(_localSensorRightHandPos);
             }
         }
@@ -123,9 +221,10 @@ namespace UltimateXR.Devices
             // Controller connected events will be raised either:
             // a) In Start(), whenever a new scene is loaded and controllers are already enabled. The system will force a Connect event even if the controllers themselves don't send any.
             // b) At any point during execution
-            enabled                                      =  false;
+            enabled = false;
             UxrControllerInput.GlobalControllerConnected += UxrControllerInput_GlobalControllerConnected;
         }
+
 
         /// <summary>
         ///     Unsubscribes from events
@@ -135,6 +234,7 @@ namespace UltimateXR.Devices
             base.OnDestroy();
             UxrControllerInput.GlobalControllerConnected -= UxrControllerInput_GlobalControllerConnected;
         }
+
 
         /// <summary>
         ///     Starts the coroutine that tries to set up the camera
@@ -148,6 +248,7 @@ namespace UltimateXR.Devices
                 StartCoroutine(RepeatSetupCameraCoroutine());
             }
         }
+
 
         /// <summary>
         ///     Sets the camera at floor level in 6DOF configurations, so that the camera is updated correctly
@@ -164,99 +265,6 @@ namespace UltimateXR.Devices
 
         #endregion
 
-        #region Coroutines
-
-        /// <summary>
-        ///     Coroutine that tries to set up the camera
-        /// </summary>
-        /// <returns>Coroutine IEnumerator</returns>
-        private IEnumerator RepeatSetupCameraCoroutine()
-        {
-            while (!_cameraInitialized)
-            {
-                _cameraInitialized = SetupCamera();
-                yield return null;
-            }
-        }
-
-        #endregion
-
-        #region Event Handling Methods
-
-        /// <summary>
-        ///     Called whenever a controller input device is connected. We will check if it has a related tracking device type
-        ///     associated, and if so enable or disable it accordingly.
-        /// </summary>
-        /// <param name="sender">Derived <see cref="UxrControllerInput" /> object that sent the event</param>
-        /// <param name="e">Event args</param>
-        private void UxrControllerInput_GlobalControllerConnected(object sender, UxrDeviceConnectEventArgs e)
-        {
-            if (RelatedControllerInputType != null && sender.GetType() == RelatedControllerInputType)
-            {
-                // Compatible device.
-                Debug.Log($"Found compatible tracking component {GetType()}. Setting enabled to {e.IsConnected}");
-                enabled = e.IsConnected;
-                OnDeviceConnected(e);
-            }
-        }
-
-        #endregion
-
-        #region Protected Overrides UxrTrackingDevice
-
-        /// <inheritdoc />
-        protected override void UpdateAvatar()
-        {
-            base.UpdateAvatar();
-
-            Transform wristLeft  = Avatar.LeftHandBone;
-            Transform wristRight = Avatar.RightHandBone;
-
-            if (_updateAvatarLeftHand && wristLeft != null)
-            {
-                wristLeft.SetPositionAndRotation(SensorLeftHandPos, SensorLeftHandRot);
-            }
-
-            if (_updateAvatarRightHand && wristRight != null)
-            {
-                wristRight.SetPositionAndRotation(SensorRightHandPos, SensorRightHandRot);
-            }
-        }
-
-        #endregion
-
-        #region Protected Methods
-
-        /// <summary>
-        ///     Updates the sensor data of an XR controller, using smoothing if required.
-        /// </summary>
-        /// <param name="side">Which side the sensor belongs to</param>
-        /// <param name="localPos">Controller position in local tracking space</param>
-        /// <param name="localRot">Controller rotation in local tracking space</param>
-        protected void UpdateSensor(UxrHandSide side, Vector3 localPos, Quaternion localRot)
-        {
-            if (side == UxrHandSide.Left)
-            {
-                LocalAvatarLeftHandSensorPos = UxrInterpolator.SmoothDampPosition(_lastLeftSensorLocalPos, localPos, _leftSensorInitialized ? _smoothPosition : 0.0f);
-                LocalAvatarLeftHandSensorRot = UxrInterpolator.SmoothDampRotation(_lastLeftSensorLocalRot, localRot, _leftSensorInitialized ? _smoothRotation : 0.0f);
-
-                _leftSensorInitialized  = true;
-                _lastLeftSensorLocalPos = LocalAvatarLeftHandSensorPos;
-                _lastLeftSensorLocalRot = LocalAvatarLeftHandSensorRot;
-            }
-            else if (side == UxrHandSide.Right)
-            {
-                LocalAvatarRightHandSensorPos = UxrInterpolator.SmoothDampPosition(_lastRightSensorLocalPos, localPos, _rightSensorInitialized ? _smoothPosition : 0.0f);
-                LocalAvatarRightHandSensorRot = UxrInterpolator.SmoothDampRotation(_lastRightSensorLocalRot, localRot, _rightSensorInitialized ? _smoothRotation : 0.0f);
-
-                _rightSensorInitialized  = true;
-                _lastRightSensorLocalPos = LocalAvatarRightHandSensorPos;
-                _lastRightSensorLocalRot = LocalAvatarRightHandSensorRot;
-            }
-        }
-
-        #endregion
-
         #region Private Methods
 
         /// <summary>
@@ -265,7 +273,7 @@ namespace UltimateXR.Devices
         /// <returns>Boolean telling whether the camera could be set up</returns>
         private bool SetupCamera()
         {
-            List<XRInputSubsystem> inputSubsystems = new List<XRInputSubsystem>();
+            var inputSubsystems = new List<XRInputSubsystem>();
             SubsystemManager.GetInstances(inputSubsystems);
 
             if (inputSubsystems.Count == 0)
@@ -273,15 +281,16 @@ namespace UltimateXR.Devices
                 return false;
             }
 
-            bool initialized = true;
+            var initialized = true;
 
-            foreach (XRInputSubsystem subSystem in inputSubsystems)
+            foreach (var subSystem in inputSubsystems)
             {
                 initialized &= SetupCamera(subSystem);
             }
 
             return initialized;
         }
+
 
         /// <summary>
         ///     Tries to set up the camera of a given <see cref="XRInputSubsystem" />
@@ -296,8 +305,8 @@ namespace UltimateXR.Devices
                 return false;
             }
 
-            TrackingOriginModeFlags supportedModes = subsystem.GetSupportedTrackingOriginModes();
-            TrackingOriginModeFlags requestedMode  = TrackingOriginModeFlags.Floor;
+            var supportedModes = subsystem.GetSupportedTrackingOriginModes();
+            var requestedMode = TrackingOriginModeFlags.Floor;
 
             // We need to check for Unknown because we may not be in a state where we can read this data yet.
             if ((supportedModes & (TrackingOriginModeFlags.Floor | TrackingOriginModeFlags.Unknown)) == 0)
@@ -307,6 +316,7 @@ namespace UltimateXR.Devices
 
             return subsystem.TrySetTrackingOriginMode(requestedMode);
         }
+
 
         /// <summary>
         ///     The goal of each left and right sensors is to position the visual hand in the correct position. This method
@@ -374,16 +384,16 @@ namespace UltimateXR.Devices
 
         #region Private Types & Data
 
-        private bool       _cameraInitialized;
-        private Vector3    _localSensorLeftHandPos;
-        private Vector3    _localSensorRightHandPos;
+        private bool _cameraInitialized;
+        private Vector3 _localSensorLeftHandPos;
+        private Vector3 _localSensorRightHandPos;
         private Quaternion _localSensorLeftHandRot;
         private Quaternion _localSensorRightHandRot;
 
-        private bool       _leftSensorInitialized;
-        private bool       _rightSensorInitialized;
-        private Vector3    _lastLeftSensorLocalPos;
-        private Vector3    _lastRightSensorLocalPos;
+        private bool _leftSensorInitialized;
+        private bool _rightSensorInitialized;
+        private Vector3 _lastLeftSensorLocalPos;
+        private Vector3 _lastRightSensorLocalPos;
         private Quaternion _lastLeftSensorLocalRot;
         private Quaternion _lastRightSensorLocalRot;
 

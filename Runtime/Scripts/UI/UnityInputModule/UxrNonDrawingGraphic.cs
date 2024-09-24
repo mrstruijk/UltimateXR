@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.UI.UnityInputModule.Controls;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.UI.UnityInputModule
 {
@@ -17,6 +19,16 @@ namespace UltimateXR.UI.UnityInputModule
     [RequireComponent(typeof(CanvasRenderer))]
     public class UxrNonDrawingGraphic : Graphic
     {
+        #region Event Trigger Methods
+
+        /// <inheritdoc />
+        protected override void OnPopulateMesh(VertexHelper vh)
+        {
+            vh.Clear();
+        }
+
+        #endregion
+
         #region Public Overrides Graphic
 
         /// <inheritdoc />
@@ -24,19 +36,10 @@ namespace UltimateXR.UI.UnityInputModule
         {
         }
 
+
         /// <inheritdoc />
         public override void SetVerticesDirty()
         {
-        }
-
-        #endregion
-
-        #region Event Trigger Methods
-
-        /// <inheritdoc />
-        protected override void OnPopulateMesh(VertexHelper vh)
-        {
-            vh.Clear();
         }
 
         #endregion

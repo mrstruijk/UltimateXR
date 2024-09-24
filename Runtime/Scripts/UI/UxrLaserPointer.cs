@@ -3,15 +3,16 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar;
 using UltimateXR.Core;
 using UltimateXR.Core.Components.Composite;
 using UltimateXR.Devices;
-using UltimateXR.Devices.Visualization;
 using UltimateXR.Extensions.Unity.Render;
 using UltimateXR.UI.UnityInputModule;
 using UnityEngine;
 using UnityEngine.Rendering;
+
 
 namespace UltimateXR.UI
 {
@@ -22,34 +23,97 @@ namespace UltimateXR.UI
     /// </summary>
     public class UxrLaserPointer : UxrAvatarComponent<UxrLaserPointer>
     {
+        #region Internal Types & Data
+
+        /// <summary>
+        ///     Gets or sets whether the laser is enabled automatically due to pointing at a UI.
+        /// </summary>
+        internal bool IsAutoEnabled { get; set; }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Updates the line renderer mesh.
+        /// </summary>
+        /// <param name="rayLength">New ray length</param>
+        private void SetLineRendererMesh(float rayLength)
+        {
+            _lineRenderer.startWidth = RayWidth;
+            _lineRenderer.endWidth = RayWidth;
+
+            var t1 = Mathf.Min(rayLength * 0.33f, GradientLength);
+            var t2 = Mathf.Max(rayLength * 0.66f, rayLength - GradientLength);
+
+            Vector3[] positions =
+            {
+                new(0.0f, 0.0f, 0.0f),
+                new(0.0f, 0.0f, t1),
+                new(0.0f, 0.0f, t2),
+                new(0.0f, 0.0f, rayLength)
+            };
+
+            for (var i = 0; i < positions.Length; ++i)
+            {
+                positions[i] = _lineRenderer.transform.InverseTransformPoint(LaserTransform.TransformPoint(positions[i]));
+            }
+
+            _lineRenderer.SetPositions(positions);
+
+            var colorGradient = new Gradient();
+
+            colorGradient.colorKeys = new[]
+            {
+                new GradientColorKey(Color.white, 0.0f),
+                new GradientColorKey(Color.white, t1 / rayLength),
+                new GradientColorKey(Color.white, t2 / rayLength),
+                new GradientColorKey(Color.white, 1.0f)
+            };
+
+            colorGradient.alphaKeys = new[]
+            {
+                new GradientAlphaKey(0.0f, 0.0f),
+                new GradientAlphaKey(1.0f, t1 / rayLength),
+                new GradientAlphaKey(1.0f, t2 / rayLength),
+                new GradientAlphaKey(0.0f, 1.0f)
+            };
+
+            _lineRenderer.colorGradient = colorGradient;
+
+            _lineRenderer.positionCount = 4;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         // General
-        
-        [SerializeField] protected UxrHandSide _handSide             = UxrHandSide.Left;
-        [SerializeField] protected bool        _useControllerForward = true;
-        
+
+        [SerializeField] protected UxrHandSide _handSide = UxrHandSide.Left;
+        [SerializeField] protected bool _useControllerForward = true;
+
         // Interaction
-        
-        [SerializeField] protected UxrLaserPointerTargetTypes _targetTypes                 = UxrLaserPointerTargetTypes.UI | UxrLaserPointerTargetTypes.Colliders2D | UxrLaserPointerTargetTypes.Colliders3D;
-        [SerializeField] private   QueryTriggerInteraction    _triggerCollidersInteraction = QueryTriggerInteraction.Ignore;
-        [SerializeField] private   LayerMask                  _blockingMask                = ~0;
-        
+
+        [SerializeField] protected UxrLaserPointerTargetTypes _targetTypes = UxrLaserPointerTargetTypes.UI | UxrLaserPointerTargetTypes.Colliders2D | UxrLaserPointerTargetTypes.Colliders3D;
+        [SerializeField] private QueryTriggerInteraction _triggerCollidersInteraction = QueryTriggerInteraction.Ignore;
+        [SerializeField] private LayerMask _blockingMask = ~0;
+
         // Input
-        
-        [SerializeField] protected UxrInputButtons    _clickInput                = UxrInputButtons.Trigger;
-        [SerializeField] protected UxrInputButtons    _showLaserInput            = UxrInputButtons.Joystick;
-        [SerializeField] protected UxrButtonEventType _showLaserButtonEvent      = UxrButtonEventType.Touching;
-        
+
+        [SerializeField] protected UxrInputButtons _clickInput = UxrInputButtons.Trigger;
+        [SerializeField] protected UxrInputButtons _showLaserInput = UxrInputButtons.Joystick;
+        [SerializeField] protected UxrButtonEventType _showLaserButtonEvent = UxrButtonEventType.Touching;
+
         // Appearance
-        
-        [SerializeField] protected bool       _invisible                 = false;
-        [SerializeField] protected float      _rayLength                 = 100.0f;
-        [SerializeField] protected float      _rayWidth                  = 0.003f;
-        [SerializeField] protected Color      _rayColorInteractive       = new Color(0.0f, 1.0f, 0.0f, 0.5f);
-        [SerializeField] protected Color      _rayColorNonInteractive    = new Color(1.0f, 0.0f, 0.0f, 0.5f);
-        [SerializeField] protected Material   _rayHitMaterial            = null;
-        [SerializeField] protected float      _rayHitSize                = 0.004f;
+
+        [SerializeField] protected bool _invisible = false;
+        [SerializeField] protected float _rayLength = 100.0f;
+        [SerializeField] protected float _rayWidth = 0.003f;
+        [SerializeField] protected Color _rayColorInteractive = new(0.0f, 1.0f, 0.0f, 0.5f);
+        [SerializeField] protected Color _rayColorNonInteractive = new(1.0f, 0.0f, 0.0f, 0.5f);
+        [SerializeField] protected Material _rayHitMaterial = null;
+        [SerializeField] protected float _rayHitSize = 0.004f;
         [SerializeField] protected GameObject _optionalEnableWhenLaserOn = null;
 
         #endregion
@@ -74,7 +138,7 @@ namespace UltimateXR.UI
             {
                 if (UseControllerForward && !Avatar.HasDummyControllerInput)
                 {
-                    UxrController3DModel model = Avatar.ControllerInput.GetController3DModel(_handSide);
+                    var model = Avatar.ControllerInput.GetController3DModel(_handSide);
 
                     if (model && model.gameObject.activeInHierarchy)
                     {
@@ -124,7 +188,7 @@ namespace UltimateXR.UI
         }
 
         /// <summary>
-        /// Gets or sets the elements the laser can interact with.
+        ///     Gets or sets the elements the laser can interact with.
         /// </summary>
         public UxrLaserPointerTargetTypes TargetTypes
         {
@@ -247,15 +311,6 @@ namespace UltimateXR.UI
             get => _optionalEnableWhenLaserOn;
             set => _optionalEnableWhenLaserOn = value;
         }
-        
-        #endregion
-
-        #region Internal Types & Data
-
-        /// <summary>
-        ///     Gets or sets whether the laser is enabled automatically due to pointing at a UI.
-        /// </summary>
-        internal bool IsAutoEnabled { get; set; }
 
         #endregion
 
@@ -270,6 +325,7 @@ namespace UltimateXR.UI
             return Avatar.ControllerInput.GetButtonsEvent(_handSide, ClickInput, UxrButtonEventType.PressDown);
         }
 
+
         /// <summary>
         ///     Checks whether the user performed a press this frame (pressed the input button).
         /// </summary>
@@ -278,6 +334,7 @@ namespace UltimateXR.UI
         {
             return Avatar.ControllerInput.GetButtonsEvent(_handSide, ClickInput, UxrButtonEventType.PressUp);
         }
+
 
         /// <summary>
         ///     Tries to get the world position where the laser pointer hits an object.
@@ -288,19 +345,21 @@ namespace UltimateXR.UI
         {
             if (IsLaserEnabled)
             {
-                UxrPointerEventData eventData = UxrPointerInputModule.Instance.GetLaserPointerEventData(this);
+                var eventData = UxrPointerInputModule.Instance.GetLaserPointerEventData(this);
 
                 if (eventData.HasData)
                 {
                     hitPosition = eventData.pointerCurrentRaycast.worldPosition;
-       
+
                     return true;
                 }
             }
-            
+
             hitPosition = Vector3.zero;
+
             return false;
         }
+
 
         /// <summary>
         ///     Tries to get the pointer event data.
@@ -310,7 +369,8 @@ namespace UltimateXR.UI
         public bool TryGetPointerEventData(out UxrPointerEventData pointerEventData)
         {
             pointerEventData = UxrPointerInputModule.Instance.GetLaserPointerEventData(this);
-            return  pointerEventData.HasData;
+
+            return pointerEventData.HasData;
         }
 
         #endregion
@@ -331,29 +391,30 @@ namespace UltimateXR.UI
 
             // Set up line renderer
 
-            _lineRenderer               = gameObject.AddComponent<LineRenderer>();
+            _lineRenderer = gameObject.AddComponent<LineRenderer>();
             _lineRenderer.useWorldSpace = false;
 
             SetLineRendererMesh(MaxRayLength);
 
-            _lineRenderer.material             = new Material(ShaderExt.UnlitTransparentColor);
-            _lineRenderer.material.renderQueue = (int)RenderQueue.Overlay + 1;
+            _lineRenderer.material = new Material(ShaderExt.UnlitTransparentColor);
+            _lineRenderer.material.renderQueue = (int) RenderQueue.Overlay + 1;
 
             // Set up raycast hit quad
 
-            _hitQuad                  = new GameObject("Laser Hit");
+            _hitQuad = new GameObject("Laser Hit");
             _hitQuad.transform.parent = transform;
 
-            MeshFilter laserHitMeshFilter = _hitQuad.AddComponent<MeshFilter>();
+            var laserHitMeshFilter = _hitQuad.AddComponent<MeshFilter>();
             laserHitMeshFilter.sharedMesh = MeshExt.CreateQuad(1.0f);
 
-            _laserHitRenderer                   = _hitQuad.AddComponent<MeshRenderer>();
-            _laserHitRenderer.receiveShadows    = false;
+            _laserHitRenderer = _hitQuad.AddComponent<MeshRenderer>();
+            _laserHitRenderer.receiveShadows = false;
             _laserHitRenderer.shadowCastingMode = ShadowCastingMode.Off;
-            _laserHitRenderer.sharedMaterial    = _rayHitMaterial;
+            _laserHitRenderer.sharedMaterial = _rayHitMaterial;
 
             _hitQuad.SetActive(false);
         }
+
 
         /// <summary>
         ///     Updates the laser pointer.
@@ -367,16 +428,16 @@ namespace UltimateXR.UI
 
             // TODO: In order to use UxrLaserPointer for other than Unity UI, the following part should be extracted. 
 
-            UxrPointerEventData laserPointerEventData = UxrPointerInputModule.Instance != null ? UxrPointerInputModule.Instance.GetPointerEventData(this) : null;
+            var laserPointerEventData = UxrPointerInputModule.Instance != null ? UxrPointerInputModule.Instance.GetPointerEventData(this) : null;
 
             if (_lineRenderer)
             {
-                _lineRenderer.enabled        = IsLaserEnabled && !IsInvisible;
+                _lineRenderer.enabled = IsLaserEnabled && !IsInvisible;
                 _lineRenderer.material.color = laserPointerEventData != null && laserPointerEventData.IsInteractive ? RayColorInteractive : RayColorNonInteractive;
 
                 if (_laserHitRenderer)
                 {
-                    _laserHitRenderer.enabled        = !IsInvisible;
+                    _laserHitRenderer.enabled = !IsInvisible;
                     _laserHitRenderer.material.color = _lineRenderer.material.color;
                 }
             }
@@ -393,8 +454,8 @@ namespace UltimateXR.UI
                     _hitQuad.transform.position = LaserTransform.TransformPoint(Vector3.forward * CurrentRayLength);
                     _hitQuad.transform.LookAt(Avatar.CameraPosition);
 
-                    Plane plane = new Plane(Avatar.CameraForward, Avatar.CameraPosition);
-                    float dist  = plane.GetDistanceToPoint(_hitQuad.transform.position);
+                    var plane = new Plane(Avatar.CameraForward, Avatar.CameraPosition);
+                    var dist = plane.GetDistanceToPoint(_hitQuad.transform.position);
                     _hitQuad.transform.localScale = RayHitSize * Mathf.Max(2.0f, dist) * Vector3.one;
                 }
             }
@@ -411,65 +472,14 @@ namespace UltimateXR.UI
 
         #endregion
 
-        #region Private Methods
-
-        /// <summary>
-        ///     Updates the line renderer mesh.
-        /// </summary>
-        /// <param name="rayLength">New ray length</param>
-        private void SetLineRendererMesh(float rayLength)
-        {
-            _lineRenderer.startWidth = RayWidth;
-            _lineRenderer.endWidth   = RayWidth;
-
-            float t1 = Mathf.Min(rayLength * 0.33f, GradientLength);
-            float t2 = Mathf.Max(rayLength * 0.66f, rayLength - GradientLength);
-
-            Vector3[] positions =
-            {
-                        new Vector3(0.0f, 0.0f, 0.0f),
-                        new Vector3(0.0f, 0.0f, t1),
-                        new Vector3(0.0f, 0.0f, t2),
-                        new Vector3(0.0f, 0.0f, rayLength)
-            };
-
-            for (int i = 0; i < positions.Length; ++i)
-            {
-                positions[i] = _lineRenderer.transform.InverseTransformPoint(LaserTransform.TransformPoint(positions[i]));
-            }
-
-            _lineRenderer.SetPositions(positions);
-
-            Gradient colorGradient = new Gradient();
-            colorGradient.colorKeys = new[]
-                                      {
-                                                  new GradientColorKey(Color.white, 0.0f),
-                                                  new GradientColorKey(Color.white, t1 / rayLength),
-                                                  new GradientColorKey(Color.white, t2 / rayLength),
-                                                  new GradientColorKey(Color.white, 1.0f)
-                                      };
-            colorGradient.alphaKeys = new[]
-                                      {
-                                                  new GradientAlphaKey(0.0f, 0.0f),
-                                                  new GradientAlphaKey(1.0f, t1 / rayLength),
-                                                  new GradientAlphaKey(1.0f, t2 / rayLength),
-                                                  new GradientAlphaKey(0.0f, 1.0f)
-                                      };
-            _lineRenderer.colorGradient = colorGradient;
-
-            _lineRenderer.positionCount = 4;
-        }
-
-        #endregion
-
         #region Private Types & Data
 
         private const float GradientLength = 0.4f;
 
         private LineRenderer _lineRenderer;
-        private Renderer     _laserHitRenderer;
-        private bool         _isAutoEnabled;
-        private GameObject   _hitQuad;
+        private Renderer _laserHitRenderer;
+        private bool _isAutoEnabled;
+        private GameObject _hitQuad;
 
         #endregion
     }

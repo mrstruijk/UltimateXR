@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UltimateXR.Core;
 using UltimateXR.Core.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Rig
 {
@@ -21,15 +23,6 @@ namespace UltimateXR.Avatar.Rig
     [Serializable]
     public class UxrAvatarRigInfo
     {
-        #region Inspector Properties/Serialized Fields
-
-        [SerializeField] private int              _version;
-        [SerializeField] private UxrAvatar        _avatar;
-        [SerializeField] private UxrAvatarArmInfo _leftArmInfo  = new UxrAvatarArmInfo();
-        [SerializeField] private UxrAvatarArmInfo _rightArmInfo = new UxrAvatarArmInfo();
-
-        #endregion
-
         #region Public Types & Data
 
         /// <summary>
@@ -43,17 +36,6 @@ namespace UltimateXR.Avatar.Rig
                 yield return _rightArmInfo;
             }
         }
-
-        #endregion
-
-        #region Internal Types & Data
-
-        internal const int CurrentVersion = 1;
-
-        /// <summary>
-        ///     Gets the version this data was serialized for. It allows to control if new data needs to be computed.
-        /// </summary>
-        internal int SerializedVersion => _version;
 
         #endregion
 
@@ -71,6 +53,26 @@ namespace UltimateXR.Avatar.Rig
 
         #endregion
 
+        #region Inspector Properties/Serialized Fields
+
+        [SerializeField] private int _version;
+        [SerializeField] private UxrAvatar _avatar;
+        [SerializeField] private UxrAvatarArmInfo _leftArmInfo = new();
+        [SerializeField] private UxrAvatarArmInfo _rightArmInfo = new();
+
+        #endregion
+
+        #region Internal Types & Data
+
+        internal const int CurrentVersion = 1;
+
+        /// <summary>
+        ///     Gets the version this data was serialized for. It allows to control if new data needs to be computed.
+        /// </summary>
+        internal int SerializedVersion => _version;
+
+        #endregion
+
         #region Internal Methods
 
         /// <summary>
@@ -80,11 +82,12 @@ namespace UltimateXR.Avatar.Rig
         internal void Compute(UxrAvatar avatar)
         {
             _version = CurrentVersion;
-            _avatar  = avatar;
+            _avatar = avatar;
 
             _leftArmInfo.Compute(avatar, UxrHandSide.Left);
             _rightArmInfo.Compute(avatar, UxrHandSide.Right);
         }
+
 
         /// <summary>
         ///     Updates information to the current frame.

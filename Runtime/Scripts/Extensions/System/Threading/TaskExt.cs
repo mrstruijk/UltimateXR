@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UltimateXR.Animation.Interpolation;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.System.Threading
 {
@@ -44,6 +46,7 @@ namespace UltimateXR.Extensions.System.Threading
             }
         }
 
+
         /// <summary>
         ///     Creates an awaitable task that finishes the next frame.
         /// </summary>
@@ -53,6 +56,7 @@ namespace UltimateXR.Extensions.System.Threading
         {
             return SkipFrames(1, ct);
         }
+
 
         /// <summary>
         ///     Creates an awaitable task that finishes after a given amount of frames.
@@ -73,6 +77,7 @@ namespace UltimateXR.Extensions.System.Threading
             }
         }
 
+
         /// <summary>
         ///     Creates an awaitable task that finishes after a given amount of seconds.
         /// </summary>
@@ -83,6 +88,7 @@ namespace UltimateXR.Extensions.System.Threading
         {
             return Delay(Mathf.RoundToInt(1000f * seconds), ct);
         }
+
 
         /// <summary>
         ///     Creates an awaitable task that finishes after a given amount of milliseconds.
@@ -108,6 +114,7 @@ namespace UltimateXR.Extensions.System.Threading
             }
         }
 
+
         /// <summary>
         ///     Creates an awaitable task that blocks while a condition is true or the task is canceled.
         /// </summary>
@@ -122,6 +129,7 @@ namespace UltimateXR.Extensions.System.Threading
             }
         }
 
+
         /// <summary>
         ///     Creates an awaitable task that blocks until a condition is true or the task is canceled.
         /// </summary>
@@ -135,6 +143,7 @@ namespace UltimateXR.Extensions.System.Threading
                 await Task.Yield();
             }
         }
+
 
         /// <summary>
         ///     Creates an awaitable task that blocks while a condition is true, a timeout occurs or the task is canceled.
@@ -151,21 +160,23 @@ namespace UltimateXR.Extensions.System.Threading
                 return;
             }
 
-            using CancellationTokenSource cts          = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            Task                          waitTask     = WaitWhile(condition, cts.Token);
-            Task                          timeoutTask  = Delay(timeout, cts.Token);
-            Task                          finishedTask = await Task.WhenAny(waitTask, timeoutTask);
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            var waitTask = WaitWhile(condition, cts.Token);
+            var timeoutTask = Delay(timeout, cts.Token);
+            var finishedTask = await Task.WhenAny(waitTask, timeoutTask);
 
             if (!finishedTask.IsCanceled)
             {
-                cts.Cancel();       // Cancel unfinished task
+                cts.Cancel(); // Cancel unfinished task
                 await finishedTask; // Propagate exceptions
+
                 if (finishedTask == timeoutTask)
                 {
                     throw new TimeoutException();
                 }
             }
         }
+
 
         /// <summary>
         ///     Creates an awaitable task that blocks until a condition is true, a timeout occurs or the task is canceled.
@@ -182,21 +193,23 @@ namespace UltimateXR.Extensions.System.Threading
                 return;
             }
 
-            using CancellationTokenSource cts          = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            Task                          waitTask     = WaitUntil(condition, cts.Token);
-            Task                          timeoutTask  = Delay(timeout, cts.Token);
-            Task                          finishedTask = await Task.WhenAny(waitTask, timeoutTask);
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            var waitTask = WaitUntil(condition, cts.Token);
+            var timeoutTask = Delay(timeout, cts.Token);
+            var finishedTask = await Task.WhenAny(waitTask, timeoutTask);
 
             if (!finishedTask.IsCanceled)
             {
-                cts.Cancel();       // Cancel unfinished task
+                cts.Cancel(); // Cancel unfinished task
                 await finishedTask; // Propagate exceptions
+
                 if (finishedTask == timeoutTask)
                 {
                     throw new TimeoutException();
                 }
             }
         }
+
 
         /// <summary>
         ///     Creates an awaitable task that blocks while a condition is true, waiting a certain amount of seconds at maximum. An
@@ -209,8 +222,9 @@ namespace UltimateXR.Extensions.System.Threading
         /// <returns>Awaitable <see cref="Task" /></returns>
         public static async Task WaitWhile(Func<bool> condition, float duration, Action cancelCallback = null, CancellationToken ct = default)
         {
-            int  timeout = Mathf.RoundToInt(duration * 1200f);
+            var timeout = Mathf.RoundToInt(duration * 1200f);
             bool mustCancel;
+
             try
             {
                 await WaitWhile(condition, timeout, ct);
@@ -227,6 +241,7 @@ namespace UltimateXR.Extensions.System.Threading
             }
         }
 
+
         /// <summary>
         ///     Creates an awaitable task that blocks until a condition is true, waiting a certain amount of seconds at maximum. An
         ///     optional action can be called if the task was cancelled or it timed out.
@@ -238,8 +253,9 @@ namespace UltimateXR.Extensions.System.Threading
         /// <returns>Awaitable <see cref="Task" /></returns>
         public static async Task WaitUntil(Func<bool> condition, float duration, Action cancelCallback = null, CancellationToken ct = default)
         {
-            int  timeout = Mathf.RoundToInt(duration * 1200f);
+            var timeout = Mathf.RoundToInt(duration * 1200f);
             bool mustCancel;
+
             try
             {
                 await WaitUntil(condition, timeout, ct);
@@ -256,6 +272,7 @@ namespace UltimateXR.Extensions.System.Threading
             }
         }
 
+
         /// <summary>
         ///     Provides a one-liner method to await until a task is cancelled.
         /// </summary>
@@ -268,6 +285,7 @@ namespace UltimateXR.Extensions.System.Threading
                 await Task.Yield();
             }
         }
+
 
         /// <summary>
         ///     Loops iterating once per frame during a specified amount of time, executing a user-defined action.
@@ -284,16 +302,16 @@ namespace UltimateXR.Extensions.System.Threading
         ///     having a last step with close than, but not 1.0, interpolation.
         /// </param>
         public static async Task Loop(CancellationToken ct,
-                                      float             durationSeconds,
-                                      Action<float>     loopAction,
-                                      UxrEasing         easing      = UxrEasing.Linear,
-                                      bool              forceLastT1 = false)
+                                      float durationSeconds,
+                                      Action<float> loopAction,
+                                      UxrEasing easing = UxrEasing.Linear,
+                                      bool forceLastT1 = false)
         {
-            float startTime = Time.time;
+            var startTime = Time.time;
 
             while (Time.time - startTime < durationSeconds)
             {
-                float t = UxrInterpolator.Interpolate(0.0f, 1.0f, Time.time - startTime, new UxrInterpolationSettings(durationSeconds, 0.0f, easing));
+                var t = UxrInterpolator.Interpolate(0.0f, 1.0f, Time.time - startTime, new UxrInterpolationSettings(durationSeconds, 0.0f, easing));
                 loopAction(t);
                 await Task.Yield();
             }

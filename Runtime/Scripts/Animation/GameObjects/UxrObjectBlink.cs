@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UltimateXR.Core.Components;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.GameObjects
 {
@@ -15,23 +17,23 @@ namespace UltimateXR.Animation.GameObjects
     /// </summary>
     public class UxrObjectBlink : UxrComponent
     {
-        #region Inspector Properties/Serialized Fields
-
-        [SerializeField] private MeshRenderer _renderer;
-        [SerializeField] private Color        _colorNormal     = Color.black;
-        [SerializeField] private Color        _colorHighlight  = Color.white;
-        [SerializeField] private float        _blinksPerSec    = 4.0f;
-        [SerializeField] private float        _durationSeconds = -1.0f;
-        [SerializeField] private bool         _useUnscaledTime;
-
-        #endregion
-
         #region Public Types & Data
 
         /// <summary>
         ///     Gets whether the object is currently blinking.
         /// </summary>
         public bool IsBlinking { get; private set; } = true;
+
+        #endregion
+
+        #region Inspector Properties/Serialized Fields
+
+        [SerializeField] private MeshRenderer _renderer;
+        [SerializeField] private Color _colorNormal = Color.black;
+        [SerializeField] private Color _colorHighlight = Color.white;
+        [SerializeField] private float _blinksPerSec = 4.0f;
+        [SerializeField] private float _durationSeconds = -1.0f;
+        [SerializeField] private bool _useUnscaledTime;
 
         #endregion
 
@@ -56,13 +58,14 @@ namespace UltimateXR.Animation.GameObjects
                 return null;
             }
 
-            UxrObjectBlink blinkComponent = gameObject.GetOrAddComponent<UxrObjectBlink>();
+            var blinkComponent = gameObject.GetOrAddComponent<UxrObjectBlink>();
 
             blinkComponent.CheckInitialize();
             blinkComponent.StartBlinkingInternal(emissionColor, blinksPerSec, durationSeconds, useUnscaledTime);
 
             return blinkComponent;
         }
+
 
         /// <summary>
         ///     Stops a blinking animation on an object if it has any.
@@ -74,12 +77,13 @@ namespace UltimateXR.Animation.GameObjects
             {
                 return;
             }
-            
+
             if (gameObject.TryGetComponent<UxrObjectBlink>(out var blinkComponent))
             {
                 blinkComponent.StopBlinkingInternal();
             }
         }
+
 
         /// <summary>
         ///     Checks whether the given GameObject has any blinking animation running.
@@ -93,10 +97,11 @@ namespace UltimateXR.Animation.GameObjects
                 return false;
             }
 
-            UxrObjectBlink blinkComponent = gameObject.GetComponent<UxrObjectBlink>();
+            var blinkComponent = gameObject.GetComponent<UxrObjectBlink>();
 
             return blinkComponent != null && blinkComponent.IsBlinking;
         }
+
 
         /// <summary>
         ///     Sets up the blinking animation parameters.
@@ -108,15 +113,16 @@ namespace UltimateXR.Animation.GameObjects
         /// <param name="durationSeconds">The total duration of the animation in seconds</param>
         public void Setup(MeshRenderer renderer, Color colorNormal, Color colorHighlight, float blinksPerSec = 4.0f, float durationSeconds = -1.0f)
         {
-            _renderer        = renderer;
-            _colorNormal     = colorNormal;
-            _colorHighlight  = colorHighlight;
-            _blinksPerSec    = blinksPerSec;
+            _renderer = renderer;
+            _colorNormal = colorNormal;
+            _colorHighlight = colorHighlight;
+            _blinksPerSec = blinksPerSec;
             _durationSeconds = durationSeconds;
-            IsBlinking       = false;
-            IsInitialized    = false;
+            IsBlinking = false;
+            IsInitialized = false;
             CheckInitialize();
         }
+
 
         /// <summary>
         ///     Starts or restarts the blinking animation using the current parameters.
@@ -141,6 +147,7 @@ namespace UltimateXR.Animation.GameObjects
             CheckInitialize();
         }
 
+
         /// <summary>
         ///     When re-enabled, starts blinking again with the current parameters.
         /// </summary>
@@ -150,6 +157,7 @@ namespace UltimateXR.Animation.GameObjects
 
             StartBlinkingWithCurrentParameters();
         }
+
 
         /// <summary>
         ///     Stops blinking.
@@ -161,6 +169,7 @@ namespace UltimateXR.Animation.GameObjects
             StopBlinkingInternal();
         }
 
+
         /// <summary>
         ///     Updates the blinking animation if active.
         /// </summary>
@@ -168,7 +177,7 @@ namespace UltimateXR.Animation.GameObjects
         {
             if (IsBlinking && _renderer != null)
             {
-                float timer = CurrentTime - _blinkStartTime;
+                var timer = CurrentTime - _blinkStartTime;
 
                 if (_durationSeconds >= 0.0f && timer >= _durationSeconds)
                 {
@@ -176,7 +185,7 @@ namespace UltimateXR.Animation.GameObjects
                 }
                 else
                 {
-                    float blend = (Mathf.Sin(timer * Mathf.PI * _blinksPerSec * 2.0f) + 1.0f) * 0.5f;
+                    var blend = (Mathf.Sin(timer * Mathf.PI * _blinksPerSec * 2.0f) + 1.0f) * 0.5f;
                     _renderer.material.SetColor(UxrConstants.Shaders.EmissionColorVarName, Color.Lerp(_colorNormal, _colorHighlight, blend));
                 }
             }
@@ -207,6 +216,7 @@ namespace UltimateXR.Animation.GameObjects
             }
         }
 
+
         /// <summary>
         ///     Starts blinking.
         /// </summary>
@@ -222,15 +232,16 @@ namespace UltimateXR.Animation.GameObjects
             }
 
             _useUnscaledTime = useUnscaledTime;
-            _blinkStartTime  = CurrentTime;
-            _colorHighlight  = emissionColor;
-            _blinksPerSec    = blinksPerSec;
+            _blinkStartTime = CurrentTime;
+            _colorHighlight = emissionColor;
+            _blinksPerSec = blinksPerSec;
             _durationSeconds = durationSeconds;
 
             _renderer.material.EnableKeyword(UxrConstants.Shaders.EmissionKeyword);
 
             IsBlinking = true;
         }
+
 
         /// <summary>
         ///     Stops blinking.
@@ -256,7 +267,7 @@ namespace UltimateXR.Animation.GameObjects
 
         private bool IsInitialized { get; set; }
 
-        private float    _blinkStartTime;
+        private float _blinkStartTime;
         private Material _originalMaterial;
 
         #endregion

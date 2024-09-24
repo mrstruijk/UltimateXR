@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar
 {
@@ -35,6 +37,54 @@ namespace UltimateXR.Avatar
     /// </summary>
     public class UxrAvatarMoveEventArgs : UxrAvatarEventArgs
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="avatar">Avatar that moved</param>
+        /// <param name="oldPosition">Old <see cref="UxrAvatar" /> position</param>
+        /// <param name="oldRotation">Old <see cref="UxrAvatar" /> rotation</param>
+        /// <param name="newPosition">New <see cref="UxrAvatar" /> position</param>
+        /// <param name="newRotation">New <see cref="UxrAvatar" /> rotation</param>
+        public UxrAvatarMoveEventArgs(UxrAvatar avatar, Vector3 oldPosition, Quaternion oldRotation, Vector3 newPosition, Quaternion newRotation) : base(avatar)
+        {
+            OldPosition = oldPosition;
+            OldRotation = oldRotation;
+            NewPosition = newPosition;
+            NewRotation = newRotation;
+
+            OldForward = OldRotation * Vector3.forward;
+            NewForward = NewRotation * Vector3.forward;
+            OldWorldMatrix = Matrix4x4.TRS(oldPosition, oldRotation, Vector3.one);
+            NewWorldMatrix = Matrix4x4.TRS(NewPosition, NewRotation, Vector3.one);
+
+            _oldWorldMatrixInverse = OldWorldMatrix.inverse;
+            _oldRotationInverse = Quaternion.Inverse(oldRotation);
+
+            HasTranslation = OldPosition != NewPosition;
+            HasRotation = OldRotation != NewRotation;
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        ///     Reorients and repositions a transform so that it keeps the relative position/orientation to the avatar after the
+        ///     position changed event.
+        /// </summary>
+        /// <param name="transform">Transform to reorient/reposition</param>
+        public void ReorientRelativeToAvatar(Transform transform)
+        {
+            var relativePos = _oldWorldMatrixInverse.MultiplyPoint(transform.position);
+            var relativeRot = _oldRotationInverse * transform.rotation;
+
+            transform.SetPositionAndRotation(NewWorldMatrix.MultiplyPoint(relativePos), NewRotation * relativeRot);
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -89,57 +139,9 @@ namespace UltimateXR.Avatar
 
         #endregion
 
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="avatar">Avatar that moved</param>
-        /// <param name="oldPosition">Old <see cref="UxrAvatar" /> position</param>
-        /// <param name="oldRotation">Old <see cref="UxrAvatar" /> rotation</param>
-        /// <param name="newPosition">New <see cref="UxrAvatar" /> position</param>
-        /// <param name="newRotation">New <see cref="UxrAvatar" /> rotation</param>
-        public UxrAvatarMoveEventArgs(UxrAvatar avatar, Vector3 oldPosition, Quaternion oldRotation, Vector3 newPosition, Quaternion newRotation) : base(avatar)
-        {
-            OldPosition = oldPosition;
-            OldRotation = oldRotation;
-            NewPosition = newPosition;
-            NewRotation = newRotation;
-
-            OldForward     = OldRotation * Vector3.forward;
-            NewForward     = NewRotation * Vector3.forward;
-            OldWorldMatrix = Matrix4x4.TRS(oldPosition, oldRotation, Vector3.one);
-            NewWorldMatrix = Matrix4x4.TRS(NewPosition, NewRotation, Vector3.one);
-
-            _oldWorldMatrixInverse = OldWorldMatrix.inverse;
-            _oldRotationInverse    = Quaternion.Inverse(oldRotation);
-
-            HasTranslation = OldPosition != NewPosition;
-            HasRotation    = OldRotation != NewRotation;
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        ///     Reorients and repositions a transform so that it keeps the relative position/orientation to the avatar after the
-        ///     position changed event.
-        /// </summary>
-        /// <param name="transform">Transform to reorient/reposition</param>
-        public void ReorientRelativeToAvatar(Transform transform)
-        {
-            Vector3    relativePos = _oldWorldMatrixInverse.MultiplyPoint(transform.position);
-            Quaternion relativeRot = _oldRotationInverse * transform.rotation;
-
-            transform.SetPositionAndRotation(NewWorldMatrix.MultiplyPoint(relativePos), NewRotation * relativeRot);
-        }
-
-        #endregion
-
         #region Private Types & Data
 
-        private readonly Matrix4x4  _oldWorldMatrixInverse;
+        private readonly Matrix4x4 _oldWorldMatrixInverse;
         private readonly Quaternion _oldRotationInverse;
 
         #endregion

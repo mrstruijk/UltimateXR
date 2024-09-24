@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.IK
 {
@@ -19,6 +21,21 @@ namespace UltimateXR.Animation.IK
         /// </summary>
         private class IndependentBoneInfo
         {
+            #region Constructors & Finalizer
+
+            /// <summary>
+            ///     Constructor.
+            /// </summary>
+            /// <param name="transform">Bone transform</param>
+            public IndependentBoneInfo(Transform transform)
+            {
+                Transform = transform;
+                Position = transform.position;
+                Rotation = transform.rotation;
+            }
+
+            #endregion
+
             #region Public Types & Data
 
             /// <summary>
@@ -35,21 +52,6 @@ namespace UltimateXR.Animation.IK
             ///     Gets or sets the correct current position.
             /// </summary>
             public Quaternion Rotation { get; set; }
-
-            #endregion
-
-            #region Constructors & Finalizer
-
-            /// <summary>
-            ///     Constructor.
-            /// </summary>
-            /// <param name="transform">Bone transform</param>
-            public IndependentBoneInfo(Transform transform)
-            {
-                Transform = transform;
-                Position  = transform.position;
-                Rotation  = transform.rotation;
-            }
 
             #endregion
         }

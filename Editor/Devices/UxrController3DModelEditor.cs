@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Devices.Visualization;
 using UnityEditor;
+
 
 namespace UltimateXR.Editor.Devices
 {
@@ -21,12 +23,13 @@ namespace UltimateXR.Editor.Devices
         /// </summary>
         public void OnEnable()
         {
-            _propertyNeedsBothHands      = serializedObject.FindProperty("_needsBothHands");
-            _propertyHandSide            = serializedObject.FindProperty("_handSide");
-            _propertyControllerHand      = serializedObject.FindProperty("_controllerHand");
-            _propertyControllerHandLeft  = serializedObject.FindProperty("_controllerHandLeft");
+            _propertyNeedsBothHands = serializedObject.FindProperty("_needsBothHands");
+            _propertyHandSide = serializedObject.FindProperty("_handSide");
+            _propertyControllerHand = serializedObject.FindProperty("_controllerHand");
+            _propertyControllerHandLeft = serializedObject.FindProperty("_controllerHandLeft");
             _propertyControllerHandRight = serializedObject.FindProperty("_controllerHandRight");
         }
+
 
         /// <inheritdoc />
         public override void OnInspectorGUI()

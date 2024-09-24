@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ using UltimateXR.UI.UnityInputModule.Controls;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.UI.UnityInputModule
 {
@@ -32,14 +34,38 @@ namespace UltimateXR.UI.UnityInputModule
     /// </remarks>
     public class UxrPointerInputModule : PointerInputModule
     {
+        #region Public Overrides PointerInputModule
+
+        /// <summary>
+        ///     Overrides Object.ToString().
+        /// </summary>
+        /// <remarks>From user chrpetry in https://forum.unity.com/threads/multiple-processing-inputmodules.369578/</remarks>
+        /// <returns>String description of the class</returns>
+        public override string ToString()
+        {
+            var moduleStringList = new List<string>();
+
+            foreach (var module in GetInputModules())
+            {
+                if (module != this)
+                {
+                    moduleStringList.Add(module.ToString());
+                }
+            }
+
+            return string.Join("\n\n", moduleStringList);
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] protected bool               _disableOtherInputModules    = false;
-        [SerializeField] protected bool               _autoEnableOnWorldCanvases   = true;
-        [SerializeField] protected bool               _autoAssignEventCamera       = true;
+        [SerializeField] protected bool _disableOtherInputModules = false;
+        [SerializeField] protected bool _autoEnableOnWorldCanvases = true;
+        [SerializeField] protected bool _autoAssignEventCamera = true;
         [SerializeField] protected UxrInteractionType _interactionTypeOnAutoEnable = UxrInteractionType.FingerTips;
-        [SerializeField] protected float              _fingerTipMinHoverDistance   = UxrFingerTipRaycaster.FingerTipMinHoverDistanceDefault;
-        [SerializeField] protected int                _dragThreshold               = 40;
+        [SerializeField] protected float _fingerTipMinHoverDistance = UxrFingerTipRaycaster.FingerTipMinHoverDistanceDefault;
+        [SerializeField] protected int _dragThreshold = 40;
 
         #endregion
 
@@ -85,24 +111,27 @@ namespace UltimateXR.UI.UnityInputModule
         /// <remarks>From user Cind13 in https://forum.unity.com/threads/multiple-processing-inputmodules.369578/</remarks>
         public override void UpdateModule()
         {
-            MethodInfo changeEventModuleMethod = EventSystem.current.GetType().GetMethod("ChangeEventModule",
-                                                                                         BindingFlags.NonPublic | BindingFlags.Instance,
-                                                                                         null,
-                                                                                         new[] { typeof(BaseInputModule) },
-                                                                                         null);
-            changeEventModuleMethod.Invoke(EventSystem.current, new object[] { this });
+            var changeEventModuleMethod = EventSystem.current.GetType().GetMethod("ChangeEventModule",
+                BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                new[] {typeof(BaseInputModule)},
+                null);
+
+            changeEventModuleMethod.Invoke(EventSystem.current, new object[] {this});
             EventSystem.current.UpdateModules();
-            List<BaseInputModule> activeInputModules = GetInputModules();
+            var activeInputModules = GetInputModules();
             activeInputModules.Remove(this);
             activeInputModules.Insert(0, this);
             SetInputModules(activeInputModules);
         }
+
 
         /// <inheritdoc />
         public override bool IsModuleSupported()
         {
             return true;
         }
+
 
         /// <inheritdoc />
         public override void Process()
@@ -111,7 +140,7 @@ namespace UltimateXR.UI.UnityInputModule
 
             if (!_disableOtherInputModules)
             {
-                foreach (BaseInputModule module in GetInputModules())
+                foreach (var module in GetInputModules())
                 {
                     if (module != this)
                     {
@@ -127,21 +156,21 @@ namespace UltimateXR.UI.UnityInputModule
 
             // Update this input module
 
-            bool usedEvent = SendUpdateEventToSelectedObject();
+            var usedEvent = SendUpdateEventToSelectedObject();
 
-            foreach (UxrFingerTip fingerTip in UxrFingerTip.EnabledComponentsInLocalAvatar)
+            foreach (var fingerTip in UxrFingerTip.EnabledComponentsInLocalAvatar)
             {
                 ProcessPointerEvents(GetFingerTipPointerEventData(fingerTip));
             }
 
-            foreach (UxrLaserPointer laserPointer in UxrLaserPointer.EnabledComponentsInLocalAvatar)
+            foreach (var laserPointer in UxrLaserPointer.EnabledComponentsInLocalAvatar)
             {
                 ProcessPointerEvents(GetLaserPointerEventData(laserPointer));
             }
 
             /*
-             TODO: Create navigation events using controller input? 
-             
+             TODO: Create navigation events using controller input?
+
             if (eventSystem.sendNavigationEvents)
             {
                 if (!usedEvent)
@@ -154,30 +183,6 @@ namespace UltimateXR.UI.UnityInputModule
                     SendSubmitEventToSelectedObject();
                 }
             }*/
-        }
-
-        #endregion
-
-        #region Public Overrides PointerInputModule
-
-        /// <summary>
-        ///     Overrides Object.ToString().
-        /// </summary>
-        /// <remarks>From user chrpetry in https://forum.unity.com/threads/multiple-processing-inputmodules.369578/</remarks>
-        /// <returns>String description of the class</returns>
-        public override string ToString()
-        {
-            var moduleStringList = new List<string>();
-
-            foreach (var module in GetInputModules())
-            {
-                if (module != this)
-                {
-                    moduleStringList.Add(module.ToString());
-                }
-            }
-
-            return string.Join("\n\n", moduleStringList);
         }
 
         #endregion
@@ -199,8 +204,8 @@ namespace UltimateXR.UI.UnityInputModule
                 return false;
             }
 
-            UxrCanvas canvas           = uiGameObject.GetComponentInParent<UxrCanvas>();
-            Transform currentTransform = uiGameObject.transform;
+            var canvas = uiGameObject.GetComponentInParent<UxrCanvas>();
+            var currentTransform = uiGameObject.transform;
 
             if (canvas == null)
             {
@@ -220,6 +225,7 @@ namespace UltimateXR.UI.UnityInputModule
             return false;
         }
 
+
         /// <summary>
         ///     Gets the pointer event data of a given <see cref="UxrFingerTip" /> if it exists.
         /// </summary>
@@ -227,8 +233,9 @@ namespace UltimateXR.UI.UnityInputModule
         /// <returns>Pointer event data if it exists or null if not</returns>
         public UxrPointerEventData GetPointerEventData(UxrFingerTip fingerTip)
         {
-            return _fingerTipEventData.TryGetValue(fingerTip, out UxrPointerEventData pointerEventData) ? pointerEventData : null;
+            return _fingerTipEventData.TryGetValue(fingerTip, out var pointerEventData) ? pointerEventData : null;
         }
+
 
         /// <summary>
         ///     Gets the pointer event data of a given <see cref="UxrLaserPointer" /> if it exists.
@@ -237,7 +244,7 @@ namespace UltimateXR.UI.UnityInputModule
         /// <returns>Pointer event data if it exists or null if not</returns>
         public UxrPointerEventData GetPointerEventData(UxrLaserPointer laserPointer)
         {
-            return _laserPointerEventData.TryGetValue(laserPointer, out UxrPointerEventData pointerEventData) ? pointerEventData : null;
+            return _laserPointerEventData.TryGetValue(laserPointer, out var pointerEventData) ? pointerEventData : null;
         }
 
         #endregion
@@ -261,9 +268,9 @@ namespace UltimateXR.UI.UnityInputModule
 
                 if (_disableOtherInputModules)
                 {
-                    BaseInputModule[] baseInputModules = FindObjectsOfType<BaseInputModule>();
+                    var baseInputModules = FindObjectsOfType<BaseInputModule>();
 
-                    foreach (BaseInputModule inputModule in baseInputModules)
+                    foreach (var inputModule in baseInputModules)
                     {
                         if (inputModule != this)
                         {
@@ -274,6 +281,7 @@ namespace UltimateXR.UI.UnityInputModule
             }
         }
 
+
         /// <summary>
         ///     Subscribes to events and sets up the haptics coroutine.
         /// </summary>
@@ -281,12 +289,13 @@ namespace UltimateXR.UI.UnityInputModule
         {
             base.OnEnable();
 
-            UxrControlInput.GlobalPressed  += UxrControlInput_GlobalPressed;
+            UxrControlInput.GlobalPressed += UxrControlInput_GlobalPressed;
             UxrControlInput.GlobalReleased += UxrControlInput_GlobalReleased;
-            UxrControlInput.GlobalClicked  += UxrControlInput_GlobalClicked;
+            UxrControlInput.GlobalClicked += UxrControlInput_GlobalClicked;
 
             _coroutineDragHaptics = StartCoroutine(CoroutineDragHaptics());
         }
+
 
         /// <summary>
         ///     Unsubscribes from events and stops the haptics coroutine.
@@ -295,12 +304,13 @@ namespace UltimateXR.UI.UnityInputModule
         {
             base.OnDisable();
 
-            UxrControlInput.GlobalPressed  -= UxrControlInput_GlobalPressed;
+            UxrControlInput.GlobalPressed -= UxrControlInput_GlobalPressed;
             UxrControlInput.GlobalReleased -= UxrControlInput_GlobalReleased;
-            UxrControlInput.GlobalClicked  -= UxrControlInput_GlobalClicked;
+            UxrControlInput.GlobalClicked -= UxrControlInput_GlobalClicked;
 
             StopCoroutine(_coroutineDragHaptics);
         }
+
 
         /// <summary>
         ///     Sets the drag threshold.
@@ -332,6 +342,7 @@ namespace UltimateXR.UI.UnityInputModule
             }
         }
 
+
         /// <summary>
         ///     Called whenever a <see cref="UxrControlInput" /> was released after being pressed.
         /// </summary>
@@ -344,6 +355,7 @@ namespace UltimateXR.UI.UnityInputModule
                 TrySendButtonFeedback(controlInput, controlInput.FeedbackOnUp, pointerEventData);
             }
         }
+
 
         /// <summary>
         ///     Called whenever a <see cref="UxrControlInput" /> was clicked. Depending on the operating mode, a click is either a
@@ -371,16 +383,16 @@ namespace UltimateXR.UI.UnityInputModule
         /// <returns>The raycast that describes the UI element that the user interacted with</returns>
         protected static RaycastResult FindFirstRaycast(List<RaycastResult> candidates, UxrPointerEventData pointerEventData)
         {
-            int first           = -1;
-            int candidatesCount = candidates.Count;
+            var first = -1;
+            var candidatesCount = candidates.Count;
 
             // First search for the first raycast that shares canvas with the pointerEnter event
 
-            UxrCanvas initialCanvas = pointerEventData.pointerEnter != null ? pointerEventData.pointerEnter.GetTopmostCanvas() : null;
+            var initialCanvas = pointerEventData.pointerEnter != null ? pointerEventData.pointerEnter.GetTopmostCanvas() : null;
 
-            for (int i = 0; i < candidatesCount; ++i)
+            for (var i = 0; i < candidatesCount; ++i)
             {
-                UxrGraphicRaycaster module = candidates[i].module as UxrGraphicRaycaster;
+                var module = candidates[i].module as UxrGraphicRaycaster;
 
                 if (candidates[i].gameObject == null || module == null)
                 {
@@ -410,6 +422,7 @@ namespace UltimateXR.UI.UnityInputModule
             return new RaycastResult();
         }
 
+
         /// <summary>
         ///     Processes the pointer events.
         /// </summary>
@@ -418,13 +431,13 @@ namespace UltimateXR.UI.UnityInputModule
         {
             // Handle events
 
-            bool pressedBefore = pointerEventData.pointerPress != null;
+            var pressedBefore = pointerEventData.pointerPress != null;
 
             ProcessPointerPressRelease(pointerEventData);
             ProcessMove(pointerEventData);
             ProcessDrag(pointerEventData);
 
-            bool pressedNow = pointerEventData.pointerPress != null;
+            var pressedNow = pointerEventData.pointerPress != null;
 
             // Default haptic feedback if we don't have UxrControlInput
 
@@ -452,6 +465,7 @@ namespace UltimateXR.UI.UnityInputModule
             pointerEventData.Speed = pointerEventData.delta.magnitude / Time.deltaTime;
         }
 
+
         /// <summary>
         ///     Processes the pointer press and release events.
         /// </summary>
@@ -463,16 +477,16 @@ namespace UltimateXR.UI.UnityInputModule
                 return;
             }
 
-            GameObject currentOverGo = pointerEventData.pointerCurrentRaycast.gameObject;
+            var currentOverGo = pointerEventData.pointerCurrentRaycast.gameObject;
 
             // PointerDown notification
             if (pointerEventData.PressedThisFrame)
             {
-                pointerEventData.eligibleForClick    = true;
-                pointerEventData.delta               = Vector2.zero;
-                pointerEventData.dragging            = false;
-                pointerEventData.useDragThreshold    = true;
-                pointerEventData.pressPosition       = pointerEventData.position;
+                pointerEventData.eligibleForClick = true;
+                pointerEventData.delta = Vector2.zero;
+                pointerEventData.dragging = false;
+                pointerEventData.useDragThreshold = true;
+                pointerEventData.pressPosition = pointerEventData.position;
                 pointerEventData.pointerPressRaycast = pointerEventData.pointerCurrentRaycast;
 
                 DeselectIfSelectionChanged(currentOverGo, pointerEventData);
@@ -480,7 +494,7 @@ namespace UltimateXR.UI.UnityInputModule
                 // search for the control that will receive the press
                 // if we can't find a press handler set the press
                 // handler to be what would receive a click.
-                GameObject newPressed = ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEventData, ExecuteEvents.pointerDownHandler);
+                var newPressed = ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEventData, ExecuteEvents.pointerDownHandler);
 
                 // didnt find a press handler... search for a click handler
                 if (newPressed == null)
@@ -488,11 +502,11 @@ namespace UltimateXR.UI.UnityInputModule
                     newPressed = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
                 }
 
-                float time = Time.unscaledTime;
+                var time = Time.unscaledTime;
 
                 if (newPressed == pointerEventData.lastPress)
                 {
-                    float diffTime = time - pointerEventData.clickTime;
+                    var diffTime = time - pointerEventData.clickTime;
 
                     if (diffTime < 0.3f)
                     {
@@ -510,10 +524,10 @@ namespace UltimateXR.UI.UnityInputModule
                     pointerEventData.clickCount = 1;
                 }
 
-                pointerEventData.pointerPress    = newPressed;
+                pointerEventData.pointerPress = newPressed;
                 pointerEventData.rawPointerPress = currentOverGo;
-                pointerEventData.clickTime       = time;
-                pointerEventData.pointerDrag     = ExecuteEvents.GetEventHandler<IDragHandler>(currentOverGo);
+                pointerEventData.clickTime = time;
+                pointerEventData.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(currentOverGo);
 
                 if (pointerEventData.pointerDrag != null)
                 {
@@ -540,7 +554,7 @@ namespace UltimateXR.UI.UnityInputModule
                 ExecuteEvents.Execute(pointerEventData.pointerPress, pointerEventData, ExecuteEvents.pointerUpHandler);
 
                 // see if the release is on the same element that was pressed...
-                GameObject pointerUpHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
+                var pointerUpHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 
                 // PointerClick and Drop events
                 if (pointerEventData.pointerPress == pointerUpHandler && pointerEventData.eligibleForClick)
@@ -554,16 +568,16 @@ namespace UltimateXR.UI.UnityInputModule
                 }
 
                 pointerEventData.eligibleForClick = false;
-                pointerEventData.pointerPress     = null;
-                pointerEventData.rawPointerPress  = null;
-                pointerEventData.pointerClick     = null;
+                pointerEventData.pointerPress = null;
+                pointerEventData.rawPointerPress = null;
+                pointerEventData.pointerClick = null;
 
                 if (pointerEventData.pointerDrag != null && pointerEventData.dragging)
                 {
                     ExecuteEvents.Execute(pointerEventData.pointerDrag, pointerEventData, ExecuteEvents.endDragHandler);
                 }
 
-                pointerEventData.dragging    = false;
+                pointerEventData.dragging = false;
                 pointerEventData.pointerDrag = null;
 
                 // redo pointer enter / exit to refresh state
@@ -593,6 +607,7 @@ namespace UltimateXR.UI.UnityInputModule
             return pointerEventData.pointerCurrentRaycast.module as UxrGraphicRaycaster == null;
         }
 
+
         /// <summary>
         ///     Gets the list of active input modules. This is additional functionality to enable the UXR input module to coexist
         ///     with Unity's input module for screen UI.
@@ -601,10 +616,12 @@ namespace UltimateXR.UI.UnityInputModule
         /// <returns>List of input modules</returns>
         private List<BaseInputModule> GetInputModules()
         {
-            EventSystem current              = EventSystem.current;
-            FieldInfo   m_SystemInputModules = current.GetType().GetField("m_SystemInputModules", BindingFlags.NonPublic | BindingFlags.Instance);
+            var current = EventSystem.current;
+            var m_SystemInputModules = current.GetType().GetField("m_SystemInputModules", BindingFlags.NonPublic | BindingFlags.Instance);
+
             return m_SystemInputModules.GetValue(current) as List<BaseInputModule>;
         }
+
 
         /// <summary>
         ///     Sets the list of active input modules. This is additional functionality to enable the UXR input module to coexist
@@ -613,10 +630,11 @@ namespace UltimateXR.UI.UnityInputModule
         /// <remarks>From user Cind13 in https://forum.unity.com/threads/multiple-processing-inputmodules.369578/</remarks>
         private void SetInputModules(List<BaseInputModule> inputModules)
         {
-            EventSystem current              = EventSystem.current;
-            FieldInfo   m_SystemInputModules = current.GetType().GetField("m_SystemInputModules", BindingFlags.NonPublic | BindingFlags.Instance);
+            var current = EventSystem.current;
+            var m_SystemInputModules = current.GetType().GetField("m_SystemInputModules", BindingFlags.NonPublic | BindingFlags.Instance);
             m_SystemInputModules.SetValue(current, inputModules);
         }
+
 
         /// <summary>
         ///     Gets whether a ray-casted UI element requires auto-enabling the laser pointer.
@@ -633,9 +651,9 @@ namespace UltimateXR.UI.UnityInputModule
 
             if (raycast.isValid && raycast.gameObject)
             {
-                UxrCanvas[] canvasVR = raycast.gameObject.GetComponentsInParent<UxrCanvas>();
+                var canvasVR = raycast.gameObject.GetComponentsInParent<UxrCanvas>();
 
-                foreach (UxrCanvas canvas in canvasVR)
+                foreach (var canvas in canvasVR)
                 {
                     if (canvas.CanvasInteractionType == UxrInteractionType.LaserPointers &&
                         canvas.AutoEnableLaserPointer &&
@@ -650,6 +668,7 @@ namespace UltimateXR.UI.UnityInputModule
             return false;
         }
 
+
         /// <summary>
         ///     Coroutine that sends haptic feedback when elements are being dragged.
         /// </summary>
@@ -658,16 +677,17 @@ namespace UltimateXR.UI.UnityInputModule
         {
             void SendDragHapticFeedback(UxrHandSide handSide, float dragSpeed)
             {
-                float quantityPos  = (dragSpeed - HapticsMinSpeed) / (HapticsMaxSpeed - HapticsMinSpeed);
-                float frequencyPos = Mathf.Lerp(HapticsMinFrequency, HapticsMaxFrequency, Mathf.Clamp01(quantityPos));
-                float amplitudePos = Mathf.Lerp(HapticsMinAmplitude, HapticsMaxAmplitude, Mathf.Clamp01(quantityPos));
+                var quantityPos = (dragSpeed - HapticsMinSpeed) / (HapticsMaxSpeed - HapticsMinSpeed);
+                var frequencyPos = Mathf.Lerp(HapticsMinFrequency, HapticsMaxFrequency, Mathf.Clamp01(quantityPos));
+                var amplitudePos = Mathf.Lerp(HapticsMinAmplitude, HapticsMaxAmplitude, Mathf.Clamp01(quantityPos));
                 UxrAvatar.LocalAvatarInput.SendHapticFeedback(handSide, frequencyPos, amplitudePos, HapticsSampleDurationSeconds);
             }
 
+
             while (true)
             {
-                float maxLeftSpeed  = Mathf.Max(GetMaxDragSpeed(_fingerTipEventData, UxrHandSide.Left),  GetMaxDragSpeed(_laserPointerEventData, UxrHandSide.Left));
-                float maxRightSpeed = Mathf.Max(GetMaxDragSpeed(_fingerTipEventData, UxrHandSide.Right), GetMaxDragSpeed(_laserPointerEventData, UxrHandSide.Right));
+                var maxLeftSpeed = Mathf.Max(GetMaxDragSpeed(_fingerTipEventData, UxrHandSide.Left), GetMaxDragSpeed(_laserPointerEventData, UxrHandSide.Left));
+                var maxRightSpeed = Mathf.Max(GetMaxDragSpeed(_fingerTipEventData, UxrHandSide.Right), GetMaxDragSpeed(_laserPointerEventData, UxrHandSide.Right));
 
                 if (maxLeftSpeed >= HapticsMinSpeed)
                 {
@@ -683,6 +703,7 @@ namespace UltimateXR.UI.UnityInputModule
             }
         }
 
+
         /// <summary>
         ///     Returns whether the given GameObject is part of a UI that requires scrolling.
         /// </summary>
@@ -690,7 +711,7 @@ namespace UltimateXR.UI.UnityInputModule
         /// <returns>Whether the GameObject requires scrolling</returns>
         private bool RequiresScrolling(GameObject pointerPress)
         {
-            ScrollRect scrollRect = pointerPress.GetComponentInParent<ScrollRect>();
+            var scrollRect = pointerPress.GetComponentInParent<ScrollRect>();
 
             if (scrollRect != null)
             {
@@ -716,6 +737,7 @@ namespace UltimateXR.UI.UnityInputModule
             return false;
         }
 
+
         /// <summary>
         ///     Checks whether to send UpdateSelected events.
         /// </summary>
@@ -729,8 +751,10 @@ namespace UltimateXR.UI.UnityInputModule
 
             var data = GetBaseEventData();
             ExecuteEvents.Execute(eventSystem.currentSelectedGameObject, data, ExecuteEvents.updateSelectedHandler);
+
             return data.used;
         }
+
 
         /// <summary>
         ///     Sends button audio/haptic feedback depending on the events processed.
@@ -744,10 +768,11 @@ namespace UltimateXR.UI.UnityInputModule
 
             if (controlFeedback.AudioClip != null && controlInput.Interactable)
             {
-                Vector3 audioPosition = !controlFeedback.UseAudio3D && UxrAvatar.LocalAvatarCamera ? UxrAvatar.LocalAvatar.CameraPosition : controlInput.transform.position;
+                var audioPosition = !controlFeedback.UseAudio3D && UxrAvatar.LocalAvatarCamera ? UxrAvatar.LocalAvatar.CameraPosition : controlInput.transform.position;
                 AudioSource.PlayClipAtPoint(controlFeedback.AudioClip, audioPosition, controlFeedback.AudioVolume);
             }
         }
+
 
         /// <summary>
         ///     Gets or creates the pointer event data for a finger tip.
@@ -764,6 +789,7 @@ namespace UltimateXR.UI.UnityInputModule
             }
         }
 
+
         /// <summary>
         ///     Gets or creates the pointer event data for a laser pointer.
         /// </summary>
@@ -779,6 +805,7 @@ namespace UltimateXR.UI.UnityInputModule
             }
         }
 
+
         /// <summary>
         ///     Computes the event data for the given finger tip.
         /// </summary>
@@ -787,23 +814,24 @@ namespace UltimateXR.UI.UnityInputModule
         public UxrPointerEventData GetFingerTipPointerEventData(UxrFingerTip fingerTip)
         {
             // Get/create the event data
-            FetchPointerEventData(fingerTip, out UxrPointerEventData data, true);
+            FetchPointerEventData(fingerTip, out var data, true);
             data.Reset();
 
             // TODO: Add scroll support using thumbstick?
             // leftData.scrollDelta = ...
 
-            data.button           = PointerEventData.InputButton.Left;
+            data.button = PointerEventData.InputButton.Left;
             data.useDragThreshold = true;
 
             // Finger tip worldpos/previousworldpos initialization
 
             data.PreviousWorldPos = data.WorldPos;
-            data.WorldPos         = fingerTip.WorldPos;
+            data.WorldPos = fingerTip.WorldPos;
 
             if (!data.WorldPosInitialized)
             {
                 data.WorldPosInitialized = true;
+
                 return data;
             }
 
@@ -814,38 +842,38 @@ namespace UltimateXR.UI.UnityInputModule
 
             // Raycast
 
-            RaycastResult raycastResult = data.pointerCurrentRaycast;
+            var raycastResult = data.pointerCurrentRaycast;
             raycastResult.worldPosition = fingerTip.WorldPos;
-            raycastResult.worldNormal   = fingerTip.WorldDir;
-            data.pointerCurrentRaycast  = raycastResult;
+            raycastResult.worldNormal = fingerTip.WorldDir;
+            data.pointerCurrentRaycast = raycastResult;
 
             eventSystem.RaycastAll(data, m_RaycastResultCache);
-            RaycastResult raycast = FindFirstRaycast(m_RaycastResultCache, data);
+            var raycast = FindFirstRaycast(m_RaycastResultCache, data);
             m_RaycastResultCache.Clear();
 
             // Check if it is a compatible hand using our UxrCanvas.
             // TODO: Support 2D/3D objects in the UxrFingerTipRaycaster?
 
             data.IgnoredGameObject = null;
-            data.GameObject2D      = raycast.isValid && raycast.depth == UxrConstants.UI.Depth2DObject ? raycast.gameObject : null;
-            data.GameObject3D      = raycast.isValid && raycast.depth == UxrConstants.UI.Depth3DObject ? raycast.gameObject : null;
-            data.IsInteractive     = raycast.isValid && !data.IsNonUI && IsInteractive(raycast.gameObject);
+            data.GameObject2D = raycast.isValid && raycast.depth == UxrConstants.UI.Depth2DObject ? raycast.gameObject : null;
+            data.GameObject3D = raycast.isValid && raycast.depth == UxrConstants.UI.Depth3DObject ? raycast.gameObject : null;
+            data.IsInteractive = raycast.isValid && !data.IsNonUI && IsInteractive(raycast.gameObject);
 
-            bool isHandCompatible = IsHandCompatible(fingerTip.Side, raycast.gameObject);
+            var isHandCompatible = IsHandCompatible(fingerTip.Side, raycast.gameObject);
 
             if (data.IsNonUI || !isHandCompatible)
             {
                 // If finger tip should be ignored, null the raycast object so that events still gets processed as if nothing was hit.
                 // This is mainly to process things correctly if the finger tip is invalidated at runtime.
                 data.IgnoredGameObject = raycast.gameObject;
-                raycast.gameObject     = null;
+                raycast.gameObject = null;
             }
 
             data.pointerCurrentRaycast = raycast;
 
             // Try to find our ray casting module
 
-            UxrFingerTipRaycaster raycaster = raycast.module as UxrFingerTipRaycaster;
+            var raycaster = raycast.module as UxrFingerTipRaycaster;
 
             if (raycaster)
             {
@@ -855,7 +883,7 @@ namespace UltimateXR.UI.UnityInputModule
 
             // First force a release if some conditions are met. We basically want to avoid using fingertips whenever a user tries to grab something
 
-            bool fingerTipValid = fingerTip.gameObject.activeInHierarchy && fingerTip.enabled && fingerTip.Avatar.AvatarController.CanHandInteractWithUI(fingerTip.Side);
+            var fingerTipValid = fingerTip.gameObject.activeInHierarchy && fingerTip.enabled && fingerTip.Avatar.AvatarController.CanHandInteractWithUI(fingerTip.Side);
 
             data.PressedThisFrame = false;
 
@@ -894,6 +922,7 @@ namespace UltimateXR.UI.UnityInputModule
             return data;
         }
 
+
         /// <summary>
         ///     Computes the event data for the laser pointer.
         /// </summary>
@@ -902,57 +931,57 @@ namespace UltimateXR.UI.UnityInputModule
         public UxrPointerEventData GetLaserPointerEventData(UxrLaserPointer laserPointer)
         {
             // Get/create the event data
-            FetchPointerEventData(laserPointer, out UxrPointerEventData data, true);
+            FetchPointerEventData(laserPointer, out var data, true);
             data.Reset();
 
             // TODO: Add scroll support using thumbstick?
             // leftData.scrollDelta = ...
 
-            data.button           = PointerEventData.InputButton.Left;
+            data.button = PointerEventData.InputButton.Left;
             data.useDragThreshold = true;
             data.PreviousWorldPos = data.WorldPos;
-            
+
             // Raycast
 
-            RaycastResult raycastResult = data.pointerCurrentRaycast;
+            var raycastResult = data.pointerCurrentRaycast;
             raycastResult.worldPosition = laserPointer.LaserPos;
-            raycastResult.worldNormal   = laserPointer.LaserDir;
-            data.pointerCurrentRaycast  = raycastResult;
-            data.IgnoredGameObject      = null;
+            raycastResult.worldNormal = laserPointer.LaserDir;
+            data.pointerCurrentRaycast = raycastResult;
+            data.IgnoredGameObject = null;
 
             eventSystem.RaycastAll(data, m_RaycastResultCache);
-            RaycastResult raycast = FindFirstRaycast(m_RaycastResultCache, data);
+            var raycast = FindFirstRaycast(m_RaycastResultCache, data);
             m_RaycastResultCache.Clear();
 
             // Raycasts are performed using length to canvas. If no raycast was found, raycast using laser length first.
 
-            bool colliderRaycastProcessed = false;
+            var colliderRaycastProcessed = false;
 
             if (!raycast.isValid)
             {
                 if (laserPointer.TargetTypes.HasFlag(UxrLaserPointerTargetTypes.Colliders3D))
                 {
-                    if (Physics.Raycast(new Ray(laserPointer.LaserPos, laserPointer.LaserDir), out RaycastHit hit, laserPointer.MaxRayLength, laserPointer.BlockingMask, laserPointer.TriggerCollidersInteraction))
+                    if (Physics.Raycast(new Ray(laserPointer.LaserPos, laserPointer.LaserDir), out var hit, laserPointer.MaxRayLength, laserPointer.BlockingMask, laserPointer.TriggerCollidersInteraction))
                     {
-                        raycast.gameObject       = hit.collider.gameObject;
-                        raycast.distance         = hit.distance;
-                        data.GameObject2D        = null;
-                        data.GameObject3D        = hit.collider.gameObject;
-                        data.IsInteractive       = false;
+                        raycast.gameObject = hit.collider.gameObject;
+                        raycast.distance = hit.distance;
+                        data.GameObject2D = null;
+                        data.GameObject3D = hit.collider.gameObject;
+                        data.IsInteractive = false;
                         colliderRaycastProcessed = true;
                     }
                 }
                 else if (laserPointer.TargetTypes.HasFlag(UxrLaserPointerTargetTypes.Colliders2D))
                 {
-                    RaycastHit2D hit = Physics2D.Raycast(laserPointer.LaserPos, laserPointer.LaserDir, laserPointer.MaxRayLength, laserPointer.BlockingMask);
+                    var hit = Physics2D.Raycast(laserPointer.LaserPos, laserPointer.LaserDir, laserPointer.MaxRayLength, laserPointer.BlockingMask);
 
                     if (hit.collider)
                     {
-                        raycast.gameObject       = hit.collider.gameObject;
-                        raycast.distance         = hit.distance;
-                        data.GameObject2D        = hit.collider.gameObject;
-                        data.GameObject3D        = null;
-                        data.IsInteractive       = false;
+                        raycast.gameObject = hit.collider.gameObject;
+                        raycast.distance = hit.distance;
+                        data.GameObject2D = hit.collider.gameObject;
+                        data.GameObject3D = null;
+                        data.IsInteractive = false;
                         colliderRaycastProcessed = true;
                     }
                 }
@@ -962,14 +991,14 @@ namespace UltimateXR.UI.UnityInputModule
             {
                 // Check if the current ray-casted element is interactive
 
-                data.GameObject2D  = raycast.isValid && raycast.depth == UxrConstants.UI.Depth2DObject ? raycast.gameObject : null;
-                data.GameObject3D  = raycast.isValid && raycast.depth == UxrConstants.UI.Depth3DObject ? raycast.gameObject : null;
+                data.GameObject2D = raycast.isValid && raycast.depth == UxrConstants.UI.Depth2DObject ? raycast.gameObject : null;
+                data.GameObject3D = raycast.isValid && raycast.depth == UxrConstants.UI.Depth3DObject ? raycast.gameObject : null;
                 data.IsInteractive = raycast.isValid && !data.IsNonUI && IsInteractive(raycast.gameObject);
             }
 
             laserPointer.IsAutoEnabled = !data.IsNonUI && DoesAutoEnableLaserPointer(raycast, laserPointer);
 
-            bool isHandCompatible = IsHandCompatible(laserPointer.HandSide, raycast.gameObject);
+            var isHandCompatible = IsHandCompatible(laserPointer.HandSide, raycast.gameObject);
 
             if (data.IsNonUI || !laserPointer.IsLaserEnabled || !isHandCompatible)
             {
@@ -977,15 +1006,15 @@ namespace UltimateXR.UI.UnityInputModule
                 // TODO: Make sure that this is called after controller input processing during this frame
 
                 data.IgnoredGameObject = raycast.gameObject;
-                raycast.gameObject     = null;
-                data.IsInteractive     = false;
+                raycast.gameObject = null;
+                data.IsInteractive = false;
             }
 
             data.pointerCurrentRaycast = raycast;
 
             // Try to find our ray casting module
 
-            UxrLaserPointerRaycaster raycaster = raycast.module as UxrLaserPointerRaycaster;
+            var raycaster = raycast.module as UxrLaserPointerRaycaster;
 
             if (raycaster)
             {
@@ -1025,6 +1054,7 @@ namespace UltimateXR.UI.UnityInputModule
             return data;
         }
 
+
         /// <summary>
         ///     Gets whether the given hand is compatible with the target GameObject.
         /// </summary>
@@ -1039,10 +1069,11 @@ namespace UltimateXR.UI.UnityInputModule
                 return false;
             }
 
-            UxrCanvas canvas = uiGameObject.GetComponentInParent<UxrCanvas>();
+            var canvas = uiGameObject.GetComponentInParent<UxrCanvas>();
 
             return !canvas || canvas.IsCompatible(handSide);
         }
+
 
         /// <summary>
         ///     Gets the maximum drag speed of the pointers that are interacting with a given control.
@@ -1058,6 +1089,7 @@ namespace UltimateXR.UI.UnityInputModule
                             .DefaultIfEmpty(0.0f)
                             .Max();
         }
+
 
         /// <summary>
         ///     Gets whether a finger tip is on the front side of the plane where the control lies.
@@ -1075,15 +1107,15 @@ namespace UltimateXR.UI.UnityInputModule
         #region Private Types & Data
 
         private const float HapticsSampleDurationSeconds = 0.1f;
-        private const float HapticsMinAmplitude          = 0.01f;
-        private const float HapticsMaxAmplitude          = 0.2f;
-        private const float HapticsMinFrequency          = 200.0f;
-        private const float HapticsMaxFrequency          = 200.0f;
-        private const float HapticsMinSpeed              = 30.0f;
-        private const float HapticsMaxSpeed              = 12000.0f;
+        private const float HapticsMinAmplitude = 0.01f;
+        private const float HapticsMaxAmplitude = 0.2f;
+        private const float HapticsMinFrequency = 200.0f;
+        private const float HapticsMaxFrequency = 200.0f;
+        private const float HapticsMinSpeed = 30.0f;
+        private const float HapticsMaxSpeed = 12000.0f;
 
-        private readonly Dictionary<UxrFingerTip, UxrPointerEventData>    _fingerTipEventData    = new Dictionary<UxrFingerTip, UxrPointerEventData>();
-        private readonly Dictionary<UxrLaserPointer, UxrPointerEventData> _laserPointerEventData = new Dictionary<UxrLaserPointer, UxrPointerEventData>();
+        private readonly Dictionary<UxrFingerTip, UxrPointerEventData> _fingerTipEventData = new();
+        private readonly Dictionary<UxrLaserPointer, UxrPointerEventData> _laserPointerEventData = new();
 
         private Coroutine _coroutineDragHaptics;
 

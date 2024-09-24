@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Extensions.System;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Render
 {
@@ -15,7 +17,7 @@ namespace UltimateXR.Extensions.Unity.Render
     public static class RendererExt
     {
         #region Public Methods
-        
+
         /// <summary>
         ///     Calculates the <see cref="Bounds" /> encapsulating a set of renderers.
         /// </summary>
@@ -25,15 +27,16 @@ namespace UltimateXR.Extensions.Unity.Render
         {
             renderers.ThrowIfNull(nameof(renderers));
 
-            Bounds bounds  = default;
-            bool   isFirst = true;
+            Bounds bounds = default;
+            var isFirst = true;
 
-            foreach (Renderer r in renderers)
+            foreach (var r in renderers)
             {
-                Bounds b = r.bounds;
+                var b = r.bounds;
+
                 if (isFirst)
                 {
-                    bounds  = r.bounds;
+                    bounds = r.bounds;
                     isFirst = false;
                 }
                 else

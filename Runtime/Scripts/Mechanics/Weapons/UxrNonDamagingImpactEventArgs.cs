@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -14,6 +16,23 @@ namespace UltimateXR.Mechanics.Weapons
     /// </summary>
     public class UxrNonDamagingImpactEventArgs : EventArgs
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="weaponOwner">Owner of the weapon that fired the shot</param>
+        /// <param name="projectileSource">Projectile source</param>
+        /// <param name="raycastHit">Raycast that detected the hit</param>
+        public UxrNonDamagingImpactEventArgs(UxrActor weaponOwner, UxrProjectileSource projectileSource, RaycastHit raycastHit)
+        {
+            WeaponOwner = weaponOwner;
+            ProjectileSource = projectileSource;
+            RaycastHit = raycastHit;
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -30,23 +49,6 @@ namespace UltimateXR.Mechanics.Weapons
         ///     The raycast that detected the hit.
         /// </summary>
         public RaycastHit RaycastHit { get; }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="weaponOwner">Owner of the weapon that fired the shot</param>
-        /// <param name="projectileSource">Projectile source</param>
-        /// <param name="raycastHit">Raycast that detected the hit</param>
-        public UxrNonDamagingImpactEventArgs(UxrActor weaponOwner, UxrProjectileSource projectileSource, RaycastHit raycastHit)
-        {
-            WeaponOwner      = weaponOwner;
-            ProjectileSource = projectileSource;
-            RaycastHit       = raycastHit;
-        }
 
         #endregion
     }

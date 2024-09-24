@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Linq;
 using UltimateXR.Avatar;
 using UltimateXR.Core.Components.Composite;
 using UnityEngine;
+
 
 namespace UltimateXR.Core.Components
 {
@@ -26,9 +28,55 @@ namespace UltimateXR.Core.Components
     /// <typeparam name="TP">Parent component type</typeparam>
     /// <typeparam name="TC">Component type</typeparam>
     public abstract class UxrComponent<TP, TC> : UxrComponent<TC>
-                where TP : Component
-                where TC : UxrComponent<TC>
+        where TP : Component
+        where TC : UxrComponent<TC>
     {
+        #region Private Types & Data
+
+        private TP _parent;
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        ///     Gets the children from a specific parent.
+        /// </summary>
+        /// <param name="parent">Parent to get the components from</param>
+        /// <param name="includeDisabled">Whether to include disabled components or not</param>
+        /// <returns>Components meeting the criteria</returns>
+        /// <remarks>
+        ///     When using the <paramref name="includeDisabled" /> parameter, components that have never been enabled are not
+        ///     returned. Components are automatically registered through their Awake() call, which is never called if the object
+        ///     has never been enabled. In this case it is recommended to resort to
+        ///     <see cref="GameObject.GetComponentsInChildren{T}(bool)" />.
+        /// </remarks>
+        public static IEnumerable<TC> GetParentChildren(TP parent, bool includeDisabled = false)
+        {
+            if (includeDisabled)
+            {
+                return AllComponents.Where(c => c is UxrComponent<TP, TC> child && child.Parent == parent);
+            }
+
+            return AllComponents.Where(c => c.isActiveAndEnabled && c is UxrComponent<TP, TC> child && child.Parent == parent);
+        }
+
+        #endregion
+
+        #region Unity
+
+        /// <summary>
+        ///     Pre-caches the root parent's component.
+        /// </summary>
+        protected override void Awake()
+        {
+            base.Awake();
+
+            _parent = GetComponentInParent<TP>();
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -57,54 +105,10 @@ namespace UltimateXR.Core.Components
                 {
                     _parent = GetComponentInParent<TP>();
                 }
+
                 return _parent;
             }
         }
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        ///     Gets the children from a specific parent.
-        /// </summary>
-        /// <param name="parent">Parent to get the components from</param>
-        /// <param name="includeDisabled">Whether to include disabled components or not</param>
-        /// <returns>Components meeting the criteria</returns>
-        /// <remarks>
-        ///     When using the <paramref name="includeDisabled" /> parameter, components that have never been enabled are not
-        ///     returned. Components are automatically registered through their Awake() call, which is never called if the object
-        ///     has never been enabled. In this case it is recommended to resort to
-        ///     <see cref="GameObject.GetComponentsInChildren{T}(bool)" />.
-        /// </remarks>
-        public static IEnumerable<TC> GetParentChildren(TP parent, bool includeDisabled = false)
-        {
-            if (includeDisabled)
-            {
-                return AllComponents.Where(c => c is UxrComponent<TP, TC> child && child.Parent == parent);
-            }
-            return AllComponents.Where(c => c.isActiveAndEnabled && c is UxrComponent<TP, TC> child && child.Parent == parent);
-        }
-
-        #endregion
-
-        #region Unity
-
-        /// <summary>
-        ///     Pre-caches the root parent's component.
-        /// </summary>
-        protected override void Awake()
-        {
-            base.Awake();
-
-            _parent = GetComponentInParent<TP>();
-        }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private TP _parent;
 
         #endregion
     }

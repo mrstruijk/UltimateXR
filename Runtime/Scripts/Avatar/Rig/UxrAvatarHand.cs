@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UltimateXR.Core;
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Rig
 {
@@ -17,9 +19,25 @@ namespace UltimateXR.Avatar.Rig
     [Serializable]
     public class UxrAvatarHand
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Default constructor.
+        /// </summary>
+        public UxrAvatarHand()
+        {
+            _thumb = new UxrAvatarFinger();
+            _index = new UxrAvatarFinger();
+            _middle = new UxrAvatarFinger();
+            _ring = new UxrAvatarFinger();
+            _little = new UxrAvatarFinger();
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private Transform       _wrist;
+        [SerializeField] private Transform _wrist;
         [SerializeField] private UxrAvatarFinger _thumb;
         [SerializeField] private UxrAvatarFinger _index;
         [SerializeField] private UxrAvatarFinger _middle;
@@ -42,7 +60,7 @@ namespace UltimateXR.Avatar.Rig
                     yield return Wrist;
                 }
 
-                foreach (Transform transform in FingerTransforms)
+                foreach (var transform in FingerTransforms)
                 {
                     yield return transform;
                 }
@@ -56,27 +74,27 @@ namespace UltimateXR.Avatar.Rig
         {
             get
             {
-                foreach (Transform transform in Index.Transforms)
+                foreach (var transform in Index.Transforms)
                 {
                     yield return transform;
                 }
 
-                foreach (Transform transform in Middle.Transforms)
+                foreach (var transform in Middle.Transforms)
                 {
                     yield return transform;
                 }
 
-                foreach (Transform transform in Ring.Transforms)
+                foreach (var transform in Ring.Transforms)
                 {
                     yield return transform;
                 }
 
-                foreach (Transform transform in Little.Transforms)
+                foreach (var transform in Little.Transforms)
                 {
                     yield return transform;
                 }
 
-                foreach (Transform transform in Thumb.Transforms)
+                foreach (var transform in Thumb.Transforms)
                 {
                     yield return transform;
                 }
@@ -139,22 +157,6 @@ namespace UltimateXR.Avatar.Rig
 
         #endregion
 
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Default constructor.
-        /// </summary>
-        public UxrAvatarHand()
-        {
-            _thumb  = new UxrAvatarFinger();
-            _index  = new UxrAvatarFinger();
-            _middle = new UxrAvatarFinger();
-            _ring   = new UxrAvatarFinger();
-            _little = new UxrAvatarFinger();
-        }
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -166,6 +168,7 @@ namespace UltimateXR.Avatar.Rig
             return Wrist != null && Thumb.HasData() && Index.HasData() && Middle.HasData() && Ring.HasData() && Little.HasData();
         }
 
+
         /// <summary>
         ///     Checks if the hand has all finger references.
         /// </summary>
@@ -174,6 +177,7 @@ namespace UltimateXR.Avatar.Rig
         {
             return Thumb.HasData() && Index.HasData() && Middle.HasData() && Ring.HasData() && Little.HasData();
         }
+
 
         /// <summary>
         ///     Gets the information of a given finger.
@@ -184,14 +188,15 @@ namespace UltimateXR.Avatar.Rig
         {
             switch (fingerType)
             {
-                case UxrFingerType.Thumb:  return Thumb;
-                case UxrFingerType.Index:  return Index;
+                case UxrFingerType.Thumb: return Thumb;
+                case UxrFingerType.Index: return Index;
                 case UxrFingerType.Middle: return Middle;
-                case UxrFingerType.Ring:   return Ring;
+                case UxrFingerType.Ring: return Ring;
                 case UxrFingerType.Little: return Little;
-                default:                   throw new ArgumentOutOfRangeException(nameof(fingerType), fingerType, null);
+                default: throw new ArgumentOutOfRangeException(nameof(fingerType), fingerType, null);
             }
         }
+
 
         /// <summary>
         ///     Tries to compute the palm center in world coordinates.
@@ -207,13 +212,15 @@ namespace UltimateXR.Avatar.Rig
                 return false;
             }
 
-            Vector3 a = Vector3.zero;
-            Vector3 b = Wrist.InverseTransformPoint(Index.Proximal.position);
-            Vector3 c = Wrist.InverseTransformPoint(Little.Proximal.position);
+            var a = Vector3.zero;
+            var b = Wrist.InverseTransformPoint(Index.Proximal.position);
+            var c = Wrist.InverseTransformPoint(Little.Proximal.position);
 
             center = _wrist.TransformPoint(Vector3Ext.Average(a, b, c));
+
             return true;
         }
+
 
         /// <summary>
         ///     Tries to compute the direction that goes out of the palm in world coordinates.
@@ -240,6 +247,7 @@ namespace UltimateXR.Avatar.Rig
             return true;
         }
 
+
         /// <summary>
         ///     Tries to compute the palm-to-finger direction in world coordinates.
         /// </summary>
@@ -255,6 +263,7 @@ namespace UltimateXR.Avatar.Rig
             }
 
             direction = ((Index.Proximal.position + Little.Proximal.position) * 0.5f - _wrist.position).normalized;
+
             return true;
         }
 

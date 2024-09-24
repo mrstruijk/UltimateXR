@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components;
 using UltimateXR.Extensions.System.Collections;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.ParticleSystems
 {
@@ -14,15 +16,38 @@ namespace UltimateXR.Animation.ParticleSystems
     /// </summary>
     public class UxrToggleEmitParticles : UxrComponent
     {
+        #region Private Methods
+
+        /// <summary>
+        ///     Gets the next time the components will be toggled
+        /// </summary>
+        /// <returns>Next toggle time in seconds relative to the current time</returns>
+        private float GetNextRelativeToggleTime()
+        {
+            if (_particleSystem != null && _particleSystem.emission.enabled)
+            {
+                return Random.Range(_enabledDurationMin, _enabledDurationMax);
+            }
+
+            if (_particleSystem != null && !_particleSystem.emission.enabled)
+            {
+                return Random.Range(_disabledDurationMin, _disabledDurationMax);
+            }
+
+            return 0.0f;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private ParticleSystem _particleSystem;
-        [SerializeField] private GameObject[]   _toggleAdditionalGameObjects;
-        [SerializeField] private float          _enabledDurationMin;
-        [SerializeField] private float          _enabledDurationMax;
-        [SerializeField] private float          _disabledDurationMin;
-        [SerializeField] private float          _disabledDurationMax;
-        [SerializeField] private bool           _useUnscaledTime;
+        [SerializeField] private GameObject[] _toggleAdditionalGameObjects;
+        [SerializeField] private float _enabledDurationMin;
+        [SerializeField] private float _enabledDurationMax;
+        [SerializeField] private float _disabledDurationMin;
+        [SerializeField] private float _disabledDurationMax;
+        [SerializeField] private bool _useUnscaledTime;
 
         #endregion
 
@@ -102,16 +127,17 @@ namespace UltimateXR.Animation.ParticleSystems
         {
             base.OnEnable();
 
-            _startTime      = _useUnscaledTime ? Time.unscaledTime : Time.time;
+            _startTime = _useUnscaledTime ? Time.unscaledTime : Time.time;
             _nextToggleTime = GetNextRelativeToggleTime();
         }
+
 
         /// <summary>
         ///     Called on each update. Checks if it is time to toggle the emission state.
         /// </summary>
         private void Update()
         {
-            float time = CurrentTime - _startTime;
+            var time = CurrentTime - _startTime;
 
             if (time > _nextToggleTime)
             {
@@ -123,37 +149,15 @@ namespace UltimateXR.Animation.ParticleSystems
 
                 if (_particleSystem != null)
                 {
-                    ParticleSystem.EmissionModule emissionModule = _particleSystem.emission;
+                    var emissionModule = _particleSystem.emission;
                     emissionModule.enabled = !emissionModule.enabled;
                 }
 
                 // Setup next toggle time
 
-                _startTime      = CurrentTime;
+                _startTime = CurrentTime;
                 _nextToggleTime = GetNextRelativeToggleTime();
             }
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Gets the next time the components will be toggled
-        /// </summary>
-        /// <returns>Next toggle time in seconds relative to the current time</returns>
-        private float GetNextRelativeToggleTime()
-        {
-            if (_particleSystem != null && _particleSystem.emission.enabled)
-            {
-                return Random.Range(_enabledDurationMin, _enabledDurationMax);
-            }
-            if (_particleSystem != null && !_particleSystem.emission.enabled)
-            {
-                return Random.Range(_disabledDurationMin, _disabledDurationMax);
-            }
-
-            return 0.0f;
         }
 
         #endregion

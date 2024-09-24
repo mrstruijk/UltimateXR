@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ using UnityEngine.UI;
 #if ULTIMATEXR_UNITY_TMPRO
 using TMPro;
 #endif
+
 
 namespace UltimateXR.Animation.UI
 {
@@ -25,6 +27,12 @@ namespace UltimateXR.Animation.UI
     [DisallowMultipleComponent]
     public class UxrTextContentTween : UxrTween
     {
+        #region Private Types & Data
+
+        private string _originalText;
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private string _startText;
@@ -39,14 +47,14 @@ namespace UltimateXR.Animation.UI
         /// </summary>
         public Text TargetText => GetCachedComponent<Text>();
 
-#if ULTIMATEXR_UNITY_TMPRO
+        #if ULTIMATEXR_UNITY_TMPRO
 
         /// <summary>
         ///     Gets the <see cref="TextMeshProUGUI" /> component whose string will be interpolated.
         /// </summary>
         public TextMeshProUGUI TargetTextTMPro => GetCachedComponent<TextMeshProUGUI>();
 
-#endif
+        #endif
 
         /// <summary>
         ///     Gets or sets the text value.
@@ -60,14 +68,14 @@ namespace UltimateXR.Animation.UI
                     return TargetText.text;
                 }
 
-#if ULTIMATEXR_UNITY_TMPRO
+                #if ULTIMATEXR_UNITY_TMPRO
 
                 if (TargetTextTMPro != null)
                 {
                     return TargetTextTMPro.text;
                 }
 
-#endif
+                #endif
                 return null;
             }
 
@@ -78,14 +86,14 @@ namespace UltimateXR.Animation.UI
                     TargetText.text = value;
                 }
 
-#if ULTIMATEXR_UNITY_TMPRO
+                #if ULTIMATEXR_UNITY_TMPRO
 
                 if (TargetTextTMPro != null)
                 {
                     TargetTextTMPro.text = value;
                 }
 
-#endif
+                #endif
             }
         }
 
@@ -151,17 +159,18 @@ namespace UltimateXR.Animation.UI
         /// </returns>
         public static UxrTextContentTween Animate(GameObject gameObject, string startText, string endText, UxrInterpolationSettings settings, Action<UxrTween> finishedCallback = null)
         {
-            UxrTextContentTween textContentTween = gameObject.GetOrAddComponent<UxrTextContentTween>();
+            var textContentTween = gameObject.GetOrAddComponent<UxrTextContentTween>();
 
-            textContentTween.UsesFormatString      = false;
-            textContentTween.StartText             = startText;
-            textContentTween.EndText               = endText;
+            textContentTween.UsesFormatString = false;
+            textContentTween.StartText = startText;
+            textContentTween.EndText = endText;
             textContentTween.InterpolationSettings = settings;
-            textContentTween.FinishedCallback      = finishedCallback;
+            textContentTween.FinishedCallback = finishedCallback;
             textContentTween.Restart();
 
             return textContentTween;
         }
+
 
         /// <summary>
         ///     Creates and starts a tweening animation for a Unity UI Text component or TMPro text component. See
@@ -185,13 +194,13 @@ namespace UltimateXR.Animation.UI
         /// </returns>
         public static UxrTextContentTween Animate(GameObject gameObject, UxrInterpolationSettings settings, Action<UxrTween> finishedCallback, string formatString, object[] formatStringArgs)
         {
-            UxrTextContentTween textContentTween = gameObject.GetOrAddComponent<UxrTextContentTween>();
+            var textContentTween = gameObject.GetOrAddComponent<UxrTextContentTween>();
 
-            textContentTween.UsesFormatString      = true;
+            textContentTween.UsesFormatString = true;
             textContentTween.InterpolationSettings = settings;
-            textContentTween.FinishedCallback      = finishedCallback;
-            textContentTween.FormatString          = formatString;
-            textContentTween.FormatStringArgs      = formatStringArgs.ToList();
+            textContentTween.FinishedCallback = finishedCallback;
+            textContentTween.FormatString = formatString;
+            textContentTween.FormatStringArgs = formatStringArgs.ToList();
             textContentTween.Restart();
 
             return textContentTween;
@@ -211,24 +220,26 @@ namespace UltimateXR.Animation.UI
                     return TargetText;
                 }
 
-#if ULTIMATEXR_UNITY_TMPRO
+                #if ULTIMATEXR_UNITY_TMPRO
 
                 if (TargetTextTMPro != null)
                 {
                     return TargetTextTMPro;
                 }
 
-#endif
+                #endif
 
                 return null;
             }
         }
+
 
         /// <inheritdoc />
         protected override void StoreOriginalValue()
         {
             _originalText = Text;
         }
+
 
         /// <inheritdoc />
         protected override void RestoreOriginalValue()
@@ -238,6 +249,7 @@ namespace UltimateXR.Animation.UI
                 Text = _originalText;
             }
         }
+
 
         /// <inheritdoc />
         protected override void Interpolate(float t)
@@ -256,12 +268,6 @@ namespace UltimateXR.Animation.UI
                 Text = UxrInterpolator.InterpolateText(t, true, FormatString, FormatStringArgs);
             }
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private string _originalText;
 
         #endregion
     }

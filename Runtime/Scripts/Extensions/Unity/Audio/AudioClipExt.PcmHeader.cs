@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.IO;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Audio
 {
@@ -74,25 +76,25 @@ namespace UltimateXR.Extensions.Unity.Audio
             /// <param name="sampleRate">The number of samples per second</param>
             /// <param name="byteRate">The number of bytes per second</param>
             /// <param name="blockAlign">The block alignment</param>
-            private PcmHeader(int    bitDepth,
-                              int    audioSize,
-                              int    audioStartIndex,
+            private PcmHeader(int bitDepth,
+                              int audioSize,
+                              int audioStartIndex,
                               ushort channels,
-                              int    sampleRate,
-                              int    byteRate,
+                              int sampleRate,
+                              int byteRate,
                               ushort blockAlign)
             {
-                BitDepth       = bitDepth;
+                BitDepth = bitDepth;
                 _negativeDepth = Mathf.Pow(2f, BitDepth - 1f);
                 _positiveDepth = _negativeDepth - 1f;
 
-                AudioSampleSize  = bitDepth / 8;
-                AudioSampleCount = Mathf.FloorToInt(audioSize / (float)AudioSampleSize);
-                AudioStartIndex  = audioStartIndex;
+                AudioSampleSize = bitDepth / 8;
+                AudioSampleCount = Mathf.FloorToInt(audioSize / (float) AudioSampleSize);
+                AudioStartIndex = audioStartIndex;
 
-                Channels   = channels;
+                Channels = channels;
                 SampleRate = sampleRate;
-                ByteRate   = byteRate;
+                ByteRate = byteRate;
                 BlockAlign = blockAlign;
             }
 
@@ -108,8 +110,10 @@ namespace UltimateXR.Extensions.Unity.Audio
             public static PcmHeader FromBytes(byte[] pcmBytes)
             {
                 using var memoryStream = new MemoryStream(pcmBytes);
+
                 return FromStream(memoryStream);
             }
+
 
             /// <summary>
             ///     Creates a <see cref="PcmHeader" /> object reading from a data stream.
@@ -119,30 +123,32 @@ namespace UltimateXR.Extensions.Unity.Audio
             public static PcmHeader FromStream(Stream pcmStream)
             {
                 pcmStream.Position = SizeIndex;
-                using BinaryReader reader = new BinaryReader(pcmStream);
+                using var reader = new BinaryReader(pcmStream);
 
-                int    headerSize      = reader.ReadInt32();  // 16
-                ushort audioFormatCode = reader.ReadUInt16(); // 20
+                var headerSize = reader.ReadInt32(); // 16
+                var audioFormatCode = reader.ReadUInt16(); // 20
 
-                string audioFormat = GetAudioFormatFromCode(audioFormatCode);
+                var audioFormat = GetAudioFormatFromCode(audioFormatCode);
+
                 if (audioFormatCode != 1 && audioFormatCode == 65534)
                 {
                     // Only uncompressed PCM wav files are supported.
                     throw new ArgumentOutOfRangeException(nameof(pcmStream),
-                                                          $"Detected format code '{audioFormatCode}' {audioFormat}, but only PCM and WaveFormatExtensible uncompressed formats are currently supported.");
+                        $"Detected format code '{audioFormatCode}' {audioFormat}, but only PCM and WaveFormatExtensible uncompressed formats are currently supported.");
                 }
 
-                ushort channelCount = reader.ReadUInt16(); // 22
-                int    sampleRate   = reader.ReadInt32();  // 24
-                int    byteRate     = reader.ReadInt32();  // 28
-                ushort blockAlign   = reader.ReadUInt16(); // 32
-                ushort bitDepth     = reader.ReadUInt16(); //34
+                var channelCount = reader.ReadUInt16(); // 22
+                var sampleRate = reader.ReadInt32(); // 24
+                var byteRate = reader.ReadInt32(); // 28
+                var blockAlign = reader.ReadUInt16(); // 32
+                var bitDepth = reader.ReadUInt16(); //34
 
                 pcmStream.Position = SizeIndex + headerSize + 2 * sizeof(int); // Header end index
-                int audioSize = reader.ReadInt32();                            // Audio size index
+                var audioSize = reader.ReadInt32(); // Audio size index
 
-                return new PcmHeader(bitDepth, audioSize, (int)pcmStream.Position, channelCount, sampleRate, byteRate, blockAlign); // audio start index
+                return new PcmHeader(bitDepth, audioSize, (int) pcmStream.Position, channelCount, sampleRate, byteRate, blockAlign); // audio start index
             }
+
 
             /// <summary>
             ///     Normalizes a raw audio sample.
@@ -151,7 +157,8 @@ namespace UltimateXR.Extensions.Unity.Audio
             /// <returns>Normalized audio sample</returns>
             public float NormalizeSample(float rawSample)
             {
-                float sampleDepth = rawSample < 0 ? _negativeDepth : _positiveDepth;
+                var sampleDepth = rawSample < 0 ? _negativeDepth : _positiveDepth;
+
                 return rawSample / sampleDepth;
             }
 
@@ -169,12 +176,12 @@ namespace UltimateXR.Extensions.Unity.Audio
             {
                 switch (code)
                 {
-                    case 1:     return "PCM";
-                    case 2:     return "ADPCM";
-                    case 3:     return "IEEE";
-                    case 7:     return "?-law";
+                    case 1: return "PCM";
+                    case 2: return "ADPCM";
+                    case 3: return "IEEE";
+                    case 7: return "?-law";
                     case 65534: return "WaveFormatExtensible";
-                    default:    throw new ArgumentOutOfRangeException(nameof(code), code, "Unknown wav code format.");
+                    default: throw new ArgumentOutOfRangeException(nameof(code), code, "Unknown wav code format.");
                 }
             }
 

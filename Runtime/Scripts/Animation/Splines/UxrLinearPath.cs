@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Splines
 {
@@ -13,23 +15,9 @@ namespace UltimateXR.Animation.Splines
     /// </summary>
     public class UxrLinearPath : UxrSpline
     {
-        #region Public Overrides UxrSpline
+        #region Private Types & Data
 
-        /// <summary>
-        ///     Does the object contain valid data in order to evaluate the path?
-        /// </summary>
-        public override bool HasValidData => _points != null && _points.Count > 1;
-
-        /// <summary>
-        ///     Evaluates the path.
-        /// </summary>
-        /// <param name="t">Interpolation parameter [0.0f, 1.0f]</param>
-        /// <param name="position">Interpolated point</param>
-        /// <returns>Success or failure</returns>
-        public override bool Evaluate(float t, out Vector3 position)
-        {
-            return Evaluate(t, out position, out float _);
-        }
+        private List<Vector3> _points;
 
         #endregion
 
@@ -51,6 +39,7 @@ namespace UltimateXR.Animation.Splines
             }
 
             ComputeArcLengthSamples();
+
             return true;
         }
 
@@ -67,36 +56,52 @@ namespace UltimateXR.Animation.Splines
         /// <returns>Success or failure</returns>
         private bool Evaluate(float t, out Vector3 position, out float segmentLength)
         {
-            position      = Vector3.zero;
+            position = Vector3.zero;
             segmentLength = 0.0f;
 
             t = Mathf.Clamp01(t);
 
             // Compute the index of p1
-            int   indexA   = Mathf.FloorToInt(t * (_points.Count - 1));
-            float segmentT = t * (_points.Count - 1) - indexA;
+            var indexA = Mathf.FloorToInt(t * (_points.Count - 1));
+            var segmentT = t * (_points.Count - 1) - indexA;
 
             if (indexA >= _points.Count - 1)
             {
-                indexA   = _points.Count - 2;
+                indexA = _points.Count - 2;
                 segmentT = 1.0f;
             }
 
-            Vector3 p1 = _points[indexA];
-            Vector3 p2 = _points[indexA + 1];
+            var p1 = _points[indexA];
+            var p2 = _points[indexA + 1];
 
             segmentLength = Vector3.Distance(p1, p2);
 
             // Interpolate
             position = Vector3.Lerp(p1, p2, segmentT);
+
             return true;
         }
 
         #endregion
 
-        #region Private Types & Data
+        #region Public Overrides UxrSpline
 
-        private List<Vector3> _points;
+        /// <summary>
+        ///     Does the object contain valid data in order to evaluate the path?
+        /// </summary>
+        public override bool HasValidData => _points != null && _points.Count > 1;
+
+
+        /// <summary>
+        ///     Evaluates the path.
+        /// </summary>
+        /// <param name="t">Interpolation parameter [0.0f, 1.0f]</param>
+        /// <param name="position">Interpolated point</param>
+        /// <returns>Success or failure</returns>
+        public override bool Evaluate(float t, out Vector3 position)
+        {
+            return Evaluate(t, out position, out var _);
+        }
 
         #endregion
     }

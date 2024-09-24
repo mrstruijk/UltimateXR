@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components;
 using UltimateXR.UI.UnityInputModule.Controls;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
 
 namespace UltimateXR.UI.UnityInputModule.Utils
 {
@@ -26,6 +28,20 @@ namespace UltimateXR.UI.UnityInputModule.Utils
 
         #endregion
 
+        #region Event Handling Methods
+
+        /// <summary>
+        ///     Called when the object was clicked.
+        /// </summary>
+        /// <param name="controlInput">Control that was clicked</param>
+        /// <param name="eventData">Event data</param>
+        private void Control_Clicked(UxrControlInput controlInput, PointerEventData eventData)
+        {
+            Destroy(gameObject);
+        }
+
+        #endregion
+
         #region Unity
 
         /// <summary>
@@ -38,6 +54,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
             ControlInput.Clicked += Control_Clicked;
         }
 
+
         /// <summary>
         ///     Unsubscribes from events.
         /// </summary>
@@ -46,20 +63,6 @@ namespace UltimateXR.UI.UnityInputModule.Utils
             base.OnDisable();
 
             ControlInput.Clicked -= Control_Clicked;
-        }
-
-        #endregion
-
-        #region Event Handling Methods
-
-        /// <summary>
-        ///     Called when the object was clicked.
-        /// </summary>
-        /// <param name="controlInput">Control that was clicked</param>
-        /// <param name="eventData">Event data</param>
-        private void Control_Clicked(UxrControlInput controlInput, PointerEventData eventData)
-        {
-            Destroy(gameObject);
         }
 
         #endregion

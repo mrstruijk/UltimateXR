@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.CyborgAvatar
 {
@@ -21,8 +23,8 @@ namespace UltimateXR.Mechanics.CyborgAvatar
             #region Inspector Properties/Serialized Fields
 
             [SerializeField] [ColorUsage(true, true)] private Color _color;
-            [SerializeField]                          private float _thickness;
-            [SerializeField]                          private float _offset;
+            [SerializeField] private float _thickness;
+            [SerializeField] private float _offset;
 
             #endregion
 

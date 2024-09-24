@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -96,6 +98,34 @@ namespace UltimateXR.Manipulation
     /// </summary>
     public class UxrManipulationEventArgs : EventArgs
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="grabbableObject">Grabbable object</param>
+        /// <param name="grabbableAnchor">Grabbable object anchor</param>
+        /// <param name="grabber">Grabber</param>
+        /// <param name="grabPointIndex">Grab point index</param>
+        /// <param name="isMultiHands">Whether the event was a result of a manipulation with more than one hand</param>
+        /// <param name="isSwitchHands">Whether the event was a result of passing the grabbable object from one hand to the other</param>
+        public UxrManipulationEventArgs(UxrGrabbableObject grabbableObject,
+                                        UxrGrabbableObjectAnchor grabbableAnchor,
+                                        UxrGrabber grabber,
+                                        int grabPointIndex = 0,
+                                        bool isMultiHands = false,
+                                        bool isSwitchHands = false)
+        {
+            GrabbableObject = grabbableObject;
+            GrabbableAnchor = grabbableAnchor;
+            Grabber = grabber;
+            GrabPointIndex = grabPointIndex;
+            IsMultiHands = isMultiHands;
+            IsSwitchHands = isSwitchHands;
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -157,34 +187,6 @@ namespace UltimateXR.Manipulation
         ///     Gets the placement flags in place events.
         /// </summary>
         public UxrPlacementOptions PlacementOptions { get; internal set; }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="grabbableObject">Grabbable object</param>
-        /// <param name="grabbableAnchor">Grabbable object anchor</param>
-        /// <param name="grabber">Grabber</param>
-        /// <param name="grabPointIndex">Grab point index</param>
-        /// <param name="isMultiHands">Whether the event was a result of a manipulation with more than one hand</param>
-        /// <param name="isSwitchHands">Whether the event was a result of passing the grabbable object from one hand to the other</param>
-        public UxrManipulationEventArgs(UxrGrabbableObject       grabbableObject,
-                                        UxrGrabbableObjectAnchor grabbableAnchor,
-                                        UxrGrabber               grabber,
-                                        int                      grabPointIndex = 0,
-                                        bool                     isMultiHands   = false,
-                                        bool                     isSwitchHands  = false)
-        {
-            GrabbableObject = grabbableObject;
-            GrabbableAnchor = grabbableAnchor;
-            Grabber         = grabber;
-            GrabPointIndex  = grabPointIndex;
-            IsMultiHands    = isMultiHands;
-            IsSwitchHands   = isSwitchHands;
-        }
 
         #endregion
     }

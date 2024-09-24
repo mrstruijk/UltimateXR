@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -62,9 +64,10 @@ namespace UltimateXR.Manipulation
 
             UnprocessedGrabberPos = grabber.UnprocessedGrabberPosition;
             UnprocessedGrabberRot = grabber.UnprocessedGrabberRotation;
-            ProcessedGrabberPos   = grabber.GrabbedObject.GetGrabPointSnapModeAffectsPosition(grabPoint) ? grabber.GrabbedObject.GetGrabbedPointGrabAlignPosition(grabber, grabPoint) : grabber.transform.position;
-            ProcessedGrabberRot   = grabber.GrabbedObject.GetGrabPointSnapModeAffectsRotation(grabPoint) ? grabber.GrabbedObject.GetGrabbedPointGrabAlignRotation(grabber, grabPoint) : grabber.transform.rotation;
+            ProcessedGrabberPos = grabber.GrabbedObject.GetGrabPointSnapModeAffectsPosition(grabPoint) ? grabber.GrabbedObject.GetGrabbedPointGrabAlignPosition(grabber, grabPoint) : grabber.transform.position;
+            ProcessedGrabberRot = grabber.GrabbedObject.GetGrabPointSnapModeAffectsRotation(grabPoint) ? grabber.GrabbedObject.GetGrabbedPointGrabAlignRotation(grabber, grabPoint) : grabber.transform.rotation;
         }
+
 
         /// <summary>
         ///     Default constructor is private.

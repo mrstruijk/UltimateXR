@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar;
 using UltimateXR.Core.Components;
 using UltimateXR.Devices;
@@ -11,10 +12,10 @@ using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.XR;
-
 #if ULTIMATEXR_UNITY_URP
 using UnityEngine.Rendering.Universal;
 #endif
+
 
 namespace UltimateXR.Rendering.FX
 {
@@ -36,22 +37,123 @@ namespace UltimateXR.Rendering.FX
     /// </summary>
     public class UxrMagnifyingGlassUrp : UxrComponent
     {
+        #region Event Handling Methods
+
+        /// <summary>
+        ///     Called by Unity when the rendering starts. It is used to render the magnifying glass refraction.
+        /// </summary>
+        private void RenderPipelineManager_BeginCameraRendering(ScriptableRenderContext context, Camera renderCamera)
+        {
+            if (UxrAvatar.LocalAvatarCamera != renderCamera)
+            {
+                return;
+            }
+
+            var glassRenderer = GetComponent<Renderer>();
+
+            if (!enabled || !glassRenderer || !glassRenderer.sharedMaterial || !glassRenderer.enabled)
+            {
+                return;
+            }
+
+            if (!renderCamera)
+            {
+                return;
+            }
+
+            // Avoid recursive rendering
+
+            if (s_insideRendering)
+            {
+                return;
+            }
+
+            s_insideRendering = true;
+
+            CreateResources(renderCamera, out var refractionCamera);
+
+            if (!_refractionCamera)
+            {
+                return;
+            }
+
+            // Lower quality for refraction
+
+            var oldPixelLightCount = QualitySettings.pixelLightCount;
+
+            if (_disablePixelLights)
+            {
+                QualitySettings.pixelLightCount = 0;
+            }
+
+            CopyCameraData(renderCamera, refractionCamera);
+
+            // Update parameters
+
+            refractionCamera.cullingMask = ~(1 << 4) & _layers.value;
+
+            if (TryGetComponent<Renderer>(out var theRenderer))
+            {
+                foreach (var m in theRenderer.sharedMaterials)
+                {
+                    if (m.HasProperty(VarRenderTexLeft))
+                    {
+                        m.SetTexture(VarRenderTexLeft, _renderTextureLeft);
+                    }
+
+                    if (m.HasProperty(VarRenderTexRight))
+                    {
+                        m.SetTexture(VarRenderTexRight, _renderTextureRight);
+                    }
+
+                    if (m.HasProperty(VarGlassScreenCenter))
+                    {
+                        var glassScreenCenter = renderCamera.WorldToViewportPoint(_glassAxes.position);
+                        //glassScreenCenter.y = 1.0f - glassScreenCenter.y;
+                        m.SetVector(VarGlassScreenCenter, glassScreenCenter);
+                    }
+                }
+            }
+
+            // Render
+            refractionCamera.enabled = true;
+
+            refractionCamera.targetTexture = _renderTextureLeft;
+            RenderRefraction(context, renderCamera, refractionCamera, true, true);
+
+            refractionCamera.targetTexture = _renderTextureRight;
+            RenderRefraction(context, renderCamera, refractionCamera, true, false);
+
+            refractionCamera.enabled = false;
+
+            // Restore quality
+
+            if (_disablePixelLights)
+            {
+                QualitySettings.pixelLightCount = oldPixelLightCount;
+            }
+
+            s_insideRendering = false;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         // Inspector
 
-        [SerializeField]                        private bool      _forceClearSkyBox;
-        [SerializeField]                        private Transform _glassAxes;
-        [SerializeField]                        private bool      _disablePixelLights = true;
-        [SerializeField]                        private int       _textureSize        = 1024;
-        [SerializeField]                        private int       _antialias          = 1;
-        [SerializeField]                        private float     _clipPlaneOffset    = 0.01f;
-        [SerializeField]                        private float     _cameraForwardOffset;
-        [SerializeField] [Range(0.5f,   3.0f)]  private float     _fovScale  = 1.0f;
-        [SerializeField] [Range(-10.0f, 10.0f)] private float     _ipdAdjust = 1.0f;
-        [SerializeField] [Range(-0.15f, 0.15f)] private float     _offsetLeft;
-        [SerializeField] [Range(-0.15f, 0.15f)] private float     _offsetRight;
-        [SerializeField]                        private LayerMask _layers = -1;
+        [SerializeField] private bool _forceClearSkyBox;
+        [SerializeField] private Transform _glassAxes;
+        [SerializeField] private bool _disablePixelLights = true;
+        [SerializeField] private int _textureSize = 1024;
+        [SerializeField] private int _antialias = 1;
+        [SerializeField] private float _clipPlaneOffset = 0.01f;
+        [SerializeField] private float _cameraForwardOffset;
+        [SerializeField] [Range(0.5f, 3.0f)] private float _fovScale = 1.0f;
+        [SerializeField] [Range(-10.0f, 10.0f)] private float _ipdAdjust = 1.0f;
+        [SerializeField] [Range(-0.15f, 0.15f)] private float _offsetLeft;
+        [SerializeField] [Range(-0.15f, 0.15f)] private float _offsetRight;
+        [SerializeField] private LayerMask _layers = -1;
 
         #endregion
 
@@ -82,6 +184,7 @@ namespace UltimateXR.Rendering.FX
             }
         }
 
+
         /// <summary>
         ///     Subscribes to the URP rendering event.
         /// </summary>
@@ -92,6 +195,7 @@ namespace UltimateXR.Rendering.FX
             RenderPipelineManager.beginCameraRendering += RenderPipelineManager_BeginCameraRendering;
         }
 
+
         /// <summary>
         ///     Unsubscribes from the URP rendering event.
         /// </summary>
@@ -100,106 +204,6 @@ namespace UltimateXR.Rendering.FX
             base.OnDisable();
 
             RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_BeginCameraRendering;
-        }
-
-        #endregion
-
-        #region Event Handling Methods
-
-        /// <summary>
-        ///     Called by Unity when the rendering starts. It is used to render the magnifying glass refraction.
-        /// </summary>
-        private void RenderPipelineManager_BeginCameraRendering(ScriptableRenderContext context, Camera renderCamera)
-        {
-            if (UxrAvatar.LocalAvatarCamera != renderCamera)
-            {
-                return;
-            }
-
-            Renderer glassRenderer = GetComponent<Renderer>();
-
-            if (!enabled || !glassRenderer || !glassRenderer.sharedMaterial || !glassRenderer.enabled)
-            {
-                return;
-            }
-
-            if (!renderCamera)
-            {
-                return;
-            }
-
-            // Avoid recursive rendering
-
-            if (s_insideRendering)
-            {
-                return;
-            }
-
-            s_insideRendering = true;
-
-            CreateResources(renderCamera, out Camera refractionCamera);
-
-            if (!_refractionCamera)
-            {
-                return;
-            }
-
-            // Lower quality for refraction
-
-            int oldPixelLightCount = QualitySettings.pixelLightCount;
-            if (_disablePixelLights)
-            {
-                QualitySettings.pixelLightCount = 0;
-            }
-
-            CopyCameraData(renderCamera, refractionCamera);
-
-            // Update parameters
-
-            refractionCamera.cullingMask = ~(1 << 4) & _layers.value;
-
-            if (TryGetComponent<Renderer>(out var theRenderer))
-            {
-                foreach (Material m in theRenderer.sharedMaterials)
-                {
-                    if (m.HasProperty(VarRenderTexLeft))
-                    {
-                        m.SetTexture(VarRenderTexLeft, _renderTextureLeft);
-                    }
-
-                    if (m.HasProperty(VarRenderTexRight))
-                    {
-                        m.SetTexture(VarRenderTexRight, _renderTextureRight);
-                    }
-
-                    if (m.HasProperty(VarGlassScreenCenter))
-                    {
-                        Vector3 glassScreenCenter = renderCamera.WorldToViewportPoint(_glassAxes.position);
-                        //glassScreenCenter.y = 1.0f - glassScreenCenter.y;
-                        m.SetVector(VarGlassScreenCenter, glassScreenCenter);
-                    }
-                }
-            }
-
-            // Render
-            refractionCamera.enabled = true;
-
-            refractionCamera.targetTexture = _renderTextureLeft;
-            RenderRefraction(context, renderCamera, refractionCamera, true, true);
-
-            refractionCamera.targetTexture = _renderTextureRight;
-            RenderRefraction(context, renderCamera, refractionCamera, true, false);
-
-            refractionCamera.enabled = false;
-
-            // Restore quality
-
-            if (_disablePixelLights)
-            {
-                QualitySettings.pixelLightCount = oldPixelLightCount;
-            }
-
-            s_insideRendering = false;
         }
 
         #endregion
@@ -219,13 +223,13 @@ namespace UltimateXR.Rendering.FX
             refractionCamera.ResetWorldToCameraMatrix();
             refractionCamera.ResetCullingMatrix();
 
-            Matrix4x4 projection = renderCamera.projectionMatrix;
+            var projection = renderCamera.projectionMatrix;
 
-            if (stereo && UxrTrackingDevice.GetHeadsetDevice(out InputDevice headsetDevice))
+            if (stereo && UxrTrackingDevice.GetHeadsetDevice(out var headsetDevice))
             {
-                headsetDevice.TryGetFeatureValue(CommonUsages.leftEyePosition,  out Vector3 leftEye);
-                headsetDevice.TryGetFeatureValue(CommonUsages.rightEyePosition, out Vector3 rightEye);
-                float ipd = Vector3.Distance(leftEye, rightEye) * _ipdAdjust;
+                headsetDevice.TryGetFeatureValue(CommonUsages.leftEyePosition, out var leftEye);
+                headsetDevice.TryGetFeatureValue(CommonUsages.rightEyePosition, out var rightEye);
+                var ipd = Vector3.Distance(leftEye, rightEye) * _ipdAdjust;
 
                 if (isLeft)
                 {
@@ -245,25 +249,26 @@ namespace UltimateXR.Rendering.FX
 
             refractionCamera.transform.position += renderCamera.transform.forward * _cameraForwardOffset;
 
-            Vector4 clipPlane = CameraSpacePlane(refractionCamera, _clipPlaneOffset, _glassAxes.position, _glassAxes.forward, 1.0f);
+            var clipPlane = CameraSpacePlane(refractionCamera, _clipPlaneOffset, _glassAxes.position, _glassAxes.forward, 1.0f);
 
-            Vector3 screenPos = renderCamera.WorldToViewportPoint(_glassAxes.position, isLeft ? Camera.MonoOrStereoscopicEye.Left : Camera.MonoOrStereoscopicEye.Right);
+            var screenPos = renderCamera.WorldToViewportPoint(_glassAxes.position, isLeft ? Camera.MonoOrStereoscopicEye.Left : Camera.MonoOrStereoscopicEye.Right);
             screenPos.x = (screenPos.x - 0.5f) * 2.0f + (isLeft ? _offsetLeft : _offsetRight);
             screenPos.y = (screenPos.y - 0.5f) * 2.0f;
             screenPos.z = 0.0f;
-            Matrix4x4 translateMtxA = Matrix4x4.Translate(-screenPos);
-            Matrix4x4 scaleMtx      = Matrix4x4.Scale(new Vector3(_fovScale, _fovScale, 0.3f));
-            Matrix4x4 translateMtxB = Matrix4x4.Translate(screenPos);
+            var translateMtxA = Matrix4x4.Translate(-screenPos);
+            var scaleMtx = Matrix4x4.Scale(new Vector3(_fovScale, _fovScale, 0.3f));
+            var translateMtxB = Matrix4x4.Translate(screenPos);
             projection = translateMtxB * scaleMtx * translateMtxA * projection;
 
-            projection                        = projection.GetObliqueMatrix(clipPlane);
+            projection = projection.GetObliqueMatrix(clipPlane);
             refractionCamera.projectionMatrix = projection;
-            refractionCamera.cullingMatrix    = refractionCamera.projectionMatrix * refractionCamera.worldToCameraMatrix;
+            refractionCamera.cullingMatrix = refractionCamera.projectionMatrix * refractionCamera.worldToCameraMatrix;
 
-#if ULTIMATEXR_UNITY_URP
+            #if ULTIMATEXR_UNITY_URP
             UniversalRenderPipeline.RenderSingleCamera(context, refractionCamera);
-#endif
+            #endif
         }
+
 
         /// <summary>
         ///     Copies data from one camera to another.
@@ -279,13 +284,13 @@ namespace UltimateXR.Rendering.FX
 
             if (_forceClearSkyBox == false)
             {
-                dest.clearFlags      = src.clearFlags;
+                dest.clearFlags = src.clearFlags;
                 dest.backgroundColor = src.backgroundColor;
 
                 if (src.clearFlags == CameraClearFlags.Skybox)
                 {
-                    Skybox srcSky = src.GetComponent(typeof(Skybox)) as Skybox;
-                    Skybox dstSky = dest.GetComponent(typeof(Skybox)) as Skybox;
+                    var srcSky = src.GetComponent(typeof(Skybox)) as Skybox;
+                    var dstSky = dest.GetComponent(typeof(Skybox)) as Skybox;
 
                     if (dstSky)
                     {
@@ -295,25 +300,26 @@ namespace UltimateXR.Rendering.FX
                         }
                         else
                         {
-                            dstSky.enabled  = true;
+                            dstSky.enabled = true;
                             dstSky.material = srcSky.material;
                         }
                     }
                 }
             }
 
-            dest.farClipPlane  = src.farClipPlane;
+            dest.farClipPlane = src.farClipPlane;
             dest.nearClipPlane = src.nearClipPlane;
-            dest.orthographic  = src.orthographic;
+            dest.orthographic = src.orthographic;
 
             if (XRSettings.enabled == false)
             {
                 dest.fieldOfView = src.fieldOfView;
             }
 
-            dest.aspect           = src.aspect;
+            dest.aspect = src.aspect;
             dest.orthographicSize = src.orthographicSize;
         }
+
 
         /// <summary>
         ///     Allocates the resources.
@@ -349,8 +355,8 @@ namespace UltimateXR.Rendering.FX
 
             if (!refractionCamera)
             {
-                GameObject go = new GameObject($"{nameof(UxrMagnifyingGlassUrp)} Camera", typeof(Camera), typeof(Skybox));
-                refractionCamera  = go.GetComponent<Camera>();
+                var go = new GameObject($"{nameof(UxrMagnifyingGlassUrp)} Camera", typeof(Camera), typeof(Skybox));
+                refractionCamera = go.GetComponent<Camera>();
                 _refractionCamera = refractionCamera;
 
                 if (XRSettings.enabled == false)
@@ -360,7 +366,7 @@ namespace UltimateXR.Rendering.FX
 
                 refractionCamera.transform.SetPositionAndRotation(transform);
                 refractionCamera.enabled = true;
-                go.hideFlags             = HideFlags.HideAndDontSave;
+                go.hideFlags = HideFlags.HideAndDontSave;
 
                 if (_forceClearSkyBox)
                 {
@@ -370,6 +376,7 @@ namespace UltimateXR.Rendering.FX
                 refractionCamera.enabled = false;
             }
         }
+
 
         /// <summary>
         ///     Creates a render texture.
@@ -384,13 +391,14 @@ namespace UltimateXR.Rendering.FX
 
             texture = new RenderTexture(_textureSize, _textureSize, 0, RenderTextureFormat.Default);
 
-            texture.antiAliasing     = _antialias;
-            texture.name             = $"{nameof(UxrMagnifyingGlassUrp)} Texture";
-            texture.isPowerOfTwo     = true;
-            texture.hideFlags        = HideFlags.DontSave;
+            texture.antiAliasing = _antialias;
+            texture.name = $"{nameof(UxrMagnifyingGlassUrp)} Texture";
+            texture.isPowerOfTwo = true;
+            texture.hideFlags = HideFlags.DontSave;
             texture.autoGenerateMips = true;
-            texture.useMipMap        = true; // Mip-mapping can be used for blur
+            texture.useMipMap = true; // Mip-mapping can be used for blur
         }
+
 
         /// <summary>
         ///     Given a plane point and normal in world coordinates, computes the plane in camera space.
@@ -403,10 +411,11 @@ namespace UltimateXR.Rendering.FX
         /// <returns>Plane in camera space</returns>
         private Vector4 CameraSpacePlane(Camera targetCamera, float offset, Vector3 position, Vector3 normal, float sideSign)
         {
-            Vector3   offsetPos           = position + normal * offset;
-            Matrix4x4 worldToCameraMatrix = targetCamera.worldToCameraMatrix;
-            Vector3   localPos            = worldToCameraMatrix.MultiplyPoint(offsetPos);
-            Vector3   localNormal         = worldToCameraMatrix.MultiplyVector(normal).normalized * sideSign;
+            var offsetPos = position + normal * offset;
+            var worldToCameraMatrix = targetCamera.worldToCameraMatrix;
+            var localPos = worldToCameraMatrix.MultiplyPoint(offsetPos);
+            var localNormal = worldToCameraMatrix.MultiplyVector(normal).normalized * sideSign;
+
             return new Vector4(localNormal.x, localNormal.y, localNormal.z, -Vector3.Dot(localPos, localNormal));
         }
 
@@ -416,8 +425,8 @@ namespace UltimateXR.Rendering.FX
 
         // Constants
 
-        private const string VarRenderTexLeft     = "_RenderTexLeft";
-        private const string VarRenderTexRight    = "_RenderTexRight";
+        private const string VarRenderTexLeft = "_RenderTexLeft";
+        private const string VarRenderTexRight = "_RenderTexRight";
         private const string VarGlassScreenCenter = "_GlassScreenCenter";
 
         // Static
@@ -426,10 +435,10 @@ namespace UltimateXR.Rendering.FX
 
         // Internal
 
-        private Camera        _refractionCamera;
+        private Camera _refractionCamera;
         private RenderTexture _renderTextureLeft;
         private RenderTexture _renderTextureRight;
-        private int           _oldRenderTextureSize;
+        private int _oldRenderTextureSize;
 
         #endregion
     }

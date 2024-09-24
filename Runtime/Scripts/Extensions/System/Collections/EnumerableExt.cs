@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Random = UnityEngine.Random;
+
 
 namespace UltimateXR.Extensions.System.Collections
 {
@@ -30,8 +32,9 @@ namespace UltimateXR.Extensions.System.Collections
         /// </remarks>
         public static TIn RandomElement<TIn>(this IEnumerable<TIn> list)
         {
-            return list.Any() ? list.ElementAt(Random.Range(0, list.Count())) : default(TIn);
+            return list.Any() ? list.ElementAt(Random.Range(0, list.Count())) : default;
         }
+
 
         /// <summary>
         ///     Applies an <see cref="Action" /> on all elements in a collection.
@@ -52,11 +55,12 @@ namespace UltimateXR.Extensions.System.Collections
                 throw new ArgumentException("Argument cannot be null.", nameof(action));
             }
 
-            foreach (TIn value in list)
+            foreach (var value in list)
             {
                 action(value);
             }
         }
+
 
         /// <summary>
         ///     Asynchronously applies a function on all elements in a collection.
@@ -70,6 +74,7 @@ namespace UltimateXR.Extensions.System.Collections
             return Task.WhenAll(list.Select(function));
         }
 
+
         /// <summary>
         ///     Asynchronously applies a function to all elements in a collection.
         /// </summary>
@@ -82,6 +87,7 @@ namespace UltimateXR.Extensions.System.Collections
         {
             return Task.WhenAll(list.Select(function));
         }
+
 
         /// <summary>
         ///     Asynchronously applies an action on all elements in a collection.
@@ -98,8 +104,10 @@ namespace UltimateXR.Extensions.System.Collections
                 Debug.LogException(runTask.Exception);
             }
 
+
             return Task.WhenAll(list.Select((item, index) => Task.Run(() => action(item)).ContinueWith(runTask => OnFaulted(runTask, index), TaskContinuationOptions.OnlyOnFaulted)));
         }
+
 
         /// <summary>
         ///     Asynchronously applies a function on all elements in a collection.
@@ -114,11 +122,14 @@ namespace UltimateXR.Extensions.System.Collections
             {
                 Debug.LogWarning($"ForEachThreaded::Item[{itemIndex}] FAULTED (see reason below):");
                 Debug.LogException(t.Exception);
+
                 return default;
             }
 
+
             return Task.WhenAll(list.Select((item, index) => Task.Run(() => function(item)).ContinueWith(t => OnFaulted(t, index), TaskContinuationOptions.OnlyOnFaulted)));
         }
+
 
         /// <summary>
         ///     Returns the maximal element of the given sequence, based on the given projection.
@@ -137,6 +148,7 @@ namespace UltimateXR.Extensions.System.Collections
         {
             return source.MaxBy(selector, null!);
         }
+
 
         /// <summary>
         ///     Returns the maximal element of the given sequence, based on the given projection and the specified comparer for
@@ -161,18 +173,18 @@ namespace UltimateXR.Extensions.System.Collections
             selector.ThrowIfNull(nameof(selector));
 
             TSource result = default;
-            TKey    keyMax = default;
+            TKey keyMax = default;
             comparer ??= Comparer<TKey>.Default;
-            bool isFirst = true;
+            var isFirst = true;
 
-            foreach (TSource s in source)
+            foreach (var s in source)
             {
-                TKey key = selector(s);
+                var key = selector(s);
 
                 if (isFirst)
                 {
-                    result  = s;
-                    keyMax  = key;
+                    result = s;
+                    keyMax = key;
                     isFirst = false;
                 }
                 else if (comparer.Compare(key, keyMax) > 0)
@@ -185,6 +197,7 @@ namespace UltimateXR.Extensions.System.Collections
             return result;
         }
 
+
         /// <summary>
         ///     Splits a list of strings using CamelCase.
         /// </summary>
@@ -192,7 +205,7 @@ namespace UltimateXR.Extensions.System.Collections
         /// <returns>List of strings with added spacing</returns>
         public static IEnumerable<string> SplitCamelCase(this IEnumerable<string> strings)
         {
-            foreach (string element in strings)
+            foreach (var element in strings)
             {
                 yield return element.SplitCamelCase();
             }

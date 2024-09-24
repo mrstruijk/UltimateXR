@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar;
 using UltimateXR.Avatar.Rig;
 using UltimateXR.Core;
@@ -11,6 +12,7 @@ using UltimateXR.Extensions.Unity.Math;
 using UltimateXR.Manipulation;
 using UltimateXR.UI.UnityInputModule;
 using UnityEngine;
+
 
 namespace UltimateXR.UI
 {
@@ -79,6 +81,7 @@ namespace UltimateXR.UI
             return box != null && transform.position.IsInsideBox(box);
         }
 
+
         /// <summary>
         ///     Tries to get the pointer event data.
         /// </summary>
@@ -87,6 +90,7 @@ namespace UltimateXR.UI
         public bool TryGetPointerEventData(out UxrPointerEventData pointerEventData)
         {
             pointerEventData = UxrPointerInputModule.Instance.GetFingerTipPointerEventData(this);
+
             return pointerEventData.HasData;
         }
 
@@ -101,9 +105,10 @@ namespace UltimateXR.UI
         {
             base.Awake();
 
-            UxrAvatarRig.GetHandSide(transform, out UxrHandSide handSide);
+            UxrAvatarRig.GetHandSide(transform, out var handSide);
             Side = handSide;
         }
+
 
         /// <summary>
         ///     Resets the internal state.
@@ -113,6 +118,7 @@ namespace UltimateXR.UI
             base.OnEnable();
             _updateCount = 0;
         }
+
 
         /// <summary>
         ///     Initializes the component.
@@ -126,22 +132,24 @@ namespace UltimateXR.UI
                 return;
             }
 
-            foreach (UxrGrabber grabber in UxrGrabber.GetComponents(Avatar, true))
+            foreach (var grabber in UxrGrabber.GetComponents(Avatar, true))
             {
                 if (grabber.Side == Side)
                 {
                     HandGrabber = grabber;
+
                     break;
                 }
             }
         }
+
 
         /// <summary>
         ///     Updates the component.
         /// </summary>
         private void Update()
         {
-            _lastWorldPos    = _currentWorldPos;
+            _lastWorldPos = _currentWorldPos;
             _currentWorldPos = transform.position;
             _updateCount++;
         }
@@ -150,7 +158,7 @@ namespace UltimateXR.UI
 
         #region Private Types & Data
 
-        private int     _updateCount;
+        private int _updateCount;
         private Vector3 _currentWorldPos;
         private Vector3 _lastWorldPos;
 

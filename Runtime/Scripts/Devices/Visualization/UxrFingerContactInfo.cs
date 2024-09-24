@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
+
 
 namespace UltimateXR.Devices.Visualization
 {
@@ -12,15 +14,6 @@ namespace UltimateXR.Devices.Visualization
     /// </summary>
     public class UxrFingerContactInfo
     {
-        #region Public Types & Data
-
-        /// <summary>
-        ///     Gets or sets the transform the finger is currently touching.
-        /// </summary>
-        public Transform Transform { get; set; }
-
-        #endregion
-
         #region Constructors & Finalizer
 
         /// <summary>
@@ -31,6 +24,15 @@ namespace UltimateXR.Devices.Visualization
         {
             Transform = transform;
         }
+
+        #endregion
+
+        #region Public Types & Data
+
+        /// <summary>
+        ///     Gets or sets the transform the finger is currently touching.
+        /// </summary>
+        public Transform Transform { get; set; }
 
         #endregion
     }

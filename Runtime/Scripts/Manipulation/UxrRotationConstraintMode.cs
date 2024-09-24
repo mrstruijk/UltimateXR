@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Manipulation
 {
     /// <summary>
@@ -21,7 +22,7 @@ namespace UltimateXR.Manipulation
         RestrictLocalRotation,
 
         /// <summary>
-        ///     The <see cref="UxrGrabbableObject"/> cannot rotate.
+        ///     The <see cref="UxrGrabbableObject" /> cannot rotate.
         /// </summary>
         Locked
     }

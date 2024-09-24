@@ -3,15 +3,17 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UltimateXR.Core.Components.Composite;
 using UnityEngine;
 
+
 namespace UltimateXR.Core.Components
 {
     /// <summary>
-    ///     Like <see cref="UxrComponent"/> but it allows to enumerate all components of a specific type.
+    ///     Like <see cref="UxrComponent" /> but it allows to enumerate all components of a specific type.
     /// </summary>
     /// <typeparam name="T">Component type</typeparam>
     /// <remarks>
@@ -23,6 +25,15 @@ namespace UltimateXR.Core.Components
     /// <seealso cref="UxrAvatarComponent{T}" />
     public abstract class UxrComponent<T> : UxrComponent where T : UxrComponent<T>
     {
+        #region Private Types & Data
+
+        /// <summary>
+        ///     Static list containing all registered components of this type.
+        /// </summary>
+        private static readonly List<T> s_typeComponents = new();
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -73,7 +84,7 @@ namespace UltimateXR.Core.Components
         {
             get
             {
-                foreach (T component in s_typeComponents)
+                foreach (var component in s_typeComponents)
                 {
                     if (component.enabled && component.gameObject.activeInHierarchy)
                     {
@@ -96,23 +107,25 @@ namespace UltimateXR.Core.Components
             s_typeComponents.Sort(comparison);
         }
 
+
         /// <summary>
         ///     Destroys all components.
         /// </summary>
         public new static void DestroyAllComponents()
         {
-            foreach (T component in s_typeComponents)
+            foreach (var component in s_typeComponents)
             {
                 Destroy(component);
             }
         }
+
 
         /// <summary>
         ///     Destroys all gameObjects the components belong to.
         /// </summary>
         public new static void DestroyAllGameObjects()
         {
-            foreach (T component in s_typeComponents)
+            foreach (var component in s_typeComponents)
             {
                 Destroy(component.gameObject);
             }
@@ -130,9 +143,10 @@ namespace UltimateXR.Core.Components
             base.Awake();
 
             OnRegistering();
-            s_typeComponents.Add((T)this);
+            s_typeComponents.Add((T) this);
             OnRegistered();
         }
+
 
         /// <summary>
         ///     Removes itself from the static list of components.
@@ -142,9 +156,10 @@ namespace UltimateXR.Core.Components
             base.OnDestroy();
 
             OnUnregistering();
-            s_typeComponents.Remove((T)this);
+            s_typeComponents.Remove((T) this);
             OnUnregistered();
         }
+
 
         /// <summary>
         ///     Triggers enabled events.
@@ -155,6 +170,7 @@ namespace UltimateXR.Core.Components
 
             OnEnabled();
         }
+
 
         /// <summary>
         ///     Triggers disabled events.
@@ -178,6 +194,7 @@ namespace UltimateXR.Core.Components
             GlobalRegistering?.Invoke(this as T);
         }
 
+
         /// <summary>
         ///     <see cref="GlobalRegistered" /> event trigger.
         /// </summary>
@@ -185,6 +202,7 @@ namespace UltimateXR.Core.Components
         {
             GlobalRegistered?.Invoke(this as T);
         }
+
 
         /// <summary>
         ///     <see cref="GlobalUnregistering" /> event trigger.
@@ -194,6 +212,7 @@ namespace UltimateXR.Core.Components
             GlobalUnregistering?.Invoke(this as T);
         }
 
+
         /// <summary>
         ///     <see cref="GlobalUnregistered" /> event trigger.
         /// </summary>
@@ -201,6 +220,7 @@ namespace UltimateXR.Core.Components
         {
             GlobalUnregistered?.Invoke(this as T);
         }
+
 
         /// <summary>
         ///     <see cref="GlobalEnabled" /> event trigger.
@@ -210,6 +230,7 @@ namespace UltimateXR.Core.Components
             GlobalEnabled?.Invoke(this as T);
         }
 
+
         /// <summary>
         ///     <see cref="GlobalDisabled" /> event trigger.
         /// </summary>
@@ -217,15 +238,6 @@ namespace UltimateXR.Core.Components
         {
             GlobalDisabled?.Invoke(this as T);
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        /// <summary>
-        ///     Static list containing all registered components of this type.
-        /// </summary>
-        private static readonly List<T> s_typeComponents = new List<T>();
 
         #endregion
     }

@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Animation.Interpolation;
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation.Helpers
 {
@@ -18,9 +20,9 @@ namespace UltimateXR.Manipulation.Helpers
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField]                     private bool                     _onlyLevel    = true;
-        [SerializeField] [Range(0.0f, 1.0f)] private float                    _smoothFactor = 0.2f;
-        [SerializeField]                     private List<UxrGrabbableObject> _grabbableObjects;
+        [SerializeField] private bool _onlyLevel = true;
+        [SerializeField] [Range(0.0f, 1.0f)] private float _smoothFactor = 0.2f;
+        [SerializeField] private List<UxrGrabbableObject> _grabbableObjects;
 
         #endregion
 
@@ -35,6 +37,7 @@ namespace UltimateXR.Manipulation.Helpers
 
             _selfTransform = transform;
         }
+
 
         /// <summary>
         ///     Updates the transform while the object is not being grabbed.
@@ -51,8 +54,8 @@ namespace UltimateXR.Manipulation.Helpers
                 }
                 else
                 {
-                    Vector3    projectedRight = Vector3.ProjectOnPlane(transform.right, Vector3.up);
-                    Quaternion targetRotation = Quaternion.FromToRotation(_selfTransform.right, projectedRight) * _selfTransform.rotation;
+                    var projectedRight = Vector3.ProjectOnPlane(transform.right, Vector3.up);
+                    var targetRotation = Quaternion.FromToRotation(_selfTransform.right, projectedRight) * _selfTransform.rotation;
 
                     if ((targetRotation * Vector3.up).y < 0.0f)
                     {
@@ -75,7 +78,7 @@ namespace UltimateXR.Manipulation.Helpers
         {
             get
             {
-                foreach (UxrGrabbableObject grabbableObject in _grabbableObjects)
+                foreach (var grabbableObject in _grabbableObjects)
                 {
                     if (UxrGrabManager.Instance.IsBeingGrabbed(grabbableObject))
                     {

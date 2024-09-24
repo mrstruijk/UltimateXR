@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Devices;
 using UltimateXR.Manipulation.HandPoses;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Controllers
 {
@@ -18,12 +20,28 @@ namespace UltimateXR.Avatar.Controllers
     [Serializable]
     public class UxrAvatarControllerEvent
     {
+        #region Private Types & Data
+
+        private string _poseNameOverride;
+
+        #endregion
+
+        #region Public Overrides object
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"Event type: {_animationType}, button(s): {_buttons}, pose: {PoseName}, blend: {_poseBlendValue}";
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField]                     private UxrInputButtons  _buttons;
-        [SerializeField]                     private UxrAnimationType _animationType;
-        [SerializeField]                     private UxrHandPoseAsset _handPose;
-        [SerializeField] [Range(0.0f, 1.0f)] private float            _poseBlendValue;
+        [SerializeField] private UxrInputButtons _buttons;
+        [SerializeField] private UxrAnimationType _animationType;
+        [SerializeField] private UxrHandPoseAsset _handPose;
+        [SerializeField] [Range(0.0f, 1.0f)] private float _poseBlendValue;
 
         #endregion
 
@@ -70,22 +88,6 @@ namespace UltimateXR.Avatar.Controllers
             get => _poseBlendValue;
             set => _poseBlendValue = value;
         }
-
-        #endregion
-
-        #region Public Overrides object
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            return $"Event type: {_animationType}, button(s): {_buttons}, pose: {PoseName}, blend: {_poseBlendValue}";
-        }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private string _poseNameOverride;
 
         #endregion
     }

@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+
 
 namespace UltimateXR
 {
@@ -25,6 +27,7 @@ namespace UltimateXR
         {
             return result.depth == UxrConstants.UI.Depth2DObject || result.depth == UxrConstants.UI.Depth3DObject;
         }
+
 
         /// <summary>
         ///     Compares two raycast results.

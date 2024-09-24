@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
+
 
 namespace UltimateXR.Avatar
 {
@@ -12,15 +14,6 @@ namespace UltimateXR.Avatar
     /// </summary>
     public class UxrAvatarUpdateEventArgs : UxrAvatarEventArgs
     {
-        #region Public Types & Data
-
-        /// <summary>
-        ///     Gets the update stage the update event belongs to.
-        /// </summary>
-        public UxrUpdateStage UpdateStage { get; }
-
-        #endregion
-
         #region Constructors & Finalizer
 
         /// <summary>
@@ -32,6 +25,15 @@ namespace UltimateXR.Avatar
         {
             UpdateStage = updateStage;
         }
+
+        #endregion
+
+        #region Public Types & Data
+
+        /// <summary>
+        ///     Gets the update stage the update event belongs to.
+        /// </summary>
+        public UxrUpdateStage UpdateStage { get; }
 
         #endregion
     }

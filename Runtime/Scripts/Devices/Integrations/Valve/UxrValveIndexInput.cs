@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core;
 using UltimateXR.Devices.Integrations.SteamVR;
+
 
 namespace UltimateXR.Devices.Integrations.Valve
 {
@@ -14,6 +16,24 @@ namespace UltimateXR.Devices.Integrations.Valve
     /// </summary>
     public class UxrValveIndexInput : UxrSteamVRControllerInput
     {
+        #region Protected Overrides UxrSteamVRControllerInput
+
+        /// <inheritdoc />
+        protected override void UpdateInput()
+        {
+            base.UpdateInput();
+
+            // Propagate touchpad touch to press, since only touch is signaled by the API
+            SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.Joystick2, GetButtonsTouch(UxrHandSide.Left, UxrInputButtons.Joystick2));
+            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.Joystick2, GetButtonsTouch(UxrHandSide.Right, UxrInputButtons.Joystick2));
+
+            // Propagate grip touch to press, since only touch is signaled by the API
+            SetButtonFlags(ButtonFlags.PressFlagsLeft, UxrInputButtons.Grip, GetButtonsTouch(UxrHandSide.Left, UxrInputButtons.Grip));
+            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.Grip, GetButtonsTouch(UxrHandSide.Right, UxrInputButtons.Grip));
+        }
+
+        #endregion
+
         #region Public Overrides UxrControllerInput
 
         /// <inheritdoc />
@@ -22,19 +42,21 @@ namespace UltimateXR.Devices.Integrations.Valve
         /// <inheritdoc />
         public override bool MainJoystickIsTouchpad => false;
 
+
         /// <inheritdoc />
         public override bool HasControllerElements(UxrHandSide handSide, UxrControllerElements controllerElements)
         {
-            uint validElements = (uint)(UxrControllerElements.Joystick |  // Joystick
+            var validElements = (uint) (UxrControllerElements.Joystick | // Joystick
                                         UxrControllerElements.Joystick2 | // Trackpad
-                                        UxrControllerElements.Grip |      // Grip
-                                        UxrControllerElements.Trigger |   // Trigger
-                                        UxrControllerElements.Button1 |   // Button A
-                                        UxrControllerElements.Button2 |   // Button B
-                                        UxrControllerElements.DPad);      // Joystick
+                                        UxrControllerElements.Grip | // Grip
+                                        UxrControllerElements.Trigger | // Trigger
+                                        UxrControllerElements.Button1 | // Button A
+                                        UxrControllerElements.Button2 | // Button B
+                                        UxrControllerElements.DPad); // Joystick
 
-            return (validElements & (uint)controllerElements) == (uint)controllerElements;
+            return (validElements & (uint) controllerElements) == (uint) controllerElements;
         }
+
 
         /// <inheritdoc />
         public override UxrControllerInputCapabilities GetControllerCapabilities(UxrHandSide handSide)
@@ -63,24 +85,6 @@ namespace UltimateXR.Devices.Integrations.Valve
 
         /// <inheritdoc />
         public override bool UsesHandSkeletons => true;
-
-        #endregion
-
-        #region Protected Overrides UxrSteamVRControllerInput
-
-        /// <inheritdoc />
-        protected override void UpdateInput()
-        {
-            base.UpdateInput();
-
-            // Propagate touchpad touch to press, since only touch is signaled by the API
-            SetButtonFlags(ButtonFlags.PressFlagsLeft,  UxrInputButtons.Joystick2, GetButtonsTouch(UxrHandSide.Left,  UxrInputButtons.Joystick2));
-            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.Joystick2, GetButtonsTouch(UxrHandSide.Right, UxrInputButtons.Joystick2));
-
-            // Propagate grip touch to press, since only touch is signaled by the API
-            SetButtonFlags(ButtonFlags.PressFlagsLeft,  UxrInputButtons.Grip, GetButtonsTouch(UxrHandSide.Left,  UxrInputButtons.Grip));
-            SetButtonFlags(ButtonFlags.PressFlagsRight, UxrInputButtons.Grip, GetButtonsTouch(UxrHandSide.Right, UxrInputButtons.Grip));
-        }
 
         #endregion
     }

@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Extensions.System;
+
 
 namespace UltimateXR.Extensions.Unity.Audio
 {
@@ -51,9 +53,9 @@ namespace UltimateXR.Extensions.Unity.Audio
             /// <param name="sampleRate">Sample rate in Hz</param>
             private PcmData(float[] value, int channels, int sampleRate)
             {
-                Value      = value;
-                Length     = value.Length;
-                Channels   = channels;
+                Value = value;
+                Length = value.Length;
+                Channels = channels;
                 SampleRate = sampleRate;
             }
 
@@ -71,29 +73,35 @@ namespace UltimateXR.Extensions.Unity.Audio
             {
                 bytes.ThrowIfNull(nameof(bytes));
 
-                PcmHeader pcmHeader = PcmHeader.FromBytes(bytes);
+                var pcmHeader = PcmHeader.FromBytes(bytes);
+
                 if (pcmHeader.BitDepth != 16 && pcmHeader.BitDepth != 32 && pcmHeader.BitDepth != 8)
                 {
                     throw new ArgumentOutOfRangeException(nameof(pcmHeader.BitDepth), pcmHeader.BitDepth, "Supported values are: 8, 16, 32");
                 }
 
-                float[] samples = new float[pcmHeader.AudioSampleCount];
-                for (int i = 0; i < samples.Length; ++i)
+                var samples = new float[pcmHeader.AudioSampleCount];
+
+                for (var i = 0; i < samples.Length; ++i)
                 {
-                    int   byteIndex = pcmHeader.AudioStartIndex + i * pcmHeader.AudioSampleSize;
+                    var byteIndex = pcmHeader.AudioStartIndex + i * pcmHeader.AudioSampleSize;
                     float rawSample;
+
                     switch (pcmHeader.BitDepth)
                     {
                         case 8:
                             rawSample = bytes[byteIndex];
+
                             break;
 
                         case 16:
                             rawSample = BitConverter.ToInt16(bytes, byteIndex);
+
                             break;
 
                         case 32:
                             rawSample = BitConverter.ToInt32(bytes, byteIndex);
+
                             break;
 
                         default: throw new ArgumentOutOfRangeException(nameof(pcmHeader.BitDepth), pcmHeader.BitDepth, "Supported values are: 8, 16, 32");

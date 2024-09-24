@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UltimateXR.Extensions.System;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Math
 {
@@ -39,6 +41,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return new Vector4(self.x, self.y, self.z, self.w);
         }
 
+
         /// <summary>
         ///     Checks whether the given <see cref="Quaternion" /> has any NaN value.
         /// </summary>
@@ -48,6 +51,7 @@ namespace UltimateXR.Extensions.Unity.Math
         {
             return float.IsNaN(self.x) || float.IsNaN(self.y) || float.IsNaN(self.z) || float.IsNaN(self.w);
         }
+
 
         /// <summary>
         ///     Checks whether the given <see cref="Quaternion" /> has any infinity value.
@@ -59,6 +63,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return float.IsInfinity(self.x) || float.IsInfinity(self.y) || float.IsInfinity(self.z) || float.IsInfinity(self.w);
         }
 
+
         /// <summary>
         ///     Checks whether the given <see cref="Quaternion" /> has any 0 value.
         /// </summary>
@@ -68,6 +73,7 @@ namespace UltimateXR.Extensions.Unity.Math
         {
             return self.x == 0.0f && self.y == 0.0f && self.z == 0.0f && self.w == 0.0f;
         }
+
 
         /// <summary>
         ///     Checks whether the given <see cref="Quaternion" /> contains valid data.
@@ -79,6 +85,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return !self.IsNaN() && !self.IsInfinity() && !self.IsZero();
         }
 
+
         /// <summary>
         ///     Multiplies two quaternions component by component.
         /// </summary>
@@ -88,10 +95,11 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Quaternion Multiply(this in Quaternion self, in Quaternion other)
         {
             return new Quaternion(self.x * other.x,
-                                  self.y * other.y,
-                                  self.z * other.z,
-                                  self.w * other.w);
+                self.y * other.y,
+                self.z * other.z,
+                self.w * other.w);
         }
+
 
         /// <summary>
         ///     Computes the inverse of a quaternion component by component (1 / value), checking for divisions by 0. Divisions by
@@ -102,10 +110,11 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Quaternion Inverse(this in Quaternion self)
         {
             return new Quaternion(Mathf.Approximately(self.x, 0f) ? 0f : 1f / self.x,
-                                  Mathf.Approximately(self.y, 0f) ? 0f : 1f / self.y,
-                                  Mathf.Approximately(self.z, 0f) ? 0f : 1f / self.z,
-                                  Mathf.Approximately(self.w, 0f) ? 0f : 1f / self.w);
+                Mathf.Approximately(self.y, 0f) ? 0f : 1f / self.y,
+                Mathf.Approximately(self.z, 0f) ? 0f : 1f / self.z,
+                Mathf.Approximately(self.w, 0f) ? 0f : 1f / self.w);
         }
+
 
         /// <summary>
         ///     Divides two quaternions component by component, checking for divisions by 0. Divisions by 0 have a result of 0.
@@ -117,6 +126,7 @@ namespace UltimateXR.Extensions.Unity.Math
         {
             return self.Multiply(divisor.Inverse());
         }
+
 
         /// <summary>
         ///     Computes the average quaternion from a list.
@@ -134,12 +144,12 @@ namespace UltimateXR.Extensions.Unity.Math
                 return Quaternion.identity;
             }
 
-            float x = 0.0f;
-            float y = 0.0f;
-            float z = 0.0f;
-            float w = 0.0f;
+            var x = 0.0f;
+            var y = 0.0f;
+            var z = 0.0f;
+            var w = 0.0f;
 
-            foreach (Quaternion q in quaternions)
+            foreach (var q in quaternions)
             {
                 x += q.x;
                 y += q.y;
@@ -147,9 +157,11 @@ namespace UltimateXR.Extensions.Unity.Math
                 w += q.w;
             }
 
-            float k = 1.0f / Mathf.Sqrt(x * x + y * y + z * z + w * w);
+            var k = 1.0f / Mathf.Sqrt(x * x + y * y + z * z + w * w);
+
             return new Quaternion(x * k, y * k, z * k, w * k);
         }
+
 
         /// <summary>
         ///     Applies the transformation to make a rotation defined by <paramref name="sourceRotation" /> rotate towards
@@ -161,11 +173,12 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <param name="t">Optional interpolation value [0.0, 1.0]</param>
         public static void ApplyAlignment(this Quaternion self, Quaternion sourceRotation, Quaternion targetRotation, float t = 1.0f)
         {
-            Quaternion rotationTowards = Quaternion.RotateTowards(sourceRotation, targetRotation, 180.0f);
-            Quaternion relative        = Quaternion.Inverse(sourceRotation) * self;
-            Quaternion result          = Quaternion.Slerp(self, rotationTowards * relative, t);
+            var rotationTowards = Quaternion.RotateTowards(sourceRotation, targetRotation, 180.0f);
+            var relative = Quaternion.Inverse(sourceRotation) * self;
+            var result = Quaternion.Slerp(self, rotationTowards * relative, t);
             self.Set(result.x, result.y, result.z, result.w);
         }
+
 
         /// <summary>
         ///     Parses a <see cref="Quaternion" />.
@@ -181,22 +194,24 @@ namespace UltimateXR.Extensions.Unity.Math
             s = s.TrimEnd(' ', ')', ']');
 
             // split the items
-            string[] sArray = s.Split(s_cardinalSeparator, VectorLength);
+            var sArray = s.Split(s_cardinalSeparator, VectorLength);
 
             // store as an array
-            float[] result = new float[VectorLength];
-            for (int i = 0; i < sArray.Length; ++i)
+            var result = new float[VectorLength];
+
+            for (var i = 0; i < sArray.Length; ++i)
             {
                 result[i] = float.TryParse(sArray[i],
-                                           NumberStyles.Float,
-                                           CultureInfo.InvariantCulture.NumberFormat,
-                                           out float f)
-                                        ? f
-                                        : float.NaN;
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture.NumberFormat,
+                    out var f)
+                    ? f
+                    : float.NaN;
             }
 
             return result.ToQuaternion();
         }
+
 
         /// <summary>
         ///     Tries to parse a <see cref="Quaternion" />.
@@ -209,14 +224,17 @@ namespace UltimateXR.Extensions.Unity.Math
             try
             {
                 result = Parse(s);
+
                 return true;
             }
             catch
             {
                 result = NaN;
+
                 return false;
             }
         }
+
 
         /// <summary>
         ///     Creates a <see cref="Quaternion" /> from a float array. If the array does not contain enough elements, the missing
@@ -228,13 +246,14 @@ namespace UltimateXR.Extensions.Unity.Math
         {
             return data.Length switch
                    {
-                               0 => NaN,
-                               1 => new Quaternion(data[0], float.NaN, float.NaN, float.NaN),
-                               2 => new Quaternion(data[0], data[1],   float.NaN, float.NaN),
-                               3 => new Quaternion(data[0], data[1],   data[2],   float.NaN),
-                               _ => new Quaternion(data[0], data[1],   data[2],   data[3])
+                       0 => NaN,
+                       1 => new Quaternion(data[0], float.NaN, float.NaN, float.NaN),
+                       2 => new Quaternion(data[0], data[1], float.NaN, float.NaN),
+                       3 => new Quaternion(data[0], data[1], data[2], float.NaN),
+                       _ => new Quaternion(data[0], data[1], data[2], data[3])
                    };
         }
+
 
         /// <summary>
         ///     Parses a <see cref="Quaternion" /> asynchronously.
@@ -244,18 +263,18 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Awaitable <see cref="Task" /> that returns the parsed <see cref="Quaternion" /> or null if there was an error</returns>
         public static Task<Quaternion?> ParseAsync(string s, CancellationToken ct = default)
         {
-            return Task.Run(() => TryParse(s, out Quaternion result) ? result : (Quaternion?)null, ct);
+            return Task.Run(() => TryParse(s, out var result) ? result : (Quaternion?) null, ct);
         }
 
         #endregion
 
         #region Private Types & Data
 
-        private const int    VectorLength      = 4;
+        private const int VectorLength = 4;
         private const string CardinalSeparator = ",";
 
-        private static readonly char[]     s_cardinalSeparator = CardinalSeparator.ToCharArray();
-        private static readonly Quaternion s_nan               = new Quaternion(float.NaN, float.NaN, float.NaN, float.NaN);
+        private static readonly char[] s_cardinalSeparator = CardinalSeparator.ToCharArray();
+        private static readonly Quaternion s_nan = new(float.NaN, float.NaN, float.NaN, float.NaN);
 
         #endregion
     }

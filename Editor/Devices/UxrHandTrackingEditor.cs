@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UltimateXR.Devices;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Devices
 {
@@ -23,17 +25,18 @@ namespace UltimateXR.Editor.Devices
         /// </summary>
         private void OnEnable()
         {
-            _propertyCalibrationPose      = serializedObject.FindProperty("_calibrationPose");
-            _propertyLeftCalibrationData  = serializedObject.FindProperty("_leftCalibrationData");
+            _propertyCalibrationPose = serializedObject.FindProperty("_calibrationPose");
+            _propertyLeftCalibrationData = serializedObject.FindProperty("_leftCalibrationData");
             _propertyRightCalibrationData = serializedObject.FindProperty("_rightCalibrationData");
         }
+
 
         /// <inheritdoc />
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            UxrHandTracking handTracking = serializedObject.targetObject as UxrHandTracking;
+            var handTracking = serializedObject.targetObject as UxrHandTracking;
 
             if (handTracking != null)
             {
@@ -60,7 +63,7 @@ namespace UltimateXR.Editor.Devices
                 EditorGUILayout.HelpBox("Calibration for this avatar is performed by adopting, using your real hand, the same hand pose as the reference pose specified in the inspector, regardless of how the hand is currently being rendered. " +
                                         "Once your real hand has roughly the same pose as the reference hand pose, click on the calibrate button.\n" +
                                         "Calibration doesn't need to be performed per user or per session, only once at edit-time. The only goal is to correct the mismatch between the avatar's hand rigging and the tracking data for this device.",
-                                        MessageType.Info);
+                    MessageType.Info);
             }
 
             GUI.enabled = EditorApplication.isPlaying;
@@ -94,10 +97,10 @@ namespace UltimateXR.Editor.Devices
 
         #region Private Types & Data
 
-        private GUIContent ContentCalibrateLeft  { get; } = new GUIContent("Calibrate Left Hand",     "");
-        private GUIContent ContentCalibrateRight { get; } = new GUIContent("Calibrate Right Hand",    "");
-        private GUIContent ContentClearLeft      { get; } = new GUIContent("Clear Left Calibration",  "");
-        private GUIContent ContentClearRight     { get; } = new GUIContent("Clear Right Calibration", "");
+        private GUIContent ContentCalibrateLeft { get; } = new("Calibrate Left Hand", "");
+        private GUIContent ContentCalibrateRight { get; } = new("Calibrate Right Hand", "");
+        private GUIContent ContentClearLeft { get; } = new("Clear Left Calibration", "");
+        private GUIContent ContentClearRight { get; } = new("Clear Right Calibration", "");
 
         private SerializedProperty _propertyCalibrationPose;
         private SerializedProperty _propertyLeftCalibrationData;

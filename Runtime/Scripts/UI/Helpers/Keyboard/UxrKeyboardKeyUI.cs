@@ -3,13 +3,16 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core.Components;
 using UltimateXR.UI.UnityInputModule.Controls;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 #pragma warning disable 0414
+
 
 namespace UltimateXR.UI.Helpers.Keyboard
 {
@@ -21,16 +24,16 @@ namespace UltimateXR.UI.Helpers.Keyboard
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private UxrKeyType                 _keyType;
-        [SerializeField] private UxrKeyLayoutType           _layout;
-        [SerializeField] private string                     _printShift;
-        [SerializeField] private string                     _printNoShift;
-        [SerializeField] private string                     _printAltGr;
-        [SerializeField] private string                     _forceLabel;
-        [SerializeField] private Text                       _singleLayoutValue;
-        [SerializeField] private Text                       _multipleLayoutValueTopLeft;
-        [SerializeField] private Text                       _multipleLayoutValueBottomLeft;
-        [SerializeField] private Text                       _multipleLayoutValueBottomRight;
+        [SerializeField] private UxrKeyType _keyType;
+        [SerializeField] private UxrKeyLayoutType _layout;
+        [SerializeField] private string _printShift;
+        [SerializeField] private string _printNoShift;
+        [SerializeField] private string _printAltGr;
+        [SerializeField] private string _forceLabel;
+        [SerializeField] private Text _singleLayoutValue;
+        [SerializeField] private Text _multipleLayoutValueTopLeft;
+        [SerializeField] private Text _multipleLayoutValueBottomLeft;
+        [SerializeField] private Text _multipleLayoutValueBottomRight;
         [SerializeField] private List<UxrToggleSymbolsPage> _toggleSymbols;
 
         // Hidden in the custom inspector
@@ -155,6 +158,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
             {
                 return _printShift[0];
             }
+
             if (altGr && !string.IsNullOrEmpty(_printAltGr))
             {
                 return _printAltGr[0];
@@ -162,6 +166,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
 
             return !string.IsNullOrEmpty(_printNoShift) ? _printNoShift[0] : ' ';
         }
+
 
         /// <summary>
         ///     Updates the label on the key.
@@ -175,6 +180,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
             }
         }
 
+
         /// <summary>
         ///     Sets up the toggle symbol entries.
         /// </summary>
@@ -183,12 +189,12 @@ namespace UltimateXR.UI.Helpers.Keyboard
         {
             if (_keyType == UxrKeyType.ToggleSymbols)
             {
-                _toggleSymbols       = entries;
+                _toggleSymbols = entries;
                 _currentSymbolsIndex = 0;
 
                 if (entries != null)
                 {
-                    for (int i = 0; i < entries.Count; ++i)
+                    for (var i = 0; i < entries.Count; ++i)
                     {
                         entries[i].KeysRoot.SetActive(i == 0);
                     }
@@ -197,6 +203,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
                 SetupKeyLabels();
             }
         }
+
 
         /// <summary>
         ///     Sets the default symbols as the ones currently active.
@@ -207,7 +214,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
             {
                 _currentSymbolsIndex = 0;
 
-                for (int i = 0; i < _toggleSymbols.Count; ++i)
+                for (var i = 0; i < _toggleSymbols.Count; ++i)
                 {
                     _toggleSymbols[i].KeysRoot.SetActive(i == _currentSymbolsIndex);
                 }
@@ -215,6 +222,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
                 SetupKeyLabels();
             }
         }
+
 
         /// <summary>
         ///     Toggles to the next symbols.
@@ -225,7 +233,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
             {
                 _currentSymbolsIndex = (_currentSymbolsIndex + 1) % _toggleSymbols.Count;
 
-                for (int i = 0; i < _toggleSymbols.Count; ++i)
+                for (var i = 0; i < _toggleSymbols.Count; ++i)
                 {
                     _toggleSymbols[i].KeysRoot.SetActive(i == _currentSymbolsIndex);
                 }
@@ -270,6 +278,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
             }
         }
 
+
         /// <summary>
         ///     Called when the component is destroyed.
         /// </summary>
@@ -283,7 +292,9 @@ namespace UltimateXR.UI.Helpers.Keyboard
             }
         }
 
-#if UNITY_EDITOR
+
+        #if UNITY_EDITOR
+
 
         /// <summary>
         ///     Updates the labels and the GameObject's name in editor-mode depending on the labels that are set in the inspector.
@@ -304,7 +315,8 @@ namespace UltimateXR.UI.Helpers.Keyboard
             }
         }
 
-#endif
+
+        #endif
 
         #endregion
 
@@ -324,10 +336,12 @@ namespace UltimateXR.UI.Helpers.Keyboard
             {
                 _multipleLayoutValueTopLeft.text = "";
             }
+
             if (_multipleLayoutValueBottomLeft)
             {
                 _multipleLayoutValueBottomLeft.text = "";
             }
+
             if (_multipleLayoutValueBottomRight)
             {
                 _multipleLayoutValueBottomRight.text = "";
@@ -336,6 +350,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
             if (!string.IsNullOrEmpty(_forceLabel) && _singleLayoutValue)
             {
                 _singleLayoutValue.text = _forceLabel;
+
                 return;
             }
 
@@ -354,10 +369,12 @@ namespace UltimateXR.UI.Helpers.Keyboard
                     {
                         _multipleLayoutValueTopLeft.text = _printShift;
                     }
+
                     if (_multipleLayoutValueBottomLeft)
                     {
                         _multipleLayoutValueBottomLeft.text = _printNoShift;
                     }
+
                     if (_multipleLayoutValueBottomRight)
                     {
                         _multipleLayoutValueBottomRight.text = _printAltGr;
@@ -429,8 +446,8 @@ namespace UltimateXR.UI.Helpers.Keyboard
             }
             else if (_keyType == UxrKeyType.ToggleSymbols)
             {
-                _singleLayoutValue.text = NextToggleSymbolsPage != null    ? NextToggleSymbolsPage.Label :
-                                          CurrentToggleSymbolsPage != null ? CurrentToggleSymbolsPage.Label : string.Empty;
+                _singleLayoutValue.text = NextToggleSymbolsPage != null ? NextToggleSymbolsPage.Label :
+                    CurrentToggleSymbolsPage != null ? CurrentToggleSymbolsPage.Label : string.Empty;
             }
             else if (_keyType == UxrKeyType.Escape)
             {
@@ -440,6 +457,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
                 }
             }
         }
+
 
         /// <summary>
         ///     Updates the GameObject name based on the labels set up in the inspector.
@@ -485,10 +503,11 @@ namespace UltimateXR.UI.Helpers.Keyboard
         #region Private Types & Data
 
         private UxrKeyboardUI _keyboard;
-        private int           _currentSymbolsIndex;
+        private int _currentSymbolsIndex;
 
         #endregion
     }
 }
+
 
 #pragma warning restore 0414

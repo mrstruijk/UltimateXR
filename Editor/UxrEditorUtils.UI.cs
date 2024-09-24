@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
+
 
 namespace UltimateXR.Editor
 {
@@ -39,11 +41,11 @@ namespace UltimateXR.Editor
         /// <returns></returns>
         public static bool FoldoutStylish(string title, bool display)
         {
-            GUIStyle style = new GUIStyle("ShurikenModuleTitle");
+            var style = new GUIStyle("ShurikenModuleTitle");
 
-            style.font          = new GUIStyle(EditorStyles.label).font;
-            style.border        = new RectOffset(15, 7, 4, 4);
-            style.fixedHeight   = 22;
+            style.font = new GUIStyle(EditorStyles.label).font;
+            style.border = new RectOffset(15, 7, 4, 4);
+            style.fixedHeight = 22;
             style.contentOffset = new Vector2(20f, -2f);
 
             var rect = GUILayoutUtility.GetRect(16f, 22f, style);
@@ -52,6 +54,7 @@ namespace UltimateXR.Editor
             var e = Event.current;
 
             var toggleRect = new Rect(rect.x + 4f, rect.y + 2f, 13f, 13f);
+
             if (e.type == EventType.Repaint)
             {
                 EditorStyles.foldout.Draw(toggleRect, false, false, display, false);
@@ -66,6 +69,7 @@ namespace UltimateXR.Editor
             return display;
         }
 
+
         /// <summary>
         ///     Helper editor UI method to draw a centered button.
         /// </summary>
@@ -74,7 +78,7 @@ namespace UltimateXR.Editor
         /// <returns>Whether the button was pressed during the current frame</returns>
         public static bool CenteredButton(GUIContent content, int width = ButtonWidth)
         {
-            bool pressed = false;
+            var pressed = false;
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
@@ -97,6 +101,7 @@ namespace UltimateXR.Editor
             return pressed;
         }
 
+
         /// <summary>
         ///     Utility to get the rect where a property line needs to be drawn.
         /// </summary>
@@ -106,9 +111,11 @@ namespace UltimateXR.Editor
         /// <returns>Rect to use the property of the given line</returns>
         public static Rect GetRect(Rect position, int line, bool includeIndentation = false)
         {
-            Rect indentRect = includeIndentation ? EditorGUI.IndentedRect(position) : position;
+            var indentRect = includeIndentation ? EditorGUI.IndentedRect(position) : position;
+
             return new Rect(indentRect.x, indentRect.y + EditorGUIUtility.singleLineHeight * line, indentRect.width, EditorGUIUtility.singleLineHeight);
         }
+
 
         /// <summary>
         ///     Utility to get the rect where a property in a horizontal layout needs to be drawn.
@@ -124,14 +131,15 @@ namespace UltimateXR.Editor
         /// <returns>Rect to use the property of the given line</returns>
         public static Rect GetRect(Rect position, int line, int totalColumns, int column, int separation, int leftPadding = 0, int rightPadding = 0, bool includeIndentation = false)
         {
-            Rect indentRect = includeIndentation ? EditorGUI.IndentedRect(position) : position;
-            Rect rect       = new Rect(indentRect.x, indentRect.y + EditorGUIUtility.singleLineHeight * line, indentRect.width, EditorGUIUtility.singleLineHeight);
+            var indentRect = includeIndentation ? EditorGUI.IndentedRect(position) : position;
+            var rect = new Rect(indentRect.x, indentRect.y + EditorGUIUtility.singleLineHeight * line, indentRect.width, EditorGUIUtility.singleLineHeight);
 
-            float elementWidth = (rect.width - leftPadding - rightPadding - (totalColumns - 1) * separation) / totalColumns;
-            float posX         = rect.x + leftPadding + column * (separation + elementWidth);
+            var elementWidth = (rect.width - leftPadding - rightPadding - (totalColumns - 1) * separation) / totalColumns;
+            var posX = rect.x + leftPadding + column * (separation + elementWidth);
 
             return new Rect(posX, rect.y, elementWidth, rect.height);
         }
+
 
         /// <summary>
         ///     Stores a set of elements in an array serialized property. The elements to store derive from
@@ -145,14 +153,15 @@ namespace UltimateXR.Editor
             propertyArray.ClearArray();
             propertyArray.arraySize = elements.Count();
 
-            int index = 0;
+            var index = 0;
 
-            foreach (T element in elements)
+            foreach (var element in elements)
             {
                 propertyArray.GetArrayElementAtIndex(index).objectReferenceValue = element;
                 index++;
             }
         }
+
 
         /// <summary>
         ///     Stores a set of elements in an array serialized property. The elements to store should be of a simple type (bool,
@@ -166,41 +175,47 @@ namespace UltimateXR.Editor
             propertyArray.ClearArray();
             propertyArray.arraySize = elements.Count();
 
-            int index = 0;
+            var index = 0;
 
-            foreach (T element in elements)
+            foreach (var element in elements)
             {
                 if (element == null)
                 {
                     continue;
                 }
 
-                SerializedProperty property = propertyArray.GetArrayElementAtIndex(index);
+                var property = propertyArray.GetArrayElementAtIndex(index);
 
                 switch (element)
                 {
                     case bool b:
                         property.boolValue = b;
+
                         break;
 
                     case int i:
                         property.intValue = i;
+
                         break;
 
                     case float f:
                         property.floatValue = f;
+
                         break;
 
                     case string s:
                         property.stringValue = s;
+
                         break;
 
                     case Color col:
                         property.colorValue = col;
+
                         break;
 
                     case Vector3 v3:
                         property.vector3Value = v3;
+
                         break;
 
                     default: throw new NotSupportedException($"Conversion to {typeof(T)} serialized property array is not supported yet");
@@ -210,6 +225,7 @@ namespace UltimateXR.Editor
             }
         }
 
+
         /// <summary>
         ///     Builds a GUIContent array from a set of strings. Some editor UI methods in Unity need GUIContent arrays.
         /// </summary>
@@ -217,11 +233,11 @@ namespace UltimateXR.Editor
         /// <returns>GUIContent array</returns>
         public static GUIContent[] ToGUIContentArray(IEnumerable<string> strings)
         {
-            GUIContent[] returnArray = new GUIContent[strings.Count()];
+            var returnArray = new GUIContent[strings.Count()];
 
-            int i = 0;
+            var i = 0;
 
-            foreach (string str in strings)
+            foreach (var str in strings)
             {
                 returnArray[i++] = new GUIContent(str);
             }

@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.StateSync;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -13,20 +15,6 @@ namespace UltimateXR.Manipulation
     /// </summary>
     public class UxrManipulationSyncEventArgs : UxrStateSyncEventArgs
     {
-        #region Public Types & Data
-
-        /// <summary>
-        ///     Gets the event type described by <see cref="EventArgs" />.
-        /// </summary>
-        public UxrManipulationSyncEventType EventType { get; }
-
-        /// <summary>
-        ///     Gets the event parameters.
-        /// </summary>
-        public UxrManipulationEventArgs EventArgs { get; }
-
-        #endregion
-
         #region Constructors & Finalizer
 
         /// <summary>
@@ -39,6 +27,20 @@ namespace UltimateXR.Manipulation
             EventType = eventType;
             EventArgs = eventArgs;
         }
+
+        #endregion
+
+        #region Public Types & Data
+
+        /// <summary>
+        ///     Gets the event type described by <see cref="EventArgs" />.
+        /// </summary>
+        public UxrManipulationSyncEventType EventType { get; }
+
+        /// <summary>
+        ///     Gets the event parameters.
+        /// </summary>
+        public UxrManipulationEventArgs EventArgs { get; }
 
         #endregion
     }

@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Audio;
 using UltimateXR.Core.Components.Composite;
 using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -17,15 +19,39 @@ namespace UltimateXR.Mechanics.Weapons
     /// </summary>
     public class UxrProjectileDeflect : UxrGrabbableObjectComponent<UxrProjectileDeflect>
     {
+        #region Protected Overrides UxrGrabbableObjectComponent<UxrProjectileDeflect>
+
+        /// <summary>
+        ///     The grabbable object is not required. When it is present it will be used to assign the <see cref="Owner" /> so that
+        ///     the damage will be attributed to the actor instead of the original source.
+        /// </summary>
+        protected override bool IsGrabbableObjectRequired => false;
+
+        #endregion
+
+        #region Unity
+
+        /// <summary>
+        ///     Initializes the component.
+        /// </summary>
+        protected override void Start()
+        {
+            base.Start();
+
+            Owner = GetComponentInParent<UxrActor>();
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private UxrAudioSample _audioDeflect;
         [SerializeField] private UxrImpactDecal _decalOnReflect;
-        [SerializeField] private float          _decalLife            = 5.0f;
-        [SerializeField] private float          _decalFadeoutDuration = 1.0f;
-        [SerializeField] private bool           _twoSidedDecal;
-        [SerializeField] private float          _twoSidedDecalThickness    = 0.01f;
-        [SerializeField] private LayerMask      _collideLayersAddOnReflect = 0;
+        [SerializeField] private float _decalLife = 5.0f;
+        [SerializeField] private float _decalFadeoutDuration = 1.0f;
+        [SerializeField] private bool _twoSidedDecal;
+        [SerializeField] private float _twoSidedDecalThickness = 0.01f;
+        [SerializeField] private LayerMask _collideLayersAddOnReflect = 0;
 
         #endregion
 
@@ -79,20 +105,6 @@ namespace UltimateXR.Mechanics.Weapons
 
         #endregion
 
-        #region Unity
-
-        /// <summary>
-        ///     Initializes the component.
-        /// </summary>
-        protected override void Start()
-        {
-            base.Start();
-
-            Owner = GetComponentInParent<UxrActor>();
-        }
-
-        #endregion
-
         #region Event Trigger Methods
 
         /// <summary>
@@ -109,6 +121,7 @@ namespace UltimateXR.Mechanics.Weapons
             }
         }
 
+
         /// <summary>
         ///     Called when the object was released. Will reset the <see cref="Owner" />.
         /// </summary>
@@ -122,6 +135,7 @@ namespace UltimateXR.Mechanics.Weapons
                 Owner = null;
             }
         }
+
 
         /// <summary>
         ///     Called when the object was released. Will reset the <see cref="Owner" />.
@@ -137,6 +151,7 @@ namespace UltimateXR.Mechanics.Weapons
             }
         }
 
+
         /// <summary>
         ///     Raises the <see cref="ProjectileDeflected" /> event.
         /// </summary>
@@ -145,16 +160,6 @@ namespace UltimateXR.Mechanics.Weapons
         {
             ProjectileDeflected?.Invoke(this, e);
         }
-
-        #endregion
-
-        #region Protected Overrides UxrGrabbableObjectComponent<UxrProjectileDeflect>
-
-        /// <summary>
-        ///     The grabbable object is not required. When it is present it will be used to assign the <see cref="Owner" /> so that
-        ///     the damage will be attributed to the actor instead of the original source.
-        /// </summary>
-        protected override bool IsGrabbableObjectRequired => false;
 
         #endregion
     }

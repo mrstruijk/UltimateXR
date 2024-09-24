@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Math;
 using UltimateXR.Editor.Core.Math;
 using UltimateXR.Extensions.Unity;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Utilities
 {
@@ -24,11 +26,12 @@ namespace UltimateXR.Editor.Utilities
         private void OnGUI()
         {
             EditorGUILayout.HelpBox("This utility will mirror an object. The mirror position is defined by a transform and the mirror plane by the transform's forward vector.\nThe Mirror Type option controls which vectors from the object will be mirrored, the remaining one being computed using the cross-product of the other two.",
-                                    MessageType.Info);
+                MessageType.Info);
 
             EditorGUI.BeginChangeCheck();
-            Transform objectToAlign = _objectToMirror;
+            var objectToAlign = _objectToMirror;
             _objectToMirror = EditorGUILayout.ObjectField(new GUIContent("Object to Mirror", "The object that will be mirrored"), _objectToMirror, typeof(Transform), true) as Transform;
+
             if (EditorGUI.EndChangeCheck())
             {
                 if (EditorUtility.IsPersistent(_objectToMirror))
@@ -46,13 +49,13 @@ namespace UltimateXR.Editor.Utilities
             }
 
             _mirrorPlane = EditorGUILayout.ObjectField(new GUIContent("Mirror Plane", "A point where the mirror plane lies"), _mirrorPlane, typeof(Transform), true) as Transform;
-            _mirrorAxis  = UxrAxisPropertyDrawer.EditorGuiLayout(new GUIContent("Mirror Axis", "The normal of the axis plane"), _mirrorAxis);
-            _reposition  = EditorGUILayout.Toggle(new GUIContent("Reposition",                 "Change position?"),    _reposition);
-            _reorient    = EditorGUILayout.Toggle(new GUIContent("Reorient",                   "Change orientation?"), _reorient);
+            _mirrorAxis = UxrAxisPropertyDrawer.EditorGuiLayout(new GUIContent("Mirror Axis", "The normal of the axis plane"), _mirrorAxis);
+            _reposition = EditorGUILayout.Toggle(new GUIContent("Reposition", "Change position?"), _reposition);
+            _reorient = EditorGUILayout.Toggle(new GUIContent("Reorient", "Change orientation?"), _reorient);
 
             GUI.enabled = _reorient;
 
-            _mirrorType = (TransformExt.MirrorType)EditorGUILayout.EnumPopup("Mirror Type", _mirrorType);
+            _mirrorType = (TransformExt.MirrorType) EditorGUILayout.EnumPopup("Mirror Type", _mirrorType);
 
             GUI.enabled = _objectToMirror != null && _mirrorPlane != null;
 
@@ -81,7 +84,7 @@ namespace UltimateXR.Editor.Utilities
         [MenuItem("Tools/UltimateXR/Utils/Mirror Object")]
         private static void Init()
         {
-            MirrorWindow window = (MirrorWindow)GetWindow(typeof(MirrorWindow), true, "Mirror Object");
+            var window = (MirrorWindow) GetWindow(typeof(MirrorWindow), true, "Mirror Object");
             window.Show();
         }
 
@@ -89,14 +92,14 @@ namespace UltimateXR.Editor.Utilities
 
         #region Private Types & Data
 
-        private Transform               _objectToMirror;
-        private bool                    _useSelfSourceTransform = true;
-        private Transform               _sourceTransform;
-        private Transform               _mirrorPlane;
-        private UxrAxis                 _mirrorAxis = UxrAxis.Z;
+        private Transform _objectToMirror;
+        private bool _useSelfSourceTransform = true;
+        private Transform _sourceTransform;
+        private Transform _mirrorPlane;
+        private UxrAxis _mirrorAxis = UxrAxis.Z;
         private TransformExt.MirrorType _mirrorType = TransformExt.MirrorType.MirrorYZ;
-        private bool                    _reposition = true;
-        private bool                    _reorient   = true;
+        private bool _reposition = true;
+        private bool _reorient = true;
 
         #endregion
     }

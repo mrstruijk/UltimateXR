@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,7 @@ using UltimateXR.Manipulation;
 using UnityEditor;
 using UnityEngine;
 
+
 namespace UltimateXR.Editor.Avatar
 {
     /// <summary>
@@ -23,6 +25,18 @@ namespace UltimateXR.Editor.Avatar
     [CustomEditor(typeof(UxrHandIntegration))]
     public partial class UxrHandIntegrationEditor : UnityEditor.Editor
     {
+        #region Event Trigger Methods
+
+        /// <summary>
+        ///     Called when there is an undo/redo.
+        /// </summary>
+        private void OnUndoRedo()
+        {
+            RegenerateTemporalObjects();
+        }
+
+        #endregion
+
         #region Unity
 
         /// <summary>
@@ -30,14 +44,14 @@ namespace UltimateXR.Editor.Avatar
         /// </summary>
         private void OnEnable()
         {
-            _propertyGizmoHandSize          = serializedObject.FindProperty("_gizmoHandSize");
-            _propertyHandSide               = serializedObject.FindProperty("_handSide");
-            _propertyObjectVariationName    = serializedObject.FindProperty("_objectVariationName");
-            _propertyMaterialVariationName  = serializedObject.FindProperty("_materialVariationName");
+            _propertyGizmoHandSize = serializedObject.FindProperty("_gizmoHandSize");
+            _propertyHandSide = serializedObject.FindProperty("_handSide");
+            _propertyObjectVariationName = serializedObject.FindProperty("_objectVariationName");
+            _propertyMaterialVariationName = serializedObject.FindProperty("_materialVariationName");
             _propertySelectedRenderPipeline = serializedObject.FindProperty("_selectedRenderPipeline");
 
-            _handIntegration        = serializedObject.targetObject as UxrHandIntegration;
-            _objectVariationNames   = GetCommonObjectVariationNames();
+            _handIntegration = serializedObject.targetObject as UxrHandIntegration;
+            _objectVariationNames = GetCommonObjectVariationNames();
             _materialVariationNames = GetCommonMaterialVariationNames(_propertyObjectVariationName.name);
 
             GetControllerPipelineRenderers(out _renderers, out _renderPipelineVariations, out _renderPipelineVariationStrings, out _selectedRenderPipelineIndex);
@@ -46,9 +60,9 @@ namespace UltimateXR.Editor.Avatar
             _propertySelectedRenderPipeline.intValue = _selectedRenderPipelineIndex;
             serializedObject.ApplyModifiedProperties();
 
-            UxrGrabber[] grabbers = _handIntegration.GetComponentsInChildren<UxrGrabber>();
+            var grabbers = _handIntegration.GetComponentsInChildren<UxrGrabber>();
 
-            foreach (UxrGrabber grabber in grabbers)
+            foreach (var grabber in grabbers)
             {
                 if (grabber.HandRenderer == null)
                 {
@@ -59,6 +73,7 @@ namespace UltimateXR.Editor.Avatar
             CreateTemporalObjects();
         }
 
+
         /// <summary>
         ///     Destroys the temporal hand gizmo.
         /// </summary>
@@ -67,13 +82,14 @@ namespace UltimateXR.Editor.Avatar
             DestroyTemporalObjects();
         }
 
+
         /// <inheritdoc />
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            bool variationChanged      = false;
-            bool renderPipelineChanged = false;
+            var variationChanged = false;
+            var renderPipelineChanged = false;
 
             // Gizmo hand size (read-only so that it can only be changed in debug mode).
 
@@ -81,6 +97,7 @@ namespace UltimateXR.Editor.Avatar
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(_propertyGizmoHandSize, ContentGizmoHandSize);
+
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
@@ -93,6 +110,7 @@ namespace UltimateXR.Editor.Avatar
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(_propertyHandSide, ContentHandSide);
+
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
@@ -104,10 +122,11 @@ namespace UltimateXR.Editor.Avatar
             if (_objectVariationNames.Count > 0)
             {
                 EditorGUI.BeginChangeCheck();
-                int handIndex = EditorGUILayout.Popup(ContentObjectVariationName, _objectVariationNames.IndexOf(_propertyObjectVariationName.stringValue), UxrEditorUtils.ToGUIContentArray(_objectVariationNames));
+                var handIndex = EditorGUILayout.Popup(ContentObjectVariationName, _objectVariationNames.IndexOf(_propertyObjectVariationName.stringValue), UxrEditorUtils.ToGUIContentArray(_objectVariationNames));
+
                 if (EditorGUI.EndChangeCheck())
                 {
-                    variationChanged                         = true;
+                    variationChanged = true;
                     _propertyObjectVariationName.stringValue = _objectVariationNames[handIndex];
                     serializedObject.ApplyModifiedProperties();
                 }
@@ -120,10 +139,11 @@ namespace UltimateXR.Editor.Avatar
             if (_materialVariationNames.Count > 0)
             {
                 EditorGUI.BeginChangeCheck();
-                int materialIndex = EditorGUILayout.Popup(ContentMaterialVariationName, _materialVariationNames.IndexOf(_propertyMaterialVariationName.stringValue), UxrEditorUtils.ToGUIContentArray(_materialVariationNames));
+                var materialIndex = EditorGUILayout.Popup(ContentMaterialVariationName, _materialVariationNames.IndexOf(_propertyMaterialVariationName.stringValue), UxrEditorUtils.ToGUIContentArray(_materialVariationNames));
+
                 if (EditorGUI.EndChangeCheck())
                 {
-                    variationChanged                           = true;
+                    variationChanged = true;
                     _propertyMaterialVariationName.stringValue = _materialVariationNames[materialIndex];
                 }
             }
@@ -134,9 +154,10 @@ namespace UltimateXR.Editor.Avatar
             {
                 EditorGUI.BeginChangeCheck();
                 _propertySelectedRenderPipeline.intValue = EditorGUILayout.Popup(ContentRenderPipeline, _propertySelectedRenderPipeline.intValue, UxrEditorUtils.ToGUIContentArray(_renderPipelineVariationStrings));
+
                 if (EditorGUI.EndChangeCheck())
                 {
-                    renderPipelineChanged        = true;
+                    renderPipelineChanged = true;
                     _selectedRenderPipelineIndex = _propertySelectedRenderPipeline.intValue;
                 }
             }
@@ -171,7 +192,7 @@ namespace UltimateXR.Editor.Avatar
 
             // Check Undo/Redo/Revert:
 
-            if (_propertyGizmoHandSize.enumValueIndex != (int)_gizmoHandSize)
+            if (_propertyGizmoHandSize.enumValueIndex != (int) _gizmoHandSize)
             {
                 RegenerateTemporalObjects();
             }
@@ -185,18 +206,6 @@ namespace UltimateXR.Editor.Avatar
 
         #endregion
 
-        #region Event Trigger Methods
-
-        /// <summary>
-        ///     Called when there is an undo/redo.
-        /// </summary>
-        private void OnUndoRedo()
-        {
-            RegenerateTemporalObjects();
-        }
-
-        #endregion
-
         #region Private Methods
 
         /// <summary>
@@ -206,22 +215,23 @@ namespace UltimateXR.Editor.Avatar
         /// <returns>Common available object variation names</returns>
         private IReadOnlyList<string> GetCommonObjectVariationNames()
         {
-            List<string> objectVariationNames = new List<string>();
+            var objectVariationNames = new List<string>();
 
             if (_handIntegration)
             {
                 _controllerHands = _handIntegration.GetComponentsInChildren<UxrControllerHand>(true);
-                bool isFirst = true;
+                var isFirst = true;
 
-                foreach (UxrControllerHand hand in _controllerHands)
+                foreach (var hand in _controllerHands)
                 {
                     objectVariationNames = isFirst ? hand.Variations.Select(v => v.Name).ToList() : objectVariationNames.Intersect(hand.Variations.Select(v => v.Name)).ToList();
-                    isFirst              = false;
+                    isFirst = false;
                 }
             }
 
             return objectVariationNames;
         }
+
 
         /// <summary>
         ///     Gets all the common material variation names among the available <see cref="UxrControllerHand" /> components
@@ -230,21 +240,21 @@ namespace UltimateXR.Editor.Avatar
         /// <returns>Common available material variation names for the given object variation</returns>
         private IReadOnlyList<string> GetCommonMaterialVariationNames(string objectVariationName)
         {
-            List<string> materialVariationNames = new List<string>();
+            var materialVariationNames = new List<string>();
 
             if (_handIntegration)
             {
                 _controllerHands = _handIntegration.GetComponentsInChildren<UxrControllerHand>(true);
-                bool isFirst = true;
+                var isFirst = true;
 
-                foreach (UxrControllerHand hand in _controllerHands)
+                foreach (var hand in _controllerHands)
                 {
-                    foreach (UxrControllerHand.ObjectVariation objectVariation in hand.Variations)
+                    foreach (var objectVariation in hand.Variations)
                     {
                         if (objectVariation.Name == objectVariationName)
                         {
                             materialVariationNames = isFirst ? objectVariation.MaterialVariations.Select(v => v.Name).ToList() : materialVariationNames.Intersect(objectVariation.MaterialVariations.Select(v => v.Name)).ToList();
-                            isFirst                = false;
+                            isFirst = false;
                         }
                     }
                 }
@@ -252,6 +262,7 @@ namespace UltimateXR.Editor.Avatar
 
             return materialVariationNames;
         }
+
 
         /// <summary>
         ///     Retrieves the available renderers that are part of controllers, the list of available material render pipeline
@@ -269,16 +280,16 @@ namespace UltimateXR.Editor.Avatar
         /// </param>
         private void GetControllerPipelineRenderers(out List<Renderer> renderers, out List<RenderPipeline> renderPipelineVariations, out List<string> renderPipelineVariationStrings, out int selectedRenderPipelineIndex)
         {
-            renderers                      = new List<Renderer>();
-            renderPipelineVariations       = new List<RenderPipeline>();
+            renderers = new List<Renderer>();
+            renderPipelineVariations = new List<RenderPipeline>();
             renderPipelineVariationStrings = new List<string>();
-            selectedRenderPipelineIndex    = -1;
+            selectedRenderPipelineIndex = -1;
 
             if (_handIntegration)
             {
-                foreach (Renderer renderer in _handIntegration.GetComponentsInChildren<Renderer>(true))
+                foreach (var renderer in _handIntegration.GetComponentsInChildren<Renderer>(true))
                 {
-                    foreach (Material material in renderer.sharedMaterials.Where(material => material != null))
+                    foreach (var material in renderer.sharedMaterials.Where(material => material != null))
                     {
                         if (material.name.Contains(MaterialUrp))
                         {
@@ -321,6 +332,7 @@ namespace UltimateXR.Editor.Avatar
             }
         }
 
+
         /// <summary>
         ///     Gets the given material variation if it exists.
         /// </summary>
@@ -329,8 +341,8 @@ namespace UltimateXR.Editor.Avatar
         /// <returns>The material variation for the given render pipeline if it exists</returns>
         private Material GetRenderPipelineVariant(Material material, RenderPipeline renderPipeline)
         {
-            string materialName = material.name;
-            string directory    = Path.GetDirectoryName(AssetDatabase.GetAssetPath(material));
+            var materialName = material.name;
+            var directory = Path.GetDirectoryName(AssetDatabase.GetAssetPath(material));
 
             if (directory == null)
             {
@@ -355,6 +367,7 @@ namespace UltimateXR.Editor.Avatar
             return null;
         }
 
+
         /// <summary>
         ///     Enables the current object/material variation.
         /// </summary>
@@ -364,28 +377,28 @@ namespace UltimateXR.Editor.Avatar
         {
             if (_handIntegration)
             {
-                foreach (UxrControllerHand hand in _handIntegration.GetComponentsInChildren<UxrControllerHand>(true))
+                foreach (var hand in _handIntegration.GetComponentsInChildren<UxrControllerHand>(true))
                 {
                     // First pass: Disable all, because the selected variation may share a GameObject with another variation
 
-                    foreach (UxrControllerHand.ObjectVariation objectVariation in hand.Variations)
+                    foreach (var objectVariation in hand.Variations)
                     {
                         objectVariation.GameObject.SetActive(false);
                     }
 
                     // Second pass: Enable selected one and assign material
 
-                    UxrControllerHand.ObjectVariation selectedObjectVariation = hand.Variations.FirstOrDefault(v => v.Name == objectVariationName);
+                    var selectedObjectVariation = hand.Variations.FirstOrDefault(v => v.Name == objectVariationName);
 
                     if (selectedObjectVariation != null)
                     {
                         selectedObjectVariation.GameObject.SetActive(true);
 
-                        UxrControllerHand.ObjectVariation.MaterialVariation selectedMaterialVariation = selectedObjectVariation.MaterialVariations.FirstOrDefault(v => v.Name == materialVariationName);
+                        var selectedMaterialVariation = selectedObjectVariation.MaterialVariations.FirstOrDefault(v => v.Name == materialVariationName);
 
                         if (selectedMaterialVariation != null)
                         {
-                            foreach (Renderer renderer in selectedObjectVariation.GameObject.GetComponentsInChildren<Renderer>(true))
+                            foreach (var renderer in selectedObjectVariation.GameObject.GetComponentsInChildren<Renderer>(true))
                             {
                                 renderer.sharedMaterial = selectedMaterialVariation.Material;
                             }
@@ -395,6 +408,7 @@ namespace UltimateXR.Editor.Avatar
             }
         }
 
+
         /// <summary>
         ///     Enables the materials for the given render pipeline.
         /// </summary>
@@ -402,13 +416,13 @@ namespace UltimateXR.Editor.Avatar
         /// <param name="renderPipeline">Render pipeline to enable</param>
         private void EnableCurrentRenderPipeline(IReadOnlyList<Renderer> renderers, RenderPipeline renderPipeline)
         {
-            foreach (Renderer renderer in renderers)
+            foreach (var renderer in renderers)
             {
-                Material[] sharedMaterials = renderer.sharedMaterials;
+                var sharedMaterials = renderer.sharedMaterials;
 
-                for (int i = 0; i < sharedMaterials.Length; ++i)
+                for (var i = 0; i < sharedMaterials.Length; ++i)
                 {
-                    Material materialVariation = GetRenderPipelineVariant(sharedMaterials[i], renderPipeline);
+                    var materialVariation = GetRenderPipelineVariant(sharedMaterials[i], renderPipeline);
 
                     if (materialVariation != null)
                     {
@@ -420,6 +434,7 @@ namespace UltimateXR.Editor.Avatar
             }
         }
 
+
         /// <summary>
         ///     Regenerates the hand gizmo.
         /// </summary>
@@ -429,6 +444,7 @@ namespace UltimateXR.Editor.Avatar
             CreateTemporalObjects();
         }
 
+
         /// <summary>
         ///     Creates the hand gizmo.
         /// </summary>
@@ -436,29 +452,29 @@ namespace UltimateXR.Editor.Avatar
         {
             string handAssetGuid = null;
 
-            if (_propertyGizmoHandSize.enumValueIndex == (int)UxrHandIntegration.GizmoHandSize.Big)
+            if (_propertyGizmoHandSize.enumValueIndex == (int) UxrHandIntegration.GizmoHandSize.Big)
             {
-                handAssetGuid  = _handIntegration.HandSide == UxrHandSide.Left ? LeftBigHandAssetGuid : RightBigHandAssetGuid;
+                handAssetGuid = _handIntegration.HandSide == UxrHandSide.Left ? LeftBigHandAssetGuid : RightBigHandAssetGuid;
                 _gizmoHandSize = UxrHandIntegration.GizmoHandSize.Big;
             }
-            else if (_propertyGizmoHandSize.enumValueIndex == (int)UxrHandIntegration.GizmoHandSize.Small)
+            else if (_propertyGizmoHandSize.enumValueIndex == (int) UxrHandIntegration.GizmoHandSize.Small)
             {
-                handAssetGuid  = _handIntegration.HandSide == UxrHandSide.Left ? LeftSmallHandAssetGuid : RightSmallHandAssetGuid;
+                handAssetGuid = _handIntegration.HandSide == UxrHandSide.Left ? LeftSmallHandAssetGuid : RightSmallHandAssetGuid;
                 _gizmoHandSize = UxrHandIntegration.GizmoHandSize.Small;
             }
 
             if (!string.IsNullOrEmpty(handAssetGuid))
             {
-                GameObject handAsset = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(handAssetGuid));
+                var handAsset = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(handAssetGuid));
 
                 if (handAsset == null)
                 {
                     return;
                 }
 
-                _handGizmoRoot           = Instantiate(handAsset);
+                _handGizmoRoot = Instantiate(handAsset);
                 _handGizmoRoot.hideFlags = HideFlags.HideAndDontSave;
-                _handGizmoRenderer       = _handGizmoRoot.GetComponentInChildren<Renderer>();
+                _handGizmoRenderer = _handGizmoRoot.GetComponentInChildren<Renderer>();
 
                 if (_handGizmoRoot != null)
                 {
@@ -472,6 +488,7 @@ namespace UltimateXR.Editor.Avatar
             }
         }
 
+
         /// <summary>
         ///     Destroys the hand gizmo.
         /// </summary>
@@ -482,7 +499,7 @@ namespace UltimateXR.Editor.Avatar
                 DestroyImmediate(_handGizmoRoot);
             }
 
-            _handGizmoRoot     = null;
+            _handGizmoRoot = null;
             _handGizmoRenderer = null;
         }
 
@@ -490,21 +507,21 @@ namespace UltimateXR.Editor.Avatar
 
         #region Private Types & Data
 
-        private GUIContent ContentGizmoHandSize         => new GUIContent("Gizmo Hand Size", "The hand size ");
-        private GUIContent ContentHandSide              => new GUIContent("Hand Side");
-        private GUIContent ContentObjectVariationName   => new GUIContent("Hand",            "The type of hand that is shown with the controller");
-        private GUIContent ContentMaterialVariationName => new GUIContent("Material",        "The hand material");
-        private GUIContent ContentRenderPipeline        => new GUIContent("Render Pipeline", "The render pipeline that will be used, so that the correct materials are loaded");
+        private GUIContent ContentGizmoHandSize => new("Gizmo Hand Size", "The hand size ");
+        private GUIContent ContentHandSide => new("Hand Side");
+        private GUIContent ContentObjectVariationName => new("Hand", "The type of hand that is shown with the controller");
+        private GUIContent ContentMaterialVariationName => new("Material", "The hand material");
+        private GUIContent ContentRenderPipeline => new("Render Pipeline", "The render pipeline that will be used, so that the correct materials are loaded");
 
-        private const string LeftBigHandAssetGuid    = "93019d606e943b7429d29c694143ad6e";
-        private const string RightBigHandAssetGuid   = "d45d3edc285cfd64a86fddd771e13f47";
-        private const string LeftSmallHandAssetGuid  = "672e7f52fe868134a80bf396141fe261";
+        private const string LeftBigHandAssetGuid = "93019d606e943b7429d29c694143ad6e";
+        private const string RightBigHandAssetGuid = "d45d3edc285cfd64a86fddd771e13f47";
+        private const string LeftSmallHandAssetGuid = "672e7f52fe868134a80bf396141fe261";
         private const string RightSmallHandAssetGuid = "0a1c1014903295a408b755f1fed2863e";
 
         private const string MaterialBrp = "_BRP";
         private const string MaterialUrp = "_URP";
-        private const string BrpUI       = "Built-in Render Pipeline";
-        private const string UrpUI       = "Universal Render Pipeline";
+        private const string BrpUI = "Built-in Render Pipeline";
+        private const string UrpUI = "Universal Render Pipeline";
 
         private SerializedProperty _propertyGizmoHandSize;
         private SerializedProperty _propertyHandSide;
@@ -512,17 +529,17 @@ namespace UltimateXR.Editor.Avatar
         private SerializedProperty _propertyMaterialVariationName;
         private SerializedProperty _propertySelectedRenderPipeline;
 
-        private UxrHandIntegration               _handIntegration;
+        private UxrHandIntegration _handIntegration;
         private UxrHandIntegration.GizmoHandSize _gizmoHandSize;
-        private GameObject                       _handGizmoRoot;
-        private Renderer                         _handGizmoRenderer;
+        private GameObject _handGizmoRoot;
+        private Renderer _handGizmoRenderer;
         private IReadOnlyList<UxrControllerHand> _controllerHands;
-        private IReadOnlyList<string>            _objectVariationNames;
-        private IReadOnlyList<string>            _materialVariationNames;
-        private List<RenderPipeline>             _renderPipelineVariations;
-        private List<string>                     _renderPipelineVariationStrings;
-        private List<Renderer>                   _renderers;
-        private int                              _selectedRenderPipelineIndex;
+        private IReadOnlyList<string> _objectVariationNames;
+        private IReadOnlyList<string> _materialVariationNames;
+        private List<RenderPipeline> _renderPipelineVariations;
+        private List<string> _renderPipelineVariationStrings;
+        private List<Renderer> _renderers;
+        private int _selectedRenderPipelineIndex;
 
         #endregion
     }

@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Linq;
 using UltimateXR.Extensions.Unity;
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.IK
 {
@@ -20,14 +22,42 @@ namespace UltimateXR.Animation.IK
     /// </summary>
     public partial class UxrCcdIKSolver : UxrIKSolver
     {
+        #region Protected Overrides UxrIKSolver
+
+        /// <summary>
+        ///     IK solver implementation. Will try to make the end effector in the link chain to match the goal.
+        /// </summary>
+        protected override void InternalSolveIK()
+        {
+            var goalPosition = _goal.position;
+            var goalForward = _goal.forward;
+
+            for (var i = 0; i < _maxIterations; ++i)
+            {
+                var result = ComputeSingleIterationCcd(_links, _endEffector, goalPosition, goalForward, _minDistanceToGoal);
+
+                if (result != IterationResult.ReachingGoal)
+                {
+                    break;
+                }
+            }
+
+            if (_constrainGoalToEffector && Vector3.Distance(goalPosition, _endEffector.position) > _minDistanceToGoal)
+            {
+                _goal.position = _endEffector.position;
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private int              _maxIterations     = 10;
-        [SerializeField] private float            _minDistanceToGoal = 0.001f;
-        [SerializeField] private List<UxrCcdLink> _links             = new List<UxrCcdLink>();
-        [SerializeField] private Transform        _endEffector;
-        [SerializeField] private Transform        _goal;
-        [SerializeField] private bool             _constrainGoalToEffector;
+        [SerializeField] private int _maxIterations = 10;
+        [SerializeField] private float _minDistanceToGoal = 0.001f;
+        [SerializeField] private List<UxrCcdLink> _links = new();
+        [SerializeField] private Transform _endEffector;
+        [SerializeField] private Transform _goal;
+        [SerializeField] private bool _constrainGoalToEffector;
 
         #endregion
 
@@ -60,7 +90,7 @@ namespace UltimateXR.Animation.IK
         {
             if (_links != null && _endEffector != null)
             {
-                for (int i = 0; i < _links.Count; ++i)
+                for (var i = 0; i < _links.Count; ++i)
                 {
                     if (_links[i].Bone != null && !(i < _links.Count - 1 && _links[i + 1].Bone == null))
                     {
@@ -71,18 +101,19 @@ namespace UltimateXR.Animation.IK
                             _links[i].MtxToLocalParent = _links[i].Bone.parent.worldToLocalMatrix;
                         }
 
-                        _links[i].InitialLocalRotation            = _links[i].Bone.localRotation;
-                        _links[i].LocalSpaceAxis1ZeroAngleVector  = _links[i].RotationAxis1.GetPerpendicularVector();
-                        _links[i].LocalSpaceAxis2ZeroAngleVector  = _links[i].RotationAxis2.GetPerpendicularVector();
-                        _links[i].ParentSpaceAxis1                = _links[i].MtxToLocalParent.MultiplyVector(_links[i].Bone.TransformDirection(_links[i].RotationAxis1));
-                        _links[i].ParentSpaceAxis2                = _links[i].MtxToLocalParent.MultiplyVector(_links[i].Bone.TransformDirection(_links[i].RotationAxis2));
+                        _links[i].InitialLocalRotation = _links[i].Bone.localRotation;
+                        _links[i].LocalSpaceAxis1ZeroAngleVector = _links[i].RotationAxis1.GetPerpendicularVector();
+                        _links[i].LocalSpaceAxis2ZeroAngleVector = _links[i].RotationAxis2.GetPerpendicularVector();
+                        _links[i].ParentSpaceAxis1 = _links[i].MtxToLocalParent.MultiplyVector(_links[i].Bone.TransformDirection(_links[i].RotationAxis1));
+                        _links[i].ParentSpaceAxis2 = _links[i].MtxToLocalParent.MultiplyVector(_links[i].Bone.TransformDirection(_links[i].RotationAxis2));
                         _links[i].ParentSpaceAxis1ZeroAngleVector = _links[i].MtxToLocalParent.MultiplyVector(_links[i].Bone.TransformDirection(_links[i].LocalSpaceAxis1ZeroAngleVector));
                         _links[i].ParentSpaceAxis2ZeroAngleVector = _links[i].MtxToLocalParent.MultiplyVector(_links[i].Bone.TransformDirection(_links[i].LocalSpaceAxis2ZeroAngleVector));
-                        _links[i].LinkLength                      = i == _links.Count - 1 ? Vector3.Distance(_links[i].Bone.position, _endEffector.position) : Vector3.Distance(_links[i].Bone.position, _links[i + 1].Bone.position);
+                        _links[i].LinkLength = i == _links.Count - 1 ? Vector3.Distance(_links[i].Bone.position, _endEffector.position) : Vector3.Distance(_links[i].Bone.position, _links[i + 1].Bone.position);
                     }
                 }
             }
         }
+
 
         /// <summary>
         ///     Sets the weight of the given link.
@@ -96,6 +127,7 @@ namespace UltimateXR.Animation.IK
                 _links[link].Weight = weight;
             }
         }
+
 
         /// <summary>
         ///     Sets the default values for the given link.
@@ -122,44 +154,17 @@ namespace UltimateXR.Animation.IK
             ComputeLinkData();
         }
 
+
         /// <summary>
         ///     Checks if the goal needs to be parented so that the IK computation doesn't affect the goal itself.
         /// </summary>
         protected override void Start()
         {
             base.Start();
-            
+
             if (_goal.HasParent(_endEffector) || _links.Any(l => _goal.HasParent(l.Bone)))
             {
                 _goal.SetParent(transform);
-            }
-        }
-
-        #endregion
-
-        #region Protected Overrides UxrIKSolver
-
-        /// <summary>
-        ///     IK solver implementation. Will try to make the end effector in the link chain to match the goal.
-        /// </summary>
-        protected override void InternalSolveIK()
-        {
-            Vector3    goalPosition = _goal.position;
-            Vector3    goalForward  = _goal.forward;
-
-            for (int i = 0; i < _maxIterations; ++i)
-            {
-                IterationResult result = ComputeSingleIterationCcd(_links, _endEffector, goalPosition, goalForward, _minDistanceToGoal);
-
-                if (result != IterationResult.ReachingGoal)
-                {
-                    break;
-                }
-            }
-
-            if (_constrainGoalToEffector && Vector3.Distance(goalPosition, _endEffector.position) > _minDistanceToGoal)
-            {
-                _goal.position = _endEffector.position;
             }
         }
 
@@ -188,6 +193,7 @@ namespace UltimateXR.Animation.IK
             return angle;
         }
 
+
         /// <summary>
         ///     Computes a single iteration of the CCD algorithm on our link chain.
         /// </summary>
@@ -206,9 +212,9 @@ namespace UltimateXR.Animation.IK
 
             // Iterate from tip to base
 
-            bool linksRotated = false;
+            var linksRotated = false;
 
-            foreach (UxrCcdLink link in links)
+            foreach (var link in links)
             {
                 if (Vector3.Distance(goalPosition, endEffector.position) <= minDistanceToGoal)
                 {
@@ -226,7 +232,7 @@ namespace UltimateXR.Animation.IK
 
                 // Compute the vector that rotates around axis1 corresponding to 0 degrees. It will be computed in local space of the parent link.
 
-                Vector3 parentSpaceAngle1Vector = link.MtxToLocalParent.MultiplyVector(link.Bone.TransformDirection(link.LocalSpaceAxis1ZeroAngleVector));
+                var parentSpaceAngle1Vector = link.MtxToLocalParent.MultiplyVector(link.Bone.TransformDirection(link.LocalSpaceAxis1ZeroAngleVector));
 
                 if (link.Constraint == UxrCcdConstraintType.TwoAxes)
                 {
@@ -237,15 +243,15 @@ namespace UltimateXR.Animation.IK
                 // Using the computations above, calculate the angle1 value. This is the value of rotation in degrees corresponding to the first constraint axis
 
                 link.Angle1 = Vector3.SignedAngle(Vector3.ProjectOnPlane(link.ParentSpaceAxis1ZeroAngleVector, link.ParentSpaceAxis1),
-                                                  Vector3.ProjectOnPlane(parentSpaceAngle1Vector,              link.ParentSpaceAxis1),
-                                                  link.ParentSpaceAxis1);
+                    Vector3.ProjectOnPlane(parentSpaceAngle1Vector, link.ParentSpaceAxis1),
+                    link.ParentSpaceAxis1);
 
                 // Now let's rotate around axis1 if needed. We will compute the current vector from this node to the effector and also the current vector from this node
                 // to the target. Our goal is to make the first vector match the second vector but we may only rotate around axis1. So what we do is project the goal vector
                 // onto the plane with axis1 as its normal and this will be the result of our "valid" rotation due to the constraint.
 
-                Vector3 currentDirection = endEffector.position - link.Bone.position;
-                Vector3 desiredDirection = goalPosition - link.Bone.position;
+                var currentDirection = endEffector.position - link.Bone.position;
+                var desiredDirection = goalPosition - link.Bone.position;
 
                 if (link.AlignToGoal)
                 {
@@ -253,11 +259,11 @@ namespace UltimateXR.Animation.IK
                     desiredDirection = goalForward;
                 }
 
-                Vector3 worldAxis1                 = link.Bone.TransformDirection(link.RotationAxis1);
-                Vector3 closestVectorAxis1Rotation = Vector3.ProjectOnPlane(desiredDirection, worldAxis1);
+                var worldAxis1 = link.Bone.TransformDirection(link.RotationAxis1);
+                var closestVectorAxis1Rotation = Vector3.ProjectOnPlane(desiredDirection, worldAxis1);
 
-                float newAxis1AngleIncrement = link.Weight * Vector3.SignedAngle(Vector3.ProjectOnPlane(currentDirection, worldAxis1), closestVectorAxis1Rotation, worldAxis1);
-                float totalAngleAxis1        = FixAngle(link.Angle1 + newAxis1AngleIncrement);
+                var newAxis1AngleIncrement = link.Weight * Vector3.SignedAngle(Vector3.ProjectOnPlane(currentDirection, worldAxis1), closestVectorAxis1Rotation, worldAxis1);
+                var totalAngleAxis1 = FixAngle(link.Angle1 + newAxis1AngleIncrement);
 
                 // Now that we have computed our increment, let's see if we need to clamp it between the limits
 
@@ -279,7 +285,7 @@ namespace UltimateXR.Animation.IK
 
                 if (Mathf.Approximately(newAxis1AngleIncrement, 0.0f) == false)
                 {
-                    link.Angle1             = totalAngleAxis1;
+                    link.Angle1 = totalAngleAxis1;
                     link.Bone.localRotation = link.InitialLocalRotation * Quaternion.AngleAxis(link.Angle1, link.RotationAxis1);
 
                     if (link.Constraint == UxrCcdConstraintType.TwoAxes)
@@ -294,12 +300,13 @@ namespace UltimateXR.Animation.IK
                 {
                     // Axis 2. Axis 2 works exactly like axis 1 but we operate on another plane
 
-                    Vector3 parentSpaceAngle2Vector = link.MtxToLocalParent.MultiplyVector(link.Bone.TransformDirection(link.LocalSpaceAxis2ZeroAngleVector));
+                    var parentSpaceAngle2Vector = link.MtxToLocalParent.MultiplyVector(link.Bone.TransformDirection(link.LocalSpaceAxis2ZeroAngleVector));
 
                     link.ParentSpaceAxis2 = link.MtxToLocalParent.MultiplyVector(link.Bone.TransformDirection(link.RotationAxis2));
+
                     link.Angle2 = Vector3.SignedAngle(Vector3.ProjectOnPlane(link.ParentSpaceAxis2ZeroAngleVector, link.ParentSpaceAxis2),
-                                                      Vector3.ProjectOnPlane(parentSpaceAngle2Vector,              link.ParentSpaceAxis2),
-                                                      link.ParentSpaceAxis2);
+                        Vector3.ProjectOnPlane(parentSpaceAngle2Vector, link.ParentSpaceAxis2),
+                        link.ParentSpaceAxis2);
 
                     currentDirection = endEffector.position - link.Bone.position;
                     desiredDirection = goalPosition - link.Bone.position;
@@ -310,11 +317,11 @@ namespace UltimateXR.Animation.IK
                         desiredDirection = goalForward;
                     }
 
-                    Vector3 worldAxis2                 = link.Bone.TransformDirection(link.RotationAxis2);
-                    Vector3 closestVectorAxis2Rotation = Vector3.ProjectOnPlane(desiredDirection, worldAxis2);
+                    var worldAxis2 = link.Bone.TransformDirection(link.RotationAxis2);
+                    var closestVectorAxis2Rotation = Vector3.ProjectOnPlane(desiredDirection, worldAxis2);
 
-                    float newAxis2AngleIncrement = link.Weight * Vector3.SignedAngle(Vector3.ProjectOnPlane(currentDirection, worldAxis2), closestVectorAxis2Rotation, worldAxis2);
-                    float totalAngleAxis2        = FixAngle(link.Angle2 + newAxis2AngleIncrement);
+                    var newAxis2AngleIncrement = link.Weight * Vector3.SignedAngle(Vector3.ProjectOnPlane(currentDirection, worldAxis2), closestVectorAxis2Rotation, worldAxis2);
+                    var totalAngleAxis2 = FixAngle(link.Angle2 + newAxis2AngleIncrement);
 
                     if (link.Axis2HasLimits)
                     {
@@ -333,7 +340,7 @@ namespace UltimateXR.Animation.IK
                     if (Mathf.Approximately(newAxis2AngleIncrement, 0.0f) == false)
                     {
                         // Rotation order is first angle2 then angle1 because previously we have rotated in this order already
-                        link.Angle2             = totalAngleAxis2;
+                        link.Angle2 = totalAngleAxis2;
                         link.Bone.localRotation = link.InitialLocalRotation * Quaternion.AngleAxis(link.Angle1, link.RotationAxis1) * Quaternion.AngleAxis(link.Angle2, link.RotationAxis2);
 
                         linksRotated = true;
@@ -343,6 +350,7 @@ namespace UltimateXR.Animation.IK
 
             return linksRotated ? Vector3.Distance(goalPosition, endEffector.position) <= minDistanceToGoal ? IterationResult.GoalReached : IterationResult.ReachingGoal : IterationResult.Error;
         }
+
 
         /// <summary>
         ///     Gets the transform that should be used to restore the goal position every time an IK link
@@ -359,12 +367,12 @@ namespace UltimateXR.Animation.IK
         /// <returns>Transform that should be stored</returns>
         private static Transform GetGoalSafeRestoreTransform(List<UxrCcdLink> links, Transform goal)
         {
-            Transform current  = goal;
-            Transform previous = goal;
+            var current = goal;
+            var previous = goal;
 
             while (current != null)
             {
-                for (int i = links.Count - 1; i >= 0; --i)
+                for (var i = links.Count - 1; i >= 0; --i)
                 {
                     if (current == links[i].Bone && current != previous)
                     {
@@ -375,7 +383,7 @@ namespace UltimateXR.Animation.IK
                 }
 
                 previous = current;
-                current  = current.parent;
+                current = current.parent;
             }
 
             return goal;

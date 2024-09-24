@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
+
 
 namespace UltimateXR.Extensions.System
 {
@@ -29,6 +31,7 @@ namespace UltimateXR.Extensions.System
             }
         }
 
+
         /// <summary>
         ///     Checks whether the type defined by <paramref name="from" /> can be casted to the type defined by <see cref="to" />.
         /// </summary>
@@ -39,6 +42,7 @@ namespace UltimateXR.Extensions.System
         {
             return to.IsAssignableFrom(from);
         }
+
 
         /// <summary>
         ///     Throws an <see cref="InvalidCastException" /> if the type defined by <paramref name="self" /> can't be casted to
@@ -51,6 +55,7 @@ namespace UltimateXR.Extensions.System
         {
             ThrowIfInvalidCast(self, to);
         }
+
 
         /// <summary>
         ///     Checks whether the type defined by <paramref name="self" /> can be casted to the type defined by <see cref="to" />.

@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core;
 using UltimateXR.Devices.Integrations.Microsoft;
+
 
 namespace UltimateXR.Devices.Integrations.HP
 {
@@ -26,10 +28,11 @@ namespace UltimateXR.Devices.Integrations.HP
             }
         }
 
+
         /// <inheritdoc />
         public override bool HasControllerElements(UxrHandSide handSide, UxrControllerElements controllerElements)
         {
-            uint validElements = (uint)(UxrControllerElements.Joystick |
+            var validElements = (uint) (UxrControllerElements.Joystick |
                                         UxrControllerElements.Joystick2 |
                                         UxrControllerElements.Grip |
                                         UxrControllerElements.Trigger |
@@ -38,7 +41,7 @@ namespace UltimateXR.Devices.Integrations.HP
                                         UxrControllerElements.Menu |
                                         UxrControllerElements.DPad);
 
-            return (validElements & (uint)controllerElements) == (uint)controllerElements;
+            return (validElements & (uint) controllerElements) == (uint) controllerElements;
         }
 
         #endregion

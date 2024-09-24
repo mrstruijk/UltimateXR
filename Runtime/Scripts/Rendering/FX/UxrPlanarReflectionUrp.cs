@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Avatar;
 using UltimateXR.Core.Components;
@@ -12,10 +13,10 @@ using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.XR;
-
 #if ULTIMATEXR_UNITY_URP
 using UnityEngine.Rendering.Universal;
 #endif
+
 
 namespace UltimateXR.Rendering.FX
 {
@@ -39,107 +40,6 @@ namespace UltimateXR.Rendering.FX
     /// </summary>
     public class UxrPlanarReflectionUrp : UxrComponent
     {
-        #region Inspector Properties/Serialized Fields
-
-        // Inspector
-
-        [SerializeField] private bool      _forceClearSkyBox;
-        [SerializeField] private Transform _mirrorTransform;
-        [SerializeField] private Renderer  _mirrorRenderer;
-        [SerializeField] private Material  _materialWhenDisabled;
-        [SerializeField] private bool      _disablePixelLights = true;
-        [SerializeField] private int       _textureSize        = 1024;
-        [SerializeField] private float     _clipPlaneOffset;
-        [SerializeField] private LayerMask _reflectLayers = -1;
-
-        #endregion
-
-        #region Unity
-
-        /// <summary>
-        ///     Stores the current material so that a "cheap" material can be assigned when disabled and the original material
-        ///     re-assigned when enabled back again.
-        /// </summary>
-        protected override void Awake()
-        {
-            base.Awake();
-
-            if (_mirrorRenderer != null)
-            {
-                _originalMaterial = _mirrorRenderer.sharedMaterial;
-            }
-        }
-
-        /// <summary>
-        ///     Frees resources.
-        /// </summary>
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            
-            foreach (KeyValuePair<Camera, Camera> camPair in _reflectionCameras)
-            {
-                if (camPair.Value != null)
-                {
-                    DestroyImmediate(camPair.Value.gameObject);
-                }
-            }
-
-            if (_reflectionTextureLeft)
-            {
-                DestroyImmediate(_reflectionTextureLeft);
-                _reflectionTextureLeft = null;
-            }
-
-            if (_reflectionTextureRight)
-            {
-                DestroyImmediate(_reflectionTextureRight);
-                _reflectionTextureRight = null;
-            }
-
-            _reflectionCameras.Clear();
-        }
-
-        /// <summary>
-        ///     Subscribes to the URP camera rendering callback.
-        /// </summary>
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-
-            if (_mirrorRenderer != null && _originalMaterial)
-            {
-                _mirrorRenderer.sharedMaterial = _originalMaterial;
-            }
-
-            RenderPipelineManager.beginCameraRendering += RenderPipelineManager_BeginCameraRendering;
-        }
-
-        /// <summary>
-        ///     Unsubscribes from the URP camera rendering callback.
-        /// </summary>
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-
-            RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_BeginCameraRendering;
-
-            foreach (KeyValuePair<Camera, Camera> camPair in _reflectionCameras)
-            {
-                if (camPair.Value != null)
-                {
-                    camPair.Value.enabled = false;
-                }
-            }
-
-            if (_mirrorRenderer != null && _materialWhenDisabled)
-            {
-                _mirrorRenderer.sharedMaterial = _materialWhenDisabled;
-            }
-        }
-
-        #endregion
-
         #region Event Handling Methods
 
         /// <summary>
@@ -150,7 +50,7 @@ namespace UltimateXR.Rendering.FX
             // Avoid other cameras except for the main one.
 
             _mirrorTransform = _mirrorTransform ? _mirrorTransform : transform;
-            _mirrorRenderer  = _mirrorRenderer ? _mirrorRenderer : GetComponent<Renderer>();
+            _mirrorRenderer = _mirrorRenderer ? _mirrorRenderer : GetComponent<Renderer>();
 
             if (UxrAvatar.LocalAvatarCamera != renderCamera || !_mirrorRenderer || !_mirrorRenderer.sharedMaterial)
             {
@@ -166,11 +66,12 @@ namespace UltimateXR.Rendering.FX
 
             s_insideRendering = true;
 
-            CreateResources(renderCamera, out Camera reflectionCamera);
+            CreateResources(renderCamera, out var reflectionCamera);
 
             // Lower quality for reflection
 
-            int oldPixelLightCount = QualitySettings.pixelLightCount;
+            var oldPixelLightCount = QualitySettings.pixelLightCount;
+
             if (_disablePixelLights)
             {
                 QualitySettings.pixelLightCount = 0;
@@ -182,10 +83,10 @@ namespace UltimateXR.Rendering.FX
 
             reflectionCamera.cullingMask = ~(1 << 4) & _reflectLayers.value;
 
-            
+
             if (TryGetComponent<Renderer>(out var theRenderer))
             {
-                foreach (Material m in theRenderer.sharedMaterials)
+                foreach (var m in theRenderer.sharedMaterials)
                 {
                     if (m.HasProperty(VarReflectionTexLeft))
                     {
@@ -224,6 +125,110 @@ namespace UltimateXR.Rendering.FX
 
         #endregion
 
+        #region Inspector Properties/Serialized Fields
+
+        // Inspector
+
+        [SerializeField] private bool _forceClearSkyBox;
+        [SerializeField] private Transform _mirrorTransform;
+        [SerializeField] private Renderer _mirrorRenderer;
+        [SerializeField] private Material _materialWhenDisabled;
+        [SerializeField] private bool _disablePixelLights = true;
+        [SerializeField] private int _textureSize = 1024;
+        [SerializeField] private float _clipPlaneOffset;
+        [SerializeField] private LayerMask _reflectLayers = -1;
+
+        #endregion
+
+        #region Unity
+
+        /// <summary>
+        ///     Stores the current material so that a "cheap" material can be assigned when disabled and the original material
+        ///     re-assigned when enabled back again.
+        /// </summary>
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (_mirrorRenderer != null)
+            {
+                _originalMaterial = _mirrorRenderer.sharedMaterial;
+            }
+        }
+
+
+        /// <summary>
+        ///     Frees resources.
+        /// </summary>
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            foreach (var camPair in _reflectionCameras)
+            {
+                if (camPair.Value != null)
+                {
+                    DestroyImmediate(camPair.Value.gameObject);
+                }
+            }
+
+            if (_reflectionTextureLeft)
+            {
+                DestroyImmediate(_reflectionTextureLeft);
+                _reflectionTextureLeft = null;
+            }
+
+            if (_reflectionTextureRight)
+            {
+                DestroyImmediate(_reflectionTextureRight);
+                _reflectionTextureRight = null;
+            }
+
+            _reflectionCameras.Clear();
+        }
+
+
+        /// <summary>
+        ///     Subscribes to the URP camera rendering callback.
+        /// </summary>
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+            if (_mirrorRenderer != null && _originalMaterial)
+            {
+                _mirrorRenderer.sharedMaterial = _originalMaterial;
+            }
+
+            RenderPipelineManager.beginCameraRendering += RenderPipelineManager_BeginCameraRendering;
+        }
+
+
+        /// <summary>
+        ///     Unsubscribes from the URP camera rendering callback.
+        /// </summary>
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_BeginCameraRendering;
+
+            foreach (var camPair in _reflectionCameras)
+            {
+                if (camPair.Value != null)
+                {
+                    camPair.Value.enabled = false;
+                }
+            }
+
+            if (_mirrorRenderer != null && _materialWhenDisabled)
+            {
+                _mirrorRenderer.sharedMaterial = _materialWhenDisabled;
+            }
+        }
+
+        #endregion
+
         #region Private Methods
 
         /// <summary>
@@ -243,17 +248,17 @@ namespace UltimateXR.Rendering.FX
 
             // Reflect camera using reflection plane
 
-            float   d               = -Vector3.Dot(normal, pos) - _clipPlaneOffset;
-            Vector4 reflectionPlane = new Vector4(normal.x, normal.y, normal.z, d);
+            var d = -Vector3.Dot(normal, pos) - _clipPlaneOffset;
+            var reflectionPlane = new Vector4(normal.x, normal.y, normal.z, d);
 
-            Matrix4x4 reflection = Matrix4x4Ext.GetReflectionMatrix(reflectionPlane);
-            Matrix4x4 projection = renderCamera.projectionMatrix;
+            var reflection = Matrix4x4Ext.GetReflectionMatrix(reflectionPlane);
+            var projection = renderCamera.projectionMatrix;
 
-            if (stereo && UxrTrackingDevice.GetHeadsetDevice(out InputDevice headsetDevice))
+            if (stereo && UxrTrackingDevice.GetHeadsetDevice(out var headsetDevice))
             {
-                headsetDevice.TryGetFeatureValue(CommonUsages.leftEyePosition,  out Vector3 leftEye);
-                headsetDevice.TryGetFeatureValue(CommonUsages.rightEyePosition, out Vector3 rightEye);
-                float ipd = Vector3.Distance(leftEye, rightEye);
+                headsetDevice.TryGetFeatureValue(CommonUsages.leftEyePosition, out var leftEye);
+                headsetDevice.TryGetFeatureValue(CommonUsages.rightEyePosition, out var rightEye);
+                var ipd = Vector3.Distance(leftEye, rightEye);
 
                 if (isLeft)
                 {
@@ -277,22 +282,23 @@ namespace UltimateXR.Rendering.FX
 
             // Create projection matrix. Near plane will be our reflection plane so that we will clip everything on the other side.
 
-            Vector4 clipPlane = GetCameraSpacePlane(reflectionCamera, _clipPlaneOffset, pos, normal, 1.0f);
-            projection                        = projection.GetObliqueMatrix(clipPlane);
+            var clipPlane = GetCameraSpacePlane(reflectionCamera, _clipPlaneOffset, pos, normal, 1.0f);
+            projection = projection.GetObliqueMatrix(clipPlane);
             reflectionCamera.projectionMatrix = projection;
-            reflectionCamera.cullingMatrix    = reflectionCamera.projectionMatrix * reflectionCamera.worldToCameraMatrix;
+            reflectionCamera.cullingMatrix = reflectionCamera.projectionMatrix * reflectionCamera.worldToCameraMatrix;
 
             // Render
 
             GL.invertCulling = true;
-#if ULTIMATEXR_UNITY_URP
+            #if ULTIMATEXR_UNITY_URP
             UniversalRenderPipeline.RenderSingleCamera(context, reflectionCamera);
-#endif
+            #endif
             GL.invertCulling = false;
 
             reflectionCamera.ResetWorldToCameraMatrix();
             reflectionCamera.ResetCullingMatrix();
         }
+
 
         /// <summary>
         ///     Copies data from one camera to another.
@@ -308,13 +314,13 @@ namespace UltimateXR.Rendering.FX
 
             if (_forceClearSkyBox == false)
             {
-                dest.clearFlags      = src.clearFlags;
+                dest.clearFlags = src.clearFlags;
                 dest.backgroundColor = src.backgroundColor;
 
                 if (src.clearFlags == CameraClearFlags.Skybox)
                 {
-                    Skybox srcSky = src.GetComponent(typeof(Skybox)) as Skybox;
-                    Skybox dstSky = dest.GetComponent(typeof(Skybox)) as Skybox;
+                    var srcSky = src.GetComponent(typeof(Skybox)) as Skybox;
+                    var dstSky = dest.GetComponent(typeof(Skybox)) as Skybox;
 
                     if (dstSky)
                     {
@@ -324,25 +330,26 @@ namespace UltimateXR.Rendering.FX
                         }
                         else
                         {
-                            dstSky.enabled  = true;
+                            dstSky.enabled = true;
                             dstSky.material = srcSky.material;
                         }
                     }
                 }
             }
 
-            dest.farClipPlane  = src.farClipPlane;
+            dest.farClipPlane = src.farClipPlane;
             dest.nearClipPlane = src.nearClipPlane;
-            dest.orthographic  = src.orthographic;
+            dest.orthographic = src.orthographic;
 
             if (XRSettings.enabled == false)
             {
                 dest.fieldOfView = src.fieldOfView;
             }
 
-            dest.aspect           = src.aspect;
+            dest.aspect = src.aspect;
             dest.orthographicSize = src.orthographicSize;
         }
+
 
         /// <summary>
         ///     Creates the internal resources if necessary.
@@ -378,7 +385,7 @@ namespace UltimateXR.Rendering.FX
 
             if (!reflectionCamera)
             {
-                GameObject go = new GameObject($"{nameof(UxrPlanarReflectionUrp)} Camera", typeof(Camera), typeof(Skybox));
+                var go = new GameObject($"{nameof(UxrPlanarReflectionUrp)} Camera", typeof(Camera), typeof(Skybox));
                 reflectionCamera = go.GetComponent<Camera>();
 
                 if (XRSettings.enabled == false)
@@ -400,6 +407,7 @@ namespace UltimateXR.Rendering.FX
             }
         }
 
+
         /// <summary>
         ///     Creates a render texture.
         /// </summary>
@@ -413,13 +421,14 @@ namespace UltimateXR.Rendering.FX
 
             texture = new RenderTexture(_textureSize, _textureSize, 16);
 
-            texture.name             = $"{nameof(UxrPlanarReflectionUrp)} Reflection";
-            texture.isPowerOfTwo     = true;
-            texture.hideFlags        = HideFlags.DontSave;
-            texture.filterMode       = FilterMode.Trilinear;
+            texture.name = $"{nameof(UxrPlanarReflectionUrp)} Reflection";
+            texture.isPowerOfTwo = true;
+            texture.hideFlags = HideFlags.DontSave;
+            texture.filterMode = FilterMode.Trilinear;
             texture.autoGenerateMips = true;
-            texture.useMipMap        = true; // Mip mapping can be used in shaders for blurring
+            texture.useMipMap = true; // Mip mapping can be used in shaders for blurring
         }
+
 
         /// <summary>
         ///     Given a plane point and normal in world coordinates, computes the plane in camera space.
@@ -432,10 +441,11 @@ namespace UltimateXR.Rendering.FX
         /// <returns>Plane in camera space</returns>
         private Vector4 GetCameraSpacePlane(Camera cam, float offset, Vector3 position, Vector3 normal, float sideSign)
         {
-            Vector3   offsetPos = position + normal * offset;
-            Matrix4x4 m         = cam.worldToCameraMatrix;
-            Vector3   cpos      = m.MultiplyPoint(offsetPos);
-            Vector3   cnormal   = m.MultiplyVector(normal).normalized * sideSign;
+            var offsetPos = position + normal * offset;
+            var m = cam.worldToCameraMatrix;
+            var cpos = m.MultiplyPoint(offsetPos);
+            var cnormal = m.MultiplyVector(normal).normalized * sideSign;
+
             return new Vector4(cnormal.x, cnormal.y, cnormal.z, -Vector3.Dot(cpos, cnormal));
         }
 
@@ -445,21 +455,21 @@ namespace UltimateXR.Rendering.FX
 
         // Constants
 
-        private const string VarReflectionTexLeft    = "_ReflectionTexLeft";
-        private const string VarReflectionTexRight   = "_ReflectionTexRight";
+        private const string VarReflectionTexLeft = "_ReflectionTexLeft";
+        private const string VarReflectionTexRight = "_ReflectionTexRight";
         private const string VarReflectionMaxLodBias = "_ReflectionMaxLODBias";
 
         // Static
 
-        private static   bool                       s_insideRendering;
-        private readonly Dictionary<Camera, Camera> _reflectionCameras = new Dictionary<Camera, Camera>();
+        private static bool s_insideRendering;
+        private readonly Dictionary<Camera, Camera> _reflectionCameras = new();
 
         // Internal
 
         private RenderTexture _reflectionTextureLeft;
         private RenderTexture _reflectionTextureRight;
-        private int           _oldReflectionTextureSize;
-        private Material      _originalMaterial;
+        private int _oldReflectionTextureSize;
+        private Material _originalMaterial;
 
         #endregion
     }

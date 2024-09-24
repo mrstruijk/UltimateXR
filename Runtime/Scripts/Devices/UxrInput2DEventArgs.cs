@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Core;
 using UnityEngine;
+
 
 namespace UltimateXR.Devices
 {
@@ -14,6 +16,23 @@ namespace UltimateXR.Devices
     /// </summary>
     public sealed class UxrInput2DEventArgs : EventArgs
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="handSide">Target hand</param>
+        /// <param name="target">Input target</param>
+        /// <param name="newValue">New input value</param>
+        public UxrInput2DEventArgs(UxrHandSide handSide, UxrInput2D target, Vector2 newValue)
+        {
+            HandSide = handSide;
+            Target = target;
+            Value = newValue;
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -30,23 +49,6 @@ namespace UltimateXR.Devices
         ///     Gets the new input value.
         /// </summary>
         public Vector2 Value { get; }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="handSide">Target hand</param>
-        /// <param name="target">Input target</param>
-        /// <param name="newValue">New input value</param>
-        public UxrInput2DEventArgs(UxrHandSide handSide, UxrInput2D target, Vector2 newValue)
-        {
-            HandSide = handSide;
-            Target   = target;
-            Value    = newValue;
-        }
 
         #endregion
     }

@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 #if ULTIMATEXR_USE_OCULUS_SDK
 using UltimateXR.Avatar.Rig;
@@ -10,6 +11,7 @@ using UltimateXR.Core.Math;
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
 #endif
+
 
 namespace UltimateXR.Devices.Integrations.Meta
 {
@@ -32,7 +34,7 @@ namespace UltimateXR.Devices.Integrations.Meta
         {
             get
             {
-#if ULTIMATEXR_USE_OCULUS_SDK
+                #if ULTIMATEXR_USE_OCULUS_SDK
                 if (OVRPlugin.GetHandState(OVRPlugin.Step.Render, OVRPlugin.Hand.HandLeft, ref _leftHandState))
                 {
                     _isLeftHandAvailable = _leftHandState.Status.HasFlag(OVRPlugin.HandStatus.HandTracked);
@@ -42,9 +44,9 @@ namespace UltimateXR.Devices.Integrations.Meta
                     _isLeftHandAvailable = false;
                 }
                 return _isLeftHandAvailable;
-#else
+                #else
                 return false;
-#endif
+                #endif
             }
         }
 
@@ -53,7 +55,7 @@ namespace UltimateXR.Devices.Integrations.Meta
         {
             get
             {
-#if ULTIMATEXR_USE_OCULUS_SDK
+                #if ULTIMATEXR_USE_OCULUS_SDK
                 if (OVRPlugin.GetHandState(OVRPlugin.Step.Render, OVRPlugin.Hand.HandRight, ref _rightHandState))
                 {
                     _isRightHandAvailable = _rightHandState.Status.HasFlag(OVRPlugin.HandStatus.HandTracked);
@@ -63,9 +65,9 @@ namespace UltimateXR.Devices.Integrations.Meta
                     _isRightHandAvailable = false;
                 }
                 return _isRightHandAvailable;
-#else
+                #else
                 return false;
-#endif
+                #endif
             }
         }
 
@@ -80,21 +82,21 @@ namespace UltimateXR.Devices.Integrations.Meta
         {
             base.Awake();
 
-#if ULTIMATEXR_USE_OCULUS_SDK
+            #if ULTIMATEXR_USE_OCULUS_SDK
             // Initialize axis system
 
             if (Avatar != null && Avatar.LeftHand.HasFullHandData())
             {
-                _leftHandOculusRotation   = Quaternion.LookRotation(Vector3.right,  -Vector3.up);
+                _leftHandOculusRotation = Quaternion.LookRotation(Vector3.right,  -Vector3.up);
                 _leftFingerOculusRotation = Quaternion.LookRotation(-Vector3.right, -Vector3.up);
             }
 
             if (Avatar != null && Avatar.RightHand.HasFullHandData())
             {
-                _rightHandOculusRotation   = Quaternion.LookRotation(Vector3.right, Vector3.up);
+                _rightHandOculusRotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
                 _rightFingerOculusRotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
             }
-#endif
+            #endif
         }
 
         #endregion
@@ -104,18 +106,18 @@ namespace UltimateXR.Devices.Integrations.Meta
         /// <inheritdoc />
         protected override void UpdateSensors()
         {
-#if ULTIMATEXR_USE_OCULUS_SDK
-            _isLeftHandAvailable  = OVRPlugin.GetHandState(OVRPlugin.Step.Render, OVRPlugin.Hand.HandLeft,  ref _leftHandState);
+            #if ULTIMATEXR_USE_OCULUS_SDK
+            _isLeftHandAvailable = OVRPlugin.GetHandState(OVRPlugin.Step.Render, OVRPlugin.Hand.HandLeft,  ref _leftHandState);
             _isRightHandAvailable = OVRPlugin.GetHandState(OVRPlugin.Step.Render, OVRPlugin.Hand.HandRight, ref _rightHandState);
-#endif
+            #endif
         }
+
 
         /// <inheritdoc />
         protected override void UpdateAvatar()
         {
-#if ULTIMATEXR_USE_OCULUS_SDK
-
-            Transform wristLeft  = Avatar.LeftHandBone;
+            #if ULTIMATEXR_USE_OCULUS_SDK
+            Transform wristLeft = Avatar.LeftHandBone;
             Transform wristRight = Avatar.RightHandBone;
 
             if (_isLeftHandAvailable && wristLeft != null)
@@ -125,7 +127,7 @@ namespace UltimateXR.Devices.Integrations.Meta
                     SetCalibrationPose(UxrHandSide.Left);
                 }
 
-                UxrAvatarArmInfo      leftArmInfo        = Avatar.AvatarRigInfo.GetArmInfo(UxrHandSide.Left);
+                UxrAvatarArmInfo      leftArmInfo = Avatar.AvatarRigInfo.GetArmInfo(UxrHandSide.Left);
                 UxrUniversalLocalAxes leftHandParentAxes = wristLeft.parent == Avatar.AvatarRig.LeftArm.Forearm ? leftArmInfo.ForearmUniversalLocalAxes : leftArmInfo.HandUniversalLocalAxes;
 
                 Vector3    sensorLeftPos = Avatar.transform.TransformPoint(_leftHandState.RootPose.Position.FromFlippedZVector3f());
@@ -148,7 +150,7 @@ namespace UltimateXR.Devices.Integrations.Meta
                     SetCalibrationPose(UxrHandSide.Right);
                 }
 
-                UxrAvatarArmInfo      rightArmInfo        = Avatar.AvatarRigInfo.GetArmInfo(UxrHandSide.Right);
+                UxrAvatarArmInfo      rightArmInfo = Avatar.AvatarRigInfo.GetArmInfo(UxrHandSide.Right);
                 UxrUniversalLocalAxes rightHandParentAxes = wristRight.parent == Avatar.AvatarRig.RightArm.Forearm ? rightArmInfo.ForearmUniversalLocalAxes : rightArmInfo.HandUniversalLocalAxes;
 
                 Vector3    sensorRightPos = Avatar.transform.TransformPoint(_rightHandState.RootPose.Position.FromFlippedZVector3f());
@@ -164,13 +166,12 @@ namespace UltimateXR.Devices.Integrations.Meta
                 UpdateFinger(UxrHandSide.Right, Avatar.RightHand.Thumb,  OVRPlugin.BoneId.Hand_Thumb0,  4, _rightFingerOculusRotation, rightArmInfo.HandUniversalLocalAxes, rightArmInfo.FingerUniversalLocalAxes);
             }
 
-#endif
+            #endif
         }
 
         #endregion
 
-#if ULTIMATEXR_USE_OCULUS_SDK
-
+        #if ULTIMATEXR_USE_OCULUS_SDK
         /// <summary>
         ///     Updates a finger using tracking information.
         /// </summary>
@@ -186,7 +187,7 @@ namespace UltimateXR.Devices.Integrations.Meta
             int baseIndex = (int)baseBoneId;
 
             OVRPlugin.HandState handState = handSide == UxrHandSide.Left ? _leftHandState : _rightHandState;
-            FlipMode            flipMode  = handSide == UxrHandSide.Left ? FlipMode.FlipX : FlipMode.FlipZ;
+            FlipMode            flipMode = handSide == UxrHandSide.Left ? FlipMode.FlipX : FlipMode.FlipZ;
 
             if (boneCount > 3)
             {
@@ -208,7 +209,7 @@ namespace UltimateXR.Devices.Integrations.Meta
             }
 
             avatarFinger.Intermediate.localRotation = ToCorrectCoordinateSystem(handState.BoneRotations[baseIndex],     flipMode, fingerOculusRotation, fingerUniversalLocalAxes, fingerUniversalLocalAxes);
-            avatarFinger.Distal.localRotation       = ToCorrectCoordinateSystem(handState.BoneRotations[baseIndex + 1], flipMode, fingerOculusRotation, fingerUniversalLocalAxes, fingerUniversalLocalAxes);
+            avatarFinger.Distal.localRotation = ToCorrectCoordinateSystem(handState.BoneRotations[baseIndex + 1], flipMode, fingerOculusRotation, fingerUniversalLocalAxes, fingerUniversalLocalAxes);
 
             ApplyBoneCalibration(avatarFinger.Intermediate);
             ApplyBoneCalibration(avatarFinger.Distal);
@@ -248,10 +249,9 @@ namespace UltimateXR.Devices.Integrations.Meta
             return finalRotation.IsValid() ? finalRotation : Quaternion.identity;
         }
 
-#endif
+        #endif
 
-#if ULTIMATEXR_USE_OCULUS_SDK
-
+        #if ULTIMATEXR_USE_OCULUS_SDK
         private bool                _isLeftHandAvailable;
         private bool                _isRightHandAvailable;
         private OVRPlugin.HandState _leftHandState;
@@ -261,6 +261,6 @@ namespace UltimateXR.Devices.Integrations.Meta
         private Quaternion          _leftFingerOculusRotation;
         private Quaternion          _rightFingerOculusRotation;
 
-#endif
+        #endif
     }
 }

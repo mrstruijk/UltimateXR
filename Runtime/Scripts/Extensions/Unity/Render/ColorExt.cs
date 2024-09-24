@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -10,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UltimateXR.Extensions.System;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Render
 {
@@ -30,13 +32,14 @@ namespace UltimateXR.Extensions.Unity.Render
         {
             return data.Length switch
                    {
-                               0 => default,
-                               1 => new Color(data[0], 0f,      0f,      1f),
-                               2 => new Color(data[0], data[1], 0f,      1f),
-                               3 => new Color(data[0], data[1], data[2], 1f),
-                               _ => new Color(data[0], data[1], data[2], data[3])
+                       0 => default,
+                       1 => new Color(data[0], 0f, 0f, 1f),
+                       2 => new Color(data[0], data[1], 0f, 1f),
+                       3 => new Color(data[0], data[1], data[2], 1f),
+                       _ => new Color(data[0], data[1], data[2], data[3])
                    };
         }
+
 
         /// <summary>
         ///     Clamps <see cref="Color" /> values component by component.
@@ -47,14 +50,16 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <returns>Clamped color</returns>
         public static Color Clamp(this in Color self, in Color min, in Color max)
         {
-            float[] result = new float[VectorLength];
-            for (int i = 0; i < VectorLength; ++i)
+            var result = new float[VectorLength];
+
+            for (var i = 0; i < VectorLength; ++i)
             {
                 result[i] = Mathf.Clamp(self[i], min[i], max[i]);
             }
 
             return result.ToColor();
         }
+
 
         /// <summary>
         ///     Multiplies two colors by multiplying each component.
@@ -65,10 +70,11 @@ namespace UltimateXR.Extensions.Unity.Render
         public static Color Multiply(this in Color self, in Color other)
         {
             return new Color(self.r * other.r,
-                             self.g * other.g,
-                             self.b * other.b,
-                             self.a * other.a);
+                self.g * other.g,
+                self.b * other.b,
+                self.a * other.a);
         }
+
 
         /// <summary>
         ///     Creates a color based on an already existing color and an alpha value.
@@ -83,6 +89,7 @@ namespace UltimateXR.Extensions.Unity.Render
             return new Color(color.r, color.g, color.b, alpha);
         }
 
+
         /// <summary>
         ///     Creates a color based on an already existing color and an alpha value.
         /// </summary>
@@ -96,6 +103,7 @@ namespace UltimateXR.Extensions.Unity.Render
             return ColorAlpha(self, alpha);
         }
 
+
         /// <summary>
         ///     Creates a color based on an already existing color and a brightness scale value.
         /// </summary>
@@ -104,10 +112,12 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <returns>Color with adjusted brightness</returns>
         public static Color ScaleColorBrightness(this in Color color, float brightnessScale)
         {
-            Color.RGBToHSV(color, out float h, out float s, out float v);
+            Color.RGBToHSV(color, out var h, out var s, out var v);
             v *= brightnessScale;
+
             return Color.HSVToRGB(h, s, v);
         }
+
 
         /// <summary>
         ///     Converts the color to a HTML color value (#RRGGBB or #RRGGBBAA).
@@ -117,16 +127,17 @@ namespace UltimateXR.Extensions.Unity.Render
         public static string ToHtml(this in Color self)
         {
             return Mathf.Approximately(self.a, 1f)
-                               ? string.Format(StringFormatRGB,
-                                               (byte)Mathf.Round(Mathf.Clamp01(self.r) * byte.MaxValue),
-                                               (byte)Mathf.Round(Mathf.Clamp01(self.g) * byte.MaxValue),
-                                               (byte)Mathf.Round(Mathf.Clamp01(self.b) * byte.MaxValue))
-                               : string.Format(StringFormatRGBA,
-                                               (byte)Mathf.Round(Mathf.Clamp01(self.r) * byte.MaxValue),
-                                               (byte)Mathf.Round(Mathf.Clamp01(self.g) * byte.MaxValue),
-                                               (byte)Mathf.Round(Mathf.Clamp01(self.b) * byte.MaxValue),
-                                               (byte)Mathf.Round(Mathf.Clamp01(self.a) * byte.MaxValue));
+                ? string.Format(StringFormatRGB,
+                    (byte) Mathf.Round(Mathf.Clamp01(self.r) * byte.MaxValue),
+                    (byte) Mathf.Round(Mathf.Clamp01(self.g) * byte.MaxValue),
+                    (byte) Mathf.Round(Mathf.Clamp01(self.b) * byte.MaxValue))
+                : string.Format(StringFormatRGBA,
+                    (byte) Mathf.Round(Mathf.Clamp01(self.r) * byte.MaxValue),
+                    (byte) Mathf.Round(Mathf.Clamp01(self.g) * byte.MaxValue),
+                    (byte) Mathf.Round(Mathf.Clamp01(self.b) * byte.MaxValue),
+                    (byte) Mathf.Round(Mathf.Clamp01(self.a) * byte.MaxValue));
         }
+
 
         /// <summary>
         ///     Tries to parse a <see cref="Color" /> from an HTML string (#RRGGBB or #RRGGBBAA).
@@ -139,14 +150,17 @@ namespace UltimateXR.Extensions.Unity.Render
             try
             {
                 result = Parse(html);
+
                 return true;
             }
             catch
             {
                 result = default;
+
                 return false;
             }
         }
+
 
         /// <summary>
         ///     Parses a <see cref="Color" /> from an HTML string (#RRGGBB or #RRGGBBAA).
@@ -158,24 +172,27 @@ namespace UltimateXR.Extensions.Unity.Render
         {
             html.ThrowIfNull(nameof(html));
 
-            Match match = _regex.Match(html);
+            var match = _regex.Match(html);
+
             if (!match.Success)
             {
                 throw new FormatException($"Input string [{html}] does not have the right format: #RRGGBB or #RRGGBBAA");
             }
 
-            float[] result = new float[VectorLength];
-            for (int i = 0; i < VectorLength - 1; ++i)
+            var result = new float[VectorLength];
+
+            for (var i = 0; i < VectorLength - 1; ++i)
             {
-                string hex = match.Groups[i + 1].Value;
-                result[i] = byte.Parse(hex, NumberStyles.HexNumber, CultureInfo.InvariantCulture.NumberFormat) / (float)byte.MaxValue;
+                var hex = match.Groups[i + 1].Value;
+                result[i] = byte.Parse(hex, NumberStyles.HexNumber, CultureInfo.InvariantCulture.NumberFormat) / (float) byte.MaxValue;
             }
 
-            string aa = match.Groups[VectorLength].Value;
-            result[VectorLength - 1] = aa != string.Empty ? byte.Parse(aa, NumberStyles.HexNumber, CultureInfo.InvariantCulture.NumberFormat) / (float)byte.MaxValue : 1f;
+            var aa = match.Groups[VectorLength].Value;
+            result[VectorLength - 1] = aa != string.Empty ? byte.Parse(aa, NumberStyles.HexNumber, CultureInfo.InvariantCulture.NumberFormat) / (float) byte.MaxValue : 1f;
 
             return result.ToColor();
         }
+
 
         /// <summary>
         ///     Parses asynchronously a <see cref="Color" /> from an HTML string (#RRGGBB or #RRGGBBAA).
@@ -186,19 +203,19 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <exception cref="FormatException">The string had an incorrect format</exception>
         public static Task<Color?> ParseAsync(string html, CancellationToken ct = default)
         {
-            return Task.Run(() => TryParse(html, out Color result) ? result : (Color?)null, ct);
+            return Task.Run(() => TryParse(html, out var result) ? result : (Color?) null, ct);
         }
 
         #endregion
 
         #region Private Types & Data
 
-        private const int    VectorLength     = 4;
+        private const int VectorLength = 4;
         private const string StringFormatRGBA = "#{0:X2}{1:X2}{2:X2}{3:X2}";
-        private const string StringFormatRGB  = "#{0:X2}{1:X2}{2:X2}";
-        private const string RegexPattern     = "^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})?$";
+        private const string StringFormatRGB = "#{0:X2}{1:X2}{2:X2}";
+        private const string RegexPattern = "^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})?$";
 
-        private static readonly Regex _regex = new Regex(RegexPattern);
+        private static readonly Regex _regex = new(RegexPattern);
 
         #endregion
     }

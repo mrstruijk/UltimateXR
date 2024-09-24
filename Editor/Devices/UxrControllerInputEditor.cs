@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Devices;
 using UltimateXR.Editor.Core;
 using UltimateXR.Editor.Sdks;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Devices
 {
@@ -53,7 +55,7 @@ namespace UltimateXR.Editor.Devices
         {
             serializedObject.Update();
 
-            UxrControllerInput controllerInput = serializedObject.targetObject as UxrControllerInput;
+            var controllerInput = serializedObject.targetObject as UxrControllerInput;
             DrawSDKCheckInspectorGUI(controllerInput);
 
             if (controllerInput)

@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components;
+
 
 namespace UltimateXR.Locomotion
 {
@@ -12,6 +14,5 @@ namespace UltimateXR.Locomotion
     /// </summary>
     public class UxrIgnoreTeleportDestination : UxrComponent
     {
-
     }
 }

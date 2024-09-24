@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Attributes;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Attributes
 {
@@ -25,7 +27,8 @@ namespace UltimateXR.Editor.Attributes
         /// <returns>Height in pixels</returns>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            var roAttr = (ReadOnlyAttribute)attribute;
+            var roAttr = (ReadOnlyAttribute) attribute;
+
             return roAttr.HideInEditMode && !Application.isPlaying ? 0 : EditorGUIUtility.singleLineHeight;
         }
 
@@ -41,7 +44,7 @@ namespace UltimateXR.Editor.Attributes
         /// <param name="label">Property label</param>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var roAttr = (ReadOnlyAttribute)attribute;
+            var roAttr = (ReadOnlyAttribute) attribute;
 
             if (roAttr.HideInEditMode && !Application.isPlaying)
             {

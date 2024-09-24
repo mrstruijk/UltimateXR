@@ -3,12 +3,15 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar;
 using UltimateXR.Core.Components;
 using UltimateXR.Manipulation;
 using UnityEngine;
 
+
 #pragma warning disable 414 // Disable warnings due to unused values
+
 
 namespace UltimateXR.Audio
 {
@@ -19,33 +22,33 @@ namespace UltimateXR.Audio
     [RequireComponent(typeof(UxrGrabbableObject))]
     public class UxrAudioManipulation : UxrComponent
     {
-        #region Inspector Properties/Serialized Fields
-
-        [Header("Events:")] [SerializeField] private UxrAudioSample _audioOnGrab    = new UxrAudioSample();
-        [SerializeField]                     private UxrAudioSample _audioOnPlace   = new UxrAudioSample();
-        [SerializeField]                     private UxrAudioSample _audioOnRelease = new UxrAudioSample();
-
-        [Header("Continuous Manipulation:")] [SerializeField] private bool      _continuousManipulationAudio;
-        [SerializeField]                                      private AudioClip _audioLoopClip;
-        [SerializeField] [Range(0, 1)]                        private float     _minVolume       = 0.3f;
-        [SerializeField] [Range(0, 1)]                        private float     _maxVolume       = 1.0f;
-        [SerializeField]                                      private float     _minFrequency    = 1.0f;
-        [SerializeField]                                      private float     _maxFrequency    = 1.0f;
-        [SerializeField]                                      private float     _minSpeed        = 0.01f;
-        [SerializeField]                                      private float     _maxSpeed        = 1.0f;
-        [SerializeField]                                      private float     _minAngularSpeed = 1.0f;
-        [SerializeField]                                      private float     _maxAngularSpeed = 1800.0f;
-        [SerializeField]                                      private bool      _useExternalRigidbody;
-        [SerializeField]                                      private Rigidbody _externalRigidbody;
-
-        #endregion
-
         #region Public Types & Data
 
         /// <summary>
         ///     Gets the <see cref="UxrGrabbableObject" /> component in the same <see cref="GameObject" />.
         /// </summary>
         public UxrGrabbableObject GrabbableObject => GetCachedComponent<UxrGrabbableObject>();
+
+        #endregion
+
+        #region Inspector Properties/Serialized Fields
+
+        [Header("Events:")] [SerializeField] private UxrAudioSample _audioOnGrab = new();
+        [SerializeField] private UxrAudioSample _audioOnPlace = new();
+        [SerializeField] private UxrAudioSample _audioOnRelease = new();
+
+        [Header("Continuous Manipulation:")] [SerializeField] private bool _continuousManipulationAudio;
+        [SerializeField] private AudioClip _audioLoopClip;
+        [SerializeField] [Range(0, 1)] private float _minVolume = 0.3f;
+        [SerializeField] [Range(0, 1)] private float _maxVolume = 1.0f;
+        [SerializeField] private float _minFrequency = 1.0f;
+        [SerializeField] private float _maxFrequency = 1.0f;
+        [SerializeField] private float _minSpeed = 0.01f;
+        [SerializeField] private float _maxSpeed = 1.0f;
+        [SerializeField] private float _minAngularSpeed = 1.0f;
+        [SerializeField] private float _maxAngularSpeed = 1800.0f;
+        [SerializeField] private bool _useExternalRigidbody;
+        [SerializeField] private Rigidbody _externalRigidbody;
 
         #endregion
 
@@ -58,10 +61,11 @@ namespace UltimateXR.Audio
         {
             base.OnEnable();
 
-            GrabbableObject.Grabbed  += Object_Grabbed;
-            GrabbableObject.Placed   += Object_Placed;
+            GrabbableObject.Grabbed += Object_Grabbed;
+            GrabbableObject.Placed += Object_Placed;
             GrabbableObject.Released += Object_Released;
         }
+
 
         /// <summary>
         ///     Unsubscribes from manipulation events.
@@ -70,8 +74,8 @@ namespace UltimateXR.Audio
         {
             base.OnDisable();
 
-            GrabbableObject.Grabbed  -= Object_Grabbed;
-            GrabbableObject.Placed   -= Object_Placed;
+            GrabbableObject.Grabbed -= Object_Grabbed;
+            GrabbableObject.Placed -= Object_Placed;
             GrabbableObject.Released -= Object_Released;
         }
 
@@ -92,6 +96,7 @@ namespace UltimateXR.Audio
             }
         }
 
+
         /// <summary>
         ///     Called when the object was placed on an <see cref="UxrGrabbableObjectAnchor" />.
         /// </summary>
@@ -104,6 +109,7 @@ namespace UltimateXR.Audio
                 _audioOnPlace.Play(transform.position);
             }
         }
+
 
         /// <summary>
         ///     Called when the object was released in the air.
@@ -121,5 +127,6 @@ namespace UltimateXR.Audio
         #endregion
     }
 }
+
 
 #pragma warning restore 414

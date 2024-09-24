@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UltimateXR.Core.Components;
@@ -12,6 +13,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+
 namespace UltimateXR.UI.Helpers.Keyboard
 {
     /// <summary>
@@ -19,22 +21,35 @@ namespace UltimateXR.UI.Helpers.Keyboard
     /// </summary>
     public class UxrKeyboardUI : UxrComponent
     {
+        #region Event Trigger Methods
+
+        /// <summary>
+        ///     Event trigger for the <see cref="CurrentLineChanged" /> event.
+        /// </summary>
+        /// <param name="value">New line value</param>
+        protected virtual void OnCurrentLineChanged(string value)
+        {
+            CurrentLineChanged?.Invoke(this, value);
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private bool       _multiline = true;
-        [SerializeField] private int        _maxLineLength;
-        [SerializeField] private int        _maxLineCount;
-        [SerializeField] private Text       _consoleDisplay;
-        [SerializeField] private Text       _currentLineDisplay;
-        [SerializeField] private bool       _consoleDisplayUsesCursor = true;
-        [SerializeField] private bool       _lineDisplayUsesCursor    = true;
+        [SerializeField] private bool _multiline = true;
+        [SerializeField] private int _maxLineLength;
+        [SerializeField] private int _maxLineCount;
+        [SerializeField] private Text _consoleDisplay;
+        [SerializeField] private Text _currentLineDisplay;
+        [SerializeField] private bool _consoleDisplayUsesCursor = true;
+        [SerializeField] private bool _lineDisplayUsesCursor = true;
         [SerializeField] private GameObject _capsLockEnabledObject;
-        [SerializeField] private bool       _capsLockEnabled;
-        [SerializeField] private bool       _previewCaps;
+        [SerializeField] private bool _capsLockEnabled;
+        [SerializeField] private bool _previewCaps;
         [SerializeField] private GameObject _passwordPreviewRootObject;
         [SerializeField] private GameObject _passwordPreviewEnabledObject;
-        [SerializeField] private bool       _isPassword;
-        [SerializeField] private bool       _hidePassword = true;
+        [SerializeField] private bool _isPassword;
+        [SerializeField] private bool _hidePassword = true;
 
         #endregion
 
@@ -56,12 +71,14 @@ namespace UltimateXR.UI.Helpers.Keyboard
         /// </summary>
         public event EventHandler<string> CurrentLineChanged;
 
+
         /// <summary>
         ///     Contains information about the key in our internal dictionary.
         /// </summary>
         public class KeyInfo
         {
         }
+
 
         /// <summary>
         ///     Gets whether a shift key is being pressed.
@@ -175,9 +192,10 @@ namespace UltimateXR.UI.Helpers.Keyboard
         public void Clear()
         {
             _currentLineCount = 1;
-            ConsoleContent    = string.Empty;
-            CurrentLine       = string.Empty;
+            ConsoleContent = string.Empty;
+            CurrentLine = string.Empty;
         }
+
 
         /// <summary>
         ///     If different symbols are present (through a ToggleSymbols keyboard key), sets the default symbols
@@ -190,6 +208,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
                 _keyToggleSymbols.SetDefaultSymbols();
             }
         }
+
 
         /// <summary>
         ///     Adds content to the console. This method should be used instead of the <see cref="ConsoleContent" /> property since
@@ -204,13 +223,14 @@ namespace UltimateXR.UI.Helpers.Keyboard
             }
 
             // Count the number of lines we are adding:
-            int newLineCount = newContent.GetOccurrenceCount("\n", false);
-            ConsoleContent    += newContent;
+            var newLineCount = newContent.GetOccurrenceCount("\n", false);
+            ConsoleContent += newContent;
             _currentLineCount += newLineCount;
 
             // Check if we exceeded the maximum line amount
             CheckMaxLines();
         }
+
 
         /// <summary>
         ///     Called to register a new key in the keyboard.
@@ -218,14 +238,14 @@ namespace UltimateXR.UI.Helpers.Keyboard
         /// <param name="key">Key to register</param>
         public void RegisterKey(UxrKeyboardKeyUI key)
         {
-            Debug.Assert(key != null,              "Keyboard key is null");
+            Debug.Assert(key != null, "Keyboard key is null");
             Debug.Assert(key.ControlInput != null, "Keyboard key's ControlInput is null");
 
             if (!_keys.ContainsKey(key))
             {
                 _keys.Add(key, new KeyInfo());
 
-                key.ControlInput.Pressed  += KeyButton_KeyDown;
+                key.ControlInput.Pressed += KeyButton_KeyDown;
                 key.ControlInput.Released += KeyButton_KeyUp;
 
                 if (key.KeyType == UxrKeyType.ToggleSymbols)
@@ -234,6 +254,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
                 }
             }
         }
+
 
         /// <summary>
         ///     Called to unregister a key from the keyboard.
@@ -247,7 +268,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
             {
                 _keys.Remove(key);
 
-                key.ControlInput.Pressed  -= KeyButton_KeyDown;
+                key.ControlInput.Pressed -= KeyButton_KeyDown;
                 key.ControlInput.Released -= KeyButton_KeyUp;
 
                 if (key == _keyToggleSymbols)
@@ -276,6 +297,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
                 UpdateLabelsCase();
             }
         }
+
 
         /// <summary>
         ///     If there is a console display Text component specified, it becomes updated with the content plus the cursor.
@@ -320,16 +342,17 @@ namespace UltimateXR.UI.Helpers.Keyboard
         /// <param name="eventData">Event data</param>
         private void KeyButton_KeyDown(UxrControlInput controlInput, PointerEventData eventData)
         {
-            UxrKeyboardKeyUI key = controlInput.GetComponent<UxrKeyboardKeyUI>();
+            var key = controlInput.GetComponent<UxrKeyboardKeyUI>();
 
             if (!AllowInput)
             {
                 // Event notification
                 DisallowedKeyPressed?.Invoke(this, new UxrKeyboardKeyEventArgs(key, true, null));
+
                 return;
             }
 
-            string lastLine = string.Empty;
+            var lastLine = string.Empty;
 
             if (key.KeyType == UxrKeyType.Printable)
             {
@@ -340,22 +363,22 @@ namespace UltimateXR.UI.Helpers.Keyboard
                         if (!string.IsNullOrEmpty(key.ForceLabel))
                         {
                             ConsoleContent += key.GetSingleLayoutValueNoForceLabel(_capsLockEnabled || _shiftEnabled > 0, AltGrEnabled);
-                            CurrentLine    += key.GetSingleLayoutValueNoForceLabel(_capsLockEnabled || _shiftEnabled > 0, AltGrEnabled);
+                            CurrentLine += key.GetSingleLayoutValueNoForceLabel(_capsLockEnabled || _shiftEnabled > 0, AltGrEnabled);
                         }
                         else
                         {
                             if (char.IsLetter(key.SingleLayoutValue))
                             {
-                                char newCar = _capsLockEnabled || _shiftEnabled > 0 ? char.ToUpper(key.SingleLayoutValue) : char.ToLower(key.SingleLayoutValue);
+                                var newCar = _capsLockEnabled || _shiftEnabled > 0 ? char.ToUpper(key.SingleLayoutValue) : char.ToLower(key.SingleLayoutValue);
 
                                 ConsoleContent += newCar;
-                                CurrentLine    += newCar;
+                                CurrentLine += newCar;
                             }
                             else
                             {
-                                char newCar = key.GetSingleLayoutValueNoForceLabel(_shiftEnabled > 0 || _capsLockEnabled, AltGrEnabled);
+                                var newCar = key.GetSingleLayoutValueNoForceLabel(_shiftEnabled > 0 || _capsLockEnabled, AltGrEnabled);
                                 ConsoleContent += newCar;
-                                CurrentLine    += newCar;
+                                CurrentLine += newCar;
                             }
                         }
                     }
@@ -364,31 +387,31 @@ namespace UltimateXR.UI.Helpers.Keyboard
                         if (_shiftEnabled > 0)
                         {
                             ConsoleContent += key.MultipleLayoutValueTopLeft;
-                            CurrentLine    += key.MultipleLayoutValueTopLeft;
+                            CurrentLine += key.MultipleLayoutValueTopLeft;
                         }
                         else if (AltGrEnabled)
                         {
                             if (key.HasMultipleLayoutValueBottomRight)
                             {
                                 ConsoleContent += key.MultipleLayoutValueBottomRight;
-                                CurrentLine    += key.MultipleLayoutValueBottomRight;
+                                CurrentLine += key.MultipleLayoutValueBottomRight;
                             }
                         }
                         else
                         {
                             ConsoleContent += key.MultipleLayoutValueBottomLeft;
-                            CurrentLine    += key.MultipleLayoutValueBottomLeft;
+                            CurrentLine += key.MultipleLayoutValueBottomLeft;
                         }
                     }
                 }
             }
             else if (key.KeyType == UxrKeyType.Tab)
             {
-                string tab             = "    ";
-                int    charsAddedCount = _maxLineLength > 0 ? CurrentLine.Length + tab.Length > _maxLineLength ? _maxLineLength - CurrentLine.Length : tab.Length : tab.Length;
+                var tab = "    ";
+                var charsAddedCount = _maxLineLength > 0 ? CurrentLine.Length + tab.Length > _maxLineLength ? _maxLineLength - CurrentLine.Length : tab.Length : tab.Length;
 
                 ConsoleContent += tab.Substring(0, charsAddedCount);
-                CurrentLine    += tab.Substring(0, charsAddedCount);
+                CurrentLine += tab.Substring(0, charsAddedCount);
             }
             else if (key.KeyType == UxrKeyType.Shift)
             {
@@ -422,15 +445,15 @@ namespace UltimateXR.UI.Helpers.Keyboard
             }
             else if (key.KeyType == UxrKeyType.Enter)
             {
-#if !UNITY_WSA
+                #if !UNITY_WSA
                 lastLine = string.Copy(CurrentLine);
-#else
+                #else
                 lastLine = string.Empty + CurrentLine;
-#endif
+                #endif
                 if (_multiline)
                 {
                     ConsoleContent += "\n";
-                    CurrentLine    =  string.Empty;
+                    CurrentLine = string.Empty;
                     _currentLineCount++;
                     CheckMaxLines();
                 }
@@ -440,7 +463,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
                 if (CurrentLine.Length > 0)
                 {
                     ConsoleContent = ConsoleContent.Substring(0, ConsoleContent.Length - 1);
-                    CurrentLine    = CurrentLine.Substring(0, CurrentLine.Length - 1);
+                    CurrentLine = CurrentLine.Substring(0, CurrentLine.Length - 1);
                 }
             }
             else if (key.KeyType == UxrKeyType.Del)
@@ -462,6 +485,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
             KeyPressed?.Invoke(this, new UxrKeyboardKeyEventArgs(key, true, key.KeyType == UxrKeyType.Enter ? lastLine : CurrentLine));
         }
 
+
         /// <summary>
         ///     Called when a keyboard keypress was released.
         /// </summary>
@@ -469,12 +493,13 @@ namespace UltimateXR.UI.Helpers.Keyboard
         /// <param name="eventData">Event data</param>
         private void KeyButton_KeyUp(UxrControlInput controlInput, PointerEventData eventData)
         {
-            UxrKeyboardKeyUI key = controlInput.GetComponent<UxrKeyboardKeyUI>();
+            var key = controlInput.GetComponent<UxrKeyboardKeyUI>();
 
             if (!AllowInput)
             {
                 // Event notification
                 DisallowedKeyPressed?.Invoke(this, new UxrKeyboardKeyEventArgs(key, false, null));
+
                 return;
             }
 
@@ -522,19 +547,6 @@ namespace UltimateXR.UI.Helpers.Keyboard
 
         #endregion
 
-        #region Event Trigger Methods
-
-        /// <summary>
-        ///     Event trigger for the <see cref="CurrentLineChanged" /> event.
-        /// </summary>
-        /// <param name="value">New line value</param>
-        protected virtual void OnCurrentLineChanged(string value)
-        {
-            CurrentLineChanged?.Invoke(this, value);
-        }
-
-        #endregion
-
         #region Private Methods
 
         /// <summary>
@@ -556,6 +568,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
             return _isPassword && _hidePassword ? new string('*', content.Length - CurrentCursor.Length) + CurrentCursor : content;
         }
 
+
         /// <summary>
         ///     Checks if the maximum number of lines was reached in the console and if so removes lines from the beginning.
         /// </summary>
@@ -563,9 +576,9 @@ namespace UltimateXR.UI.Helpers.Keyboard
         {
             if (_maxLineCount > 0 && _currentLineCount > _maxLineCount)
             {
-                int linesCounted = 0;
+                var linesCounted = 0;
 
-                for (int i = 0; i < ConsoleContent.Length; ++i)
+                for (var i = 0; i < ConsoleContent.Length; ++i)
                 {
                     if (ConsoleContent[i] == '\n')
                     {
@@ -573,14 +586,16 @@ namespace UltimateXR.UI.Helpers.Keyboard
 
                         if (linesCounted == _currentLineCount - _maxLineCount)
                         {
-                            ConsoleContent    =  ConsoleContent.Remove(0, i + 1);
+                            ConsoleContent = ConsoleContent.Remove(0, i + 1);
                             _currentLineCount -= linesCounted;
+
                             break;
                         }
                     }
                 }
             }
         }
+
 
         /// <summary>
         ///     Updates uppercase/lowercase labels depending on the shift and caps lock state.
@@ -592,7 +607,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
                 return;
             }
 
-            foreach (KeyValuePair<UxrKeyboardKeyUI, KeyInfo> keyPair in _keys)
+            foreach (var keyPair in _keys)
             {
                 if (keyPair.Key.IsLetterKey)
                 {
@@ -605,7 +620,7 @@ namespace UltimateXR.UI.Helpers.Keyboard
 
         #region Private Types & Data
 
-        private readonly Dictionary<UxrKeyboardKeyUI, KeyInfo> _keys = new Dictionary<UxrKeyboardKeyUI, KeyInfo>();
+        private readonly Dictionary<UxrKeyboardKeyUI, KeyInfo> _keys = new();
 
         private string _currentLine;
 

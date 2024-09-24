@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.IK
 {
@@ -15,21 +17,42 @@ namespace UltimateXR.Animation.IK
     [Serializable]
     public class UxrCcdLink
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Default constructor.
+        /// </summary>
+        public UxrCcdLink()
+        {
+            _weight = 1.0f;
+            _constraint = UxrCcdConstraintType.SingleAxis;
+            _rotationAxis1 = Vector3.right;
+            _rotationAxis2 = Vector3.up;
+            _axis1HasLimits = true;
+            _axis1AngleMin = -45.0f;
+            _axis1AngleMax = 45.0f;
+            _axis2HasLimits = false;
+            _axis2AngleMin = -45.0f;
+            _axis2AngleMax = 45.0f;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         // Setup in the editor
-        [SerializeField] private Transform            _bone;
-        [SerializeField] private float                _weight;
+        [SerializeField] private Transform _bone;
+        [SerializeField] private float _weight;
         [SerializeField] private UxrCcdConstraintType _constraint;
-        [SerializeField] private Vector3              _rotationAxis1;
-        [SerializeField] private Vector3              _rotationAxis2;
-        [SerializeField] private bool                 _axis1HasLimits;
-        [SerializeField] private float                _axis1AngleMin;
-        [SerializeField] private float                _axis1AngleMax;
-        [SerializeField] private bool                 _axis2HasLimits;
-        [SerializeField] private float                _axis2AngleMin;
-        [SerializeField] private float                _axis2AngleMax;
-        [SerializeField] private bool                 _alignToGoal;
+        [SerializeField] private Vector3 _rotationAxis1;
+        [SerializeField] private Vector3 _rotationAxis2;
+        [SerializeField] private bool _axis1HasLimits;
+        [SerializeField] private float _axis1AngleMin;
+        [SerializeField] private float _axis1AngleMax;
+        [SerializeField] private bool _axis2HasLimits;
+        [SerializeField] private float _axis2AngleMin;
+        [SerializeField] private float _axis2AngleMax;
+        [SerializeField] private bool _alignToGoal;
 
         #endregion
 
@@ -153,27 +176,6 @@ namespace UltimateXR.Animation.IK
         ///     Gets rotation degrees around <see cref="RotationAxis2" />.
         /// </summary>
         public float Angle2 { get; internal set; }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Default constructor.
-        /// </summary>
-        public UxrCcdLink()
-        {
-            _weight         = 1.0f;
-            _constraint     = UxrCcdConstraintType.SingleAxis;
-            _rotationAxis1  = Vector3.right;
-            _rotationAxis2  = Vector3.up;
-            _axis1HasLimits = true;
-            _axis1AngleMin  = -45.0f;
-            _axis1AngleMax  = 45.0f;
-            _axis2HasLimits = false;
-            _axis2AngleMin  = -45.0f;
-            _axis2AngleMax  = 45.0f;
-        }
 
         #endregion
     }

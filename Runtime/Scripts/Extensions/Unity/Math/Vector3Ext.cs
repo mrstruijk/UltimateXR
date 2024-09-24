@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 using UltimateXR.Extensions.System;
 using UltimateXR.Extensions.System.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Math
 {
@@ -50,6 +52,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return float.IsNaN(self.x) || float.IsNaN(self.y) || float.IsNaN(self.z);
         }
 
+
         /// <summary>
         ///     Checks whether the given vector has any infinity component.
         /// </summary>
@@ -59,6 +62,7 @@ namespace UltimateXR.Extensions.Unity.Math
         {
             return float.IsInfinity(self.x) || float.IsInfinity(self.y) || float.IsInfinity(self.z);
         }
+
 
         /// <summary>
         ///     Checks whether the given vector contains valid data.
@@ -70,6 +74,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return !self.IsNaN() && !self.IsInfinity();
         }
 
+
         /// <summary>
         ///     Replaces NaN component values with <paramref name="other" /> valid values.
         /// </summary>
@@ -78,14 +83,16 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Result vector</returns>
         public static Vector3 FillNanWith(this in Vector3 self, in Vector3 other)
         {
-            float[] result = new float[VectorLength];
-            for (int i = 0; i < VectorLength; ++i)
+            var result = new float[VectorLength];
+
+            for (var i = 0; i < VectorLength; ++i)
             {
                 result[i] = float.IsNaN(self[i]) ? other[i] : self[i];
             }
 
             return result.ToVector3();
         }
+
 
         /// <summary>
         ///     Computes the absolute value of each component in a vector.
@@ -97,6 +104,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return new Vector3(Mathf.Abs(self.x), Mathf.Abs(self.y), Mathf.Abs(self.z));
         }
 
+
         /// <summary>
         ///     Clamps <see cref="Vector3" /> values component by component.
         /// </summary>
@@ -106,14 +114,16 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Clamped vector</returns>
         public static Vector3 Clamp(this in Vector3 self, in Vector3 min, in Vector3 max)
         {
-            float[] result = new float[VectorLength];
-            for (int i = 0; i < VectorLength; ++i)
+            var result = new float[VectorLength];
+
+            for (var i = 0; i < VectorLength; ++i)
             {
                 result[i] = Mathf.Clamp(self[i], min[i], max[i]);
             }
 
             return result.ToVector3();
         }
+
 
         /// <summary>
         ///     Fixes Euler angles so that they are always in the -180, 180 degrees range.
@@ -122,15 +132,16 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Euler angles in the -180, 180 degrees range</returns>
         public static Vector3 ToEuler180(this in Vector3 self)
         {
-            float[] result = new float[VectorLength];
+            var result = new float[VectorLength];
 
-            for (int i = 0; i < VectorLength; ++i)
+            for (var i = 0; i < VectorLength; ++i)
             {
                 result[i] = self[i].ToEuler180();
             }
 
             return result.ToVector3();
         }
+
 
         /// <summary>
         ///     Computes the average of a set of vectors.
@@ -140,9 +151,10 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Vector3 Average(params Vector3[] vectors)
         {
             return new Vector3(vectors.Average(v => v.x),
-                               vectors.Average(v => v.y),
-                               vectors.Average(v => v.z));
+                vectors.Average(v => v.y),
+                vectors.Average(v => v.z));
         }
+
 
         /// <summary>
         ///     Computes the average of a set of vectors.
@@ -152,9 +164,10 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Vector3 Average(IEnumerable<Vector3> vectors)
         {
             return new Vector3(vectors.Average(v => v.x),
-                               vectors.Average(v => v.y),
-                               vectors.Average(v => v.z));
+                vectors.Average(v => v.y),
+                vectors.Average(v => v.z));
         }
+
 
         /// <summary>
         ///     Computes the maximum values of a set of vectors.
@@ -164,9 +177,10 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Vector3 Max(params Vector3[] vectors)
         {
             return new Vector3(vectors.Max(v => v.x),
-                               vectors.Max(v => v.y),
-                               vectors.Max(v => v.z));
+                vectors.Max(v => v.y),
+                vectors.Max(v => v.z));
         }
+
 
         /// <summary>
         ///     Computes the maximum values of a set of vectors.
@@ -176,9 +190,10 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Vector3 Max(IEnumerable<Vector3> vectors)
         {
             return new Vector3(vectors.Max(v => v.x),
-                               vectors.Max(v => v.y),
-                               vectors.Max(v => v.z));
+                vectors.Max(v => v.y),
+                vectors.Max(v => v.z));
         }
+
 
         /// <summary>
         ///     Computes the minimum values of a set of vectors.
@@ -188,9 +203,10 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Vector3 Min(params Vector3[] vectors)
         {
             return new Vector3(vectors.Min(v => v.x),
-                               vectors.Min(v => v.y),
-                               vectors.Min(v => v.z));
+                vectors.Min(v => v.y),
+                vectors.Min(v => v.z));
         }
+
 
         /// <summary>
         ///     Computes the minimum values of a set of vectors.
@@ -200,9 +216,10 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Vector3 Min(IEnumerable<Vector3> vectors)
         {
             return new Vector3(vectors.Min(v => v.x),
-                               vectors.Min(v => v.y),
-                               vectors.Min(v => v.z));
+                vectors.Min(v => v.y),
+                vectors.Min(v => v.z));
         }
+
 
         /// <summary>
         ///     returns a vector with all components containing 1/component, checking for divisions by 0. Divisions by 0 have a
@@ -213,9 +230,10 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Vector3 Inverse(this in Vector3 self)
         {
             return new Vector3(Mathf.Approximately(self.x, 0f) ? 0f : 1f / self.x,
-                               Mathf.Approximately(self.y, 0f) ? 0f : 1f / self.y,
-                               Mathf.Approximately(self.z, 0f) ? 0f : 1f / self.z);
+                Mathf.Approximately(self.y, 0f) ? 0f : 1f / self.y,
+                Mathf.Approximately(self.z, 0f) ? 0f : 1f / self.z);
         }
+
 
         /// <summary>
         ///     Gets the number of components that are different between two vectors.
@@ -225,9 +243,9 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>The number of components [0, 3] that are different</returns>
         public static int DifferentComponentCount(Vector3 a, Vector3 b)
         {
-            int count = 0;
+            var count = 0;
 
-            for (int axisIndex = 0; axisIndex < 3; ++axisIndex)
+            for (var axisIndex = 0; axisIndex < 3; ++axisIndex)
             {
                 if (!Mathf.Approximately(a[axisIndex], b[axisIndex]))
                 {
@@ -238,6 +256,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return count;
         }
 
+
         /// <summary>
         ///     Multiplies two <see cref="Vector3" /> component by component.
         /// </summary>
@@ -247,9 +266,10 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Vector3 Multiply(this in Vector3 self, in Vector3 other)
         {
             return new Vector3(self.x * other.x,
-                               self.y * other.y,
-                               self.z * other.z);
+                self.y * other.y,
+                self.z * other.z);
         }
+
 
         /// <summary>
         ///     Divides a <see cref="Vector3" /> by another, checking for divisions by 0. Divisions by 0 have a result of 0.
@@ -262,6 +282,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return self.Multiply(divisor.Inverse());
         }
 
+
         /// <summary>
         ///     Transforms an array of floats to a <see cref="Vector3" /> component by component. If there are not enough values to
         ///     read, the remaining values are set to NaN.
@@ -272,12 +293,13 @@ namespace UltimateXR.Extensions.Unity.Math
         {
             return data.Length switch
                    {
-                               0 => NaN,
-                               1 => new Vector3(data[0], float.NaN, float.NaN),
-                               2 => new Vector3(data[0], data[1],   float.NaN),
-                               _ => new Vector3(data[0], data[1],   data[2])
+                       0 => NaN,
+                       1 => new Vector3(data[0], float.NaN, float.NaN),
+                       2 => new Vector3(data[0], data[1], float.NaN),
+                       _ => new Vector3(data[0], data[1], data[2])
                    };
         }
+
 
         /// <summary>
         ///     Tries to parse a <see cref="Vector3" /> from a string.
@@ -290,14 +312,17 @@ namespace UltimateXR.Extensions.Unity.Math
             try
             {
                 result = Parse(s);
+
                 return true;
             }
             catch
             {
                 result = NaN;
+
                 return false;
             }
         }
+
 
         /// <summary>
         ///     Parses a <see cref="Vector3" /> from a string.
@@ -313,22 +338,24 @@ namespace UltimateXR.Extensions.Unity.Math
             s = s.TrimEnd(' ', ')', ']');
 
             // split the items
-            string[] sArray = s.Split(s_cardinalSeparator, VectorLength);
+            var sArray = s.Split(s_cardinalSeparator, VectorLength);
 
             // store as an array
-            float[] result = new float[VectorLength];
-            for (int i = 0; i < sArray.Length; ++i)
+            var result = new float[VectorLength];
+
+            for (var i = 0; i < sArray.Length; ++i)
             {
                 result[i] = float.TryParse(sArray[i],
-                                           NumberStyles.Float,
-                                           CultureInfo.InvariantCulture.NumberFormat,
-                                           out float f)
-                                        ? f
-                                        : float.NaN;
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture.NumberFormat,
+                    out var f)
+                    ? f
+                    : float.NaN;
             }
 
             return result.ToVector3();
         }
+
 
         /// <summary>
         ///     Tries to parse a <see cref="Vector3" /> from a string, asynchronously.
@@ -338,8 +365,9 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Awaitable task returning the parsed vector or null if there was an error</returns>
         public static Task<Vector3?> ParseAsync(string s, CancellationToken ct = default)
         {
-            return Task.Run(() => TryParse(s, out Vector3 result) ? result : (Vector3?)null, ct);
+            return Task.Run(() => TryParse(s, out var result) ? result : (Vector3?) null, ct);
         }
+
 
         /// <summary>
         ///     Gets the vector which is the dominant negative or positive axis it is mostly pointing towards.
@@ -351,9 +379,9 @@ namespace UltimateXR.Extensions.Unity.Math
         /// </returns>
         public static Vector3 GetClosestAxis(this Vector3 vector)
         {
-            float absX = Mathf.Abs(vector.x);
-            float absY = Mathf.Abs(vector.y);
-            float absZ = Mathf.Abs(vector.z);
+            var absX = Mathf.Abs(vector.x);
+            var absY = Mathf.Abs(vector.y);
+            var absZ = Mathf.Abs(vector.z);
 
             if (absX > absY)
             {
@@ -362,6 +390,7 @@ namespace UltimateXR.Extensions.Unity.Math
 
             return absY > absZ ? Mathf.Sign(vector.y) * Vector3.up : Mathf.Sign(vector.z) * Vector3.forward;
         }
+
 
         /// <summary>
         ///     Computes a perpendicular vector.
@@ -383,6 +412,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return new Vector3(vector.z, 0.0f, -vector.y);
         }
 
+
         /// <summary>
         ///     Computes the signed distance from a point to a plane.
         /// </summary>
@@ -394,6 +424,7 @@ namespace UltimateXR.Extensions.Unity.Math
         {
             return new Plane(planeNormal, planePoint).GetDistanceToPoint(point);
         }
+
 
         /// <summary>
         ///     Computes the distance from a point to a line.
@@ -407,6 +438,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return Vector3.Cross(lineB - lineA, point - lineA).magnitude;
         }
 
+
         /// <summary>
         ///     Computes the distance from a point to a segment.
         /// </summary>
@@ -416,15 +448,15 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Distance from point to the segment</returns>
         public static float DistanceToSegment(this Vector3 point, Vector3 segmentA, Vector3 segmentB)
         {
-            Vector3 ab = segmentB - segmentA;
-            Vector3 av = point - segmentA;
+            var ab = segmentB - segmentA;
+            var av = point - segmentA;
 
             if (Vector3.Dot(av, ab) <= 0.0f)
             {
                 return av.magnitude;
             }
 
-            Vector3 bv = point - segmentB;
+            var bv = point - segmentB;
 
             if (Vector3.Dot(bv, ab) >= 0.0)
             {
@@ -433,6 +465,7 @@ namespace UltimateXR.Extensions.Unity.Math
 
             return Vector3.Cross(ab, av).magnitude / ab.magnitude;
         }
+
 
         /// <summary>
         ///     Computes the closest point in a segment to another point.
@@ -443,15 +476,15 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Closest point in the segment</returns>
         public static Vector3 ProjectOnSegment(this Vector3 point, Vector3 segmentA, Vector3 segmentB)
         {
-            Vector3 ab = segmentB - segmentA;
-            Vector3 av = point - segmentA;
+            var ab = segmentB - segmentA;
+            var av = point - segmentA;
 
             if (Vector3.Dot(av, ab) <= 0.0f)
             {
                 return segmentA;
             }
 
-            Vector3 bv = point - segmentB;
+            var bv = point - segmentB;
 
             if (Vector3.Dot(bv, ab) >= 0.0)
             {
@@ -460,6 +493,7 @@ namespace UltimateXR.Extensions.Unity.Math
 
             return segmentA + Vector3.Project(av, ab.normalized);
         }
+
 
         /// <summary>
         ///     Computes the closest point in a line to another point.
@@ -473,6 +507,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return pointInLine + Vector3.Project(point - pointInLine, lineDirection);
         }
 
+
         /// <summary>
         ///     Checks if a point is inside a sphere. Supports spheres without uniform scaling.
         /// </summary>
@@ -481,9 +516,11 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Boolean telling whether the point is inside</returns>
         public static bool IsInsideSphere(this Vector3 point, SphereCollider sphere)
         {
-            Vector3 localPos = sphere.transform.InverseTransformPoint(point);
+            var localPos = sphere.transform.InverseTransformPoint(point);
+
             return localPos.magnitude <= sphere.radius;
         }
+
 
         /// <summary>
         ///     Checks if a point is inside of a BoxCollider.
@@ -500,13 +537,13 @@ namespace UltimateXR.Extensions.Unity.Math
                 return false;
             }
 
-            Vector3 localPos = box.transform.InverseTransformPoint(point);
+            var localPos = box.transform.InverseTransformPoint(point);
 
             if (marginIsWorld && box.transform.lossyScale != Vector3.one)
             {
-                Vector3 pointPlusX = box.transform.InverseTransformPoint(point + box.transform.right);
-                Vector3 pointPlusY = box.transform.InverseTransformPoint(point + box.transform.up);
-                Vector3 pointPlusZ = box.transform.InverseTransformPoint(point + box.transform.forward);
+                var pointPlusX = box.transform.InverseTransformPoint(point + box.transform.right);
+                var pointPlusY = box.transform.InverseTransformPoint(point + box.transform.up);
+                var pointPlusZ = box.transform.InverseTransformPoint(point + box.transform.forward);
 
                 margin.x *= Vector3.Distance(localPos, pointPlusX);
                 margin.y *= Vector3.Distance(localPos, pointPlusY);
@@ -527,6 +564,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return false;
         }
 
+
         /// <summary>
         ///     Checks if a point is inside of a box.
         /// </summary>
@@ -539,16 +577,16 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <param name="margin">Optional margin to be added to the each of the box sides</param>
         /// <returns>True if it is inside, false if not</returns>
         public static bool IsInsideBox(this Vector3 point,
-                                       Vector3      boxPosition,
-                                       Quaternion   boxRotation,
-                                       Vector3      boxScale,
-                                       Vector3      boxCenter,
-                                       Vector3      boxSize,
-                                       Vector3      margin = default)
+                                       Vector3 boxPosition,
+                                       Quaternion boxRotation,
+                                       Vector3 boxScale,
+                                       Vector3 boxCenter,
+                                       Vector3 boxSize,
+                                       Vector3 margin = default)
         {
-            Matrix4x4 boxMatrix        = Matrix4x4.TRS(boxPosition, boxRotation, boxScale);
-            Matrix4x4 inverseBoxMatrix = boxMatrix.inverse;
-            Vector3   localPos         = inverseBoxMatrix.MultiplyPoint(point);
+            var boxMatrix = Matrix4x4.TRS(boxPosition, boxRotation, boxScale);
+            var inverseBoxMatrix = boxMatrix.inverse;
+            var localPos = inverseBoxMatrix.MultiplyPoint(point);
 
             if (localPos.x - boxCenter.x >= -boxSize.x * 0.5f - margin.x && localPos.x - boxCenter.x <= boxSize.x * 0.5f + margin.x)
             {
@@ -564,6 +602,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return false;
         }
 
+
         /// <summary>
         ///     Checks if a point is inside of a BoxCollider. If it is outside, it is clamped to remain inside.
         /// </summary>
@@ -577,9 +616,9 @@ namespace UltimateXR.Extensions.Unity.Math
                 return point;
             }
 
-            Vector3 pos         = box.transform.InverseTransformPoint(point);
-            Vector3 center      = box.center;
-            Vector3 halfBoxSize = box.size * 0.5f;
+            var pos = box.transform.InverseTransformPoint(point);
+            var center = box.center;
+            var halfBoxSize = box.size * 0.5f;
 
             if (pos.x < center.x - halfBoxSize.x)
             {
@@ -614,6 +653,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return box.transform.TransformPoint(pos);
         }
 
+
         /// <summary>
         ///     Checks if a point is inside of a SphereCollider. If it is outside, it is clamped to remain inside.
         /// </summary>
@@ -627,19 +667,21 @@ namespace UltimateXR.Extensions.Unity.Math
                 return point;
             }
 
-            Vector3 pos    = sphere.transform.InverseTransformPoint(point);
-            Vector3 center = sphere.center;
+            var pos = sphere.transform.InverseTransformPoint(point);
+            var center = sphere.center;
 
-            float distance = Vector3.Distance(center, pos);
+            var distance = Vector3.Distance(center, pos);
 
             if (distance > sphere.radius)
             {
                 pos = center + (pos - center).normalized * sphere.radius;
+
                 return sphere.transform.TransformPoint(pos);
             }
 
             return point;
         }
+
 
         /// <summary>
         ///     Computes the rotation of a direction around an axis.
@@ -653,6 +695,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return Quaternion.AngleAxis(degrees, axis) * direction;
         }
 
+
         /// <summary>
         ///     Computes the rotation of a point around a pivot and an axis.
         /// </summary>
@@ -663,8 +706,9 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Rotated point</returns>
         public static Vector3 GetRotationAround(this Vector3 point, Vector3 pivot, Vector3 axis, float degrees)
         {
-            Vector3 dir = point - pivot;
+            var dir = point - pivot;
             dir = Quaternion.AngleAxis(degrees, axis) * dir;
+
             return dir + pivot;
         }
 
@@ -672,13 +716,13 @@ namespace UltimateXR.Extensions.Unity.Math
 
         #region Private Types & Data
 
-        private const int    VectorLength      = 3;
+        private const int VectorLength = 3;
         private const string CardinalSeparator = ",";
 
-        private static readonly char[]  s_cardinalSeparator = CardinalSeparator.ToCharArray();
-        private static readonly Vector3 s_nan               = float.NaN * Vector3.one;
-        private static readonly Vector3 s_minValue          = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-        private static readonly Vector3 s_maxValue          = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+        private static readonly char[] s_cardinalSeparator = CardinalSeparator.ToCharArray();
+        private static readonly Vector3 s_nan = float.NaN * Vector3.one;
+        private static readonly Vector3 s_minValue = new(float.MinValue, float.MinValue, float.MinValue);
+        private static readonly Vector3 s_maxValue = new(float.MaxValue, float.MaxValue, float.MaxValue);
 
         #endregion
     }

@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar;
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Transforms
 {
@@ -14,11 +16,9 @@ namespace UltimateXR.Animation.Transforms
     /// </summary>
     public sealed class UxrPositionInFrontOfCamera : UxrComponent
     {
-        #region Inspector Properties/Serialized Fields
+        #region Private Types & Data
 
-        [SerializeField] private float   _distance     = 0.2f;
-        [SerializeField] private float   _heightOffset = -0.2f;
-        [SerializeField] private Vector3 _eulerAngles  = Vector3.zero;
+        private Vector3 _forward;
 
         #endregion
 
@@ -31,8 +31,8 @@ namespace UltimateXR.Animation.Transforms
         {
             if (UxrAvatar.LocalAvatarCamera)
             {
-                Transform cameraTransform = UxrAvatar.LocalAvatar.CameraTransform;
-                Vector3   forward         = UxrAvatar.LocalAvatar.ProjectedCameraForward;
+                var cameraTransform = UxrAvatar.LocalAvatar.CameraTransform;
+                var forward = UxrAvatar.LocalAvatar.ProjectedCameraForward;
 
                 if (forward != Vector3.zero)
                 {
@@ -50,9 +50,11 @@ namespace UltimateXR.Animation.Transforms
 
         #endregion
 
-        #region Private Types & Data
+        #region Inspector Properties/Serialized Fields
 
-        private Vector3 _forward;
+        [SerializeField] private float _distance = 0.2f;
+        [SerializeField] private float _heightOffset = -0.2f;
+        [SerializeField] private Vector3 _eulerAngles = Vector3.zero;
 
         #endregion
     }

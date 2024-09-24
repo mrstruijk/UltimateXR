@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components;
 using UltimateXR.UI.UnityInputModule.Controls;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
 
 namespace UltimateXR.UI.UnityInputModule.Utils
 {
@@ -73,10 +75,11 @@ namespace UltimateXR.UI.UnityInputModule.Utils
             {
                 InitialTargetLocalPosition = Target.localPosition;
                 InitialTargetLocalRotation = Target.localRotation;
-                InitialTargetPosition      = Target.position;
-                InitialTargetRotation      = Target.rotation;
+                InitialTargetPosition = Target.position;
+                InitialTargetRotation = Target.rotation;
             }
         }
+
 
         /// <summary>
         ///     Subscribes to the input control events.
@@ -87,10 +90,11 @@ namespace UltimateXR.UI.UnityInputModule.Utils
 
             if (ControlInput)
             {
-                ControlInput.Pressed  += ControlInput_Pressed;
+                ControlInput.Pressed += ControlInput_Pressed;
                 ControlInput.Released += ControlInput_Released;
             }
         }
+
 
         /// <summary>
         ///     Unsubscribes from the input control events.
@@ -101,7 +105,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
 
             if (ControlInput)
             {
-                ControlInput.Pressed  -= ControlInput_Pressed;
+                ControlInput.Pressed -= ControlInput_Pressed;
                 ControlInput.Released -= ControlInput_Released;
             }
         }
@@ -119,6 +123,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
         {
             OnKeyPressed(controlInput, eventData);
         }
+
 
         /// <summary>
         ///     Receives the key up event.
@@ -143,6 +148,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
         protected virtual void OnKeyPressed(UxrControlInput controlInput, PointerEventData eventData)
         {
         }
+
 
         /// <summary>
         ///     Event trigger for the key released event. It can be overridden in child classes to handle key releases without

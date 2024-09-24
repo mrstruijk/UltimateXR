@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Core.Math
 {
@@ -38,19 +40,38 @@ namespace UltimateXR.Core.Math
     [Serializable]
     public class UxrUniversalLocalAxes
     {
+        #region Private Methods
+
+        /// <summary>
+        ///     Computes the rotation that transforms from the universal coordinate system to the convention that the transform
+        ///     follows.
+        /// </summary>
+        private Quaternion GetUniversalToActualAxesRotation()
+        {
+            var matrix = new Matrix4x4();
+            matrix.SetColumn(0, LocalRight);
+            matrix.SetColumn(1, LocalUp);
+            matrix.SetColumn(2, LocalForward);
+            matrix.SetColumn(3, new Vector4(0, 0, 0, 1));
+
+            return Quaternion.Inverse(matrix.rotation);
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private Transform  _transform;
-        [SerializeField] private Vector3    _localRight                             = Vector3.right;
-        [SerializeField] private Vector3    _localUp                                = Vector3.up;
-        [SerializeField] private Vector3    _localForward                           = Vector3.forward;
-        [SerializeField] private Quaternion _universalToActualAxesRotation          = Quaternion.identity;
-        [SerializeField] private Quaternion _initialRotation                        = Quaternion.identity;
-        [SerializeField] private Quaternion _initialLocalRotation                   = Quaternion.identity;
-        [SerializeField] private Quaternion _initialLocalReferenceRotation          = Quaternion.identity;
+        [SerializeField] private Transform _transform;
+        [SerializeField] private Vector3 _localRight = Vector3.right;
+        [SerializeField] private Vector3 _localUp = Vector3.up;
+        [SerializeField] private Vector3 _localForward = Vector3.forward;
+        [SerializeField] private Quaternion _universalToActualAxesRotation = Quaternion.identity;
+        [SerializeField] private Quaternion _initialRotation = Quaternion.identity;
+        [SerializeField] private Quaternion _initialLocalRotation = Quaternion.identity;
+        [SerializeField] private Quaternion _initialLocalReferenceRotation = Quaternion.identity;
         [SerializeField] private Quaternion _initialUniversalLocalReferenceRotation = Quaternion.identity;
-        [SerializeField] private Vector3    _initialPosition                        = Vector3.zero;
-        [SerializeField] private Vector3    _initialLocalPosition                   = Vector3.zero;
+        [SerializeField] private Vector3 _initialPosition = Vector3.zero;
+        [SerializeField] private Vector3 _initialLocalPosition = Vector3.zero;
 
         #endregion
 
@@ -205,19 +226,20 @@ namespace UltimateXR.Core.Math
         {
             _transform = transform;
 
-            LocalRight   = transform.InverseTransformDirection(universalReference != null ? universalReference.right : Vector3.right).GetClosestAxis();
-            LocalUp      = transform.InverseTransformDirection(universalReference != null ? universalReference.up : Vector3.up).GetClosestAxis();
+            LocalRight = transform.InverseTransformDirection(universalReference != null ? universalReference.right : Vector3.right).GetClosestAxis();
+            LocalUp = transform.InverseTransformDirection(universalReference != null ? universalReference.up : Vector3.up).GetClosestAxis();
             LocalForward = transform.InverseTransformDirection(universalReference != null ? universalReference.forward : Vector3.forward).GetClosestAxis();
 
             UniversalToActualAxesRotation = GetUniversalToActualAxesRotation();
 
-            InitialRotation                        = transform.rotation;
-            InitialLocalRotation                   = transform.localRotation;
-            InitialLocalReferenceRotation          = Quaternion.Inverse(universalReference.rotation) * transform.rotation;
+            InitialRotation = transform.rotation;
+            InitialLocalRotation = transform.localRotation;
+            InitialLocalReferenceRotation = Quaternion.Inverse(universalReference.rotation) * transform.rotation;
             InitialUniversalLocalReferenceRotation = InitialLocalReferenceRotation * Quaternion.Inverse(UniversalToActualAxesRotation);
-            InitialPosition                        = transform.position;
-            InitialLocalPosition                   = transform.localPosition;
+            InitialPosition = transform.position;
+            InitialLocalPosition = transform.localPosition;
         }
+
 
         /// <summary>
         ///     Default constructor is private to make it inaccessible.
@@ -250,24 +272,25 @@ namespace UltimateXR.Core.Math
         /// </returns>
         public static UxrUniversalLocalAxes FromAxes(Transform transform, Vector3 universalLocalRight, Vector3 universalLocalUp, Vector3 universalLocalForward)
         {
-            UxrUniversalLocalAxes localAxes = new UxrUniversalLocalAxes();
+            var localAxes = new UxrUniversalLocalAxes();
 
-            localAxes._transform   = transform;
-            localAxes.LocalRight   = universalLocalRight;
-            localAxes.LocalUp      = universalLocalUp;
+            localAxes._transform = transform;
+            localAxes.LocalRight = universalLocalRight;
+            localAxes.LocalUp = universalLocalUp;
             localAxes.LocalForward = universalLocalForward;
 
-            localAxes.InitialRotation                        = transform.rotation;
-            localAxes.InitialLocalRotation                   = transform.localRotation;
-            localAxes.InitialLocalReferenceRotation          = Quaternion.identity;
+            localAxes.InitialRotation = transform.rotation;
+            localAxes.InitialLocalRotation = transform.localRotation;
+            localAxes.InitialLocalReferenceRotation = Quaternion.identity;
             localAxes.InitialUniversalLocalReferenceRotation = Quaternion.identity;
-            localAxes.InitialPosition                        = transform.position;
-            localAxes.InitialLocalPosition                   = transform.localPosition;
+            localAxes.InitialPosition = transform.position;
+            localAxes.InitialLocalPosition = transform.localPosition;
 
             localAxes.UniversalToActualAxesRotation = localAxes.GetUniversalToActualAxesRotation();
 
             return localAxes;
         }
+
 
         /// <summary>
         ///     See <see cref="FromAxes" />.
@@ -277,6 +300,7 @@ namespace UltimateXR.Core.Math
             return FromAxes(transform, universalLocalRight, universalLocalUp, Vector3.Cross(universalLocalRight, universalLocalUp));
         }
 
+
         /// <summary>
         ///     See <see cref="FromAxes" />.
         /// </summary>
@@ -285,31 +309,13 @@ namespace UltimateXR.Core.Math
             return FromAxes(transform, universalLocalRight, Vector3.Cross(universalLocalForward, universalLocalRight), universalLocalForward);
         }
 
+
         /// <summary>
         ///     See <see cref="FromAxes" />.
         /// </summary>
         public static UxrUniversalLocalAxes FromUpForward(Transform transform, Vector3 universalLocalUp, Vector3 universalLocalForward)
         {
             return FromAxes(transform, Vector3.Cross(universalLocalUp, universalLocalForward), universalLocalUp, universalLocalForward);
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Computes the rotation that transforms from the universal coordinate system to the convention that the transform
-        ///     follows.
-        /// </summary>
-        private Quaternion GetUniversalToActualAxesRotation()
-        {
-            Matrix4x4 matrix = new Matrix4x4();
-            matrix.SetColumn(0, LocalRight);
-            matrix.SetColumn(1, LocalUp);
-            matrix.SetColumn(2, LocalForward);
-            matrix.SetColumn(3, new Vector4(0, 0, 0, 1));
-
-            return Quaternion.Inverse(matrix.rotation);
         }
 
         #endregion

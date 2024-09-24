@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.System.Math
 {
@@ -21,12 +23,13 @@ namespace UltimateXR.Extensions.System.Math
         /// <returns>Formatted time hh:mm::ss</returns>
         public static string SecondsToTimeString(this float self)
         {
-            int hours   = Mathf.FloorToInt(self / 3600.0f);
-            int minutes = Mathf.FloorToInt((self - hours * 3600.0f) / 60.0f);
-            int seconds = Mathf.FloorToInt(self - hours * 3600.0f - minutes * 60.0f);
+            var hours = Mathf.FloorToInt(self / 3600.0f);
+            var minutes = Mathf.FloorToInt((self - hours * 3600.0f) / 60.0f);
+            var seconds = Mathf.FloorToInt(self - hours * 3600.0f - minutes * 60.0f);
 
             return $"{hours:00}:{minutes:00}:{seconds:00}";
         }
+
 
         /// <summary>
         ///     Checks if a float value is or is very close to zero.
@@ -38,6 +41,7 @@ namespace UltimateXR.Extensions.System.Math
             return Mathf.Approximately(self, 0.0f);
         }
 
+
         /// <summary>
         ///     Given a value in degrees, returns the same angle making sure it's in range [-180, 180]. For example, an
         ///     input of -380.3 would return -20.3.
@@ -46,7 +50,7 @@ namespace UltimateXR.Extensions.System.Math
         /// <returns>Degrees in range between [-180, 180]</returns>
         public static float ToEuler180(this float self)
         {
-            float angle = self % 360.0f;
+            var angle = self % 360.0f;
 
             if (angle > 180.0f)
             {
@@ -60,6 +64,7 @@ namespace UltimateXR.Extensions.System.Math
             return angle;
         }
 
+
         /// <summary>
         ///     Clamps a value so that it doesn't go beyond a given range.
         /// </summary>
@@ -70,8 +75,10 @@ namespace UltimateXR.Extensions.System.Math
         public static float Clamp(this ref float self, float min, float max)
         {
             self = Mathf.Clamp(self, min, max);
+
             return self;
         }
+
 
         /// <summary>
         ///     Returns a clamped value.
@@ -85,6 +92,7 @@ namespace UltimateXR.Extensions.System.Math
             return Mathf.Clamp(self, min, max);
         }
 
+
         /// <summary>
         ///     Clamps a value to [0.0, 1.0].
         /// </summary>
@@ -93,8 +101,10 @@ namespace UltimateXR.Extensions.System.Math
         public static float Clamp(this ref float self)
         {
             self = Mathf.Clamp01(self);
+
             return self;
         }
+
 
         /// <summary>
         ///     Returns a clamped value in range [0.0, 1.0].

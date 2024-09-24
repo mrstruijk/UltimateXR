@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components.Composite;
 using UltimateXR.Manipulation;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -20,6 +22,13 @@ namespace UltimateXR.Mechanics.Weapons
         ///     Gets who is in possession of the weapon, to attribute the inflicted damage to.
         /// </summary>
         public UxrActor Owner { get; protected set; }
+
+        #endregion
+
+        #region Protected Overrides UxrGrabbableObjectComponent<UxrWeapon>
+
+        /// <inheritdoc />
+        protected override bool IsGrabbableObjectRequired => false;
 
         #endregion
 
@@ -52,13 +61,6 @@ namespace UltimateXR.Mechanics.Weapons
                 Owner = grabber.Avatar.GetComponentInChildren<UxrActor>();
             }
         }
-
-        #endregion
-
-        #region Protected Overrides UxrGrabbableObjectComponent<UxrWeapon>
-
-        /// <inheritdoc />
-        protected override bool IsGrabbableObjectRequired => false;
 
         #endregion
     }

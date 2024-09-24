@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
 
 namespace UltimateXR.Extensions.Unity
 {
@@ -30,6 +32,7 @@ namespace UltimateXR.Extensions.Unity
             return self.GetComponent<T>() ?? self.gameObject.AddComponent<T>();
         }
 
+
         /// <summary>
         ///     Gets the Component of a given type in the GameObject or any of its parents. It also works on prefabs, where regular
         ///     <see cref="Component.GetComponentInParent" /> will not work:
@@ -42,6 +45,7 @@ namespace UltimateXR.Extensions.Unity
             return self.GetComponentInParent<T>() ?? self.GetComponentsInParent<T>(true).FirstOrDefault();
         }
 
+
         /// <summary>
         ///     Gets the full path under current scene, including all parents, but scene name, for the given component.
         /// </summary>
@@ -52,9 +56,11 @@ namespace UltimateXR.Extensions.Unity
         /// <returns>Component path string</returns>
         public static string GetPathUnderScene(this Component self)
         {
-            string path = self.transform.GetPathUnderScene();
+            var path = self.transform.GetPathUnderScene();
+
             return self is Transform ? path : $"{path}/{self.GetType().Name}";
         }
+
 
         /// <summary>
         ///     Gets an unique path in the scene for the given component. It will include scene name, sibling and component indices
@@ -64,9 +70,11 @@ namespace UltimateXR.Extensions.Unity
         /// <returns>Unique component path string</returns>
         public static string GetUniqueScenePath(this Component self)
         {
-            string path = self.transform.GetUniqueScenePath();
+            var path = self.transform.GetUniqueScenePath();
+
             return self is Transform ? path : $"{path}/{Array.IndexOf(self.GetComponents<Component>(), self):00}";
         }
+
 
         /// <summary>
         ///     Gets an unique identifier string for the given component.
@@ -80,6 +88,7 @@ namespace UltimateXR.Extensions.Unity
             return self.GetUniqueScenePath().GetHashCode().ToString("x8");
         }
 
+
         /// <summary>
         ///     Gets a list of all components of the given type in the open scenes
         /// </summary>
@@ -89,15 +98,17 @@ namespace UltimateXR.Extensions.Unity
         public static List<T> GetAllComponentsInOpenScenes<T>(bool includeInactive)
             where T : Component
         {
-            List<T> listResult = new List<T>();
+            var listResult = new List<T>();
 
-            for (int i = 0; i < SceneManager.sceneCount; i++)
+            for (var i = 0; i < SceneManager.sceneCount; i++)
             {
-                Scene s = SceneManager.GetSceneAt(i);
+                var s = SceneManager.GetSceneAt(i);
+
                 if (s.isLoaded)
                 {
-                    GameObject[] rootGameObjects = s.GetRootGameObjects();
-                    foreach (GameObject go in rootGameObjects)
+                    var rootGameObjects = s.GetRootGameObjects();
+
+                    foreach (var go in rootGameObjects)
                     {
                         listResult.AddRange(go.GetComponentsInChildren<T>(includeInactive));
                     }
@@ -106,6 +117,7 @@ namespace UltimateXR.Extensions.Unity
 
             return listResult;
         }
+
 
         /// <summary>
         ///     From a set of components, returns which one of them has a transform that is a common root of all.
@@ -120,7 +132,7 @@ namespace UltimateXR.Extensions.Unity
         {
             T commonRoot = null;
 
-            for (int i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
                 if (i == 0)
                 {
@@ -130,9 +142,9 @@ namespace UltimateXR.Extensions.Unity
                 {
                     if (commonRoot == null || (components[i] != commonRoot && components[i].transform.HasParent(commonRoot.transform) == false))
                     {
-                        bool found = true;
+                        var found = true;
 
-                        for (int j = 0; j < i - 1; j++)
+                        for (var j = 0; j < i - 1; j++)
                         {
                             if (components[i] != components[j] && components[j].transform.HasParent(components[i].transform) == false)
                             {

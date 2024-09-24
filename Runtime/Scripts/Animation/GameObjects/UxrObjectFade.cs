@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UltimateXR.Core.Components;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.GameObjects
 {
@@ -16,17 +18,6 @@ namespace UltimateXR.Animation.GameObjects
     /// </summary>
     public partial class UxrObjectFade : UxrComponent
     {
-        #region Inspector Properties/Serialized Fields
-
-        [SerializeField] private bool  _recursively = true;
-        [SerializeField] private float _delaySeconds;
-        [SerializeField] private float _duration      = 1.0f;
-        [SerializeField] private float _startQuantity = 1.0f;
-        [SerializeField] private float _endQuantity;
-        [SerializeField] private bool  _useUnscaledTime;
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -45,28 +36,60 @@ namespace UltimateXR.Animation.GameObjects
         /// <param name="finishedCallback">Optional callback executed when the animation finished</param>
         /// <returns>Animation component</returns>
         public static UxrObjectFade Fade(GameObject gameObject,
-                                         float      startAlphaQuantity,
-                                         float      endFadeQuantity,
-                                         float      delaySeconds,
-                                         float      durationSeconds,
-                                         bool       recursively      = true,
-                                         bool       useUnscaledTime  = false,
-                                         Action     finishedCallback = null)
+                                         float startAlphaQuantity,
+                                         float endFadeQuantity,
+                                         float delaySeconds,
+                                         float durationSeconds,
+                                         bool recursively = true,
+                                         bool useUnscaledTime = false,
+                                         Action finishedCallback = null)
         {
-            UxrObjectFade objectFade = gameObject.GetOrAddComponent<UxrObjectFade>();
+            var objectFade = gameObject.GetOrAddComponent<UxrObjectFade>();
 
-            objectFade._startQuantity    = startAlphaQuantity;
-            objectFade._endQuantity      = endFadeQuantity;
-            objectFade._delaySeconds     = delaySeconds;
-            objectFade._duration         = durationSeconds;
-            objectFade._recursively      = recursively;
-            objectFade._useUnscaledTime  = useUnscaledTime;
+            objectFade._startQuantity = startAlphaQuantity;
+            objectFade._endQuantity = endFadeQuantity;
+            objectFade._delaySeconds = delaySeconds;
+            objectFade._duration = durationSeconds;
+            objectFade._recursively = recursively;
+            objectFade._useUnscaledTime = useUnscaledTime;
             objectFade._finishedCallback = finishedCallback;
 
             objectFade.CheckInitialize(true);
 
             return objectFade;
         }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Initializes the component if necessary.
+        /// </summary>
+        /// <param name="forceInitialize">Forces initializing the component even if it already may have been initialized</param>
+        private void CheckInitialize(bool forceInitialize = false)
+        {
+            if (_objects.Count == 0 || forceInitialize)
+            {
+                var objectRenderers = _recursively ? gameObject.GetComponentsInChildren<Renderer>() : new[] {gameObject.GetComponent<Renderer>()};
+
+                foreach (var renderer in objectRenderers)
+                {
+                    _objects.Add(new ObjectEntry(renderer));
+                }
+            }
+        }
+
+        #endregion
+
+        #region Inspector Properties/Serialized Fields
+
+        [SerializeField] private bool _recursively = true;
+        [SerializeField] private float _delaySeconds;
+        [SerializeField] private float _duration = 1.0f;
+        [SerializeField] private float _startQuantity = 1.0f;
+        [SerializeField] private float _endQuantity;
+        [SerializeField] private bool _useUnscaledTime;
 
         #endregion
 
@@ -82,6 +105,7 @@ namespace UltimateXR.Animation.GameObjects
             CheckInitialize();
         }
 
+
         /// <summary>
         ///     Starts or re-starts the animation.
         /// </summary>
@@ -90,8 +114,9 @@ namespace UltimateXR.Animation.GameObjects
             base.OnEnable();
 
             _fadeStartTime = CurrentTime;
-            _finished      = false;
+            _finished = false;
         }
+
 
         /// <summary>
         ///     Stops the animation and restores the material.
@@ -100,11 +125,12 @@ namespace UltimateXR.Animation.GameObjects
         {
             base.OnDisable();
 
-            foreach (ObjectEntry objectEntry in _objects)
+            foreach (var objectEntry in _objects)
             {
                 objectEntry.Restore();
             }
         }
+
 
         /// <summary>
         ///     Updates the animation.
@@ -116,16 +142,16 @@ namespace UltimateXR.Animation.GameObjects
                 return;
             }
 
-            float fadeTime = CurrentTime - _fadeStartTime - _delaySeconds;
+            var fadeTime = CurrentTime - _fadeStartTime - _delaySeconds;
 
             if (fadeTime <= 0)
             {
                 return;
             }
 
-            float fadeT = Mathf.Clamp01(fadeTime / _duration);
+            var fadeT = Mathf.Clamp01(fadeTime / _duration);
 
-            foreach (ObjectEntry entry in _objects)
+            foreach (var entry in _objects)
             {
                 entry.Fade(_startQuantity, _endQuantity, fadeT);
             }
@@ -139,35 +165,14 @@ namespace UltimateXR.Animation.GameObjects
 
         #endregion
 
-        #region Private Methods
-
-        /// <summary>
-        ///     Initializes the component if necessary.
-        /// </summary>
-        /// <param name="forceInitialize">Forces initializing the component even if it already may have been initialized</param>
-        private void CheckInitialize(bool forceInitialize = false)
-        {
-            if (_objects.Count == 0 || forceInitialize)
-            {
-                Renderer[] objectRenderers = _recursively ? gameObject.GetComponentsInChildren<Renderer>() : new[] { gameObject.GetComponent<Renderer>() };
-
-                foreach (Renderer renderer in objectRenderers)
-                {
-                    _objects.Add(new ObjectEntry(renderer));
-                }
-            }
-        }
-
-        #endregion
-
         #region Private Types & Data
 
         private float CurrentTime => _useUnscaledTime ? Time.unscaledTime : Time.time;
 
-        private readonly List<ObjectEntry> _objects = new List<ObjectEntry>();
+        private readonly List<ObjectEntry> _objects = new();
 
-        private float  _fadeStartTime;
-        private bool   _finished;
+        private float _fadeStartTime;
+        private bool _finished;
         private Action _finishedCallback;
 
         #endregion

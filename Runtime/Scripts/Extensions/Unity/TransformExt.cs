@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +14,11 @@ using UltimateXR.Extensions.Unity.Render;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+
 namespace UltimateXR.Extensions.Unity
 {
     using UnityObject = Object;
+
 
     /// <summary>
     ///     <see cref="Transform" /> extensions.
@@ -55,11 +58,12 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="transform">Transform to destroy all children from</param>
         public static void DestroyAllChildren(this Transform transform)
         {
-            for (int i = 0; i < transform.childCount; ++i)
+            for (var i = 0; i < transform.childCount; ++i)
             {
                 UnityObject.Destroy(transform.GetChild(i).gameObject);
             }
         }
+
 
         /// <summary>
         ///     Destroys all children GameObjects using Destroy() that have a given component type.
@@ -67,11 +71,11 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="transform">Transform to destroy all children from</param>
         /// <param name="includeInactive">Also delete children with inactive components?</param>
         public static void DestroyAllChildren<T>(this Transform transform, bool includeInactive = true)
-                    where T : Component
+            where T : Component
         {
-            T[] children = transform.GetComponentsInChildren<T>(includeInactive);
+            var children = transform.GetComponentsInChildren<T>(includeInactive);
 
-            foreach (T t in children)
+            foreach (var t in children)
             {
                 if (t != null)
                 {
@@ -80,17 +84,19 @@ namespace UltimateXR.Extensions.Unity
             }
         }
 
+
         /// <summary>
         ///     Destroys all children using DestroyImmediate().
         /// </summary>
         /// <param name="transform">Transform to destroy all children from</param>
         public static void DestroyImmediateAllChildren(this Transform transform)
         {
-            for (int i = 0; i < transform.childCount; ++i)
+            for (var i = 0; i < transform.childCount; ++i)
             {
                 UnityObject.DestroyImmediate(transform.GetChild(i).gameObject);
             }
         }
+
 
         /// <summary>
         ///     Destroys all children GameObjects using DestroyImmediate() that have a given component type.
@@ -98,11 +104,11 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="transform">Transform to destroy all children from</param>
         /// <param name="includeInactive">Also delete children with inactive components?</param>
         public static void DestroyImmediateAllChildren<T>(this Transform transform, bool includeInactive = true)
-                    where T : Component
+            where T : Component
         {
-            T[] children = transform.GetComponentsInChildren<T>(includeInactive);
+            var children = transform.GetComponentsInChildren<T>(includeInactive);
 
-            foreach (T t in children)
+            foreach (var t in children)
             {
                 if (t != null)
                 {
@@ -110,6 +116,7 @@ namespace UltimateXR.Extensions.Unity
                 }
             }
         }
+
 
         /// <summary>
         ///     Assigns a transform the same position and rotation from another.
@@ -120,22 +127,26 @@ namespace UltimateXR.Extensions.Unity
         {
             self.SetPositionAndRotation(target.position, target.rotation);
         }
-		
-#if !(UNITY_2021_3_11 || UNITY_2022_2 || UNITY_2023_1)
-		
-		/// <summary>
+
+
+        #if !(UNITY_2021_3_11 || UNITY_2022_2 || UNITY_2023_1)
+
+
+        /// <summary>
         ///     Sets the local position and local rotation in one go.
         /// </summary>
         /// <param name="self">Transform to change</param>
         /// <param name="localPosition">New local position</param>
-		/// <param name="localRotation">New local rotation</param>
+        /// <param name="localRotation">New local rotation</param>
         public static void SetLocalPositionAndRotation(this Transform self, Vector3 localPosition, Quaternion localRotation)
         {
             self.localPosition = localPosition;
-			self.localRotation = localRotation;
+            self.localRotation = localRotation;
         }
-		
-#endif
+
+
+        #endif
+
 
         /// <summary>
         ///     Sets the localPosition.x value of a given <see cref="Transform" />.
@@ -144,10 +155,11 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="x">New x value</param>
         public static void SetLocalPositionX(this Transform self, float x)
         {
-            Vector3 localPosition = self.localPosition;
-            localPosition.x    = x;
+            var localPosition = self.localPosition;
+            localPosition.x = x;
             self.localPosition = localPosition;
         }
+
 
         /// <summary>
         ///     Sets the localPosition.y value of a given <see cref="Transform" />.
@@ -156,10 +168,11 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="y">New y value</param>
         public static void SetLocalPositionY(this Transform self, float y)
         {
-            Vector3 localPosition = self.localPosition;
-            localPosition.y    = y;
+            var localPosition = self.localPosition;
+            localPosition.y = y;
             self.localPosition = localPosition;
         }
+
 
         /// <summary>
         ///     Sets the localPosition.z value of a given <see cref="Transform" />.
@@ -168,10 +181,11 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="x">New z value</param>
         public static void SetLocalPositionZ(this Transform self, float z)
         {
-            Vector3 localPosition = self.localPosition;
-            localPosition.z    = z;
+            var localPosition = self.localPosition;
+            localPosition.z = z;
             self.localPosition = localPosition;
         }
+
 
         /// <summary>
         ///     Adds x, y and z values to the localPosition of a given <see cref="Transform" />.
@@ -182,12 +196,13 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="z">Value to add to localPosition.z</param>
         public static void IncreaseLocalPosition(this Transform self, float x, float y, float z)
         {
-            Vector3 localPosition = self.localPosition;
-            localPosition.x    += x;
-            localPosition.y    += y;
-            localPosition.z    += z;
-            self.localPosition =  localPosition;
+            var localPosition = self.localPosition;
+            localPosition.x += x;
+            localPosition.y += y;
+            localPosition.z += z;
+            self.localPosition = localPosition;
         }
+
 
         /// <summary>
         ///     Sets the position.x value of a <see cref="Transform" />.
@@ -196,10 +211,11 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="x">New x value</param>
         public static void SetPositionX(this Transform self, float x)
         {
-            Vector3 position = self.position;
-            position.x    = x;
+            var position = self.position;
+            position.x = x;
             self.position = position;
         }
+
 
         /// <summary>
         ///     Sets the position.y value of a <see cref="Transform" />.
@@ -208,10 +224,11 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="x">New y value</param>
         public static void SetPositionY(this Transform self, float y)
         {
-            Vector3 position = self.position;
-            position.y    = y;
+            var position = self.position;
+            position.y = y;
             self.position = position;
         }
+
 
         /// <summary>
         ///     Sets the position.z value of a <see cref="Transform" />.
@@ -220,10 +237,11 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="x">New z value</param>
         public static void SetPositionZ(this Transform self, float z)
         {
-            Vector3 position = self.position;
-            position.z    = z;
+            var position = self.position;
+            position.z = z;
             self.position = position;
         }
+
 
         /// <summary>
         ///     Adds x, y and z values to the position of a given <see cref="Transform" />.
@@ -234,12 +252,13 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="z">Value to add to position.z</param>
         public static void IncreasePosition(this Transform self, float x, float y, float z)
         {
-            Vector3 position = self.position;
-            position.x    += x;
-            position.y    += y;
-            position.z    += z;
-            self.position =  position;
+            var position = self.position;
+            position.x += x;
+            position.y += y;
+            position.z += z;
+            self.position = position;
         }
+
 
         /// <summary>
         ///     Gets a vector result of adding a Transform's right, up and forward vectors scaled by the x, y and z values of a
@@ -252,6 +271,7 @@ namespace UltimateXR.Extensions.Unity
         {
             return GetScaledVector(self, v.x, v.y, v.z);
         }
+
 
         /// <summary>
         ///     Gets a vector result of adding a Transform's right, up and forward vectors scaled by x, y and z values
@@ -267,6 +287,7 @@ namespace UltimateXR.Extensions.Unity
             return self.right * x + self.up * y + self.forward * z;
         }
 
+
         /// <summary>
         ///     Gets a vector representing the axis from a <see cref="Transform" /> that has the smallest angle to a given
         ///     world-space vector.
@@ -280,6 +301,7 @@ namespace UltimateXR.Extensions.Unity
         {
             return self.InverseTransformDirection(vector).normalized.GetClosestAxis();
         }
+
 
         /// <summary>
         ///     Gets a vector representing the axis from a <see cref="Transform" /> that has the smallest angle to a given
@@ -295,6 +317,7 @@ namespace UltimateXR.Extensions.Unity
             return self.TransformDirection(self.InverseTransformDirection(vector).normalized.GetClosestAxis());
         }
 
+
         /// <summary>
         ///     Constraints the given transform position to the volume specified by a box collider.
         /// </summary>
@@ -304,6 +327,7 @@ namespace UltimateXR.Extensions.Unity
         {
             self.position = self.position.ClampToBox(box);
         }
+
 
         /// <summary>
         ///     Aligns all children of a given component on an axis.
@@ -320,14 +344,15 @@ namespace UltimateXR.Extensions.Unity
                 throw new ArgumentNullException(nameof(transform));
             }
 
-            Vector3 paddingVector = padding * axis;
+            var paddingVector = padding * axis;
 
-            Vector3 centerPos = space == Space.Self ? Vector3.zero : transform.position;
-            Vector3 firstPos  = centerPos - 0.5f * (transform.childCount - 1) * paddingVector;
+            var centerPos = space == Space.Self ? Vector3.zero : transform.position;
+            var firstPos = centerPos - 0.5f * (transform.childCount - 1) * paddingVector;
 
-            for (int i = 0; i < transform.childCount; ++i)
+            for (var i = 0; i < transform.childCount; ++i)
             {
-                Vector3 pos = firstPos + i * paddingVector;
+                var pos = firstPos + i * paddingVector;
+
                 if (space == Space.Self)
                 {
                     transform.GetChild(i).localPosition = pos;
@@ -338,6 +363,7 @@ namespace UltimateXR.Extensions.Unity
                 }
             }
         }
+
 
         /// <summary>
         ///     Aligns a set of transforms on an axis.
@@ -354,15 +380,16 @@ namespace UltimateXR.Extensions.Unity
                 throw new ArgumentNullException(nameof(transforms));
             }
 
-            Transform[] tArray        = transforms.ToArray();
-            Vector3     paddingVector = padding * axis;
+            var tArray = transforms.ToArray();
+            var paddingVector = padding * axis;
 
-            Vector3 pivotPos = space == Space.Self ? tArray[0].localPosition : tArray[0].position;
-            Vector3 firstPos = pivotPos - 0.5f * (tArray.Length - 1) * paddingVector;
+            var pivotPos = space == Space.Self ? tArray[0].localPosition : tArray[0].position;
+            var firstPos = pivotPos - 0.5f * (tArray.Length - 1) * paddingVector;
 
             for (var i = 0; i < tArray.Length; ++i)
             {
-                Vector3 pos = firstPos + i * paddingVector;
+                var pos = firstPos + i * paddingVector;
+
                 if (space == Space.Self)
                 {
                     tArray[i].localPosition = pos;
@@ -374,6 +401,7 @@ namespace UltimateXR.Extensions.Unity
             }
         }
 
+
         /// <summary>
         ///     Applies a mirroring to a transform.
         /// </summary>
@@ -384,14 +412,15 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="rotate">Whether to rotate the object</param>
         /// <param name="reposition">Whether to translate the object</param>
         public static void ApplyMirroring(this Transform self,
-                                          Transform      mirror,
-                                          UxrAxis        mirrorAxis,
-                                          MirrorType     mirrorType,
-                                          bool           rotate     = true,
-                                          bool           reposition = true)
+                                          Transform mirror,
+                                          UxrAxis mirrorAxis,
+                                          MirrorType mirrorType,
+                                          bool rotate = true,
+                                          bool reposition = true)
         {
             ApplyMirroring(self, mirror.position, mirror.TransformDirection(mirrorAxis), mirrorType, rotate, reposition);
         }
+
 
         /// <summary>
         ///     Applies a mirroring to a transform.
@@ -403,17 +432,17 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="rotate">Whether to rotate the object</param>
         /// <param name="reposition">Whether to translate the object</param>
         public static void ApplyMirroring(this Transform self,
-                                          Vector3        mirrorPosition,
-                                          Vector3        mirrorNormal,
-                                          MirrorType     mirrorType,
-                                          bool           rotate     = true,
-                                          bool           reposition = true)
+                                          Vector3 mirrorPosition,
+                                          Vector3 mirrorNormal,
+                                          MirrorType mirrorType,
+                                          bool rotate = true,
+                                          bool reposition = true)
         {
             if (rotate)
             {
-                Vector3 right   = Vector3.Reflect(self.right,   mirrorNormal);
-                Vector3 up      = Vector3.Reflect(self.up,      mirrorNormal);
-                Vector3 forward = Vector3.Reflect(self.forward, mirrorNormal);
+                var right = Vector3.Reflect(self.right, mirrorNormal);
+                var up = Vector3.Reflect(self.up, mirrorNormal);
+                var forward = Vector3.Reflect(self.forward, mirrorNormal);
 
                 if (mirrorType == MirrorType.MirrorXY)
                 {
@@ -431,10 +460,11 @@ namespace UltimateXR.Extensions.Unity
 
             if (reposition)
             {
-                Vector3 projection = new Plane(mirrorNormal, mirrorPosition).ClosestPointOnPlane(self.position);
+                var projection = new Plane(mirrorNormal, mirrorPosition).ClosestPointOnPlane(self.position);
                 self.position += (projection - self.position) * 2;
             }
         }
+
 
         /// <summary>
         ///     Applies the transformation required to make <paramref name="sourceAlign" /> align with
@@ -447,11 +477,11 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="translate">Allows to control whether to translate or not</param>
         /// <param name="t">Optional interpolation value</param>
         public static void ApplyAlignment(this Transform self,
-                                          Transform      sourceAlign,
-                                          Transform      targetAlign,
-                                          bool           rotate    = true,
-                                          bool           translate = true,
-                                          float          t         = 1.0f)
+                                          Transform sourceAlign,
+                                          Transform targetAlign,
+                                          bool rotate = true,
+                                          bool translate = true,
+                                          float t = 1.0f)
         {
             if (rotate)
             {
@@ -463,6 +493,7 @@ namespace UltimateXR.Extensions.Unity
                 self.position += (targetAlign.position - sourceAlign.position) * t;
             }
         }
+
 
         /// <summary>
         ///     Applies the transformation to make a transform defined by <paramref name="sourcePosition" /> and
@@ -478,13 +509,13 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="translate">Allows to control whether to translate or not</param>
         /// <param name="t">Optional interpolation value [0.0, 1.0]</param>
         public static void ApplyAlignment(this Transform transform,
-                                          Vector3        sourcePosition,
-                                          Quaternion     sourceRotation,
-                                          Vector3        targetPosition,
-                                          Quaternion     targetRotation,
-                                          bool           rotate,
-                                          bool           translate,
-                                          float          t = 1.0f)
+                                          Vector3 sourcePosition,
+                                          Quaternion sourceRotation,
+                                          Vector3 targetPosition,
+                                          Quaternion targetRotation,
+                                          bool rotate,
+                                          bool translate,
+                                          float t = 1.0f)
         {
             if (rotate)
             {
@@ -497,6 +528,7 @@ namespace UltimateXR.Extensions.Unity
             }
         }
 
+
         /// <summary>
         ///     Applies the transformation to make a rotation defined by <paramref name="sourceRotation" /> rotate towards
         ///     <paramref name="targetRotation" />.
@@ -507,11 +539,12 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="t">Optional interpolation value [0.0, 1.0]</param>
         public static void ApplyAlignment(this Transform self, Quaternion sourceRotation, Quaternion targetRotation, float t = 1.0f)
         {
-            Quaternion selfRotation = self.rotation;
-            Quaternion rotation     = Quaternion.RotateTowards(sourceRotation, targetRotation, 180.0f);
-            Quaternion relative     = Quaternion.Inverse(sourceRotation) * selfRotation;
+            var selfRotation = self.rotation;
+            var rotation = Quaternion.RotateTowards(sourceRotation, targetRotation, 180.0f);
+            var relative = Quaternion.Inverse(sourceRotation) * selfRotation;
             self.rotation = Quaternion.Slerp(selfRotation, rotation * relative, t);
         }
+
 
         /// <summary>
         ///     Moves <paramref name="rootPosition" /> and rotates <paramref name="rootRotation" /> so that a child
@@ -531,26 +564,26 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="rotate">Allows to control whether to rotate or not</param>
         /// <param name="translate">Allows to control whether to translate or not</param>
         /// <param name="t">Optional interpolation value [0.0, 1.0]</param>
-        public static void ApplyAlignment(ref Vector3    rootPosition,
+        public static void ApplyAlignment(ref Vector3 rootPosition,
                                           ref Quaternion rootRotation,
-                                          Vector3        childPosition,
-                                          Quaternion     childRotation,
-                                          Vector3        targetPosition,
-                                          Quaternion     targetRotation,
-                                          bool           rotate,
-                                          bool           translate,
-                                          float          t = 1.0f)
+                                          Vector3 childPosition,
+                                          Quaternion childRotation,
+                                          Vector3 targetPosition,
+                                          Quaternion targetRotation,
+                                          bool rotate,
+                                          bool translate,
+                                          float t = 1.0f)
         {
-            Matrix4x4 matrix      = Matrix4x4.TRS(rootPosition, rootRotation, Vector3.one);
-            Vector3   relativePos = matrix.inverse.MultiplyPoint(childPosition);
+            var matrix = Matrix4x4.TRS(rootPosition, rootRotation, Vector3.one);
+            var relativePos = matrix.inverse.MultiplyPoint(childPosition);
 
             if (rotate)
             {
-                Quaternion rotationTowards = Quaternion.RotateTowards(childRotation, targetRotation, 180.0f);
-                Quaternion relative        = Quaternion.Inverse(childRotation) * rootRotation;
+                var rotationTowards = Quaternion.RotateTowards(childRotation, targetRotation, 180.0f);
+                var relative = Quaternion.Inverse(childRotation) * rootRotation;
                 rootRotation = Quaternion.Slerp(rootRotation, rotationTowards * relative, t);
 
-                Matrix4x4 newMatrix = Matrix4x4.TRS(rootPosition, rootRotation, Vector3.one);
+                var newMatrix = Matrix4x4.TRS(rootPosition, rootRotation, Vector3.one);
                 childPosition = newMatrix.MultiplyPoint(relativePos);
             }
 
@@ -559,6 +592,7 @@ namespace UltimateXR.Extensions.Unity
                 rootPosition += (targetPosition - childPosition) * t;
             }
         }
+
 
         /// <summary>
         ///     Applies an interpolation between two other transforms.
@@ -572,6 +606,7 @@ namespace UltimateXR.Extensions.Unity
             source.SetPositionAndRotation(Vector3.Lerp(a.position, b.position, t), Quaternion.Slerp(a.rotation, b.rotation, t));
         }
 
+
         /// <summary>
         ///     Checks if a given transform has a given parent in its upwards hierarchy, or if it is the transform itself.
         /// </summary>
@@ -584,7 +619,7 @@ namespace UltimateXR.Extensions.Unity
             {
                 return false;
             }
-            
+
             if (self == parent)
             {
                 return true;
@@ -598,6 +633,7 @@ namespace UltimateXR.Extensions.Unity
             return false;
         }
 
+
         /// <summary>
         ///     Checks if a given transform has a given child in its hierarchy or if the transform is the child itself.
         /// </summary>
@@ -610,13 +646,13 @@ namespace UltimateXR.Extensions.Unity
             {
                 return false;
             }
-            
+
             if (current == child)
             {
                 return true;
             }
 
-            for (int i = 0; i < current.transform.childCount; ++i)
+            for (var i = 0; i < current.transform.childCount; ++i)
             {
                 if (current.GetChild(i) == child)
                 {
@@ -632,6 +668,7 @@ namespace UltimateXR.Extensions.Unity
             return false;
         }
 
+
         /// <summary>
         ///     Gets all the children recursively under a given <see cref="Transform" />.
         ///     The list will not contain the source <see cref="transform" /> itself.
@@ -640,13 +677,14 @@ namespace UltimateXR.Extensions.Unity
         /// <param name="transforms">A list with all the transforms found below the hierarchy</param>
         public static void GetAllChildren(this Transform transform, ref List<Transform> transforms)
         {
-            for (int i = 0; i < transform.childCount; ++i)
+            for (var i = 0; i < transform.childCount; ++i)
             {
-                Transform child = transform.GetChild(i);
+                var child = transform.GetChild(i);
                 transforms.Add(child);
                 child.GetAllChildren(ref transforms);
             }
         }
+
 
         /// <summary>
         ///     From a set of transforms, returns which one of them is a common root of all if any.
@@ -661,7 +699,7 @@ namespace UltimateXR.Extensions.Unity
         {
             Transform commonRoot = null;
 
-            for (int i = 0; i < transforms.Length; i++)
+            for (var i = 0; i < transforms.Length; i++)
             {
                 if (i == 0)
                 {
@@ -671,9 +709,9 @@ namespace UltimateXR.Extensions.Unity
                 {
                     if (commonRoot == null || (transforms[i] != commonRoot && HasParent(transforms[i], commonRoot) == false))
                     {
-                        bool found = true;
+                        var found = true;
 
-                        for (int j = 0; j < i - 1; j++)
+                        for (var j = 0; j < i - 1; j++)
                         {
                             if (transforms[i] != transforms[j] && HasParent(transforms[j], transforms[i]) == false)
                             {
@@ -688,6 +726,7 @@ namespace UltimateXR.Extensions.Unity
 
             return commonRoot;
         }
+
 
         /// <summary>
         ///     Gets all the transforms that don't have any children.
@@ -704,12 +743,13 @@ namespace UltimateXR.Extensions.Unity
             }
             else
             {
-                for (int i = 0; i < transform.childCount; i++)
+                for (var i = 0; i < transform.childCount; i++)
                 {
                     GetTransformsWithoutChildren(transform.GetChild(i), ref transforms);
                 }
             }
         }
+
 
         /// <summary>
         ///     Gets the first non-null transform from a set of transforms.
@@ -718,7 +758,7 @@ namespace UltimateXR.Extensions.Unity
         /// <returns>Returns the first non-null transform or null if none was found</returns>
         public static Transform GetFirstNonNullTransformFromSet(params Transform[] transforms)
         {
-            foreach (Transform transform in transforms)
+            foreach (var transform in transforms)
             {
                 if (transform != null)
                 {
@@ -729,6 +769,7 @@ namespace UltimateXR.Extensions.Unity
             return null;
         }
 
+
         /// <summary>
         ///     Gets the n-th non-null transform from a set of transforms.
         /// </summary>
@@ -737,9 +778,9 @@ namespace UltimateXR.Extensions.Unity
         /// <returns>Returns the i-th non-null transform or null if none was found</returns>
         public static Transform GetNthNonNullTransformFromSet(int n, params Transform[] transforms)
         {
-            int found = 0;
+            var found = 0;
 
-            foreach (Transform transform in transforms)
+            foreach (var transform in transforms)
             {
                 if (transform != null)
                 {
@@ -754,6 +795,7 @@ namespace UltimateXR.Extensions.Unity
 
             return null;
         }
+
 
         /// <summary>
         ///     Tries to find an object by its name in the given <see cref="Transform" /> or any of its children recursively
@@ -774,9 +816,9 @@ namespace UltimateXR.Extensions.Unity
                 return self;
             }
 
-            for (int i = 0; i < self.childCount; ++i)
+            for (var i = 0; i < self.childCount; ++i)
             {
-                Transform transform = self.GetChild(i).FindRecursive(name, stringComparison);
+                var transform = self.GetChild(i).FindRecursive(name, stringComparison);
 
                 if (transform != null)
                 {
@@ -787,6 +829,7 @@ namespace UltimateXR.Extensions.Unity
             return null;
         }
 
+
         /// <summary>
         ///     Gets the full GameObject path of a Transform in the hierarchy.
         /// </summary>
@@ -795,7 +838,7 @@ namespace UltimateXR.Extensions.Unity
         public static string GetPathUnderScene(this Transform self)
         {
             self.ThrowIfNull(nameof(self));
-            string path = self.name;
+            var path = self.name;
 
             while (self.parent is not null)
             {
@@ -806,6 +849,7 @@ namespace UltimateXR.Extensions.Unity
             return path;
         }
 
+
         /// <summary>
         ///     Gets a unique path name of Transform in the hierarchy. Adds a sibling index to the path to assure that siblings
         ///     with the same name create different path names.
@@ -815,9 +859,11 @@ namespace UltimateXR.Extensions.Unity
         public static string GetUniqueScenePath(this Transform self)
         {
             self.ThrowIfNull(nameof(self));
-            string prePath = self.parent is not null ? self.parent.GetUniqueScenePath() : $"{self.gameObject.scene.name}:";
+            var prePath = self.parent is not null ? self.parent.GetUniqueScenePath() : $"{self.gameObject.scene.name}:";
+
             return $"{prePath}/{self.GetSiblingIndex():00}.-{self.name}";
         }
+
 
         /// <summary>
         ///     Gets the parent local to world transform matrix.
@@ -829,6 +875,7 @@ namespace UltimateXR.Extensions.Unity
             return self.parent != null ? self.parent.localToWorldMatrix : Matrix4x4.identity;
         }
 
+
         /// <summary>
         ///     Gets the parent rotation or the identity Quaternion if it doesn't exist.
         /// </summary>
@@ -838,6 +885,7 @@ namespace UltimateXR.Extensions.Unity
         {
             return self.parent != null ? self.parent.rotation : Quaternion.identity;
         }
+
 
         /// <summary>
         ///     Gets the given position in <paramref name="transform" /> local coordinates. If <paramref name="transform" /> is
@@ -851,6 +899,7 @@ namespace UltimateXR.Extensions.Unity
             return transform != null ? transform.InverseTransformPoint(position) : position;
         }
 
+
         /// <summary>
         ///     Transforms a position to world space coordinates. If <paramref name="transform" /> is null,
         ///     <paramref name="localPosition" /> will be returned.
@@ -862,6 +911,7 @@ namespace UltimateXR.Extensions.Unity
         {
             return transform != null ? transform.TransformPoint(localPosition) : localPosition;
         }
+
 
         /// <summary>
         ///     Gets the given rotation in <paramref name="transform" /> local coordinates. If <paramref name="transform" /> is
@@ -875,6 +925,7 @@ namespace UltimateXR.Extensions.Unity
             return transform != null ? Quaternion.Inverse(transform.rotation) * rotation : rotation;
         }
 
+
         /// <summary>
         ///     Transforms a rotation to world space. If <paramref name="transform" /> is null, <paramref name="localRotation" />
         ///     will be returned.
@@ -886,6 +937,7 @@ namespace UltimateXR.Extensions.Unity
         {
             return transform != null ? transform.rotation * localRotation : localRotation;
         }
+
 
         /// <summary>
         ///     Gets the given direction in <paramref name="transform" /> local coordinates. If <paramref name="transform" /> is
@@ -899,6 +951,7 @@ namespace UltimateXR.Extensions.Unity
             return transform != null ? Quaternion.Inverse(transform.rotation) * direction : direction;
         }
 
+
         /// <summary>
         ///     Transforms a direction to world space. If <paramref name="transform" /> is null, <paramref name="localDirection" />
         ///     will be returned.
@@ -910,6 +963,7 @@ namespace UltimateXR.Extensions.Unity
         {
             return transform != null ? transform.rotation * localDirection : localDirection;
         }
+
 
         /// <summary>
         ///     Computes the bounds of all MeshRenderers that hang from a parent transform.
@@ -923,14 +977,14 @@ namespace UltimateXR.Extensions.Unity
         {
             self.ThrowIfNull(nameof(self));
 
-            Bounds result = self.GetComponentsInChildren<MeshRenderer>(includeInactive).CalculateBounds();
+            var result = self.GetComponentsInChildren<MeshRenderer>(includeInactive).CalculateBounds();
 
             if (result != default && space == Space.Self)
             {
                 result = self.InverseTransformBounds(result);
             }
 
-            foreach (RectTransform r in self.GetComponentsInChildren<RectTransform>(includeInactive))
+            foreach (var r in self.GetComponentsInChildren<RectTransform>(includeInactive))
             {
                 if (result == default)
                 {
@@ -944,6 +998,7 @@ namespace UltimateXR.Extensions.Unity
 
             return result;
         }
+
 
         /// <summary>
         ///     Computes the bounds containing a <see cref="RectTransform" />'s <see cref="RectTransform.rect" />.
@@ -959,10 +1014,12 @@ namespace UltimateXR.Extensions.Unity
                 throw new ArgumentNullException(nameof(transform));
             }
 
-            Rect   rect        = transform.rect;
-            Bounds localBounds = new Bounds(rect.center, rect.size);
+            var rect = transform.rect;
+            var localBounds = new Bounds(rect.center, rect.size);
+
             return space == Space.Self ? localBounds : transform.TransformBounds(localBounds);
         }
+
 
         /// <summary>
         ///     Gets the bounds of a BoxCollider in a given space.
@@ -988,9 +1045,11 @@ namespace UltimateXR.Extensions.Unity
                 return boxCollider.bounds;
             }
 
-            Bounds localBounds = new Bounds(boxCollider.center, boxCollider.size);
+            var localBounds = new Bounds(boxCollider.center, boxCollider.size);
+
             return boxCollider.transform.TransformBounds(localBounds);
         }
+
 
         /// <summary>
         ///     Gets the bounds in a given space of all MeshRenderers in a set of Transforms.
@@ -1007,17 +1066,18 @@ namespace UltimateXR.Extensions.Unity
                 throw new ArgumentNullException(nameof(transforms));
             }
 
-            Bounds    bounds         = default;
+            Bounds bounds = default;
             Transform firstTransform = null;
-            int       nBounds        = 0;
+            var nBounds = 0;
 
-            foreach (Transform t in transforms)
+            foreach (var t in transforms)
             {
-                Bounds b = t.CalculateBounds(Space.World, includeInactive);
+                var b = t.CalculateBounds(Space.World, includeInactive);
+
                 if (nBounds++ == 0)
                 {
                     firstTransform = t;
-                    bounds         = b;
+                    bounds = b;
                 }
                 else
                 {
@@ -1032,6 +1092,7 @@ namespace UltimateXR.Extensions.Unity
 
             return space == Space.World ? bounds : firstTransform!.InverseTransformBounds(bounds);
         }
+
 
         /// <summary>
         ///     Gets the bounds in the given transform's children with the largest squared length of the bounds
@@ -1048,23 +1109,24 @@ namespace UltimateXR.Extensions.Unity
                 throw new ArgumentNullException(nameof(transform));
             }
 
-            Bounds result     = default;
-            float  sqrSizeMax = 0f;
+            Bounds result = default;
+            var sqrSizeMax = 0f;
 
-            for (int i = 0; i < transform.childCount; ++i)
+            for (var i = 0; i < transform.childCount; ++i)
             {
-                Bounds b       = transform.GetChild(i).CalculateBounds(Space.World, includeInactive);
-                float  sqrSize = b.size.sqrMagnitude;
+                var b = transform.GetChild(i).CalculateBounds(Space.World, includeInactive);
+                var sqrSize = b.size.sqrMagnitude;
 
                 if (b.size.sqrMagnitude > sqrSizeMax)
                 {
-                    result     = b;
+                    result = b;
                     sqrSizeMax = sqrSize;
                 }
             }
 
             return result;
         }
+
 
         /// <summary>
         ///     Gets the bounds in the given transforms children with the largest squared length of the bounds
@@ -1081,23 +1143,24 @@ namespace UltimateXR.Extensions.Unity
                 throw new ArgumentNullException(nameof(transforms));
             }
 
-            Bounds result     = default;
-            float  sqrSizeMax = 0f;
+            Bounds result = default;
+            var sqrSizeMax = 0f;
 
-            foreach (Transform t in transforms)
+            foreach (var t in transforms)
             {
-                Bounds b       = t.CalculateBounds(Space.World, includeInactive);
-                float  sqrSize = b.size.sqrMagnitude;
+                var b = t.CalculateBounds(Space.World, includeInactive);
+                var sqrSize = b.size.sqrMagnitude;
 
                 if (b.size.sqrMagnitude > sqrSizeMax)
                 {
-                    result     = b;
+                    result = b;
                     sqrSizeMax = sqrSize;
                 }
             }
 
             return result;
         }
+
 
         /// <summary>
         ///     Transforms a given <see cref="Bounds" /> object in local space using a <see cref="Transform" /> component.
@@ -1117,17 +1180,18 @@ namespace UltimateXR.Extensions.Unity
 
             // self the local extents' axes
             var extents = localBounds.extents;
-            var axisX   = transform.TransformVector(extents.x, 0,         0);
-            var axisY   = transform.TransformVector(0,         extents.y, 0);
-            var axisZ   = transform.TransformVector(0,         0,         extents.z);
+            var axisX = transform.TransformVector(extents.x, 0, 0);
+            var axisY = transform.TransformVector(0, extents.y, 0);
+            var axisZ = transform.TransformVector(0, 0, extents.z);
 
             // sum their absolute value to get the world extents
             extents.x = Mathf.Abs(axisX.x) + Mathf.Abs(axisY.x) + Mathf.Abs(axisZ.x);
             extents.y = Mathf.Abs(axisX.y) + Mathf.Abs(axisY.y) + Mathf.Abs(axisZ.y);
             extents.z = Mathf.Abs(axisX.z) + Mathf.Abs(axisY.z) + Mathf.Abs(axisZ.z);
 
-            return new Bounds { center = center, extents = extents };
+            return new Bounds {center = center, extents = extents};
         }
+
 
         /// <summary>
         ///     Transforms a given <see cref="Bounds" /> object in world space to the local space of a <see cref="Transform" />.
@@ -1147,16 +1211,16 @@ namespace UltimateXR.Extensions.Unity
 
             // self the local extents' axes
             var extents = worldBounds.extents;
-            var axisX   = transform.InverseTransformVector(extents.x, 0,         0);
-            var axisY   = transform.InverseTransformVector(0,         extents.y, 0);
-            var axisZ   = transform.InverseTransformVector(0,         0,         extents.z);
+            var axisX = transform.InverseTransformVector(extents.x, 0, 0);
+            var axisY = transform.InverseTransformVector(0, extents.y, 0);
+            var axisZ = transform.InverseTransformVector(0, 0, extents.z);
 
             // sum their absolute value to get the world extents
             extents.x = Mathf.Abs(axisX.x) + Mathf.Abs(axisY.x) + Mathf.Abs(axisZ.x);
             extents.y = Mathf.Abs(axisX.y) + Mathf.Abs(axisY.y) + Mathf.Abs(axisZ.y);
             extents.z = Mathf.Abs(axisX.z) + Mathf.Abs(axisY.z) + Mathf.Abs(axisZ.z);
 
-            return new Bounds { center = center, extents = extents };
+            return new Bounds {center = center, extents = extents};
         }
 
         #endregion

@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Splines
 {
@@ -16,6 +18,23 @@ namespace UltimateXR.Animation.Splines
         /// </summary>
         private class Sample
         {
+            #region Constructors & Finalizer
+
+            /// <summary>
+            ///     Constructor
+            /// </summary>
+            /// <param name="t">Interpolation value [0.0, 1.0] between the spline start and end position.</param>
+            /// <param name="distance">Arc-length distance to the start</param>
+            /// <param name="position">Spline position</param>
+            public Sample(float t, float distance, Vector3 position)
+            {
+                LerpT = t;
+                Distance = distance;
+                Position = position;
+            }
+
+            #endregion
+
             #region Public Types & Data
 
             /// <summary>
@@ -32,23 +51,6 @@ namespace UltimateXR.Animation.Splines
             ///     Gets the interpolated spline value.
             /// </summary>
             public Vector3 Position { get; }
-
-            #endregion
-
-            #region Constructors & Finalizer
-
-            /// <summary>
-            ///     Constructor
-            /// </summary>
-            /// <param name="t">Interpolation value [0.0, 1.0] between the spline start and end position.</param>
-            /// <param name="distance">Arc-length distance to the start</param>
-            /// <param name="position">Spline position</param>
-            public Sample(float t, float distance, Vector3 position)
-            {
-                LerpT    = t;
-                Distance = distance;
-                Position = position;
-            }
 
             #endregion
         }

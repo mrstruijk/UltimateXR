@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace UltimateXR.Core
 {
     /// <summary>
@@ -18,18 +19,18 @@ namespace UltimateXR.Core
 
         public const string UltimateXR = "UltimateXR";
 
-#if ULTIMATEXR_PACKAGE
+        #if ULTIMATEXR_PACKAGE
         public const string PackageName = "com.vrmada.ultimatexr-unity";
-#endif
+        #endif
 
-        public const string CoreModule         = "Core";
-        public const string LocomotionModule   = "Locomotion";
+        public const string CoreModule = "Core";
+        public const string LocomotionModule = "Locomotion";
         public const string ManipulationModule = "Manipulation";
-        public const string UiModule           = "UI";
-        public const string WeaponsModule      = "Weapons";
+        public const string UiModule = "UI";
+        public const string WeaponsModule = "Weapons";
 
         public const float TeleportTranslationSeconds = 0.2f;
-        public const float TeleportRotationSeconds    = 0.1f;
+        public const float TeleportRotationSeconds = 0.1f;
 
         public static string Version => $"{MajorVersion}.{MinorVersion}.{PatchVersion}";
 

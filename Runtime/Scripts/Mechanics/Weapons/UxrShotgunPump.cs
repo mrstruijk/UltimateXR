@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Audio;
 using UltimateXR.Avatar;
 using UltimateXR.Core;
@@ -10,6 +11,7 @@ using UltimateXR.Core.Components;
 using UltimateXR.Haptics;
 using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -23,19 +25,19 @@ namespace UltimateXR.Mechanics.Weapons
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField]               private int                _triggerIndex;
-        [SerializeField]               private UxrGrabbableObject _pump;
-        [SerializeField]               private Vector3            _localPumpDirection               = Vector3.forward;
-        [SerializeField]               private Vector3            _localPumpOffset                  = Vector3.forward * 0.2f;
-        [SerializeField] [Range(0, 1)] private float              _slideThreshold                   = 0.7f;
-        [SerializeField]               private UxrAudioSample     _audioSlide                       = new UxrAudioSample();
-        [SerializeField]               private UxrAudioSample     _audioSlideBack                   = new UxrAudioSample();
-        [SerializeField]               private UxrAudioSample     _audioSlideAlreadyLoaded          = new UxrAudioSample();
-        [SerializeField]               private UxrAudioSample     _audioSlideBackAlreadyLoaded      = new UxrAudioSample();
-        [SerializeField]               private UxrHapticClip      _hapticClipSlide                  = new UxrHapticClip(null, UxrHapticClipType.Click);
-        [SerializeField]               private UxrHapticClip      _hapticClipSlideBack              = new UxrHapticClip(null, UxrHapticClipType.Click);
-        [SerializeField]               private UxrHapticClip      _hapticClipSlideAlreadyLoaded     = new UxrHapticClip(null, UxrHapticClipType.Slide);
-        [SerializeField]               private UxrHapticClip      _hapticClipSlideBackAlreadyLoaded = new UxrHapticClip(null, UxrHapticClipType.Slide);
+        [SerializeField] private int _triggerIndex;
+        [SerializeField] private UxrGrabbableObject _pump;
+        [SerializeField] private Vector3 _localPumpDirection = Vector3.forward;
+        [SerializeField] private Vector3 _localPumpOffset = Vector3.forward * 0.2f;
+        [SerializeField] [Range(0, 1)] private float _slideThreshold = 0.7f;
+        [SerializeField] private UxrAudioSample _audioSlide = new();
+        [SerializeField] private UxrAudioSample _audioSlideBack = new();
+        [SerializeField] private UxrAudioSample _audioSlideAlreadyLoaded = new();
+        [SerializeField] private UxrAudioSample _audioSlideBackAlreadyLoaded = new();
+        [SerializeField] private UxrHapticClip _hapticClipSlide = new(null, UxrHapticClipType.Click);
+        [SerializeField] private UxrHapticClip _hapticClipSlideBack = new(null, UxrHapticClipType.Click);
+        [SerializeField] private UxrHapticClip _hapticClipSlideAlreadyLoaded = new(null, UxrHapticClipType.Slide);
+        [SerializeField] private UxrHapticClip _hapticClipSlideBackAlreadyLoaded = new(null, UxrHapticClipType.Slide);
 
         #endregion
 
@@ -48,10 +50,11 @@ namespace UltimateXR.Mechanics.Weapons
         {
             base.Awake();
 
-            _state      = State.WaitPump;
+            _state = State.WaitPump;
             _localStart = _pump != null ? _pump.transform.localPosition : Vector3.zero;
-            _firearm    = GetComponent<UxrFirearmWeapon>();
+            _firearm = GetComponent<UxrFirearmWeapon>();
         }
+
 
         /// <summary>
         ///     Updates the component, looking for the pump action if necessary.
@@ -63,7 +66,7 @@ namespace UltimateXR.Mechanics.Weapons
                 return;
             }
 
-            float currentSlide = Vector3.Scale(_pump.transform.localPosition - _localStart, _localPumpDirection).magnitude / _localPumpOffset.magnitude;
+            var currentSlide = Vector3.Scale(_pump.transform.localPosition - _localStart, _localPumpDirection).magnitude / _localPumpOffset.magnitude;
 
             if (_state == State.WaitPump && currentSlide > _slideThreshold)
             {
@@ -109,8 +112,8 @@ namespace UltimateXR.Mechanics.Weapons
         #region Private Types & Data
 
         private UxrFirearmWeapon _firearm;
-        private Vector3          _localStart;
-        private State            _state;
+        private Vector3 _localStart;
+        private State _state;
 
         #endregion
     }

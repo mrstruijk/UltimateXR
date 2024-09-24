@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -14,15 +16,9 @@ namespace UltimateXR.Mechanics.Weapons
     /// </summary>
     public class UxrMuzzleFlash : UxrComponent
     {
-        #region Inspector Properties/Serialized Fields
+        #region Private Types & Data
 
-        [SerializeField] private Material _material;
-        [SerializeField] private int      _textureColumns     = 1;
-        [SerializeField] private int      _textureRows        = 1;
-        [SerializeField] private bool     _randomizeAngle     = true;
-        [SerializeField] private float    _minRandomizeScale  = 1.0f;
-        [SerializeField] private float    _maxRandomizeScale  = 1.0f;
-        [SerializeField] private string   _scaleOffsetVarName = UxrConstants.Shaders.StandardMainTextureScaleOffsetVarName;
+        private MeshRenderer[] _meshRenderers;
 
         #endregion
 
@@ -42,14 +38,14 @@ namespace UltimateXR.Mechanics.Weapons
                 transform.Rotate(Vector3.forward, Random.value * 360.0f, Space.Self);
             }
 
-            foreach (MeshRenderer meshRenderer in _meshRenderers)
+            foreach (var meshRenderer in _meshRenderers)
             {
-                int randomColumn = Random.Range(0, _textureColumns);
-                int randomRow    = Random.Range(0, _textureRows);
+                var randomColumn = Random.Range(0, _textureColumns);
+                var randomRow = Random.Range(0, _textureRows);
 
                 if (meshRenderer.sharedMaterial == _material)
                 {
-                    Vector4 vecScaleOffset = meshRenderer.material.GetVector(_scaleOffsetVarName);
+                    var vecScaleOffset = meshRenderer.material.GetVector(_scaleOffsetVarName);
 
                     if (_textureColumns > 0)
                     {
@@ -67,15 +63,21 @@ namespace UltimateXR.Mechanics.Weapons
                 }
             }
 
-            float randomScale = Random.Range(_minRandomizeScale, _maxRandomizeScale);
+            var randomScale = Random.Range(_minRandomizeScale, _maxRandomizeScale);
             transform.localScale *= randomScale;
         }
 
         #endregion
 
-        #region Private Types & Data
+        #region Inspector Properties/Serialized Fields
 
-        private MeshRenderer[] _meshRenderers;
+        [SerializeField] private Material _material;
+        [SerializeField] private int _textureColumns = 1;
+        [SerializeField] private int _textureRows = 1;
+        [SerializeField] private bool _randomizeAngle = true;
+        [SerializeField] private float _minRandomizeScale = 1.0f;
+        [SerializeField] private float _maxRandomizeScale = 1.0f;
+        [SerializeField] private string _scaleOffsetVarName = UxrConstants.Shaders.StandardMainTextureScaleOffsetVarName;
 
         #endregion
     }

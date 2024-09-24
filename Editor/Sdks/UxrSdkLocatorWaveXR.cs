@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Sdks
 {
@@ -14,82 +16,6 @@ namespace UltimateXR.Editor.Sdks
     /// </summary>
     public sealed class UxrSdkLocatorWaveXR : UxrSdkLocator
     {
-        #region Public Overrides UxrSdkLocator
-
-        /// <inheritdoc />
-        public override string PackageName => "com.htc.upm.wave.xrsdk";
-
-        /// <inheritdoc />
-        public override string Name => UxrManager.SdkWaveXR;
-
-        /// <inheritdoc />
-        public override string MinimumUnityVersion => "2021.1";
-
-        /// <inheritdoc />
-        public override string[] AvailableSymbols
-        {
-            get
-            {
-                if (CurrentState == State.Available)
-                {
-                    if (CurrentVersion == 0)
-                    {
-                        return new[] { "ULTIMATEXR_USE_WAVEXR_SDK" };
-                    }
-                }
-
-                return new string[0];
-            }
-        }
-
-        /// <inheritdoc />
-        public override string[] AllSymbols
-        {
-            get { return new[] { "ULTIMATEXR_USE_WAVEXR_SDK" }; }
-        }
-
-        /// <inheritdoc />
-        public override bool CanBeUpdated => true;
-
-        /// <inheritdoc />
-        public override void TryLocate()
-        {
-#if UNITY_2019_4_OR_NEWER
-
-            if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android)
-            {
-                // UltimateXR assembly already sets up version define for package com.htc.upm.wave.xrsdk
-#if ULTIMATEXR_USE_WAVEXR_SDK
-                CurrentVersion = 0;
-                CurrentState   = State.Available;
-#else
-                CurrentState = State.NotInstalled;
-#endif
-            }
-            else
-            {
-                CurrentState = State.CurrentTargetNotSupported;
-            }
-
-#else
-            CurrentState = State.NeedsHigherUnityVersion
-#endif
-        }
-
-        /// <inheritdoc />
-        public override void TryGet()
-        {
-            Application.OpenURL("https://developer.vive.com/resources/vive-wave/tutorials/installing-wave-xr-plugin-unity/");
-        }
-
-        /// <inheritdoc />
-        public override void TryUpdate()
-        {
-            TryGet();
-        }
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -112,6 +38,85 @@ namespace UltimateXR.Editor.Sdks
         private static void RemoveSymbols()
         {
             UxrSdkManager.RemoveSymbols(new UxrSdkLocatorWaveXR());
+        }
+
+        #endregion
+
+        #region Public Overrides UxrSdkLocator
+
+        /// <inheritdoc />
+        public override string PackageName => "com.htc.upm.wave.xrsdk";
+
+        /// <inheritdoc />
+        public override string Name => UxrManager.SdkWaveXR;
+
+        /// <inheritdoc />
+        public override string MinimumUnityVersion => "2021.1";
+
+        /// <inheritdoc />
+        public override string[] AvailableSymbols
+        {
+            get
+            {
+                if (CurrentState == State.Available)
+                {
+                    if (CurrentVersion == 0)
+                    {
+                        return new[] {"ULTIMATEXR_USE_WAVEXR_SDK"};
+                    }
+                }
+
+                return new string[0];
+            }
+        }
+
+        /// <inheritdoc />
+        public override string[] AllSymbols
+        {
+            get { return new[] {"ULTIMATEXR_USE_WAVEXR_SDK"}; }
+        }
+
+        /// <inheritdoc />
+        public override bool CanBeUpdated => true;
+
+
+        /// <inheritdoc />
+        public override void TryLocate()
+        {
+            #if UNITY_2019_4_OR_NEWER
+
+            if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android)
+            {
+                // UltimateXR assembly already sets up version define for package com.htc.upm.wave.xrsdk
+                #if ULTIMATEXR_USE_WAVEXR_SDK
+                CurrentVersion = 0;
+                CurrentState = State.Available;
+                #else
+                CurrentState = State.NotInstalled;
+                #endif
+            }
+            else
+            {
+                CurrentState = State.CurrentTargetNotSupported;
+            }
+
+            #else
+            CurrentState = State.NeedsHigherUnityVersion
+            #endif
+        }
+
+
+        /// <inheritdoc />
+        public override void TryGet()
+        {
+            Application.OpenURL("https://developer.vive.com/resources/vive-wave/tutorials/installing-wave-xr-plugin-unity/");
+        }
+
+
+        /// <inheritdoc />
+        public override void TryUpdate()
+        {
+            TryGet();
         }
 
         #endregion

@@ -3,10 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
-using System.Reflection;
 using UltimateXR.Core;
 using UnityEditor;
+
 
 namespace UltimateXR.Editor
 {
@@ -18,6 +19,27 @@ namespace UltimateXR.Editor
     /// </summary>
     public abstract partial class UxrSdkLocator
     {
+        #region Protected Types & Data
+
+        /// <summary>
+        ///     Gets or sets the incremental version number. It enables backwards compatibility across different SDKs.
+        /// </summary>
+        protected int CurrentVersion { get; set; } = 0;
+
+        #endregion
+
+        #region Unity
+
+        /// <summary>
+        ///     Child SDK locators can implement Unity Editor functionality here. The inspector for <see cref="UxrManager" /> will
+        ///     iterate through all SDKs and for the installed ones, will allow to draw custom inspector UI underneath.
+        /// </summary>
+        public virtual void OnInspectorGUI()
+        {
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -61,12 +83,12 @@ namespace UltimateXR.Editor
             {
                 switch (CurrentState)
                 {
-                    case State.Unknown:                   return StringUnknown;
-                    case State.NeedsHigherUnityVersion:   return StringNeedsHigherUnityVersion;
+                    case State.Unknown: return StringUnknown;
+                    case State.NeedsHigherUnityVersion: return StringNeedsHigherUnityVersion;
                     case State.CurrentTargetNotSupported: return $"{StringCurrentTargetNotSupported} ({EditorUserBuildSettings.activeBuildTarget})";
-                    case State.NotInstalled:              return StringNotInstalled;
-                    case State.SoonSupported:             return StringSoonSupported;
-                    case State.Available:                 return StringAvailable;
+                    case State.NotInstalled: return StringNotInstalled;
+                    case State.SoonSupported: return StringSoonSupported;
+                    case State.Available: return StringAvailable;
                 }
 
                 return string.Empty;
@@ -96,7 +118,7 @@ namespace UltimateXR.Editor
         /// <returns>Boolean telling whether the type was found or not</returns>
         public static bool IsTypeInAssemblies(string typeName)
         {
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (assembly.GetType(typeName) != null)
                 {
@@ -107,11 +129,13 @@ namespace UltimateXR.Editor
             return false;
         }
 
+
         /// <summary>
         ///     Child SDK locators should implement this method. It will try to locate the SDK and update the internal state making
         ///     it available through <see cref="CurrentState" /> or <see cref="CurrentStateString" />.
         /// </summary>
         public abstract void TryLocate();
+
 
         /// <summary>
         ///     Child SDK locators can implement this method. It will try to get the SDK from somewhere (usually opening a specific
@@ -120,6 +144,7 @@ namespace UltimateXR.Editor
         public virtual void TryGet()
         {
         }
+
 
         /// <summary>
         ///     Child SDK locators can implement this method if <see cref="CanBeUpdated" /> returns true. It will try to update the
@@ -131,35 +156,14 @@ namespace UltimateXR.Editor
 
         #endregion
 
-        #region Unity
-
-        /// <summary>
-        ///     Child SDK locators can implement Unity Editor functionality here. The inspector for <see cref="UxrManager" /> will
-        ///     iterate through all SDKs and for the installed ones, will allow to draw custom inspector UI underneath.
-        /// </summary>
-        public virtual void OnInspectorGUI()
-        {
-        }
-
-        #endregion
-
-        #region Protected Types & Data
-
-        /// <summary>
-        ///     Gets or sets the incremental version number. It enables backwards compatibility across different SDKs.
-        /// </summary>
-        protected int CurrentVersion { get; set; } = 0;
-
-        #endregion
-
         #region Private Types & Data
 
-        private const string StringUnknown                   = "Unknown (not processed)";
-        private const string StringNeedsHigherUnityVersion   = "Needs a higher Unity version";
+        private const string StringUnknown = "Unknown (not processed)";
+        private const string StringNeedsHigherUnityVersion = "Needs a higher Unity version";
         private const string StringCurrentTargetNotSupported = "Current build target not supported by SDK";
-        private const string StringNotInstalled              = "Not installed";
-        private const string StringSoonSupported             = "Soon supported";
-        private const string StringAvailable                 = "Available";
+        private const string StringNotInstalled = "Not installed";
+        private const string StringSoonSupported = "Soon supported";
+        private const string StringAvailable = "Available";
 
         #endregion
     }

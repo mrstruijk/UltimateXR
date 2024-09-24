@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Audio;
 using UltimateXR.Core;
@@ -11,6 +12,7 @@ using UltimateXR.Core.Components;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
 
+
 namespace UltimateXR.Mechanics.Weapons
 {
     /// <summary>
@@ -18,17 +20,6 @@ namespace UltimateXR.Mechanics.Weapons
     /// </summary>
     public class UxrImpactDecal : UxrComponent<UxrImpactDecal>, IUxrPrecacheable
     {
-        #region Inspector Properties/Serialized Fields
-
-        [SerializeField] private bool           _ignoreDynamicObjects;
-        [SerializeField] private float          _decalOffset = 0.005f;
-        [SerializeField] private Renderer[]     _decalRenderers;
-        [SerializeField] private UxrAudioSample _audioImpact            = new UxrAudioSample();
-        [SerializeField] private bool           _audioOnDynamicObjects  = true;
-        [SerializeField] private string         _decalRendererColorName = UxrConstants.Shaders.StandardColorVarName;
-
-        #endregion
-
         #region Implicit IUxrPrecacheable
 
         /// <inheritdoc />
@@ -55,13 +46,13 @@ namespace UltimateXR.Mechanics.Weapons
         ///     side
         /// </param>
         /// <returns>New decal or null if no decal was generated</returns>
-        public static UxrImpactDecal CheckCreateDecal(RaycastHit     raycastHit,
-                                                      LayerMask      checkLayerMask,
+        public static UxrImpactDecal CheckCreateDecal(RaycastHit raycastHit,
+                                                      LayerMask checkLayerMask,
                                                       UxrImpactDecal prefabDecal,
-                                                      float          lifeTime,
-                                                      float          fadeOutDurationSeconds,
-                                                      bool           createDoubleSidedDecal    = false,
-                                                      float          doubleSidedDecalThickness = 0.001f)
+                                                      float lifeTime,
+                                                      float fadeOutDurationSeconds,
+                                                      bool createDoubleSidedDecal = false,
+                                                      float doubleSidedDecalThickness = 0.001f)
         {
             if (prefabDecal != null && raycastHit.collider != null && prefabDecal._ignoreDynamicObjects && raycastHit.collider.gameObject.IsDynamic())
             {
@@ -75,9 +66,9 @@ namespace UltimateXR.Mechanics.Weapons
                 return null;
             }
 
-            if (prefabDecal != null && (checkLayerMask & 1 << raycastHit.collider.gameObject.layer) != 0)
+            if (prefabDecal != null && (checkLayerMask & (1 << raycastHit.collider.gameObject.layer)) != 0)
             {
-                UxrImpactDecal decal = Instantiate(prefabDecal, raycastHit.point + raycastHit.normal * prefabDecal._decalOffset, Quaternion.LookRotation(raycastHit.normal));
+                var decal = Instantiate(prefabDecal, raycastHit.point + raycastHit.normal * prefabDecal._decalOffset, Quaternion.LookRotation(raycastHit.normal));
                 decal.transform.parent = raycastHit.collider.transform;
 
                 if (lifeTime > 0.0f)
@@ -86,11 +77,11 @@ namespace UltimateXR.Mechanics.Weapons
                 }
 
                 decal._fadeOutDuration = fadeOutDurationSeconds;
-                decal._fadeOutTimer    = lifeTime;
+                decal._fadeOutTimer = lifeTime;
 
                 if (createDoubleSidedDecal)
                 {
-                    UxrImpactDecal decalDoubleSided = Instantiate(prefabDecal, raycastHit.point - raycastHit.normal * (prefabDecal._decalOffset + doubleSidedDecalThickness), Quaternion.LookRotation(-raycastHit.normal));
+                    var decalDoubleSided = Instantiate(prefabDecal, raycastHit.point - raycastHit.normal * (prefabDecal._decalOffset + doubleSidedDecalThickness), Quaternion.LookRotation(-raycastHit.normal));
                     decalDoubleSided.transform.parent = raycastHit.collider.transform;
 
                     if (lifeTime > 0.0f)
@@ -99,7 +90,7 @@ namespace UltimateXR.Mechanics.Weapons
                     }
 
                     decalDoubleSided._fadeOutDuration = fadeOutDurationSeconds;
-                    decalDoubleSided._fadeOutTimer    = lifeTime;
+                    decalDoubleSided._fadeOutTimer = lifeTime;
                 }
 
                 if (prefabDecal._audioImpact != null)
@@ -115,6 +106,17 @@ namespace UltimateXR.Mechanics.Weapons
 
         #endregion
 
+        #region Inspector Properties/Serialized Fields
+
+        [SerializeField] private bool _ignoreDynamicObjects;
+        [SerializeField] private float _decalOffset = 0.005f;
+        [SerializeField] private Renderer[] _decalRenderers;
+        [SerializeField] private UxrAudioSample _audioImpact = new();
+        [SerializeField] private bool _audioOnDynamicObjects = true;
+        [SerializeField] private string _decalRendererColorName = UxrConstants.Shaders.StandardColorVarName;
+
+        #endregion
+
         #region Unity
 
         /// <summary>
@@ -126,12 +128,13 @@ namespace UltimateXR.Mechanics.Weapons
 
             if (_decalRenderers != null)
             {
-                foreach (Renderer decalRenderer in _decalRenderers)
+                foreach (var decalRenderer in _decalRenderers)
                 {
                     _startColors.Add(decalRenderer, decalRenderer.sharedMaterial.HasProperty(_decalRendererColorName) ? decalRenderer.sharedMaterial.GetColor(_decalRendererColorName) : Color.white);
                 }
             }
         }
+
 
         /// <summary>
         ///     Updates the component.
@@ -142,10 +145,10 @@ namespace UltimateXR.Mechanics.Weapons
 
             if (_fadeOutTimer < _fadeOutDuration)
             {
-                foreach (Renderer decalRenderer in _decalRenderers)
+                foreach (var decalRenderer in _decalRenderers)
                 {
-                    Material material = decalRenderer.material;
-                    Color    color    = _startColors[decalRenderer];
+                    var material = decalRenderer.material;
+                    var color = _startColors[decalRenderer];
                     color.a = _startColors[decalRenderer].a * (_fadeOutTimer / _fadeOutDuration);
                     material.SetColor(_decalRendererColorName, color);
                 }
@@ -156,9 +159,9 @@ namespace UltimateXR.Mechanics.Weapons
 
         #region Private Types & Data
 
-        private readonly Dictionary<Renderer, Color> _startColors = new Dictionary<Renderer, Color>();
-        private          float                       _fadeOutTimer;
-        private          float                       _fadeOutDuration;
+        private readonly Dictionary<Renderer, Color> _startColors = new();
+        private float _fadeOutTimer;
+        private float _fadeOutDuration;
 
         #endregion
     }

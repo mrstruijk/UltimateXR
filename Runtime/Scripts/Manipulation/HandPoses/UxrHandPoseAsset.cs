@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Core;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation.HandPoses
 {
@@ -18,8 +20,8 @@ namespace UltimateXR.Manipulation.HandPoses
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private int               _handPoseAssetVersion;
-        [SerializeField] private UxrHandPoseType   _poseType;
+        [SerializeField] private int _handPoseAssetVersion;
+        [SerializeField] private UxrHandPoseType _poseType;
         [SerializeField] private UxrHandDescriptor _handDescriptorLeft;
         [SerializeField] private UxrHandDescriptor _handDescriptorRight;
         [SerializeField] private UxrHandDescriptor _handDescriptorOpenLeft;
@@ -125,12 +127,13 @@ namespace UltimateXR.Manipulation.HandPoses
         {
             return PoseType switch
                    {
-                               UxrHandPoseType.Fixed                                                   => handSide == UxrHandSide.Left ? _handDescriptorLeft : _handDescriptorRight,
-                               UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.OpenGrip   => handSide == UxrHandSide.Left ? _handDescriptorOpenLeft : _handDescriptorOpenRight,
-                               UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.ClosedGrip => handSide == UxrHandSide.Left ? _handDescriptorClosedLeft : _handDescriptorClosedRight,
-                               _                                                                       => null
+                       UxrHandPoseType.Fixed => handSide == UxrHandSide.Left ? _handDescriptorLeft : _handDescriptorRight,
+                       UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.OpenGrip => handSide == UxrHandSide.Left ? _handDescriptorOpenLeft : _handDescriptorOpenRight,
+                       UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.ClosedGrip => handSide == UxrHandSide.Left ? _handDescriptorClosedLeft : _handDescriptorClosedRight,
+                       _ => null
                    };
         }
+
 
         /// <summary>
         ///     Gets the hand descriptor for the given hand, based on an external <see cref="UxrHandPoseType" /> parameter.
@@ -146,14 +149,16 @@ namespace UltimateXR.Manipulation.HandPoses
         {
             return poseType switch
                    {
-                               UxrHandPoseType.Fixed                                                   => handSide == UxrHandSide.Left ? _handDescriptorLeft : _handDescriptorRight,
-                               UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.OpenGrip   => handSide == UxrHandSide.Left ? _handDescriptorOpenLeft : _handDescriptorOpenRight,
-                               UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.ClosedGrip => handSide == UxrHandSide.Left ? _handDescriptorClosedLeft : _handDescriptorClosedRight,
-                               _                                                                       => null
+                       UxrHandPoseType.Fixed => handSide == UxrHandSide.Left ? _handDescriptorLeft : _handDescriptorRight,
+                       UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.OpenGrip => handSide == UxrHandSide.Left ? _handDescriptorOpenLeft : _handDescriptorOpenRight,
+                       UxrHandPoseType.Blend when blendPoseType == UxrBlendPoseType.ClosedGrip => handSide == UxrHandSide.Left ? _handDescriptorClosedLeft : _handDescriptorClosedRight,
+                       _ => null
                    };
         }
 
-#if UNITY_EDITOR
+
+        #if UNITY_EDITOR
+
 
         /// <summary>
         ///     Outputs transform debug data to the editor window.
@@ -162,7 +167,7 @@ namespace UltimateXR.Manipulation.HandPoses
         /// <param name="blendPoseType">The blend pose type or <see cref="UxrBlendPoseType.None" /> if it is a fixed pose</param>
         public void DrawEditorDebugLabels(UxrHandSide handSide, UxrBlendPoseType blendPoseType = UxrBlendPoseType.None)
         {
-            UxrHandDescriptor handDescriptor = handSide == UxrHandSide.Left ? HandDescriptorLeft : HandDescriptorRight;
+            var handDescriptor = handSide == UxrHandSide.Left ? HandDescriptorLeft : HandDescriptorRight;
 
             if (blendPoseType == UxrBlendPoseType.OpenGrip)
             {
@@ -176,7 +181,8 @@ namespace UltimateXR.Manipulation.HandPoses
             handDescriptor?.DrawEditorDebugLabels();
         }
 
-#endif
+
+        #endif
 
         #endregion
     }

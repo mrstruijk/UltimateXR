@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components.Composite;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation.Helpers
 {
@@ -15,10 +17,31 @@ namespace UltimateXR.Manipulation.Helpers
     /// </summary>
     public class UxrDependentGrabbable : UxrGrabbableObjectComponent<UxrDependentGrabbable>
     {
+        #region Private Types & Data
+
+        private bool _check = true;
+
+        #endregion
+
+        #region Event Trigger Methods
+
+        /// <summary>
+        ///     Called whenever the object was grabbed.
+        /// </summary>
+        /// <param name="e">Event parameters</param>
+        protected override void OnObjectGrabbed(UxrManipulationEventArgs e)
+        {
+            base.OnObjectGrabbed(e);
+
+            _check = false;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private UxrGrabbableObject _dependentOn;
-        [SerializeField] private bool               _onlyOnce;
+        [SerializeField] private bool _onlyOnce;
 
         #endregion
 
@@ -58,6 +81,7 @@ namespace UltimateXR.Manipulation.Helpers
             GrabbableObject.enabled = false;
         }
 
+
         /// <summary>
         ///     Updates the grabbable object state.
         /// </summary>
@@ -73,27 +97,6 @@ namespace UltimateXR.Manipulation.Helpers
                 }
             }
         }
-
-        #endregion
-
-        #region Event Trigger Methods
-
-        /// <summary>
-        ///     Called whenever the object was grabbed.
-        /// </summary>
-        /// <param name="e">Event parameters</param>
-        protected override void OnObjectGrabbed(UxrManipulationEventArgs e)
-        {
-            base.OnObjectGrabbed(e);
-
-            _check = false;
-        }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private bool _check = true;
 
         #endregion
     }

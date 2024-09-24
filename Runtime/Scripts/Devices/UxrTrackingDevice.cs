@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UltimateXR.Avatar;
 using UltimateXR.Core.Components.Composite;
 using UnityEngine;
 using UnityEngine.XR;
+
 
 namespace UltimateXR.Devices
 {
@@ -20,6 +22,53 @@ namespace UltimateXR.Devices
         #region Inspector Properties/Serialized Fields
 
         [Header("Mixed Reality:")] [SerializeField] private bool _hideAvatarInPassthrough = true;
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        ///     Tries to get the connected headset device.
+        /// </summary>
+        /// <param name="inputDevice">Returns the headset device if found</param>
+        /// <returns>Whether the device was found</returns>
+        public static bool GetHeadsetDevice(out InputDevice inputDevice)
+        {
+            var inputDevices = new List<InputDevice>();
+            InputDevices.GetDevices(inputDevices);
+
+            foreach (var device in inputDevices)
+            {
+                if (device.characteristics.HasFlag(InputDeviceCharacteristics.HeadMounted))
+                {
+                    inputDevice = device;
+
+                    return true;
+                }
+            }
+
+            inputDevice = new InputDevice();
+
+            return false;
+        }
+
+        #endregion
+
+        #region Unity
+
+        /// <summary>
+        ///     Sets events to null in order to help remove unused references.
+        /// </summary>
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            DeviceConnected = null;
+            SensorsUpdating = null;
+            SensorsUpdated = null;
+            AvatarUpdating = null;
+            AvatarUpdated = null;
+        }
 
         #endregion
 
@@ -112,57 +161,13 @@ namespace UltimateXR.Devices
             OnAvatarUpdated();
         }
 
+
         /// <inheritdoc />
         void IUxrTrackingUpdater.UpdateSensors()
         {
             OnSensorsUpdating();
             UpdateSensors();
             OnSensorsUpdated();
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        ///     Tries to get the connected headset device.
-        /// </summary>
-        /// <param name="inputDevice">Returns the headset device if found</param>
-        /// <returns>Whether the device was found</returns>
-        public static bool GetHeadsetDevice(out InputDevice inputDevice)
-        {
-            var inputDevices = new List<InputDevice>();
-            InputDevices.GetDevices(inputDevices);
-
-            foreach (var device in inputDevices)
-            {
-                if (device.characteristics.HasFlag(InputDeviceCharacteristics.HeadMounted))
-                {
-                    inputDevice = device;
-                    return true;
-                }
-            }
-
-            inputDevice = new InputDevice();
-            return false;
-        }
-
-        #endregion
-
-        #region Unity
-
-        /// <summary>
-        ///     Sets events to null in order to help remove unused references.
-        /// </summary>
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-
-            DeviceConnected = null;
-            SensorsUpdating = null;
-            SensorsUpdated  = null;
-            AvatarUpdating  = null;
-            AvatarUpdated   = null;
         }
 
         #endregion
@@ -178,14 +183,15 @@ namespace UltimateXR.Devices
         protected virtual void OnDeviceConnected(UxrDeviceConnectEventArgs e)
         {
             // Hide the avatar renderers in passthrough mode for mixed reality devices?
-            
+
             if (e.IsConnected && IsMixedRealityDevice && _hideAvatarInPassthrough)
             {
                 Avatar.RenderMode = UxrAvatarRenderModes.None;
             }
-            
+
             DeviceConnected?.Invoke(this, e);
         }
+
 
         /// <summary>
         ///     Event trigger for the <see cref="AvatarUpdating" /> event. Can be used to override in child classes in order to use
@@ -198,6 +204,7 @@ namespace UltimateXR.Devices
             AvatarUpdating?.Invoke(this, EventArgs.Empty);
         }
 
+
         /// <summary>
         ///     Event trigger for the <see cref="AvatarUpdated" /> event. Can be used to override in child classes in order to use
         ///     the event without subscribing to the parent.
@@ -209,6 +216,7 @@ namespace UltimateXR.Devices
             AvatarUpdated?.Invoke(this, EventArgs.Empty);
         }
 
+
         /// <summary>
         ///     Event trigger for the <see cref="SensorsUpdating" /> event. Can be used to override in child classes in order to
         ///     use the event without subscribing to the parent.
@@ -219,6 +227,7 @@ namespace UltimateXR.Devices
         {
             SensorsUpdating?.Invoke(this, EventArgs.Empty);
         }
+
 
         /// <summary>
         ///     Event trigger for the <see cref="SensorsUpdated" /> event. Can be used to override in child classes in order to use
@@ -241,6 +250,7 @@ namespace UltimateXR.Devices
         protected virtual void UpdateSensors()
         {
         }
+
 
         /// <summary>
         ///     Overriden in child classes to implement the update of the avatar using the current sensor data.

@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
+
 
 namespace UltimateXR.Core.Threading
 {
@@ -17,6 +19,21 @@ namespace UltimateXR.Core.Threading
         /// </summary>
         private sealed class WorkDoubleBuffer
         {
+            #region Private Methods
+
+            /// <summary>
+            ///     Switches the buffers.
+            /// </summary>
+            private void Switch()
+            {
+                lock (_lock)
+                {
+                    (_output, _input) = (_input, _output);
+                }
+            }
+
+            #endregion
+
             #region Constructors & Finalizer
 
             /// <summary>
@@ -24,9 +41,10 @@ namespace UltimateXR.Core.Threading
             /// </summary>
             public WorkDoubleBuffer()
             {
-                _input  = new Queue<Action>();
+                _input = new Queue<Action>();
                 _output = new Queue<Action>();
             }
+
 
             /// <summary>
             ///     Constructor.
@@ -34,7 +52,7 @@ namespace UltimateXR.Core.Threading
             /// <param name="capacity">Initial input and output queue capacity</param>
             public WorkDoubleBuffer(int capacity)
             {
-                _input  = new Queue<Action>(capacity);
+                _input = new Queue<Action>(capacity);
                 _output = new Queue<Action>(capacity);
             }
 
@@ -58,6 +76,7 @@ namespace UltimateXR.Core.Threading
                 }
             }
 
+
             /// <summary>
             ///     Enqueues a new action that should be executed.
             /// </summary>
@@ -72,24 +91,9 @@ namespace UltimateXR.Core.Threading
 
             #endregion
 
-            #region Private Methods
-
-            /// <summary>
-            ///     Switches the buffers.
-            /// </summary>
-            private void Switch()
-            {
-                lock (_lock)
-                {
-                    (_output, _input) = (_input, _output);
-                }
-            }
-
-            #endregion
-
             #region Private Types & Data
 
-            private readonly object _lock = new object();
+            private readonly object _lock = new();
 
             private Queue<Action> _input;
             private Queue<Action> _output;

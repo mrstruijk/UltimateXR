@@ -3,7 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-using System.Collections.Generic;
+
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,20 +12,44 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+
 namespace UltimateXR.UI.UnityInputModule.Controls
 {
-    public delegate void DragStartedEventHandler(UxrControlInput    controlInput, PointerEventData eventData);
-    public delegate void DraggedEventHandler(UxrControlInput        controlInput, PointerEventData eventData);
-    public delegate void DragEndedEventHandler(UxrControlInput      controlInput, PointerEventData eventData);
-    public delegate void DroppedEventHandler(UxrControlInput        controlInput, PointerEventData eventData);
-    public delegate void PressedEventHandler(UxrControlInput        controlInput, PointerEventData eventData);
-    public delegate void ReleasedEventHandler(UxrControlInput       controlInput, PointerEventData eventData);
-    public delegate void ClickedEventHandler(UxrControlInput        controlInput, PointerEventData eventData);
-    public delegate void PressHeldEventHandler(UxrControlInput      controlInput, PointerEventData eventData);
-    public delegate void CursorEnteredEventHandler(UxrControlInput  controlInput, PointerEventData eventData);
-    public delegate void CursorExitedEventHandler(UxrControlInput   controlInput, PointerEventData eventData);
-    public delegate void UpdateSelectedEventHandler(UxrControlInput controlInput, BaseEventData    eventData);
-    public delegate void InputSubmittedEventHandler(UxrControlInput controlInput, BaseEventData    eventData);
+    public delegate void DragStartedEventHandler(UxrControlInput controlInput, PointerEventData eventData);
+
+
+    public delegate void DraggedEventHandler(UxrControlInput controlInput, PointerEventData eventData);
+
+
+    public delegate void DragEndedEventHandler(UxrControlInput controlInput, PointerEventData eventData);
+
+
+    public delegate void DroppedEventHandler(UxrControlInput controlInput, PointerEventData eventData);
+
+
+    public delegate void PressedEventHandler(UxrControlInput controlInput, PointerEventData eventData);
+
+
+    public delegate void ReleasedEventHandler(UxrControlInput controlInput, PointerEventData eventData);
+
+
+    public delegate void ClickedEventHandler(UxrControlInput controlInput, PointerEventData eventData);
+
+
+    public delegate void PressHeldEventHandler(UxrControlInput controlInput, PointerEventData eventData);
+
+
+    public delegate void CursorEnteredEventHandler(UxrControlInput controlInput, PointerEventData eventData);
+
+
+    public delegate void CursorExitedEventHandler(UxrControlInput controlInput, PointerEventData eventData);
+
+
+    public delegate void UpdateSelectedEventHandler(UxrControlInput controlInput, BaseEventData eventData);
+
+
+    public delegate void InputSubmittedEventHandler(UxrControlInput controlInput, BaseEventData eventData);
+
 
     /// <summary>
     ///     A component derived from <see cref="EventTrigger" /> that simplifies the handling of events triggered by UI
@@ -49,7 +73,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private float              _pressAndHoldDuration = 1.0f;
+        [SerializeField] private float _pressAndHoldDuration = 1.0f;
         [SerializeField] private UxrControlFeedback _feedbackOnPress;
         [SerializeField] private UxrControlFeedback _feedbackOnRelease;
         [SerializeField] private UxrControlFeedback _feedbackOnClick;
@@ -270,8 +294,10 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         public static async Task<UxrControlInput> ReadControl(UxrControlInput control, CancellationToken ct = default)
         {
             await WaitForClick(control, ct);
+
             return ct.IsCancellationRequested ? null : control;
         }
+
 
         /// <summary>
         ///     Creates an awaitable task that blocks until a control from a given set is clicked, and returns the control that was
@@ -282,9 +308,9 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         /// <returns>Awaitable <see cref="Task" /> returning the control that was clicked</returns>
         public static async Task<UxrControlInput> ReadControls(CancellationToken ct, params UxrControlInput[] controls)
         {
-            using CancellationTokenSource      cts          = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            IEnumerable<Task<UxrControlInput>> tasks        = controls.Select(b => ReadControl(b, ct));
-            Task<UxrControlInput>              finishedTask = await Task.WhenAny(tasks);
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            var tasks = controls.Select(b => ReadControl(b, ct));
+            var finishedTask = await Task.WhenAny(tasks);
 
             if (!finishedTask.IsCanceled)
             {
@@ -294,6 +320,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             return await finishedTask;
         }
 
+
         /// <summary>
         ///     Creates an awaitable task that blocks until a control is clicked.
         /// </summary>
@@ -302,12 +329,14 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         /// <returns>Awaitable <see cref="Task" /> returning the control that was clicked or null if the task was cancelled</returns>
         public static async Task WaitForClick(UxrControlInput control, CancellationToken ct = default)
         {
-            bool isClicked = false;
+            var isClicked = false;
+
 
             void ControlClicked(UxrControlInput localControl, PointerEventData eventData)
             {
                 isClicked = localControl.Interactable;
             }
+
 
             control.Clicked += ControlClicked;
             await TaskExt.WaitUntil(() => isClicked, ct);
@@ -324,10 +353,10 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         protected virtual void Awake()
         {
             RectTransform = GetComponent<RectTransform>();
-            Image         = GetComponent<Image>();
-            ScrollRect    = GetComponentInParent<ScrollRect>();
-            _selectable   = GetComponent<Selectable>();
-            _graphic      = GetComponent<Graphic>();
+            Image = GetComponent<Image>();
+            ScrollRect = GetComponentInParent<ScrollRect>();
+            _selectable = GetComponent<Selectable>();
+            _graphic = GetComponent<Graphic>();
 
             if (_graphic)
             {
@@ -340,12 +369,14 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             }
         }
 
+
         /// <summary>
         ///     Unity OnDestroy() method.
         /// </summary>
         protected virtual void OnDestroy()
         {
         }
+
 
         /// <summary>
         ///     Unity OnEnable() method.
@@ -354,6 +385,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         {
         }
 
+
         /// <summary>
         ///     Unity OnDisable() method.
         /// </summary>
@@ -361,15 +393,17 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         {
         }
 
+
         /// <summary>
         ///     Resets the component.
         /// </summary>
         protected virtual void Reset()
         {
-            _feedbackOnPress   = UxrControlFeedback.FeedbackDown;
+            _feedbackOnPress = UxrControlFeedback.FeedbackDown;
             _feedbackOnRelease = UxrControlFeedback.FeedbackUp;
-            _feedbackOnClick   = UxrControlFeedback.FeedbackClick;
+            _feedbackOnClick = UxrControlFeedback.FeedbackClick;
         }
+
 
         /// <summary>
         ///     Unity Start() method.
@@ -377,6 +411,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         protected virtual void Start()
         {
         }
+
 
         /// <summary>
         ///     Checks for the press held event.
@@ -401,6 +436,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             OnDragStarted(eventData);
         }
 
+
         /// <summary>
         ///     Method called by Unity each frame the control is being dragged.
         /// </summary>
@@ -411,6 +447,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
 
             OnDragged(eventData);
         }
+
 
         /// <summary>
         ///     Method called by Unity when a drag event ended on the control.
@@ -423,6 +460,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             OnDragEnded(eventData);
         }
 
+
         /// <summary>
         ///     Method called by Unity when the control was dropped.
         /// </summary>
@@ -433,6 +471,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
 
             OnDropped(eventData);
         }
+
 
         /// <summary>
         ///     Method called by Unity when the control was pressed.
@@ -445,6 +484,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             OnPressed(eventData);
         }
 
+
         /// <summary>
         ///     Method called by Unity when the control was released after being pressed.
         /// </summary>
@@ -455,6 +495,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
 
             OnReleased(eventData);
         }
+
 
         /// <summary>
         ///     Method called by Unity when the control was clicked. A click depending on the operating mode can be a press or a
@@ -468,6 +509,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             OnClicked(eventData);
         }
 
+
         /// <summary>
         ///     Method called by Unity when the cursor entered the control rect.
         /// </summary>
@@ -479,6 +521,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             OnCursorEntered(eventData);
         }
 
+
         /// <summary>
         ///     Method called by Unity when the cursor exited the control rect.
         /// </summary>
@@ -489,6 +532,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
 
             OnCursorExited(eventData);
         }
+
 
         /// <summary>
         ///     Method called by Unity when the content of an InputField was updated on the control.
@@ -504,6 +548,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             }
         }
 
+
         /// <summary>
         ///     Method called by Unity when the content of an InputField was validated (OK was pressed) on the control.
         /// </summary>
@@ -514,6 +559,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
 
             OnInputSubmitted(eventData);
         }
+
 
         /// <summary>
         ///     Method called by Unity when the content was scrolled on the control.
@@ -529,6 +575,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             }
         }
 
+
         /// <summary>
         ///     Method called by Unity when the control was selected.
         /// </summary>
@@ -537,6 +584,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         {
             base.OnSelect(eventData);
         }
+
 
         /// <summary>
         ///     Method called by Unity when a Cancel event was sent to control.
@@ -547,6 +595,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             base.OnCancel(eventData);
         }
 
+
         /// <summary>
         ///     Method called by Unity when the control was deselected.
         /// </summary>
@@ -555,6 +604,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         {
             base.OnDeselect(eventData);
         }
+
 
         /// <summary>
         ///     Method called by Unity when a potential drag could be started on the the control but the drag did not start yet.
@@ -565,6 +615,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             base.OnInitializePotentialDrag(eventData);
         }
 
+
         /// <summary>
         ///     Method called when navigating through the control.
         /// </summary>
@@ -573,6 +624,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         {
             base.OnMove(eventData);
         }
+
 
         /// <summary>
         ///     Overridable event trigger for <see cref="DragStarted" /> and <see cref="GlobalDragStarted" />.
@@ -596,6 +648,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             ResetTapAndHoldEventInfo();
         }
 
+
         /// <summary>
         ///     Overridable event trigger for <see cref="Dragged" /> and <see cref="GlobalDragged" />.
         /// </summary>
@@ -613,6 +666,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
                 GlobalDragged?.Invoke(this, eventData);
             }
         }
+
 
         /// <summary>
         ///     Overridable event trigger for <see cref="DragEnded" /> and <see cref="GlobalDragEnded" />.
@@ -634,6 +688,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             }
         }
 
+
         /// <summary>
         ///     Overridable event trigger for <see cref="Dropped" />.
         /// </summary>
@@ -646,6 +701,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             }
         }
 
+
         /// <summary>
         ///     Overridable event trigger for <see cref="Pressed" /> and <see cref="GlobalPressed" />.
         /// </summary>
@@ -654,14 +710,15 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         {
             if (enabled)
             {
-                _isPressAndHold        = true;
+                _isPressAndHold = true;
                 _pressAndHoldEventData = eventData;
-                _pressAndHoldTimer     = 0.0f;
+                _pressAndHoldTimer = 0.0f;
 
                 GlobalPressed?.Invoke(this, eventData);
                 Pressed?.Invoke(this, eventData);
             }
         }
+
 
         /// <summary>
         ///     Overridable event trigger for <see cref="Released" /> and <see cref="GlobalReleased" />.
@@ -678,6 +735,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             ResetTapAndHoldEventInfo();
         }
 
+
         /// <summary>
         ///     Overridable event trigger for <see cref="Clicked" /> and <see cref="GlobalClicked" />.
         /// </summary>
@@ -691,6 +749,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             }
         }
 
+
         /// <summary>
         ///     Overridable event trigger for <see cref="CursorEntered" />.
         /// </summary>
@@ -703,6 +762,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             }
         }
 
+
         /// <summary>
         ///     Overridable event trigger for <see cref="CursorExited" />.
         /// </summary>
@@ -714,6 +774,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
                 CursorExited?.Invoke(this, eventData);
             }
         }
+
 
         /// <summary>
         ///     Overridable event trigger for <see cref="InputSubmitted" />.
@@ -739,6 +800,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             if (PressHeld != null && _isPressAndHold)
             {
                 _pressAndHoldTimer += Time.deltaTime;
+
                 if (_pressAndHoldTimer > _pressAndHoldDuration)
                 {
                     PressHeld(this, _pressAndHoldEventData);
@@ -747,27 +809,28 @@ namespace UltimateXR.UI.UnityInputModule.Controls
             }
         }
 
+
         /// <summary>
         ///     Resets the TapAndHold timers and state
         /// </summary>
         private void ResetTapAndHoldEventInfo()
         {
-            _isPressAndHold        = false;
+            _isPressAndHold = false;
             _pressAndHoldEventData = null;
-            _pressAndHoldTimer     = 0.0f;
+            _pressAndHoldTimer = 0.0f;
         }
 
         #endregion
 
         #region Private Types & Data
 
-        private Selectable       _selectable;
-        private Graphic          _graphic;
-        private bool             _raycastTarget;
-        private float            _pressAndHoldTimer;
-        private bool             _isPressAndHold;
+        private Selectable _selectable;
+        private Graphic _graphic;
+        private bool _raycastTarget;
+        private float _pressAndHoldTimer;
+        private bool _isPressAndHold;
         private PointerEventData _pressAndHoldEventData;
-        private bool             _interactable = true;
+        private bool _interactable = true;
 
         #endregion
     }

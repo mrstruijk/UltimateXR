@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Avatar;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Avatar
 {
@@ -27,6 +29,7 @@ namespace UltimateXR.Editor.Avatar
             return AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(self.PrefabGuid));
         }
 
+
         /// <summary>
         ///     Gets an <see cref="UxrAvatar" /> prefab's <see cref="UxrAvatar" /> component, based on the Guid stored.
         /// </summary>
@@ -36,6 +39,7 @@ namespace UltimateXR.Editor.Avatar
         {
             return GetFromGuid(self.PrefabGuid);
         }
+
 
         /// <summary>
         ///     Gets a prefab's GUID.
@@ -47,6 +51,7 @@ namespace UltimateXR.Editor.Avatar
             return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(gameObject));
         }
 
+
         /// <summary>
         ///     Gets an <see cref="UxrAvatar" /> prefab, based on an asset GUID.
         /// </summary>
@@ -54,9 +59,11 @@ namespace UltimateXR.Editor.Avatar
         /// <returns>Prefab or null if it could not be found</returns>
         public static UxrAvatar GetFromGuid(string avatarPrefabGuid)
         {
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(avatarPrefabGuid));
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(avatarPrefabGuid));
+
             return prefab != null ? prefab.GetComponent<UxrAvatar>() : null;
         }
+
 
         /// <summary>
         ///     Gets the avatar prefab chain. This is the source prefab followed by all parent prefabs up to the root parent
@@ -67,14 +74,14 @@ namespace UltimateXR.Editor.Avatar
         /// </returns>
         public static IEnumerable<UxrAvatar> GetPrefabChain(this UxrAvatar self)
         {
-            UxrAvatar avatarPrefab = self.GetAvatarPrefab();
+            var avatarPrefab = self.GetAvatarPrefab();
 
             if (avatarPrefab != null)
             {
                 yield return avatarPrefab;
             }
 
-            UxrAvatar current = self.ParentAvatarPrefab;
+            var current = self.ParentAvatarPrefab;
 
             while (current != null)
             {
@@ -84,6 +91,7 @@ namespace UltimateXR.Editor.Avatar
             }
         }
 
+
         /// <summary>
         ///     Checks whether the avatar is or comes from the given prefab.
         /// </summary>
@@ -92,7 +100,7 @@ namespace UltimateXR.Editor.Avatar
         /// <returns>Whether the avatar is or comes from the given prefab</returns>
         public static bool IsInPrefabChain(this UxrAvatar self, GameObject prefab)
         {
-            foreach (UxrAvatar avatarPrefab in self.GetPrefabChain())
+            foreach (var avatarPrefab in self.GetPrefabChain())
             {
                 if (avatarPrefab != null && avatarPrefab.gameObject == prefab)
                 {

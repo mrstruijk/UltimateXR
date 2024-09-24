@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.IK
 {
@@ -19,20 +21,20 @@ namespace UltimateXR.Animation.IK
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private bool  _lockBodyPivot;
+        [SerializeField] private bool _lockBodyPivot;
         [SerializeField] private float _bodyPivotRotationSpeed = 0.2f;
-        [SerializeField] private float _headFreeRangeBend      = 20.0f;
-        [SerializeField] private float _headFreeRangeTorsion   = 30.0f;
-        [SerializeField] private float _neckHeadBalance        = 0.5f;
-        [SerializeField] private float _spineBend              = 0.05f;
-        [SerializeField] private float _spineTorsion           = 0.4f;
-        [SerializeField] private float _chestBend              = 0.3f;
-        [SerializeField] private float _chestTorsion           = 0.8f;
-        [SerializeField] private float _upperChestBend         = 0.4f;
-        [SerializeField] private float _upperChestTorsion      = 0.2f;
-        [SerializeField] private float _neckBaseHeight         = 1.6f;
+        [SerializeField] private float _headFreeRangeBend = 20.0f;
+        [SerializeField] private float _headFreeRangeTorsion = 30.0f;
+        [SerializeField] private float _neckHeadBalance = 0.5f;
+        [SerializeField] private float _spineBend = 0.05f;
+        [SerializeField] private float _spineTorsion = 0.4f;
+        [SerializeField] private float _chestBend = 0.3f;
+        [SerializeField] private float _chestTorsion = 0.8f;
+        [SerializeField] private float _upperChestBend = 0.4f;
+        [SerializeField] private float _upperChestTorsion = 0.2f;
+        [SerializeField] private float _neckBaseHeight = 1.6f;
         [SerializeField] private float _neckForwardOffset;
-        [SerializeField] private float _eyesBaseHeight    = 1.75f;
+        [SerializeField] private float _eyesBaseHeight = 1.75f;
         [SerializeField] private float _eyesForwardOffset = 0.1f;
 
         #endregion

@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.System.Collections
 {
@@ -26,7 +28,7 @@ namespace UltimateXR.Extensions.System.Collections
         /// <remarks>Equals() is used for comparison</remarks>
         public static int IndexOf<T>(this IReadOnlyList<T> self, T item)
         {
-            for (int i = 0; i < self.Count; ++i)
+            for (var i = 0; i < self.Count; ++i)
             {
                 if (Equals(self[i], item))
                 {
@@ -36,6 +38,7 @@ namespace UltimateXR.Extensions.System.Collections
 
             return -1;
         }
+
 
         /// <summary>
         ///     Returns a random element from the list.
@@ -50,6 +53,7 @@ namespace UltimateXR.Extensions.System.Collections
         {
             return self.Count > 0 ? self[Random.Range(0, self.Count)] : default;
         }
+
 
         /// <summary>
         ///     Returns a list with n random elements from a list without repetition.
@@ -66,18 +70,19 @@ namespace UltimateXR.Extensions.System.Collections
         /// </remarks>
         public static List<T> RandomElementsWithoutRepetition<T>(this IReadOnlyList<T> self, int count)
         {
-            List<T> candidates     = new List<T>(self);
-            List<T> randomElements = new List<T>();
+            var candidates = new List<T>(self);
+            var randomElements = new List<T>();
 
-            for (int i = 0; i < count && candidates.Count > 0; ++i)
+            for (var i = 0; i < count && candidates.Count > 0; ++i)
             {
-                int randomIndex = Random.Range(0, candidates.Count);
+                var randomIndex = Random.Range(0, candidates.Count);
                 randomElements.Add(candidates[randomIndex]);
                 candidates.RemoveAt(randomIndex);
             }
 
             return randomElements;
         }
+
 
         /// <summary>
         ///     Returns a list with n random elements from a list without repetition. An additional list can be provided to exclude
@@ -96,18 +101,19 @@ namespace UltimateXR.Extensions.System.Collections
         /// </remarks>
         public static List<T> RandomElementsWithoutRepetitionExcept<T>(this IReadOnlyList<T> self, IReadOnlyList<T> listToExclude, int count)
         {
-            List<T> candidates     = new List<T>(self.Where(p => !listToExclude.Any(p2 => Equals(p2, p))));
-            List<T> randomElements = new List<T>();
+            var candidates = new List<T>(self.Where(p => !listToExclude.Any(p2 => Equals(p2, p))));
+            var randomElements = new List<T>();
 
-            for (int i = 0; i < count && candidates.Count > 0; ++i)
+            for (var i = 0; i < count && candidates.Count > 0; ++i)
             {
-                int randomIndex = Random.Range(0, candidates.Count);
+                var randomIndex = Random.Range(0, candidates.Count);
                 randomElements.Add(candidates[randomIndex]);
                 candidates.RemoveAt(randomIndex);
             }
 
             return randomElements;
         }
+
 
         /// <summary>
         ///     Returns a list with the input list elements shuffled.

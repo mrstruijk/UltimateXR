@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Haptics;
 using UltimateXR.UI.UnityInputModule.Controls;
 using UnityEngine;
+
 
 namespace UltimateXR.UI
 {
@@ -19,10 +21,10 @@ namespace UltimateXR.UI
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField]               private UxrHapticClip _hapticClip = new UxrHapticClip();
-        [SerializeField]               private AudioClip     _audioClip;
-        [SerializeField] [Range(0, 1)] private float         _audioVolume = 1.0f;
-        [SerializeField]               private bool          _useAudio3D  = true;
+        [SerializeField] private UxrHapticClip _hapticClip = new();
+        [SerializeField] private AudioClip _audioClip;
+        [SerializeField] [Range(0, 1)] private float _audioVolume = 1.0f;
+        [SerializeField] private bool _useAudio3D = true;
 
         #endregion
 
@@ -75,6 +77,7 @@ namespace UltimateXR.UI
         {
         }
 
+
         /// <summary>
         ///     Constructor allowing to define the haptic clip.
         /// </summary>
@@ -91,17 +94,17 @@ namespace UltimateXR.UI
         /// <summary>
         ///     Subtle click
         /// </summary>
-        public static UxrControlFeedback FeedbackDown = new UxrControlFeedback(new UxrHapticClip(null, UxrHapticClipType.Click, UxrHapticMode.Mix, 1.0f, 0.2f));
+        public static UxrControlFeedback FeedbackDown = new(new UxrHapticClip(null, UxrHapticClipType.Click, UxrHapticMode.Mix, 1.0f, 0.2f));
 
         /// <summary>
         ///     No feedback
         /// </summary>
-        public static UxrControlFeedback FeedbackUp = new UxrControlFeedback(new UxrHapticClip());
+        public static UxrControlFeedback FeedbackUp = new(new UxrHapticClip());
 
         /// <summary>
         ///     Regular click
         /// </summary>
-        public static UxrControlFeedback FeedbackClick = new UxrControlFeedback(new UxrHapticClip(null, UxrHapticClipType.Click, UxrHapticMode.Mix, 1.0f, 0.6f));
+        public static UxrControlFeedback FeedbackClick = new(new UxrHapticClip(null, UxrHapticClipType.Click, UxrHapticMode.Mix, 1.0f, 0.6f));
 
         #endregion
     }

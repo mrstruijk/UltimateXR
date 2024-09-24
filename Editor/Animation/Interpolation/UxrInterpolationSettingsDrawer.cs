@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Animation.Interpolation;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Animation.Interpolation
 {
@@ -25,9 +27,9 @@ namespace UltimateXR.Editor.Animation.Interpolation
         /// <returns></returns>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            int lineCount = 5;
+            var lineCount = 5;
 
-            if (property.FindPropertyRelative(PropertyLoopMode).enumValueIndex != (int)UxrLoopMode.None)
+            if (property.FindPropertyRelative(PropertyLoopMode).enumValueIndex != (int) UxrLoopMode.None)
             {
                 lineCount++;
             }
@@ -52,14 +54,14 @@ namespace UltimateXR.Editor.Animation.Interpolation
         /// <param name="label">UI label</param>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            int line = 0;
+            var line = 0;
 
             EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyDurationSeconds), ContentDurationSeconds);
-            EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyDelay),           ContentDelay);
-            EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyEasing),          ContentEasing);
-            EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyLoopMode),        ContentLoopMode);
+            EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyDelay), ContentDelay);
+            EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyEasing), ContentEasing);
+            EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyLoopMode), ContentLoopMode);
 
-            if (property.FindPropertyRelative(PropertyLoopMode).enumValueIndex != (int)UxrLoopMode.None)
+            if (property.FindPropertyRelative(PropertyLoopMode).enumValueIndex != (int) UxrLoopMode.None)
             {
                 EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyLoopedDurationSeconds), ContentLoopedDurationSeconds);
             }
@@ -76,21 +78,21 @@ namespace UltimateXR.Editor.Animation.Interpolation
 
         #region Private Types & Data
 
-        private GUIContent ContentDurationSeconds       { get; } = new GUIContent("Duration (Seconds)",          "");
-        private GUIContent ContentDelay                 { get; } = new GUIContent("Delay (Seconds)",             "");
-        private GUIContent ContentEasing                { get; } = new GUIContent("Easing",                      "");
-        private GUIContent ContentLoopMode              { get; } = new GUIContent("Loop Mode",                   "");
-        private GUIContent ContentLoopedDurationSeconds { get; } = new GUIContent("Looped Duration (Seconds)",   "");
-        private GUIContent ContentUnscaledTime          { get; } = new GUIContent("Use Unscaled Time",           "");
-        private GUIContent ContentDelayUsingEndValue    { get; } = new GUIContent("Use End Value During Delay?", "");
+        private GUIContent ContentDurationSeconds { get; } = new("Duration (Seconds)", "");
+        private GUIContent ContentDelay { get; } = new("Delay (Seconds)", "");
+        private GUIContent ContentEasing { get; } = new("Easing", "");
+        private GUIContent ContentLoopMode { get; } = new("Loop Mode", "");
+        private GUIContent ContentLoopedDurationSeconds { get; } = new("Looped Duration (Seconds)", "");
+        private GUIContent ContentUnscaledTime { get; } = new("Use Unscaled Time", "");
+        private GUIContent ContentDelayUsingEndValue { get; } = new("Use End Value During Delay?", "");
 
-        private const string PropertyDurationSeconds       = "_durationSeconds";
-        private const string PropertyDelay                 = "_delaySeconds";
-        private const string PropertyEasing                = "_easing";
-        private const string PropertyLoopMode              = "_loopMode";
+        private const string PropertyDurationSeconds = "_durationSeconds";
+        private const string PropertyDelay = "_delaySeconds";
+        private const string PropertyEasing = "_easing";
+        private const string PropertyLoopMode = "_loopMode";
         private const string PropertyLoopedDurationSeconds = "_loopedDurationSeconds";
-        private const string PropertyUnscaledTime          = "_useUnscaledTime";
-        private const string PropertyDelayUsingEndValue    = "_delayUsingEndValue";
+        private const string PropertyUnscaledTime = "_useUnscaledTime";
+        private const string PropertyDelayUsingEndValue = "_delayUsingEndValue";
 
         #endregion
     }

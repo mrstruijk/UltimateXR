@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Animation.Interpolation;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.Animation.UI
 {
@@ -16,6 +18,36 @@ namespace UltimateXR.Animation.UI
     /// </summary>
     public class UxrRotationTween : UxrGraphicTween
     {
+        #region Public Methods
+
+        /// <summary>
+        ///     Creates and starts a rotation tweening animation for the <see cref="RectTransform.localEulerAngles" /> of a Unity
+        ///     UI <see cref="Graphic" /> component.
+        /// </summary>
+        /// <param name="graphic">Target graphic</param>
+        /// <param name="startAngles">Start local angles</param>
+        /// <param name="endAngles">End local angles</param>
+        /// <param name="settings">Interpolation settings that control the animation</param>
+        /// <param name="finishedCallback">Optional callback when the animation finished</param>
+        /// <returns>
+        ///     Tweening component that will update itself automatically. Can be used to stop the animation prematurely or
+        ///     change parameters on the fly.
+        /// </returns>
+        public static UxrRotationTween Animate(Graphic graphic, Vector3 startAngles, Vector3 endAngles, UxrInterpolationSettings settings, Action<UxrTween> finishedCallback = null)
+        {
+            var rotationTween = graphic.GetOrAddComponent<UxrRotationTween>();
+
+            rotationTween.StartAngles = startAngles;
+            rotationTween.EndAngles = endAngles;
+            rotationTween.InterpolationSettings = settings;
+            rotationTween.FinishedCallback = finishedCallback;
+            rotationTween.Restart();
+
+            return rotationTween;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private Vector3 _startAngles;
@@ -45,36 +77,6 @@ namespace UltimateXR.Animation.UI
 
         #endregion
 
-        #region Public Methods
-
-        /// <summary>
-        ///     Creates and starts a rotation tweening animation for the <see cref="RectTransform.localEulerAngles" /> of a Unity
-        ///     UI <see cref="Graphic" /> component.
-        /// </summary>
-        /// <param name="graphic">Target graphic</param>
-        /// <param name="startAngles">Start local angles</param>
-        /// <param name="endAngles">End local angles</param>
-        /// <param name="settings">Interpolation settings that control the animation</param>
-        /// <param name="finishedCallback">Optional callback when the animation finished</param>
-        /// <returns>
-        ///     Tweening component that will update itself automatically. Can be used to stop the animation prematurely or
-        ///     change parameters on the fly.
-        /// </returns>
-        public static UxrRotationTween Animate(Graphic graphic, Vector3 startAngles, Vector3 endAngles, UxrInterpolationSettings settings, Action<UxrTween> finishedCallback = null)
-        {
-            UxrRotationTween rotationTween = graphic.GetOrAddComponent<UxrRotationTween>();
-
-            rotationTween.StartAngles           = startAngles;
-            rotationTween.EndAngles             = endAngles;
-            rotationTween.InterpolationSettings = settings;
-            rotationTween.FinishedCallback      = finishedCallback;
-            rotationTween.Restart();
-
-            return rotationTween;
-        }
-
-        #endregion
-
         #region Protected Overrides UxrTween
 
         /// <inheritdoc />
@@ -82,6 +84,7 @@ namespace UltimateXR.Animation.UI
         {
             RestoreLocalRotation();
         }
+
 
         /// <inheritdoc />
         protected override void Interpolate(float t)

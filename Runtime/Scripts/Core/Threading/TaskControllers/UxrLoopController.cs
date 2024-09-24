@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Threading;
+
 
 namespace UltimateXR.Core.Threading.TaskControllers
 {
@@ -14,6 +16,12 @@ namespace UltimateXR.Core.Threading.TaskControllers
     /// </summary>
     public sealed class UxrLoopController : UxrCancellableController
     {
+        #region Private Types & Data
+
+        private readonly Action<CancellationToken> _loopAction;
+
+        #endregion
+
         #region Constructors & Finalizer
 
         /// <summary>
@@ -74,12 +82,6 @@ namespace UltimateXR.Core.Threading.TaskControllers
         {
             _loopAction(ct); // Executes _loopAction until cancellation 
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private readonly Action<CancellationToken> _loopAction;
 
         #endregion
     }

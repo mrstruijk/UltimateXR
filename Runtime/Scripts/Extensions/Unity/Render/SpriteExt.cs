@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.IO;
 using System.Threading;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using UltimateXR.Extensions.System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.Extensions.Unity.Render
 {
@@ -36,14 +38,15 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <exception cref="InvalidOperationException">The stream is currently in use by a previous read operation.</exception>
         public static async Task<Sprite> ReadSpriteFileAsync(Image targetImage, string uri, CancellationToken ct = default)
         {
-            Texture2D texture2D = await Texture2DExt.FromFile(uri, ct);
+            var texture2D = await Texture2DExt.FromFile(uri, ct);
 
-            RectTransform t    = targetImage.rectTransform;
-            Vector2       size = t.sizeDelta;
-            Rect          rect = new Rect(0.0f, 0.0f, size.x, size.y);
+            var t = targetImage.rectTransform;
+            var size = t.sizeDelta;
+            var rect = new Rect(0.0f, 0.0f, size.x, size.y);
 
             return Sprite.Create(texture2D, rect, t.pivot);
         }
+
 
         /// <summary>
         ///     Loads asynchronously a sprite encoded in a base64 <see cref="string" />.
@@ -60,11 +63,11 @@ namespace UltimateXR.Extensions.Unity.Render
         /// </exception>
         public static async Task<Sprite> ReadSpriteBase64Async(Image targetImage, string base64, CancellationToken ct = default)
         {
-            Texture2D texture2D = await Texture2DExt.FromBase64(base64, ct);
+            var texture2D = await Texture2DExt.FromBase64(base64, ct);
 
-            RectTransform t    = targetImage.rectTransform;
-            Vector2       size = t.sizeDelta;
-            Rect          rect = new Rect(0.0f, 0.0f, size.x, size.y);
+            var t = targetImage.rectTransform;
+            var size = t.sizeDelta;
+            var rect = new Rect(0.0f, 0.0f, size.x, size.y);
 
             return Sprite.Create(texture2D, rect, t.pivot);
         }

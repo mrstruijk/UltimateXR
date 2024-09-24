@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
+
 
 namespace UltimateXR.Editor.Sdks
 {
@@ -17,10 +19,10 @@ namespace UltimateXR.Editor.Sdks
         [Flags]
         private enum ButtonUsageFlags
         {
-            None  = 0,
+            None = 0,
             Click = 1,
             Touch = 1 << 1,
-            All   = 0x7FFFFFFF
+            All = 0x7FFFFFFF
         }
 
         #endregion

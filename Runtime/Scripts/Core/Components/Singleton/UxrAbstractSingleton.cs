@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Threading;
 using UltimateXR.Core.Threading;
 using UnityEngine;
 using UnityEngine.Assertions;
+
 
 namespace UltimateXR.Core.Components.Singleton
 {
@@ -38,6 +40,22 @@ namespace UltimateXR.Core.Components.Singleton
     /// </remarks>
     public abstract class UxrAbstractSingleton<T> : UxrComponent where T : UxrAbstractSingleton<T>
     {
+        #region Private Types & Data
+
+        private static T s_instance;
+
+        #endregion
+
+        #region Protected Types & Data
+
+        /// <summary>
+        ///     Whether the singleton requires <see cref="UnityEngine.Object.DontDestroyOnLoad" /> applied to the GameObject so
+        ///     that it doesn't get destroyed when a new scene is loaded.
+        /// </summary>
+        protected virtual bool NeedsDontDestroyOnLoad => true;
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -50,6 +68,7 @@ namespace UltimateXR.Core.Components.Singleton
                 if (s_instance is null)
                 {
                     UxrMonoDispatcher.RunOnMainThread(FindInstance);
+
                     while (s_instance is null && !UxrMonoDispatcher.IsCurrentThreadMain)
                     {
                         Thread.Sleep(25);
@@ -84,6 +103,7 @@ namespace UltimateXR.Core.Components.Singleton
             TrySetInstance(this);
         }
 
+
         /// <summary>
         ///     Destroys the singleton instance.
         /// </summary>
@@ -110,6 +130,7 @@ namespace UltimateXR.Core.Components.Singleton
             return s_instance;
         }
 
+
         /// <summary>
         ///     Tries to set the singleton instance.
         /// </summary>
@@ -131,6 +152,7 @@ namespace UltimateXR.Core.Components.Singleton
             {
                 Debug.LogWarning($"[{typeof(T).Name}] singleton already added. Destroying second instance @ {value.gameObject}", value);
                 Destroy(value);
+
                 return false;
             }
 
@@ -141,12 +163,14 @@ namespace UltimateXR.Core.Components.Singleton
                 DontDestroyOnLoad(value.gameObject);
             }
 
-            s_instance = (T)value;
+            s_instance = (T) value;
             s_instance.Init();
 
             Debug.Log($"[{typeof(T).Name}] singleton successfully initialized", s_instance);
+
             return true;
         }
+
 
         /// <summary>
         ///     The default internal initialization. Child classes can override this method if they require initialization code.
@@ -156,6 +180,7 @@ namespace UltimateXR.Core.Components.Singleton
         {
             initializedCallback?.Invoke();
         }
+
 
         /// <summary>
         ///     The default internal release. Child classes can override this method if they required deallocation code.
@@ -189,6 +214,7 @@ namespace UltimateXR.Core.Components.Singleton
             return TrySetInstance(FindObjectOfType<T>());
         }
 
+
         /// <summary>
         ///     Tries to find a pre-existing instance in the scene.
         /// </summary>
@@ -196,6 +222,7 @@ namespace UltimateXR.Core.Components.Singleton
         {
             TryFindInstance();
         }
+
 
         /// <summary>
         ///     Initializes the singleton.
@@ -205,35 +232,20 @@ namespace UltimateXR.Core.Components.Singleton
             InitInternal(() => IsInitialized = true);
         }
 
+
         /// <summary>
         ///     Releases any resources allocated by the singleton.
         /// </summary>
         private void Release()
         {
             ReleaseInternal(() =>
-                            {
-                                if (!IsApplicationQuitting)
-                                {
-                                    s_instance = null;
-                                }
-                            });
+            {
+                if (!IsApplicationQuitting)
+                {
+                    s_instance = null;
+                }
+            });
         }
-
-        #endregion
-
-        #region Protected Types & Data
-
-        /// <summary>
-        ///     Whether the singleton requires <see cref="UnityEngine.Object.DontDestroyOnLoad" /> applied to the GameObject so
-        ///     that it doesn't get destroyed when a new scene is loaded.
-        /// </summary>
-        protected virtual bool NeedsDontDestroyOnLoad => true;
-
-        #endregion
-
-        #region Private Types & Data
-
-        private static T s_instance;
 
         #endregion
     }

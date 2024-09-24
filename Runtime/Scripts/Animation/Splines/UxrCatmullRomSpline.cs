@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Splines
 {
@@ -13,12 +15,54 @@ namespace UltimateXR.Animation.Splines
     /// </summary>
     public class UxrCatmullRomSpline : UxrSpline
     {
+        #region Private Methods
+
+        /// <summary>
+        ///     Interpolates the curve using Catmull-Rom equations.
+        /// </summary>
+        /// <param name="t">Interpolation parameter [0.0f, 1.0f]</param>
+        /// <param name="position">Interpolated position</param>
+        /// <param name="segmentLength">Length of the segment that this point belongs to</param>
+        /// <returns>Success or failure</returns>
+        private bool Evaluate(float t, out Vector3 position, out float segmentLength)
+        {
+            position = Vector3.zero;
+            segmentLength = 0.0f;
+
+            t = Mathf.Clamp01(t);
+
+            // Compute the index of p1 and build a Catmull segment with 4 points from there
+            var indexA = Mathf.FloorToInt(t * (_points.Count - 1));
+            var segmentT = t * (_points.Count - 1) - indexA;
+
+            if (indexA >= _points.Count - 1)
+            {
+                indexA = _points.Count - 2;
+                segmentT = 1.0f;
+            }
+
+            var p0 = indexA == 0 ? _dummyStart : _points[indexA - 1];
+            var p1 = _points[indexA];
+            var p2 = _points[indexA + 1];
+            var p3 = indexA >= _points.Count - 2 ? _dummyEnd : _points[indexA + 2];
+
+            segmentLength = Vector3.Distance(p1, p2);
+
+            // Interpolate
+            position = Evaluate(p0, p1, p2, p3, segmentT);
+
+            return true;
+        }
+
+        #endregion
+
         #region Public Overrides UxrSpline
 
         /// <summary>
         ///     Does the object contain valid data in order to evaluate the curve?
         /// </summary>
         public override bool HasValidData => _points != null && _points.Count > 1;
+
 
         /// <summary>
         ///     Evaluates the curve
@@ -28,7 +72,7 @@ namespace UltimateXR.Animation.Splines
         /// <returns>Success or failure</returns>
         public override bool Evaluate(float t, out Vector3 position)
         {
-            return Evaluate(t, out position, out float _);
+            return Evaluate(t, out position, out var _);
         }
 
         #endregion
@@ -46,9 +90,9 @@ namespace UltimateXR.Animation.Splines
         /// <returns>Interpolated point</returns>
         public static Vector3 Evaluate(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
         {
-            Vector3 ret = new Vector3();
-            float   t2  = t * t;
-            float   t3  = t2 * t;
+            var ret = new Vector3();
+            var t2 = t * t;
+            var t3 = t2 * t;
 
             ret.x = 0.5f * (2.0f * p1.x + (-p0.x + p2.x) * t + (2.0f * p0.x - 5.0f * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3.0f * p1.x - 3.0f * p2.x + p3.x) * t3);
             ret.y = 0.5f * (2.0f * p1.y + (-p0.y + p2.y) * t + (2.0f * p0.y - 5.0f * p1.y + 4 * p2.y - p3.y) * t2 + (-p0.y + 3.0f * p1.y - 3.0f * p2.y + p3.y) * t3);
@@ -56,6 +100,7 @@ namespace UltimateXR.Animation.Splines
 
             return ret;
         }
+
 
         /// <summary>
         ///     Creates a spline. If <see cref="UxrSpline.UsePrecomputedSampleCount" /> > 0 it will also precompute samples in
@@ -79,7 +124,7 @@ namespace UltimateXR.Animation.Splines
             }
 
             _dummyStart = points[0] + (points[0] - points[1]) * inOutMultiplier;
-            _dummyEnd   = points[points.Length - 1] + (points[points.Length - 1] - points[points.Length - 2]) * inOutMultiplier;
+            _dummyEnd = points[points.Length - 1] + (points[points.Length - 1] - points[points.Length - 2]) * inOutMultiplier;
 
             ComputeArcLengthSamples();
 
@@ -88,51 +133,11 @@ namespace UltimateXR.Animation.Splines
 
         #endregion
 
-        #region Private Methods
-
-        /// <summary>
-        ///     Interpolates the curve using Catmull-Rom equations.
-        /// </summary>
-        /// <param name="t">Interpolation parameter [0.0f, 1.0f]</param>
-        /// <param name="position">Interpolated position</param>
-        /// <param name="segmentLength">Length of the segment that this point belongs to</param>
-        /// <returns>Success or failure</returns>
-        private bool Evaluate(float t, out Vector3 position, out float segmentLength)
-        {
-            position      = Vector3.zero;
-            segmentLength = 0.0f;
-
-            t = Mathf.Clamp01(t);
-
-            // Compute the index of p1 and build a Catmull segment with 4 points from there
-            int   indexA   = Mathf.FloorToInt(t * (_points.Count - 1));
-            float segmentT = t * (_points.Count - 1) - indexA;
-
-            if (indexA >= _points.Count - 1)
-            {
-                indexA   = _points.Count - 2;
-                segmentT = 1.0f;
-            }
-
-            Vector3 p0 = indexA == 0 ? _dummyStart : _points[indexA - 1];
-            Vector3 p1 = _points[indexA];
-            Vector3 p2 = _points[indexA + 1];
-            Vector3 p3 = indexA >= _points.Count - 2 ? _dummyEnd : _points[indexA + 2];
-
-            segmentLength = Vector3.Distance(p1, p2);
-
-            // Interpolate
-            position = Evaluate(p0, p1, p2, p3, segmentT);
-            return true;
-        }
-
-        #endregion
-
         #region Private Types & Data
 
         private List<Vector3> _points;
-        private Vector3       _dummyStart;
-        private Vector3       _dummyEnd;
+        private Vector3 _dummyStart;
+        private Vector3 _dummyEnd;
 
         #endregion
     }

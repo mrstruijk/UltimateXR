@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UltimateXR.Core.Math;
 using UltimateXR.Manipulation.HandPoses;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Rig
 {
@@ -15,6 +17,48 @@ namespace UltimateXR.Avatar.Rig
     /// </summary>
     public class UxrRuntimeFingerDescriptor
     {
+        #region Private Methods
+
+        /// <summary>
+        ///     Gets the local rotation of a <see cref="UxrFingerDescriptor" /> when applied to an object.
+        /// </summary>
+        /// <param name="parent">Parent the node descriptor references its rotation to</param>
+        /// <param name="node">Transform to get the local rotation of</param>
+        /// <param name="nodeDescriptor">
+        ///     Bone information in the well-known coordinate system of a <see cref="UxrHandPoseAsset" />
+        /// </param>
+        /// <param name="parentLocalAxes">Coordinate system of the <paramref name="parent" /> transform</param>
+        /// <param name="nodeLocalAxes">Coordinate system of the <paramref name="node" /> transform</param>
+        /// <returns>
+        ///     Local rotation that should be applied to <paramref name="node" /> when using
+        ///     <paramref name="nodeDescriptor" />
+        /// </returns>
+        private static Quaternion GetRotation(Transform parent, Transform node, UxrFingerNodeDescriptor nodeDescriptor, UxrUniversalLocalAxes parentLocalAxes, UxrUniversalLocalAxes nodeLocalAxes)
+        {
+            var nodeLocalAxesMatrix = new Matrix4x4();
+            nodeLocalAxesMatrix.SetColumn(0, nodeLocalAxes.LocalRight);
+            nodeLocalAxesMatrix.SetColumn(1, nodeLocalAxes.LocalUp);
+            nodeLocalAxesMatrix.SetColumn(2, nodeLocalAxes.LocalForward);
+            nodeLocalAxesMatrix.SetColumn(3, new Vector4(0, 0, 0, 1));
+            var nodeUniversalToActual = Quaternion.Inverse(nodeLocalAxesMatrix.rotation);
+
+            var parentUniversalMatrix = new Matrix4x4();
+            parentUniversalMatrix.SetColumn(0, parent.TransformVector(parentLocalAxes.LocalRight));
+            parentUniversalMatrix.SetColumn(1, parent.TransformVector(parentLocalAxes.LocalUp));
+            parentUniversalMatrix.SetColumn(2, parent.TransformVector(parentLocalAxes.LocalForward));
+            parentUniversalMatrix.SetColumn(3, new Vector4(0, 0, 0, 1));
+
+            var nodeUniversalMatrix = new Matrix4x4();
+            nodeUniversalMatrix.SetColumn(0, parentUniversalMatrix.MultiplyVector(nodeDescriptor.Right));
+            nodeUniversalMatrix.SetColumn(1, parentUniversalMatrix.MultiplyVector(nodeDescriptor.Up));
+            nodeUniversalMatrix.SetColumn(2, parentUniversalMatrix.MultiplyVector(nodeDescriptor.Forward));
+            nodeUniversalMatrix.SetColumn(3, new Vector4(0, 0, 0, 1));
+
+            return nodeUniversalMatrix.rotation * nodeUniversalToActual;
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -53,6 +97,7 @@ namespace UltimateXR.Avatar.Rig
         {
         }
 
+
         /// <summary>
         ///     Constructor.
         /// </summary>
@@ -62,11 +107,11 @@ namespace UltimateXR.Avatar.Rig
         /// <param name="fingerType">Which finger to store</param>
         public UxrRuntimeFingerDescriptor(UxrAvatar avatar, UxrHandSide handSide, UxrHandDescriptor handDescriptor, UxrFingerType fingerType)
         {
-            UxrAvatarHand         avatarHand       = avatar.GetHand(handSide);
-            UxrAvatarFinger       avatarFinger     = avatarHand.GetFinger(fingerType);
-            UxrUniversalLocalAxes handLocalAxes    = avatar.AvatarRigInfo.GetArmInfo(handSide).HandUniversalLocalAxes;
-            UxrUniversalLocalAxes fingerLocalAxes  = avatar.AvatarRigInfo.GetArmInfo(handSide).FingerUniversalLocalAxes;
-            UxrFingerDescriptor   fingerDescriptor = handDescriptor.GetFinger(fingerType);
+            var avatarHand = avatar.GetHand(handSide);
+            var avatarFinger = avatarHand.GetFinger(fingerType);
+            var handLocalAxes = avatar.AvatarRigInfo.GetArmInfo(handSide).HandUniversalLocalAxes;
+            var fingerLocalAxes = avatar.AvatarRigInfo.GetArmInfo(handSide).FingerUniversalLocalAxes;
+            var fingerDescriptor = handDescriptor.GetFinger(fingerType);
 
             HasMetacarpalInfo = fingerDescriptor.HasMetacarpalInfo && avatarFinger.Metacarpal != null;
 
@@ -77,34 +122,35 @@ namespace UltimateXR.Avatar.Rig
 
             if (HasMetacarpalInfo)
             {
-                metacarpalWorldRotation = GetRotation(avatarHand.Wrist,        avatarFinger.Metacarpal, fingerDescriptor.Metacarpal, handLocalAxes,   fingerLocalAxes);
-                proximalWorldRotation   = GetRotation(avatarFinger.Metacarpal, avatarFinger.Proximal,   fingerDescriptor.Proximal,   fingerLocalAxes, fingerLocalAxes);
+                metacarpalWorldRotation = GetRotation(avatarHand.Wrist, avatarFinger.Metacarpal, fingerDescriptor.Metacarpal, handLocalAxes, fingerLocalAxes);
+                proximalWorldRotation = GetRotation(avatarFinger.Metacarpal, avatarFinger.Proximal, fingerDescriptor.Proximal, fingerLocalAxes, fingerLocalAxes);
             }
             else
             {
                 metacarpalWorldRotation = Quaternion.identity;
-                proximalWorldRotation   = GetRotation(avatarHand.Wrist, avatarFinger.Proximal, fingerDescriptor.ProximalNoMetacarpal, handLocalAxes, fingerLocalAxes);
+                proximalWorldRotation = GetRotation(avatarHand.Wrist, avatarFinger.Proximal, fingerDescriptor.ProximalNoMetacarpal, handLocalAxes, fingerLocalAxes);
             }
 
-            Quaternion intermediateWorldRotation = GetRotation(avatarFinger.Proximal,     avatarFinger.Intermediate, fingerDescriptor.Intermediate, fingerLocalAxes, fingerLocalAxes);
-            Quaternion distalWorldRotation       = GetRotation(avatarFinger.Intermediate, avatarFinger.Distal,       fingerDescriptor.Distal,       fingerLocalAxes, fingerLocalAxes);
+            var intermediateWorldRotation = GetRotation(avatarFinger.Proximal, avatarFinger.Intermediate, fingerDescriptor.Intermediate, fingerLocalAxes, fingerLocalAxes);
+            var distalWorldRotation = GetRotation(avatarFinger.Intermediate, avatarFinger.Distal, fingerDescriptor.Distal, fingerLocalAxes, fingerLocalAxes);
 
             // Compute relative rotations
 
             if (HasMetacarpalInfo)
             {
                 MetacarpalRotation = Quaternion.Inverse(avatarHand.Wrist.rotation) * metacarpalWorldRotation;
-                ProximalRotation   = Quaternion.Inverse(avatarFinger.Metacarpal.rotation) * proximalWorldRotation;
+                ProximalRotation = Quaternion.Inverse(avatarFinger.Metacarpal.rotation) * proximalWorldRotation;
             }
             else
             {
                 MetacarpalRotation = Quaternion.identity;
-                ProximalRotation   = Quaternion.Inverse(avatarHand.Wrist.rotation) * proximalWorldRotation;
+                ProximalRotation = Quaternion.Inverse(avatarHand.Wrist.rotation) * proximalWorldRotation;
             }
 
             IntermediateRotation = Quaternion.Inverse(avatarFinger.Proximal.rotation) * intermediateWorldRotation;
-            DistalRotation       = Quaternion.Inverse(avatarFinger.Intermediate.rotation) * distalWorldRotation;
+            DistalRotation = Quaternion.Inverse(avatarFinger.Intermediate.rotation) * distalWorldRotation;
         }
+
 
         /// <summary>
         ///     Constructor.
@@ -116,11 +162,11 @@ namespace UltimateXR.Avatar.Rig
         /// <param name="distalRotation">Distal local rotation</param>
         public UxrRuntimeFingerDescriptor(bool hasMetacarpalInfo, Quaternion metacarpalRotation, Quaternion proximalRotation, Quaternion intermediateRotation, Quaternion distalRotation)
         {
-            HasMetacarpalInfo    = hasMetacarpalInfo;
-            MetacarpalRotation   = metacarpalRotation;
-            ProximalRotation     = proximalRotation;
+            HasMetacarpalInfo = hasMetacarpalInfo;
+            MetacarpalRotation = metacarpalRotation;
+            ProximalRotation = proximalRotation;
             IntermediateRotation = intermediateRotation;
-            DistalRotation       = distalRotation;
+            DistalRotation = distalRotation;
         }
 
         #endregion
@@ -138,12 +184,13 @@ namespace UltimateXR.Avatar.Rig
                 return;
             }
 
-            HasMetacarpalInfo    = fingerDescriptor.HasMetacarpalInfo;
-            MetacarpalRotation   = fingerDescriptor.MetacarpalRotation;
-            ProximalRotation     = fingerDescriptor.ProximalRotation;
+            HasMetacarpalInfo = fingerDescriptor.HasMetacarpalInfo;
+            MetacarpalRotation = fingerDescriptor.MetacarpalRotation;
+            ProximalRotation = fingerDescriptor.ProximalRotation;
             IntermediateRotation = fingerDescriptor.IntermediateRotation;
-            DistalRotation       = fingerDescriptor.DistalRotation;
+            DistalRotation = fingerDescriptor.DistalRotation;
         }
+
 
         /// <summary>
         ///     Interpolates towards another runtime finger descriptor.
@@ -162,51 +209,9 @@ namespace UltimateXR.Avatar.Rig
                 MetacarpalRotation = Quaternion.Slerp(MetacarpalRotation, fingerDescriptor.MetacarpalRotation, blend);
             }
 
-            ProximalRotation     = Quaternion.Slerp(ProximalRotation,     fingerDescriptor.ProximalRotation,     blend);
+            ProximalRotation = Quaternion.Slerp(ProximalRotation, fingerDescriptor.ProximalRotation, blend);
             IntermediateRotation = Quaternion.Slerp(IntermediateRotation, fingerDescriptor.IntermediateRotation, blend);
-            DistalRotation       = Quaternion.Slerp(DistalRotation,       fingerDescriptor.DistalRotation,       blend);
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Gets the local rotation of a <see cref="UxrFingerDescriptor" /> when applied to an object.
-        /// </summary>
-        /// <param name="parent">Parent the node descriptor references its rotation to</param>
-        /// <param name="node">Transform to get the local rotation of</param>
-        /// <param name="nodeDescriptor">
-        ///     Bone information in the well-known coordinate system of a <see cref="UxrHandPoseAsset" />
-        /// </param>
-        /// <param name="parentLocalAxes">Coordinate system of the <paramref name="parent" /> transform</param>
-        /// <param name="nodeLocalAxes">Coordinate system of the <paramref name="node" /> transform</param>
-        /// <returns>
-        ///     Local rotation that should be applied to <paramref name="node" /> when using
-        ///     <paramref name="nodeDescriptor" />
-        /// </returns>
-        private static Quaternion GetRotation(Transform parent, Transform node, UxrFingerNodeDescriptor nodeDescriptor, UxrUniversalLocalAxes parentLocalAxes, UxrUniversalLocalAxes nodeLocalAxes)
-        {
-            Matrix4x4 nodeLocalAxesMatrix = new Matrix4x4();
-            nodeLocalAxesMatrix.SetColumn(0, nodeLocalAxes.LocalRight);
-            nodeLocalAxesMatrix.SetColumn(1, nodeLocalAxes.LocalUp);
-            nodeLocalAxesMatrix.SetColumn(2, nodeLocalAxes.LocalForward);
-            nodeLocalAxesMatrix.SetColumn(3, new Vector4(0, 0, 0, 1));
-            Quaternion nodeUniversalToActual = Quaternion.Inverse(nodeLocalAxesMatrix.rotation);
-
-            Matrix4x4 parentUniversalMatrix = new Matrix4x4();
-            parentUniversalMatrix.SetColumn(0, parent.TransformVector(parentLocalAxes.LocalRight));
-            parentUniversalMatrix.SetColumn(1, parent.TransformVector(parentLocalAxes.LocalUp));
-            parentUniversalMatrix.SetColumn(2, parent.TransformVector(parentLocalAxes.LocalForward));
-            parentUniversalMatrix.SetColumn(3, new Vector4(0, 0, 0, 1));
-
-            Matrix4x4 nodeUniversalMatrix = new Matrix4x4();
-            nodeUniversalMatrix.SetColumn(0, parentUniversalMatrix.MultiplyVector(nodeDescriptor.Right));
-            nodeUniversalMatrix.SetColumn(1, parentUniversalMatrix.MultiplyVector(nodeDescriptor.Up));
-            nodeUniversalMatrix.SetColumn(2, parentUniversalMatrix.MultiplyVector(nodeDescriptor.Forward));
-            nodeUniversalMatrix.SetColumn(3, new Vector4(0, 0, 0, 1));
-
-            return nodeUniversalMatrix.rotation * nodeUniversalToActual;
+            DistalRotation = Quaternion.Slerp(DistalRotation, fingerDescriptor.DistalRotation, blend);
         }
 
         #endregion

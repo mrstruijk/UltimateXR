@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -34,7 +36,7 @@ namespace UltimateXR.Manipulation
         RestrictToSphere,
 
         /// <summary>
-        ///     The <see cref="UxrGrabbableObject"/> cannot move. 
+        ///     The <see cref="UxrGrabbableObject" /> cannot move.
         /// </summary>
         Locked
     }

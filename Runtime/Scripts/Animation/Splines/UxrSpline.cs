@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Splines
 {
@@ -15,6 +17,38 @@ namespace UltimateXR.Animation.Splines
     /// </summary>
     public abstract partial class UxrSpline
     {
+        #region Protected Methods
+
+        /// <summary>
+        ///     Pre-computes a set of samples that will enable to evaluate the curve using arc-length parametrization.
+        /// </summary>
+        protected void ComputeArcLengthSamples()
+        {
+            _precomputedSamples = new List<Sample>();
+
+            _arcLength = 0.0f;
+            var lastPos = Vector3.zero;
+
+            for (var i = 0; i < UsePrecomputedSampleCount; ++i)
+            {
+                var t = i / (UsePrecomputedSampleCount - 1.0f);
+                Evaluate(t, out var position);
+
+                if (i > 0)
+                {
+                    _arcLength += Vector3.Distance(lastPos, position);
+                }
+
+                _precomputedSamples.Add(new Sample(t, _arcLength, position));
+                lastPos = position;
+            }
+
+            _cachedIndexA = 0;
+            _cachedArcLength = 0.0f;
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -52,6 +86,7 @@ namespace UltimateXR.Animation.Splines
         /// <returns>Success or failure</returns>
         public abstract bool Evaluate(float t, out Vector3 position);
 
+
         /// <summary>
         ///     Evaluates the curve
         /// </summary>
@@ -61,7 +96,7 @@ namespace UltimateXR.Animation.Splines
         /// <returns>Success or failure</returns>
         public bool Evaluate(float t, out Vector3 position, out Vector3 direction)
         {
-            position  = Vector3.zero;
+            position = Vector3.zero;
             direction = Vector3.zero;
 
             if (!HasValidData)
@@ -73,21 +108,23 @@ namespace UltimateXR.Animation.Splines
 
             // If we have ArcLength information it's helpful to map distance to interpolation value.
             // Otherwise we risk guessing an interpolation value which may or may not be precise enough.
-            float distanceT = HasValidArcLengthData ? EvalDirectionDistanceArcLength * ArcLength : EvalDirectionDistanceT;
+            var distanceT = HasValidArcLengthData ? EvalDirectionDistanceArcLength * ArcLength : EvalDirectionDistanceT;
 
             if (t < 0.0f)
             {
-                Evaluate(0.0f,      out position);
-                Evaluate(distanceT, out Vector3 positionTo);
+                Evaluate(0.0f, out position);
+                Evaluate(distanceT, out var positionTo);
                 direction = (positionTo - position).normalized;
+
                 return true;
             }
 
             if (t > 1.0f)
             {
-                Evaluate(1.0f,             out position);
-                Evaluate(1.0f - distanceT, out Vector3 positionFrom);
+                Evaluate(1.0f, out position);
+                Evaluate(1.0f - distanceT, out var positionFrom);
                 direction = (position - positionFrom).normalized;
+
                 return true;
             }
 
@@ -98,15 +135,17 @@ namespace UltimateXR.Animation.Splines
             }
 
             // Evaluate a position a little bit further, to get the direction (see EvalDirectionDistance constant).
-            if (!Evaluate(t + EvalDirectionDistanceT, out Vector3 position2))
+            if (!Evaluate(t + EvalDirectionDistanceT, out var position2))
             {
                 return false;
             }
 
             // Compute direction vector and normalize
             direction = (position2 - position).normalized;
+
             return true;
         }
+
 
         /// <summary>
         ///     Evaluates the curve using arc-length parametrization
@@ -145,19 +184,20 @@ namespace UltimateXR.Animation.Splines
             foundPos = Mathf.Clamp(foundPos, 0, _precomputedSamples.Count - 2);
 
             // 0.0f <= segmentT <= 1.0f. It will tell us where in between the two pre-computed points our point lies.
-            float segmentT = (distance - _precomputedSamples[foundPos].Distance)
-                             / (_precomputedSamples[foundPos + 1].Distance - _precomputedSamples[foundPos].Distance);
+            var segmentT = (distance - _precomputedSamples[foundPos].Distance)
+                           / (_precomputedSamples[foundPos + 1].Distance - _precomputedSamples[foundPos].Distance);
 
             // 0.0f <= t <= 1.0f. It will tell us which "t" to use to evaluate our curve.
-            float t = Mathf.Lerp(_precomputedSamples[foundPos].LerpT, _precomputedSamples[foundPos + 1].LerpT, segmentT);
+            var t = Mathf.Lerp(_precomputedSamples[foundPos].LerpT, _precomputedSamples[foundPos + 1].LerpT, segmentT);
 
             // Update cache
-            _cachedIndexA    = foundPos;
+            _cachedIndexA = foundPos;
             _cachedArcLength = _precomputedSamples[foundPos].Distance;
 
             // Evaluate our curve!
             return Evaluate(t, out position);
         }
+
 
         /// <summary>
         ///     Evaluates the curve using arc-length parametrization
@@ -168,7 +208,7 @@ namespace UltimateXR.Animation.Splines
         /// <returns>Success or failure</returns>
         public bool EvaluateUsingArcLength(float distance, out Vector3 position, out Vector3 direction)
         {
-            position  = Vector3.zero;
+            position = Vector3.zero;
             direction = Vector3.zero;
 
             if (!HasValidArcLengthData)
@@ -180,16 +220,18 @@ namespace UltimateXR.Animation.Splines
             if (distance <= 0.0f)
             {
                 Evaluate(0.0f, out position);
-                EvaluateUsingArcLength(EvalDirectionDistanceArcLength, out Vector3 positionTo);
+                EvaluateUsingArcLength(EvalDirectionDistanceArcLength, out var positionTo);
                 direction = (positionTo - position).normalized;
+
                 return true;
             }
 
             if (distance >= _arcLength)
             {
                 Evaluate(1.0f, out position);
-                EvaluateUsingArcLength(1.0f - EvalDirectionDistanceArcLength, out Vector3 positionFrom);
+                EvaluateUsingArcLength(1.0f - EvalDirectionDistanceArcLength, out var positionFrom);
                 direction = (position - positionFrom).normalized;
+
                 return true;
             }
 
@@ -200,60 +242,29 @@ namespace UltimateXR.Animation.Splines
             }
 
             // Evaluate a position a little bit further, to get the direction (see EvalDirectionDistance constant)
-            if (!EvaluateUsingArcLength(distance + EvalDirectionDistanceArcLength, out Vector3 position2))
+            if (!EvaluateUsingArcLength(distance + EvalDirectionDistanceArcLength, out var position2))
             {
                 return false;
             }
 
             // Compute direction vector and normalize
             direction = (position2 - position).normalized;
+
             return true;
-        }
-
-        #endregion
-
-        #region Protected Methods
-
-        /// <summary>
-        ///     Pre-computes a set of samples that will enable to evaluate the curve using arc-length parametrization.
-        /// </summary>
-        protected void ComputeArcLengthSamples()
-        {
-            _precomputedSamples = new List<Sample>();
-
-            _arcLength = 0.0f;
-            Vector3 lastPos = Vector3.zero;
-
-            for (int i = 0; i < UsePrecomputedSampleCount; ++i)
-            {
-                float t = i / (UsePrecomputedSampleCount - 1.0f);
-                Evaluate(t, out Vector3 position);
-
-                if (i > 0)
-                {
-                    _arcLength += Vector3.Distance(lastPos, position);
-                }
-
-                _precomputedSamples.Add(new Sample(t, _arcLength, position));
-                lastPos = position;
-            }
-
-            _cachedIndexA    = 0;
-            _cachedArcLength = 0.0f;
         }
 
         #endregion
 
         #region Private Types & Data
 
-        private const int   DefaultPrecomputedSampleCount  = 100;
-        private const float EvalDirectionDistanceT         = 0.005f;
+        private const int DefaultPrecomputedSampleCount = 100;
+        private const float EvalDirectionDistanceT = 0.005f;
         private const float EvalDirectionDistanceArcLength = 0.005f;
 
-        private float        _arcLength;
+        private float _arcLength;
         private List<Sample> _precomputedSamples;
-        private int          _cachedIndexA;
-        private float        _cachedArcLength;
+        private int _cachedIndexA;
+        private float _cachedArcLength;
 
         #endregion
     }

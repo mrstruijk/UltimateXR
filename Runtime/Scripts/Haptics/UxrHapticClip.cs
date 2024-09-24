@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Haptics
 {
@@ -17,14 +19,42 @@ namespace UltimateXR.Haptics
     [Serializable]
     public class UxrHapticClip
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Public constructor.
+        /// </summary>
+        /// <param name="clip">The audio clip</param>
+        /// <param name="fallbackClipType">The fallback clip if the primary audio clip is null</param>
+        /// <param name="hapticMode">The haptic mixing mode</param>
+        /// <param name="clipAmplitude">The amplitude of the audio clip</param>
+        /// <param name="fallbackAmplitude">The amplitude of the fallback clip</param>
+        /// <param name="fallbackDurationSeconds">The duration in seconds of the fallback clip (negative = use predefined)</param>
+        public UxrHapticClip(AudioClip clip = null,
+                             UxrHapticClipType fallbackClipType = UxrHapticClipType.None,
+                             UxrHapticMode hapticMode = UxrHapticMode.Mix,
+                             float clipAmplitude = 1.0f,
+                             float fallbackAmplitude = 1.0f,
+                             float fallbackDurationSeconds = -1.0f)
+        {
+            Clip = clip;
+            FallbackClipType = fallbackClipType;
+            HapticMode = hapticMode;
+            ClipAmplitude = clipAmplitude;
+            FallbackAmplitude = fallbackAmplitude;
+            FallbackDurationSeconds = fallbackDurationSeconds;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField]               private AudioClip         _clip;
-        [SerializeField] [Range(0, 1)] private float             _clipAmplitude           = 1.0f;
-        [SerializeField]               private UxrHapticMode     _hapticMode              = UxrHapticMode.Mix;
-        [SerializeField]               private UxrHapticClipType _fallbackClipType        = UxrHapticClipType.None;
-        [SerializeField] [Range(0, 1)] private float             _fallbackAmplitude       = 1.0f;
-        [SerializeField]               private float             _fallbackDurationSeconds = -1.0f;
+        [SerializeField] private AudioClip _clip;
+        [SerializeField] [Range(0, 1)] private float _clipAmplitude = 1.0f;
+        [SerializeField] private UxrHapticMode _hapticMode = UxrHapticMode.Mix;
+        [SerializeField] private UxrHapticClipType _fallbackClipType = UxrHapticClipType.None;
+        [SerializeField] [Range(0, 1)] private float _fallbackAmplitude = 1.0f;
+        [SerializeField] private float _fallbackDurationSeconds = -1.0f;
 
         #endregion
 
@@ -86,34 +116,6 @@ namespace UltimateXR.Haptics
         {
             get => _fallbackDurationSeconds;
             set => _fallbackDurationSeconds = value;
-        }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Public constructor.
-        /// </summary>
-        /// <param name="clip">The audio clip</param>
-        /// <param name="fallbackClipType">The fallback clip if the primary audio clip is null</param>
-        /// <param name="hapticMode">The haptic mixing mode</param>
-        /// <param name="clipAmplitude">The amplitude of the audio clip</param>
-        /// <param name="fallbackAmplitude">The amplitude of the fallback clip</param>
-        /// <param name="fallbackDurationSeconds">The duration in seconds of the fallback clip (negative = use predefined)</param>
-        public UxrHapticClip(AudioClip         clip                    = null,
-                             UxrHapticClipType fallbackClipType        = UxrHapticClipType.None,
-                             UxrHapticMode     hapticMode              = UxrHapticMode.Mix,
-                             float             clipAmplitude           = 1.0f,
-                             float             fallbackAmplitude       = 1.0f,
-                             float             fallbackDurationSeconds = -1.0f)
-        {
-            Clip                    = clip;
-            FallbackClipType        = fallbackClipType;
-            HapticMode              = hapticMode;
-            ClipAmplitude           = clipAmplitude;
-            FallbackAmplitude       = fallbackAmplitude;
-            FallbackDurationSeconds = fallbackDurationSeconds;
         }
 
         #endregion

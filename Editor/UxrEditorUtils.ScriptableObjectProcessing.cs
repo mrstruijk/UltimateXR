@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor
 {
@@ -31,19 +33,19 @@ namespace UltimateXR.Editor
         {
             // Get all asset files and process them
 
-            string[] allAssetPaths = AssetDatabase.GetAllAssetPaths();
+            var allAssetPaths = AssetDatabase.GetAllAssetPaths();
 
-            for (int i = 0; i < allAssetPaths.Length; ++i)
+            for (var i = 0; i < allAssetPaths.Length; ++i)
             {
-                string assetPath = allAssetPaths[i];
+                var assetPath = allAssetPaths[i];
 
                 if (AssetDatabase.GetMainAssetTypeAtPath(assetPath) == typeof(T) && PathRequiresProcessing(basePath, assetPath))
                 {
-                    T assetObject = AssetDatabase.LoadAssetAtPath<T>(assetPath);
+                    var assetObject = AssetDatabase.LoadAssetAtPath<T>(assetPath);
 
                     if (assetObject)
                     {
-                        progressUpdater?.Invoke(new UxrProgressInfo($"Processing {typeof(T).Name} assets", $"Asset {assetObject.name}", (float)i / allAssetPaths.Length));
+                        progressUpdater?.Invoke(new UxrProgressInfo($"Processing {typeof(T).Name} assets", $"Asset {assetObject.name}", (float) i / allAssetPaths.Length));
                         scriptableObjectProcessor?.Invoke(assetObject);
                     }
                 }

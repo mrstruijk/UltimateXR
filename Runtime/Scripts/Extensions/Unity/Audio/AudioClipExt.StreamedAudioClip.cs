@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.IO;
 using UltimateXR.Extensions.System;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Audio
 {
@@ -19,15 +21,6 @@ namespace UltimateXR.Extensions.Unity.Audio
         /// </summary>
         public sealed class StreamedPcmClip : IDisposable
         {
-            #region Public Types & Data
-
-            /// <summary>
-            ///     Gets the <see cref="AudioClip" /> described by the object.
-            /// </summary>
-            public AudioClip InnerClip { get; }
-
-            #endregion
-
             #region Constructors & Finalizer
 
             /// <summary>
@@ -44,6 +37,15 @@ namespace UltimateXR.Extensions.Unity.Audio
 
                 InnerClip = AudioClip.Create(clipName, header.AudioSampleCount, header.Channels, header.SampleRate, true, OnPcmRead, OnPcmSetPosition);
             }
+
+            #endregion
+
+            #region Public Types & Data
+
+            /// <summary>
+            ///     Gets the <see cref="AudioClip" /> described by the object.
+            /// </summary>
+            public AudioClip InnerClip { get; }
 
             #endregion
 
@@ -71,6 +73,7 @@ namespace UltimateXR.Extensions.Unity.Audio
                 pcmStream.ThrowIfNull(nameof(pcmStream));
                 clipName.ThrowIfNullOrWhitespace(nameof(clipName));
                 var pcmHeader = PcmHeader.FromStream(pcmStream);
+
                 if (pcmHeader.BitDepth != 16 && pcmHeader.BitDepth != 32 && pcmHeader.BitDepth != 8)
                 {
                     throw new ArgumentOutOfRangeException(nameof(pcmHeader.BitDepth), pcmHeader.BitDepth, "Supported values are: 8, 16, 32");
@@ -90,28 +93,34 @@ namespace UltimateXR.Extensions.Unity.Audio
             /// <exception cref="ArgumentOutOfRangeException">Unsupported audio bit depth</exception>
             private void OnPcmRead(float[] data)
             {
-                for (int i = 0; i < data.Length && _pcmStream.Position < _pcmStream.Length; ++i)
+                for (var i = 0; i < data.Length && _pcmStream.Position < _pcmStream.Length; ++i)
                 {
                     float rawSample;
+
                     switch (_pcmHeader.AudioSampleSize)
                     {
                         case 1:
                             rawSample = _pcmReader.ReadByte();
+
                             break;
 
                         case 2:
                             rawSample = _pcmReader.ReadInt16();
+
                             break;
 
                         case 3:
                             rawSample = _pcmReader.ReadInt32();
+
                             break;
 
                         default: throw new ArgumentOutOfRangeException(nameof(_pcmHeader.BitDepth), _pcmHeader.BitDepth, "Supported values are: 8, 16, 32");
                     }
+
                     data[i] = _pcmHeader.NormalizeSample(rawSample); // needs to be scaled to be within the range of - 1.0f to 1.0f.
                 }
             }
+
 
             /// <summary>
             ///     PCM reader positioning callback.
@@ -126,9 +135,9 @@ namespace UltimateXR.Extensions.Unity.Audio
 
             #region Private Types & Data
 
-            private readonly Stream       _pcmStream;
+            private readonly Stream _pcmStream;
             private readonly BinaryReader _pcmReader;
-            private readonly PcmHeader    _pcmHeader;
+            private readonly PcmHeader _pcmHeader;
 
             #endregion
         }

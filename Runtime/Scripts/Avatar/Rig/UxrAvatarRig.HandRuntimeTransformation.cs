@@ -3,10 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core;
-using UltimateXR.Core.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Rig
 {
@@ -22,15 +23,16 @@ namespace UltimateXR.Avatar.Rig
         /// <returns>Transform information</returns>
         public static Dictionary<Transform, UxrTransform> PushHandTransforms(UxrAvatarHand hand)
         {
-            Dictionary<Transform, UxrTransform> transforms = new Dictionary<Transform, UxrTransform>();
+            var transforms = new Dictionary<Transform, UxrTransform>();
 
-            foreach (Transform transform in hand.Transforms)
+            foreach (var transform in hand.Transforms)
             {
                 transforms.Add(transform, new UxrTransform(transform));
             }
 
             return transforms;
         }
+
 
         /// <summary>
         ///     Restores all the transform information of the bones of a hand saved using <see cref="PushHandTransforms" />.
@@ -46,6 +48,7 @@ namespace UltimateXR.Avatar.Rig
             }
         }
 
+
         /// <summary>
         ///     Curls an avatar finger.
         /// </summary>
@@ -58,24 +61,25 @@ namespace UltimateXR.Avatar.Rig
         /// <param name="spread">Spread angle in degrees for the finger (finger "left" or "right" amount with respect to the wrist)</param>
         public static void CurlFinger(UxrAvatar avatar, UxrHandSide handSide, UxrAvatarFinger finger, float proximalCurl, float intermediateCurl, float distalCurl, float spread = 0.0f)
         {
-            UxrUniversalLocalAxes fingerAxes = avatar.AvatarRigInfo.GetArmInfo(handSide).FingerUniversalLocalAxes;
+            var fingerAxes = avatar.AvatarRigInfo.GetArmInfo(handSide).FingerUniversalLocalAxes;
 
-            if (avatar.GetInitialBoneLocalRotation(finger.Proximal, out Quaternion localRotationProximal))
+            if (avatar.GetInitialBoneLocalRotation(finger.Proximal, out var localRotationProximal))
             {
-                finger.Proximal.Rotate(fingerAxes.LocalRight, proximalCurl,                                           Space.Self);
-                finger.Proximal.Rotate(fingerAxes.LocalUp,    spread * (handSide == UxrHandSide.Left ? 1.0f : -1.0f), Space.Self);
+                finger.Proximal.Rotate(fingerAxes.LocalRight, proximalCurl, Space.Self);
+                finger.Proximal.Rotate(fingerAxes.LocalUp, spread * (handSide == UxrHandSide.Left ? 1.0f : -1.0f), Space.Self);
             }
 
-            if (avatar.GetInitialBoneLocalRotation(finger.Intermediate, out Quaternion localRotationIntermediate))
+            if (avatar.GetInitialBoneLocalRotation(finger.Intermediate, out var localRotationIntermediate))
             {
                 finger.Intermediate.Rotate(fingerAxes.LocalRight, intermediateCurl, Space.Self);
             }
 
-            if (avatar.GetInitialBoneLocalRotation(finger.Distal, out Quaternion localRotationDistal))
+            if (avatar.GetInitialBoneLocalRotation(finger.Distal, out var localRotationDistal))
             {
                 finger.Distal.Rotate(fingerAxes.LocalRight, distalCurl, Space.Self);
             }
         }
+
 
         /// <summary>
         ///     Updates the hand transforms using a runtime hand descriptor.
@@ -85,14 +89,15 @@ namespace UltimateXR.Avatar.Rig
         /// <param name="handDescriptor">The runtime descriptor of the hand pose</param>
         public static void UpdateHandUsingRuntimeDescriptor(UxrAvatar avatar, UxrHandSide handSide, UxrRuntimeHandDescriptor handDescriptor)
         {
-            UxrAvatarHand hand = avatar.GetHand(handSide);
+            var hand = avatar.GetHand(handSide);
 
-            UpdateFingerUsingRuntimeDescriptor(hand.Thumb,  handDescriptor.Thumb);
-            UpdateFingerUsingRuntimeDescriptor(hand.Index,  handDescriptor.Index);
+            UpdateFingerUsingRuntimeDescriptor(hand.Thumb, handDescriptor.Thumb);
+            UpdateFingerUsingRuntimeDescriptor(hand.Index, handDescriptor.Index);
             UpdateFingerUsingRuntimeDescriptor(hand.Middle, handDescriptor.Middle);
-            UpdateFingerUsingRuntimeDescriptor(hand.Ring,   handDescriptor.Ring);
+            UpdateFingerUsingRuntimeDescriptor(hand.Ring, handDescriptor.Ring);
             UpdateFingerUsingRuntimeDescriptor(hand.Little, handDescriptor.Little);
         }
+
 
         /// <summary>
         ///     Updates the hand transforms blending between two runtime hand descriptors.
@@ -104,12 +109,12 @@ namespace UltimateXR.Avatar.Rig
         /// <param name="blend">Interpolation value [0.0, 1.0]</param>
         public static void UpdateHandUsingRuntimeDescriptor(UxrAvatar avatar, UxrHandSide handSide, UxrRuntimeHandDescriptor handDescriptorA, UxrRuntimeHandDescriptor handDescriptorB, float blend)
         {
-            UxrAvatarHand hand = avatar.GetHand(handSide);
+            var hand = avatar.GetHand(handSide);
 
-            UpdateFingerUsingRuntimeDescriptor(hand.Thumb,  handDescriptorA.Thumb,  handDescriptorB.Thumb,  blend);
-            UpdateFingerUsingRuntimeDescriptor(hand.Index,  handDescriptorA.Index,  handDescriptorB.Index,  blend);
+            UpdateFingerUsingRuntimeDescriptor(hand.Thumb, handDescriptorA.Thumb, handDescriptorB.Thumb, blend);
+            UpdateFingerUsingRuntimeDescriptor(hand.Index, handDescriptorA.Index, handDescriptorB.Index, blend);
             UpdateFingerUsingRuntimeDescriptor(hand.Middle, handDescriptorA.Middle, handDescriptorB.Middle, blend);
-            UpdateFingerUsingRuntimeDescriptor(hand.Ring,   handDescriptorA.Ring,   handDescriptorB.Ring,   blend);
+            UpdateFingerUsingRuntimeDescriptor(hand.Ring, handDescriptorA.Ring, handDescriptorB.Ring, blend);
             UpdateFingerUsingRuntimeDescriptor(hand.Little, handDescriptorA.Little, handDescriptorB.Little, blend);
         }
 
@@ -129,10 +134,11 @@ namespace UltimateXR.Avatar.Rig
                 finger.Metacarpal.localRotation = fingerDescriptor.MetacarpalRotation;
             }
 
-            finger.Proximal.localRotation     = fingerDescriptor.ProximalRotation;
+            finger.Proximal.localRotation = fingerDescriptor.ProximalRotation;
             finger.Intermediate.localRotation = fingerDescriptor.IntermediateRotation;
-            finger.Distal.localRotation       = fingerDescriptor.DistalRotation;
+            finger.Distal.localRotation = fingerDescriptor.DistalRotation;
         }
+
 
         /// <summary>
         ///     Updates a finger's transforms from a runtime finger descriptor.
@@ -148,9 +154,9 @@ namespace UltimateXR.Avatar.Rig
                 finger.Metacarpal.localRotation = Quaternion.Slerp(fingerDescriptorA.MetacarpalRotation, fingerDescriptorB.MetacarpalRotation, blend);
             }
 
-            finger.Proximal.localRotation     = Quaternion.Slerp(fingerDescriptorA.ProximalRotation,     fingerDescriptorB.ProximalRotation,     blend);
+            finger.Proximal.localRotation = Quaternion.Slerp(fingerDescriptorA.ProximalRotation, fingerDescriptorB.ProximalRotation, blend);
             finger.Intermediate.localRotation = Quaternion.Slerp(fingerDescriptorA.IntermediateRotation, fingerDescriptorB.IntermediateRotation, blend);
-            finger.Distal.localRotation       = Quaternion.Slerp(fingerDescriptorA.DistalRotation,       fingerDescriptorB.DistalRotation,       blend);
+            finger.Distal.localRotation = Quaternion.Slerp(fingerDescriptorA.DistalRotation, fingerDescriptorB.DistalRotation, blend);
         }
 
         #endregion

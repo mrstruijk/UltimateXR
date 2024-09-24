@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using UltimateXR.Extensions.System;
 using UltimateXR.Extensions.System.Threading;
 using UnityEngine;
 using Object = UnityEngine.Object;
+
 
 namespace UltimateXR.Extensions.Unity.Audio
 {
@@ -24,6 +26,15 @@ namespace UltimateXR.Extensions.Unity.Audio
         ///     Default spatial blend for 3D positioned audio.
         /// </summary>
         public const float SpatialBlend3D = 0.9f;
+
+        #endregion
+
+        #region Private Types & Data
+
+        /// <summary>
+        ///     Spatial blend for ubiquitous playback.
+        /// </summary>
+        private const float SpatialBlendUbiquitous = 0f;
 
         #endregion
 
@@ -45,23 +56,24 @@ namespace UltimateXR.Extensions.Unity.Audio
         /// </param>
         /// <returns>The just created temporal <see cref="AudioSource" />.</returns>
         public static AudioSource PlayClip(AudioClip clip,
-                                           float     volume = 1.0f,
-                                           float     delay  = 0.0f,
-                                           float     pitch  = 1.0f)
+                                           float volume = 1.0f,
+                                           float delay = 0.0f,
+                                           float pitch = 1.0f)
         {
             if (!Application.isPlaying)
             {
                 throw new InvalidOperationException("Playback is only allowed while playing.");
             }
+
             clip.ThrowIfNull(nameof(clip));
             volume = Mathf.Clamp01(volume);
-            pitch  = Mathf.Clamp01(pitch);
+            pitch = Mathf.Clamp01(pitch);
 
-            var gameObject  = new GameObject($"{nameof(AudioSourceExt)}_{nameof(PlayClip)}_{clip.name}");
+            var gameObject = new GameObject($"{nameof(AudioSourceExt)}_{nameof(PlayClip)}_{clip.name}");
             var audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.clip         = clip;
-            audioSource.volume       = volume;
-            audioSource.pitch        = pitch;
+            audioSource.clip = clip;
+            audioSource.volume = volume;
+            audioSource.pitch = pitch;
             audioSource.spatialBlend = SpatialBlendUbiquitous;
 
             if (delay > 0.0f)
@@ -73,10 +85,12 @@ namespace UltimateXR.Extensions.Unity.Audio
                 audioSource.Play();
             }
 
-            float duration = (delay + clip.length) * (Time.timeScale < 0.00999999977648258 ? 0.01f : Time.timeScale);
+            var duration = (delay + clip.length) * (Time.timeScale < 0.00999999977648258 ? 0.01f : Time.timeScale);
             Object.Destroy(gameObject, duration);
+
             return audioSource;
         }
+
 
         /// <summary>
         ///     Plays an AudioClip at a given position in world space.
@@ -97,11 +111,11 @@ namespace UltimateXR.Extensions.Unity.Audio
         /// <returns>The just created temporal <see cref="AudioSource" />.</returns>
         /// <seealso cref="AudioSource.PlayClipAtPoint(AudioClip, Vector3, float)" />
         public static AudioSource PlayClipAtPoint(AudioClip clip,
-                                                  Vector3   point,
-                                                  float     volume       = 1.0f,
-                                                  float     delay        = 0.0f,
-                                                  float     pitch        = 1.0f,
-                                                  float     spatialBlend = SpatialBlend3D)
+                                                  Vector3 point,
+                                                  float volume = 1.0f,
+                                                  float delay = 0.0f,
+                                                  float pitch = 1.0f,
+                                                  float spatialBlend = SpatialBlend3D)
         {
             if (!Application.isPlaying)
             {
@@ -109,14 +123,14 @@ namespace UltimateXR.Extensions.Unity.Audio
             }
 
             clip.ThrowIfNull(nameof(clip));
-            volume       = Mathf.Clamp01(volume);
+            volume = Mathf.Clamp01(volume);
             spatialBlend = Mathf.Clamp01(spatialBlend);
 
-            var gameObject  = new GameObject($"{nameof(AudioSourceExt)}_{nameof(PlayClipAtPoint)}_{clip.name}") { transform = { position = point } };
+            var gameObject = new GameObject($"{nameof(AudioSourceExt)}_{nameof(PlayClipAtPoint)}_{clip.name}") {transform = {position = point}};
             var audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.clip         = clip;
-            audioSource.volume       = volume;
-            audioSource.pitch        = pitch;
+            audioSource.clip = clip;
+            audioSource.volume = volume;
+            audioSource.pitch = pitch;
             audioSource.spatialBlend = spatialBlend;
             audioSource.Play();
 
@@ -129,8 +143,9 @@ namespace UltimateXR.Extensions.Unity.Audio
                 audioSource.Play();
             }
 
-            float duration = (delay + clip.length) * (Time.timeScale < 0.00999999977648258 ? 0.01f : Time.timeScale);
+            var duration = (delay + clip.length) * (Time.timeScale < 0.00999999977648258 ? 0.01f : Time.timeScale);
             Object.Destroy(gameObject, duration);
+
             return audioSource;
         }
 
@@ -151,23 +166,24 @@ namespace UltimateXR.Extensions.Unity.Audio
         /// </param>
         /// <param name="ct"><see cref="CancellationToken" /> to stop playing.</param>
         /// <returns>An awaitable <see cref="Task" />.</returns>
-        public static async Task PlayClipAsync(AudioClip         clip,
-                                               float             volume = 1.0f,
-                                               float             delay  = 0.0f,
-                                               float             pitch  = 1.0f,
-                                               CancellationToken ct     = default)
+        public static async Task PlayClipAsync(AudioClip clip,
+                                               float volume = 1.0f,
+                                               float delay = 0.0f,
+                                               float pitch = 1.0f,
+                                               CancellationToken ct = default)
         {
             if (ct.IsCancellationRequested)
             {
                 return;
             }
+
             if (!Application.isPlaying)
             {
                 throw new InvalidOperationException("Playback is only allowed while playing.");
             }
 
-            float       duration    = (delay + clip.length) * (Time.timeScale < 0.00999999977648258 ? 0.01f : Time.timeScale);
-            AudioSource audioSource = PlayClip(clip, volume, delay, pitch);
+            var duration = (delay + clip.length) * (Time.timeScale < 0.00999999977648258 ? 0.01f : Time.timeScale);
+            var audioSource = PlayClip(clip, volume, delay, pitch);
             await TaskExt.Delay(duration, ct);
 
             if (ct.IsCancellationRequested && audioSource != null)
@@ -176,6 +192,7 @@ namespace UltimateXR.Extensions.Unity.Audio
                 Object.Destroy(audioSource.gameObject);
             }
         }
+
 
         /// <summary>
         ///     Asynchronously plays an <see cref="AudioClip" /> at a given position in world space.
@@ -195,25 +212,26 @@ namespace UltimateXR.Extensions.Unity.Audio
         /// <param name="spatialBlend">Sets how much the 3D engine has an effect on the audio source [0.0, 1.0].</param>
         /// <param name="ct"><see cref="CancellationToken" /> to stop playing.</param>
         /// <returns>An awaitable <see cref="Task" />.</returns>
-        public static async Task PlayClipAtPointAsync(AudioClip         clip,
-                                                      Vector3           point,
-                                                      float             volume       = 1.0f,
-                                                      float             delay        = 0.0f,
-                                                      float             pitch        = 1.0f,
-                                                      float             spatialBlend = SpatialBlend3D,
-                                                      CancellationToken ct           = default)
+        public static async Task PlayClipAtPointAsync(AudioClip clip,
+                                                      Vector3 point,
+                                                      float volume = 1.0f,
+                                                      float delay = 0.0f,
+                                                      float pitch = 1.0f,
+                                                      float spatialBlend = SpatialBlend3D,
+                                                      CancellationToken ct = default)
         {
             if (ct.IsCancellationRequested)
             {
                 return;
             }
+
             if (!Application.isPlaying)
             {
                 throw new InvalidOperationException("Playback is only allowed while playing.");
             }
 
-            float       duration    = (delay + clip.length) * (Time.timeScale < 0.00999999977648258 ? 0.01f : Time.timeScale);
-            AudioSource audioSource = PlayClipAtPoint(clip, point, volume, delay, pitch, spatialBlend);
+            var duration = (delay + clip.length) * (Time.timeScale < 0.00999999977648258 ? 0.01f : Time.timeScale);
+            var audioSource = PlayClipAtPoint(clip, point, volume, delay, pitch, spatialBlend);
             await TaskExt.Delay(duration, ct);
 
             if (ct.IsCancellationRequested && audioSource != null)
@@ -222,15 +240,6 @@ namespace UltimateXR.Extensions.Unity.Audio
                 Object.Destroy(audioSource.gameObject);
             }
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        /// <summary>
-        ///     Spatial blend for ubiquitous playback.
-        /// </summary>
-        private const float SpatialBlendUbiquitous = 0f;
 
         #endregion
     }

@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.Core
 {
@@ -34,7 +36,7 @@ namespace UltimateXR.Core
         ///     Stage where avatars update the different <see cref="Transform" /> components for hand animation and poses.
         /// </summary>
         Animation,
-        
+
         /// <summary>
         ///     Post-processing stage where post-processing such as Inverse Kinematics are applied.
         /// </summary>

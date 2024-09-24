@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.StateSync;
+
 
 namespace UltimateXR.Avatar
 {
@@ -40,9 +42,10 @@ namespace UltimateXR.Avatar
         /// <param name="e">Event parameters</param>
         public UxrAvatarSyncEventArgs(UxrAvatarMoveEventArgs e)
         {
-            EventType           = UxrAvatarSyncEventType.AvatarMove;
+            EventType = UxrAvatarSyncEventType.AvatarMove;
             AvatarMoveEventArgs = e;
         }
+
 
         /// <summary>
         ///     Constructor for an <see cref="UxrAvatarSyncEventType.HandPose" /> event.
@@ -50,7 +53,7 @@ namespace UltimateXR.Avatar
         /// <param name="e">Event parameters</param>
         public UxrAvatarSyncEventArgs(UxrAvatarHandPoseChangeEventArgs e)
         {
-            EventType               = UxrAvatarSyncEventType.HandPose;
+            EventType = UxrAvatarSyncEventType.HandPose;
             HandPoseChangeEventArgs = e;
         }
 

@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,6 +15,7 @@ using UltimateXR.Manipulation;
 using UltimateXR.Manipulation.HandPoses;
 using UnityEngine;
 
+
 namespace UltimateXR.Editor.Manipulation.HandPoses
 {
     /// <summary>
@@ -24,6 +26,17 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
     /// </summary>
     public class UxrPreviewHandGripMesh
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor is private. Use <see cref="Build" /> instead.
+        /// </summary>
+        private UxrPreviewHandGripMesh()
+        {
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -35,17 +48,6 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         ///     Gets the mesh.
         /// </summary>
         public Mesh UnityMesh { get; private set; }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor is private. Use <see cref="Build" /> instead.
-        /// </summary>
-        private UxrPreviewHandGripMesh()
-        {
-        }
 
         #endregion
 
@@ -63,44 +65,46 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         {
             // Find pose
 
-            UxrHandPoseAsset handPoseAsset = grabbableObject.GetGrabPoint(grabPoint).GetGripPoseInfo(avatar).HandPose;
+            var handPoseAsset = grabbableObject.GetGrabPoint(grabPoint).GetGripPoseInfo(avatar).HandPose;
 
             if (handPoseAsset == null)
             {
                 return null;
             }
 
-            UxrHandPoseAsset avatarHandPose = avatar.GetHandPose(handPoseAsset.name);
+            var avatarHandPose = avatar.GetHandPose(handPoseAsset.name);
 
             if (avatarHandPose == null)
             {
                 Debug.LogWarning($"Avatar {avatar.name}: Could not find {nameof(UxrHandPoseAsset)} file for pose {handPoseAsset.name}.");
+
                 return null;
             }
 
             // Find grabbers
 
-            UxrGrabber[] grabbers = avatar.GetComponentsInChildren<UxrGrabber>();
+            var grabbers = avatar.GetComponentsInChildren<UxrGrabber>();
 
             if (grabbers.Length == 0)
             {
                 Debug.LogWarning($"Avatar {avatar.name}: No {nameof(UxrGrabber)} components found in hierarchy.");
+
                 return null;
             }
 
             // Iterate over meshes from grabbers
 
-            UxrPreviewHandGripMesh previewMesh = new UxrPreviewHandGripMesh();
+            var previewMesh = new UxrPreviewHandGripMesh();
 
-            foreach (UxrGrabber grabber in grabbers)
+            foreach (var grabber in grabbers)
             {
                 // Get mesh snapshot
 
-                Renderer renderer = grabber.HandRenderer;
+                var renderer = grabber.HandRenderer;
 
                 if (renderer is SkinnedMeshRenderer skinnedMeshRenderer && grabber.Side == handSide)
                 {
-                    Transform handTransform = avatar.GetHandBone(handSide);
+                    var handTransform = avatar.GetHandBone(handSide);
                     previewMesh.UnityMesh = new Mesh();
                     skinnedMeshRenderer.BakeMesh(previewMesh.UnityMesh);
                     previewMesh.CreateMesh(avatar, skinnedMeshRenderer, handSide);
@@ -121,8 +125,10 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
             }
 
             Debug.LogWarning($"Avatar {avatar.name}: No {(handSide == UxrHandSide.Left ? "left" : "right")} {nameof(UxrGrabber)} component found in avatar hierarchy or component has no renderer defined to get the mesh from.");
+
             return null;
         }
+
 
         /// <summary>
         ///     Refreshes the preview mesh.
@@ -138,8 +144,8 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
                 return false;
             }
 
-            UxrGrabber[] grabbers = avatar.GetComponentsInChildren<UxrGrabber>();
-            UxrGrabber   grabber  = grabbers.FirstOrDefault(g => g.Side == handSide);
+            var grabbers = avatar.GetComponentsInChildren<UxrGrabber>();
+            var grabber = grabbers.FirstOrDefault(g => g.Side == handSide);
 
             if (grabber == null)
             {
@@ -148,18 +154,19 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
 
             // Find pose
 
-            UxrHandPoseAsset handPoseAsset = grabbableObject.GetGrabPoint(grabPoint).GetGripPoseInfo(avatar).HandPose;
+            var handPoseAsset = grabbableObject.GetGrabPoint(grabPoint).GetGripPoseInfo(avatar).HandPose;
 
             if (handPoseAsset == null)
             {
                 return false;
             }
 
-            UxrHandPoseAsset avatarHandPose = avatar.GetHandPose(handPoseAsset.name);
+            var avatarHandPose = avatar.GetHandPose(handPoseAsset.name);
 
             if (avatarHandPose == null)
             {
                 Debug.LogWarning($"Avatar {avatar.name}: Could not find {nameof(UxrHandPoseAsset)} file for pose {handPoseAsset.name}.");
+
                 return false;
             }
 
@@ -182,6 +189,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
             return true;
         }
 
+
         /// <summary>
         ///     Changes the blend value for a pose that supports blending.
         /// </summary>
@@ -194,12 +202,13 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
             if (!IsValid)
             {
                 Debug.LogWarning("Preview mesh is not valid");
+
                 return;
             }
 
             // Compute hand to grabber transform matrix and remove scaling because grabbable objects may be scaled but we don't want the preview vertices to scale
 
-            Matrix4x4 handToGrabberMatrix = grabber.transform.worldToLocalMatrix * handTransform.localToWorldMatrix;
+            var handToGrabberMatrix = grabber.transform.worldToLocalMatrix * handTransform.localToWorldMatrix;
 
             // Precompute matrices
 
@@ -214,7 +223,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
 
             // Launch threads
 
-            int threadCount = 8;
+            var threadCount = 8;
 
             if (_vertices.Length < threadCount)
             {
@@ -222,23 +231,23 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
             }
             else
             {
-                List<Thread> threads = new List<Thread>();
+                var threads = new List<Thread>();
 
-                int threadVertexCount     = _vertices.Length / threadCount;
-                int lastThreadVertexCount = _vertices.Length - threadVertexCount * (threadCount - 1);
+                var threadVertexCount = _vertices.Length / threadCount;
+                var lastThreadVertexCount = _vertices.Length - threadVertexCount * (threadCount - 1);
 
-                for (int i = 0; i < threadCount; ++i)
+                for (var i = 0; i < threadCount; ++i)
                 {
-                    int    indexStart = i * threadVertexCount;
-                    int    indexCount = i < threadCount - 1 ? threadVertexCount : lastThreadVertexCount;
-                    Thread thread     = new Thread(() => ComputeMesh(indexStart, indexCount));
+                    var indexStart = i * threadVertexCount;
+                    var indexCount = i < threadCount - 1 ? threadVertexCount : lastThreadVertexCount;
+                    var thread = new Thread(() => ComputeMesh(indexStart, indexCount));
                     thread.Start();
                     threads.Add(thread);
                 }
 
                 // Wait for threads to finish
 
-                foreach (Thread thread in threads)
+                foreach (var thread in threads)
                 {
                     while (thread.IsAlive)
                     {
@@ -247,7 +256,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
             }
 
             UnityMesh.vertices = _vertices;
-            UnityMesh.normals  = _normals;
+            UnityMesh.normals = _normals;
             UnityMesh.RecalculateBounds();
         }
 
@@ -262,11 +271,12 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         /// <param name="boneList">List of bones</param>
         private static void ComputeBoneTransformsFixed(Matrix4x4 handToGrabberMatrix, List<UxrPreviewHandBoneInfo> boneList)
         {
-            foreach (UxrPreviewHandBoneInfo bone in boneList)
+            foreach (var bone in boneList)
             {
                 bone.CurrentTransform = handToGrabberMatrix * bone.TransformRelativeToHand * bone.BindPose;
             }
         }
+
 
         /// <summary>
         ///     Computes the bone transforms for a blend pose. The transforms move vertices from local space to grabber space.
@@ -279,22 +289,22 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         {
             // Compute first pass of interpolated relative matrices. We interpolate relative matrices instead of absolute to have correct blending.
 
-            for (int i = 0; i < boneListOpen.Count; ++i)
+            for (var i = 0; i < boneListOpen.Count; ++i)
             {
                 boneListOpen[i].CurrentRelativeTransform = Matrix4x4Ext.Interpolate(boneListOpen[i].TransformRelativeToParent, boneListClosed[i].TransformRelativeToParent, blendValue);
             }
 
             // Now compute the absolute matrices.
 
-            for (int i = 0; i < boneListOpen.Count; ++i)
+            for (var i = 0; i < boneListOpen.Count; ++i)
             {
-                int       currentBoneIndex = i;
-                Matrix4x4 matrix           = boneListOpen[i].CurrentRelativeTransform;
+                var currentBoneIndex = i;
+                var matrix = boneListOpen[i].CurrentRelativeTransform;
 
                 while (boneListOpen[currentBoneIndex].ParentBoneIndex != -1)
                 {
                     currentBoneIndex = boneListOpen[currentBoneIndex].ParentBoneIndex;
-                    matrix           = boneListOpen[currentBoneIndex].CurrentRelativeTransform * matrix;
+                    matrix = boneListOpen[currentBoneIndex].CurrentRelativeTransform * matrix;
                 }
 
                 boneListOpen[i].CurrentTransform = matrix;
@@ -302,11 +312,12 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
 
             // Now pre-compute the composite transform to have vertices from local to the grabber transform. We compute it in the open bone list to use the same multiplication routine as fixed poses later.
 
-            foreach (UxrPreviewHandBoneInfo bone in boneListOpen)
+            foreach (var bone in boneListOpen)
             {
                 bone.CurrentTransform = handToGrabberMatrix * bone.CurrentTransform * bone.BindPose;
             }
         }
+
 
         /// <summary>
         ///     Gets the bind pose of a given hand.
@@ -316,7 +327,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         /// <returns>Bind pose</returns>
         private static Matrix4x4 GetHandBindPose(SkinnedMeshRenderer skinnedMeshRenderer, Transform handTransform)
         {
-            for (int i = 0; i < skinnedMeshRenderer.bones.Length; ++i)
+            for (var i = 0; i < skinnedMeshRenderer.bones.Length; ++i)
             {
                 if (skinnedMeshRenderer.bones[i] == handTransform)
                 {
@@ -327,6 +338,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
             return Matrix4x4.identity;
         }
 
+
         /// <summary>
         ///     Creates preview mesh data for a given skinned mesh renderer.
         /// </summary>
@@ -336,17 +348,18 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         private void CreateMesh(UxrAvatar avatar, SkinnedMeshRenderer skinnedMeshRenderer, UxrHandSide handSide)
         {
             // Extract only hand portion of the mesh
-            
+
             UnityMesh = MeshExt.ExtractSubMesh(skinnedMeshRenderer, avatar.GetHand(handSide).Wrist, MeshExt.ExtractSubMeshOperation.BoneAndChildren);
-            
+
             // Create dynamic mesh data arrays
 
             _initialVertices = UnityMesh.vertices;
-            _initialNormals  = UnityMesh.normals;
-            _boneWeights     = UnityMesh.boneWeights;
-            _vertices        = new Vector3[_initialVertices.Length];
-            _normals         = new Vector3[_initialVertices.Length];
+            _initialNormals = UnityMesh.normals;
+            _boneWeights = UnityMesh.boneWeights;
+            _vertices = new Vector3[_initialVertices.Length];
+            _normals = new Vector3[_initialVertices.Length];
         }
+
 
         /// <summary>
         ///     Creates the internal bone list required for a given hand pose.
@@ -359,33 +372,34 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
         {
             // Create bone information
 
-            Matrix4x4 handBindPose = GetHandBindPose(skinnedMeshRenderer, avatar.GetHandBone(handSide));
+            var handBindPose = GetHandBindPose(skinnedMeshRenderer, avatar.GetHandBone(handSide));
 
             if (handPoseAsset.PoseType == UxrHandPoseType.Fixed)
             {
                 _bones = UxrPreviewHandBoneInfo.CreateHandBoneData(skinnedMeshRenderer,
-                                                                   skinnedMeshRenderer.sharedMesh.bindposes,
-                                                                   handBindPose,
-                                                                   handSide == UxrHandSide.Left ? handPoseAsset.HandDescriptorLeft : handPoseAsset.HandDescriptorRight,
-                                                                   avatar.GetHand(handSide));
+                    skinnedMeshRenderer.sharedMesh.bindposes,
+                    handBindPose,
+                    handSide == UxrHandSide.Left ? handPoseAsset.HandDescriptorLeft : handPoseAsset.HandDescriptorRight,
+                    avatar.GetHand(handSide));
 
                 _bonesClosed = new List<UxrPreviewHandBoneInfo>();
             }
             else if (handPoseAsset.PoseType == UxrHandPoseType.Blend)
             {
                 _bones = UxrPreviewHandBoneInfo.CreateHandBoneData(skinnedMeshRenderer,
-                                                                   skinnedMeshRenderer.sharedMesh.bindposes,
-                                                                   handBindPose,
-                                                                   handSide == UxrHandSide.Left ? handPoseAsset.HandDescriptorOpenLeft : handPoseAsset.HandDescriptorOpenRight,
-                                                                   avatar.GetHand(handSide));
+                    skinnedMeshRenderer.sharedMesh.bindposes,
+                    handBindPose,
+                    handSide == UxrHandSide.Left ? handPoseAsset.HandDescriptorOpenLeft : handPoseAsset.HandDescriptorOpenRight,
+                    avatar.GetHand(handSide));
 
                 _bonesClosed = UxrPreviewHandBoneInfo.CreateHandBoneData(skinnedMeshRenderer,
-                                                                         skinnedMeshRenderer.sharedMesh.bindposes,
-                                                                         handBindPose,
-                                                                         handSide == UxrHandSide.Left ? handPoseAsset.HandDescriptorClosedLeft : handPoseAsset.HandDescriptorClosedRight,
-                                                                         avatar.GetHand(handSide));
+                    skinnedMeshRenderer.sharedMesh.bindposes,
+                    handBindPose,
+                    handSide == UxrHandSide.Left ? handPoseAsset.HandDescriptorClosedLeft : handPoseAsset.HandDescriptorClosedRight,
+                    avatar.GetHand(handSide));
             }
         }
+
 
         /// <summary>
         ///     Called on different threads to compute the mesh.
@@ -402,6 +416,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
                 }
             }
 
+
             void AddNormalWeight(ref Vector3 normal, int vertexIndex, int boneIndex, float boneWeight)
             {
                 if (boneWeight > 0.0f)
@@ -410,10 +425,11 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
                 }
             }
 
-            for (int i = startIndex; i < startIndex + count; ++i)
+
+            for (var i = startIndex; i < startIndex + count; ++i)
             {
-                Vector3 vertex = Vector3.zero;
-                Vector3 normal = Vector3.zero;
+                var vertex = Vector3.zero;
+                var normal = Vector3.zero;
 
                 AddVertexWeight(ref vertex, i, _boneWeights[i].boneIndex0, _boneWeights[i].weight0);
                 AddVertexWeight(ref vertex, i, _boneWeights[i].boneIndex1, _boneWeights[i].weight1);
@@ -426,7 +442,7 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
                 AddNormalWeight(ref normal, i, _boneWeights[i].boneIndex3, _boneWeights[i].weight3);
 
                 _vertices[i] = vertex;
-                _normals[i]  = normal;
+                _normals[i] = normal;
             }
         }
 
@@ -434,14 +450,14 @@ namespace UltimateXR.Editor.Manipulation.HandPoses
 
         #region Private Types & Data
 
-        private Vector3[]                    _initialVertices;
-        private Vector3[]                    _initialNormals;
-        private Vector3[]                    _vertices;
-        private Vector3[]                    _normals;
+        private Vector3[] _initialVertices;
+        private Vector3[] _initialNormals;
+        private Vector3[] _vertices;
+        private Vector3[] _normals;
         private List<UxrPreviewHandBoneInfo> _bones;
         private List<UxrPreviewHandBoneInfo> _bonesClosed;
-        private BoneWeight[]                 _boneWeights;
-        private Dictionary<int, bool>        _arehandBones;
+        private BoneWeight[] _boneWeights;
+        private Dictionary<int, bool> _arehandBones;
 
         #endregion
     }

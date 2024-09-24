@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Avatar;
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Locomotion
 {
@@ -16,36 +18,6 @@ namespace UltimateXR.Locomotion
     /// </summary>
     public class UxrTeleportSpawnCollider : UxrComponent<UxrTeleportSpawnCollider>
     {
-        #region Inspector Properties/Serialized Fields
-
-        [SerializeField] private GameObject _enableWhenSelected;
-        [SerializeField] private Transform  _spawnPosOneSide;
-        [SerializeField] private Transform  _spawnPosOptionalOtherSide;
-        [SerializeField] private Transform  _altTargetPosOneSide;
-        [SerializeField] private Transform  _altTargetPosOtherSide;
-        [SerializeField] private float      _heightDistanceFactor = 1.0f;
-
-        #endregion
-
-        #region Public Types & Data
-
-        /// <summary>
-        ///     Event raised when the user was teleported by using the spawn collider.
-        /// </summary>
-        public event EventHandler<UxrAvatarMoveEventArgs> Teleported;
-
-        /// <summary>
-        ///     Gets or sets the <see cref="GameObject" /> that will be enabled while the component is being pointed at. This can
-        ///     be used to enable graphics that help identifying the interactivity and destination.
-        /// </summary>
-        public GameObject EnableWhenSelected
-        {
-            get => _enableWhenSelected;
-            set => _enableWhenSelected = value;
-        }
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -64,8 +36,8 @@ namespace UltimateXR.Locomotion
         {
             if (_spawnPosOneSide != null && _spawnPosOptionalOtherSide != null)
             {
-                Vector3 avatarPos     = avatar.CameraFloorPosition;
-                bool    isToOtherSide = Distance(avatarPos, _spawnPosOneSide.position) < Distance(avatarPos, _spawnPosOptionalOtherSide.position);
+                var avatarPos = avatar.CameraFloorPosition;
+                var isToOtherSide = Distance(avatarPos, _spawnPosOneSide.position) < Distance(avatarPos, _spawnPosOptionalOtherSide.position);
 
                 if (isToOtherSide)
                 {
@@ -78,12 +50,16 @@ namespace UltimateXR.Locomotion
 
                 return isToOtherSide ? _spawnPosOptionalOtherSide : _spawnPosOneSide;
             }
+
             if (_spawnPosOneSide != null)
             {
                 targetPosition = _altTargetPosOneSide != null ? _altTargetPosOneSide.position : _spawnPosOneSide.position;
+
                 return _spawnPosOneSide;
             }
+
             targetPosition = _altTargetPosOtherSide != null ? _altTargetPosOtherSide.position : _spawnPosOptionalOtherSide.position;
+
             return _spawnPosOptionalOtherSide;
         }
 
@@ -114,14 +90,44 @@ namespace UltimateXR.Locomotion
         /// <returns>Distance (horizontal + vertical).</returns>
         private float Distance(Vector3 avatarPosition, Vector3 spawnPosition)
         {
-            float verticalDistance = Mathf.Abs(avatarPosition.y - spawnPosition.y) * _heightDistanceFactor;
+            var verticalDistance = Mathf.Abs(avatarPosition.y - spawnPosition.y) * _heightDistanceFactor;
 
-            Vector3 a = avatarPosition;
-            Vector3 b = spawnPosition;
+            var a = avatarPosition;
+            var b = spawnPosition;
             a.y = 0.0f;
             b.y = 0.0f;
 
             return Vector3.Distance(a, b) + verticalDistance;
+        }
+
+        #endregion
+
+        #region Inspector Properties/Serialized Fields
+
+        [SerializeField] private GameObject _enableWhenSelected;
+        [SerializeField] private Transform _spawnPosOneSide;
+        [SerializeField] private Transform _spawnPosOptionalOtherSide;
+        [SerializeField] private Transform _altTargetPosOneSide;
+        [SerializeField] private Transform _altTargetPosOtherSide;
+        [SerializeField] private float _heightDistanceFactor = 1.0f;
+
+        #endregion
+
+        #region Public Types & Data
+
+        /// <summary>
+        ///     Event raised when the user was teleported by using the spawn collider.
+        /// </summary>
+        public event EventHandler<UxrAvatarMoveEventArgs> Teleported;
+
+        /// <summary>
+        ///     Gets or sets the <see cref="GameObject" /> that will be enabled while the component is being pointed at. This can
+        ///     be used to enable graphics that help identifying the interactivity and destination.
+        /// </summary>
+        public GameObject EnableWhenSelected
+        {
+            get => _enableWhenSelected;
+            set => _enableWhenSelected = value;
         }
 
         #endregion

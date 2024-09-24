@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -47,7 +49,7 @@ namespace UltimateXR.Manipulation
         {
             // If we have a custom name set up in the editor, use it
 
-            UxrGrabPointInfo grabPointInfo = grabbableObject.GetGrabPoint(index);
+            var grabPointInfo = grabbableObject.GetGrabPoint(index);
 
             if (grabPointInfo != null && !string.IsNullOrEmpty(grabPointInfo.EditorName))
             {
@@ -64,6 +66,7 @@ namespace UltimateXR.Manipulation
             return AdditionalGrabPointPrefix + " " + (index - 1);
         }
 
+
         /// <summary>
         ///     Gets the grab point index of a given display name.
         /// </summary>
@@ -75,6 +78,7 @@ namespace UltimateXR.Manipulation
             {
                 return 0;
             }
+
             if (name.StartsWith(AdditionalGrabPointPrefix))
             {
                 return int.Parse(name.Remove(0, AdditionalGrabPointPrefix.Length + 1)) + 1;
@@ -97,6 +101,7 @@ namespace UltimateXR.Manipulation
             return grabPointIndex._index;
         }
 
+
         /// <summary>
         ///     Converts from integer to <see cref="UxrGrabPointIndex" />.
         /// </summary>
@@ -111,7 +116,7 @@ namespace UltimateXR.Manipulation
 
         #region Private Types & Data
 
-        private const string MainGrabPointName         = "Main Grab Point";
+        private const string MainGrabPointName = "Main Grab Point";
         private const string AdditionalGrabPointPrefix = "Additional Grab Point";
 
         #endregion

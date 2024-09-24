@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections;
 using UltimateXR.Avatar;
 using UltimateXR.Core;
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Haptics.Helpers
 {
@@ -16,12 +18,48 @@ namespace UltimateXR.Haptics.Helpers
     /// </summary>
     public class UxrFixedHapticFeedback : UxrComponent
     {
+        #region Coroutines
+
+        /// <summary>
+        ///     Coroutine that sends continuous, fixed, haptic feedback to the target controller.
+        /// </summary>
+        /// <returns>Coroutine enumerator</returns>
+        private IEnumerator HapticsCoroutine()
+        {
+            yield return null;
+
+            while (true)
+            {
+                if (isActiveAndEnabled && UxrAvatar.LocalAvatar)
+                {
+                    SendHapticClip(_handSide);
+                }
+
+                yield return new WaitForSeconds(SampleDurationSeconds);
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Sends the haptic feedback.
+        /// </summary>
+        /// <param name="handSide">Target hand</param>
+        private void SendHapticClip(UxrHandSide handSide)
+        {
+            UxrAvatar.LocalAvatarInput.SendHapticFeedback(handSide, _frequency, _amplitude, SampleDurationSeconds);
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField]               private UxrHandSide   _handSide      = UxrHandSide.Left;
-        [SerializeField]               private UxrHapticMode _hapticMixMode = UxrHapticMode.Mix;
-        [SerializeField] [Range(0, 1)] private float         _amplitude     = 0.5f;
-        [SerializeField]               private float         _frequency     = 100.0f;
+        [SerializeField] private UxrHandSide _handSide = UxrHandSide.Left;
+        [SerializeField] private UxrHapticMode _hapticMixMode = UxrHapticMode.Mix;
+        [SerializeField] [Range(0, 1)] private float _amplitude = 0.5f;
+        [SerializeField] private float _frequency = 100.0f;
 
         #endregion
 
@@ -77,6 +115,7 @@ namespace UltimateXR.Haptics.Helpers
             _hapticsCoroutine = StartCoroutine(HapticsCoroutine());
         }
 
+
         /// <summary>
         ///     Stops the haptic coroutine.
         /// </summary>
@@ -85,42 +124,6 @@ namespace UltimateXR.Haptics.Helpers
             base.OnDisable();
 
             StopCoroutine(_hapticsCoroutine);
-        }
-
-        #endregion
-
-        #region Coroutines
-
-        /// <summary>
-        ///     Coroutine that sends continuous, fixed, haptic feedback to the target controller.
-        /// </summary>
-        /// <returns>Coroutine enumerator</returns>
-        private IEnumerator HapticsCoroutine()
-        {
-            yield return null;
-
-            while (true)
-            {
-                if (isActiveAndEnabled && UxrAvatar.LocalAvatar)
-                {
-                    SendHapticClip(_handSide);
-                }
-
-                yield return new WaitForSeconds(SampleDurationSeconds);
-            }
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Sends the haptic feedback.
-        /// </summary>
-        /// <param name="handSide">Target hand</param>
-        private void SendHapticClip(UxrHandSide handSide)
-        {
-            UxrAvatar.LocalAvatarInput.SendHapticFeedback(handSide, _frequency, _amplitude, SampleDurationSeconds);
         }
 
         #endregion

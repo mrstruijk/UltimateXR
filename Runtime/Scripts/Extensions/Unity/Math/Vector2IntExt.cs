@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using UltimateXR.Extensions.System;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Math
 {
@@ -43,6 +45,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return self.x == int.MinValue || self.x == int.MaxValue || self.y == int.MinValue || self.y == int.MaxValue;
         }
 
+
         /// <summary>
         ///     Computes the absolute values of each vector component.
         /// </summary>
@@ -53,6 +56,7 @@ namespace UltimateXR.Extensions.Unity.Math
             return new Vector2Int(Mathf.Abs(self.x), Mathf.Abs(self.y));
         }
 
+
         /// <summary>
         ///     Clamps the vector components between min and max values.
         /// </summary>
@@ -62,14 +66,16 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Clamped vector</returns>
         public static Vector2Int Clamp(this in Vector2Int self, in Vector2Int min, in Vector2Int max)
         {
-            int[] result = new int[VectorLength];
-            for (int i = 0; i < VectorLength; ++i)
+            var result = new int[VectorLength];
+
+            for (var i = 0; i < VectorLength; ++i)
             {
                 result[i] = Mathf.Clamp(self[i], min[i], max[i]);
             }
 
             return result.ToVector2Int();
         }
+
 
         /// <summary>
         ///     Replaces NaN component values with <paramref name="other" /> valid values.
@@ -79,14 +85,16 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Result vector</returns>
         public static Vector2Int FillNanWith(this in Vector2Int self, in Vector2Int other)
         {
-            int[] result = new int[VectorLength];
-            for (int i = 0; i < VectorLength; ++i)
+            var result = new int[VectorLength];
+
+            for (var i = 0; i < VectorLength; ++i)
             {
                 result[i] = self.x == int.MinValue || self.x == int.MaxValue ? other[i] : self[i];
             }
 
             return result.ToVector2Int();
         }
+
 
         /// <summary>
         ///     Transforms an array of ints to a <see cref="Vector2Int" /> component by component.
@@ -96,8 +104,10 @@ namespace UltimateXR.Extensions.Unity.Math
         public static Vector2Int ToVector2Int(this int[] data)
         {
             Array.Resize(ref data, VectorLength);
+
             return new Vector2Int(data[0], data[1]);
         }
+
 
         /// <summary>
         ///     Tries to parse a <see cref="Vector2Int" /> from a string.
@@ -110,14 +120,17 @@ namespace UltimateXR.Extensions.Unity.Math
             try
             {
                 result = Parse(s);
+
                 return true;
             }
             catch
             {
                 result = PositiveInfinity;
+
                 return false;
             }
         }
+
 
         /// <summary>
         ///     Parses a <see cref="Vector2Int" /> from a string.
@@ -133,17 +146,19 @@ namespace UltimateXR.Extensions.Unity.Math
             s = s.TrimEnd(' ', ')', ']');
 
             // split the items
-            string[] sArray = s.Split(s_cardinalSeparator, VectorLength);
+            var sArray = s.Split(s_cardinalSeparator, VectorLength);
 
             // store as an array
-            int[] result = new int[VectorLength];
-            for (int i = 0; i < sArray.Length; ++i)
+            var result = new int[VectorLength];
+
+            for (var i = 0; i < sArray.Length; ++i)
             {
                 result[i] = int.Parse(sArray[i], CultureInfo.InvariantCulture.NumberFormat);
             }
 
             return result.ToVector2Int();
         }
+
 
         /// <summary>
         ///     Tries to parse a <see cref="Vector2Int" /> from a string, asynchronously.
@@ -153,19 +168,19 @@ namespace UltimateXR.Extensions.Unity.Math
         /// <returns>Awaitable task returning the parsed vector or null if there was an error</returns>
         public static Task<Vector2Int?> ParseAsync(string s, CancellationToken ct = default)
         {
-            return Task.Run(() => TryParse(s, out Vector2Int result) ? result : (Vector2Int?)null, ct);
+            return Task.Run(() => TryParse(s, out var result) ? result : (Vector2Int?) null, ct);
         }
 
         #endregion
 
         #region Private Types & Data
 
-        private const int    VectorLength      = 2;
+        private const int VectorLength = 2;
         private const string CardinalSeparator = ",";
 
-        private static readonly char[]     s_cardinalSeparator = CardinalSeparator.ToCharArray();
-        private static readonly Vector2Int s_negativeInfinity  = int.MinValue * Vector2Int.one;
-        private static readonly Vector2Int s_positiveInfinity  = int.MaxValue * Vector2Int.one;
+        private static readonly char[] s_cardinalSeparator = CardinalSeparator.ToCharArray();
+        private static readonly Vector2Int s_negativeInfinity = int.MinValue * Vector2Int.one;
+        private static readonly Vector2Int s_positiveInfinity = int.MaxValue * Vector2Int.one;
 
         #endregion
     }

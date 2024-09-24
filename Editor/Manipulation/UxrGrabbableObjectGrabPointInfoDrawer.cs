@@ -3,7 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-using System.Collections.Generic;
+
 using System.Linq;
 using UltimateXR.Avatar;
 using UltimateXR.Core;
@@ -12,6 +12,7 @@ using UltimateXR.Manipulation;
 using UltimateXR.Manipulation.HandPoses;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Manipulation
 {
@@ -31,7 +32,7 @@ namespace UltimateXR.Editor.Manipulation
                 return EditorGUIUtility.singleLineHeight;
             }
 
-            int lines = 10;
+            var lines = 10;
 
             if (property.FindPropertyRelative(PropertyUseDefaultGrabButtons).boolValue == false)
             {
@@ -47,9 +48,9 @@ namespace UltimateXR.Editor.Manipulation
 
             // Check if we have an avatar controller selected and if so, also if the pose is a blend one
 
-            SerializedProperty gripPoseInfoProperty = GetGripPoseInfoSerializedProperty(property);
-            GameObject         selectedPrefab       = (property.serializedObject.targetObject as UxrGrabbableObject).Editor_GetSelectedAvatarPrefabForGrips();
-            UxrAvatar          selectedAvatarPrefab = selectedPrefab != null ? selectedPrefab.GetComponent<UxrAvatar>() : null;
+            var gripPoseInfoProperty = GetGripPoseInfoSerializedProperty(property);
+            var selectedPrefab = (property.serializedObject.targetObject as UxrGrabbableObject).Editor_GetSelectedAvatarPrefabForGrips();
+            var selectedAvatarPrefab = selectedPrefab != null ? selectedPrefab.GetComponent<UxrAvatar>() : null;
 
             if (selectedAvatarPrefab)
             {
@@ -58,8 +59,8 @@ namespace UltimateXR.Editor.Manipulation
                     // Pose
                     lines += 1;
 
-                    UxrHandPoseAsset selectedHandPose = gripPoseInfoProperty.FindPropertyRelative(PropertyGripHandPose).objectReferenceValue as UxrHandPoseAsset;
-                    UxrHandPoseAsset avatarHandPose   = selectedHandPose != null ? selectedAvatarPrefab.GetAllHandPoses().FirstOrDefault(p => p.name == selectedHandPose.name) : null;
+                    var selectedHandPose = gripPoseInfoProperty.FindPropertyRelative(PropertyGripHandPose).objectReferenceValue as UxrHandPoseAsset;
+                    var avatarHandPose = selectedHandPose != null ? selectedAvatarPrefab.GetAllHandPoses().FirstOrDefault(p => p.name == selectedHandPose.name) : null;
 
                     if (avatarHandPose != null && avatarHandPose.PoseType == UxrHandPoseType.Blend)
                     {
@@ -69,22 +70,24 @@ namespace UltimateXR.Editor.Manipulation
                 }
             }
 
-            if (property.FindPropertyRelative(PropertySnapMode).enumValueIndex != (int)UxrSnapToHandMode.DontSnap)
+            if (property.FindPropertyRelative(PropertySnapMode).enumValueIndex != (int) UxrSnapToHandMode.DontSnap)
             {
                 // Snap direction + use self or other transform reference
                 lines += 2;
 
-                if (property.FindPropertyRelative(PropertySnapReference).enumValueIndex == (int)UxrSnapReference.UseOtherTransform)
+                if (property.FindPropertyRelative(PropertySnapReference).enumValueIndex == (int) UxrSnapReference.UseOtherTransform)
                 {
-                    bool leftHandCompatible = property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue ||
-                                              (property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue == false && property.FindPropertyRelative(PropertyHandSide).enumValueIndex == (int)UxrHandSide.Left);
-                    bool rightHandCompatible = property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue ||
-                                               (property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue == false && property.FindPropertyRelative(PropertyHandSide).enumValueIndex == (int)UxrHandSide.Right);
+                    var leftHandCompatible = property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue ||
+                                             (property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue == false && property.FindPropertyRelative(PropertyHandSide).enumValueIndex == (int) UxrHandSide.Left);
+
+                    var rightHandCompatible = property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue ||
+                                              (property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue == false && property.FindPropertyRelative(PropertyHandSide).enumValueIndex == (int) UxrHandSide.Right);
 
                     if (leftHandCompatible)
                     {
                         lines++; // left snap transform
                     }
+
                     if (rightHandCompatible)
                     {
                         lines++; // right snap transform
@@ -97,8 +100,8 @@ namespace UltimateXR.Editor.Manipulation
                     }
                 }
 
-                if (property.FindPropertyRelative(PropertySnapMode).enumValueIndex == (int)UxrSnapToHandMode.RotationOnly ||
-                    property.FindPropertyRelative(PropertySnapMode).enumValueIndex == (int)UxrSnapToHandMode.PositionAndRotation)
+                if (property.FindPropertyRelative(PropertySnapMode).enumValueIndex == (int) UxrSnapToHandMode.RotationOnly ||
+                    property.FindPropertyRelative(PropertySnapMode).enumValueIndex == (int) UxrSnapToHandMode.PositionAndRotation)
                 {
                     lines += 1; // Align to controller
 
@@ -109,12 +112,12 @@ namespace UltimateXR.Editor.Manipulation
                 }
             }
 
-            if (property.FindPropertyRelative(PropertyGrabProximityMode).enumValueIndex == (int)UxrGrabProximityMode.UseProximity)
+            if (property.FindPropertyRelative(PropertyGrabProximityMode).enumValueIndex == (int) UxrGrabProximityMode.UseProximity)
             {
                 // Distance grab + reference + optional other reference transform
                 lines += property.FindPropertyRelative(PropertyGrabProximityTransformUseSelf).boolValue ? 2 : 3;
             }
-            else if (property.FindPropertyRelative(PropertyGrabProximityMode).enumValueIndex == (int)UxrGrabProximityMode.BoxConstrained)
+            else if (property.FindPropertyRelative(PropertyGrabProximityMode).enumValueIndex == (int) UxrGrabProximityMode.BoxConstrained)
             {
                 // Box
                 lines++;
@@ -143,40 +146,40 @@ namespace UltimateXR.Editor.Manipulation
         /// <param name="foldout">Whether to foldout the destination property</param>
         internal static void CopyRelevantProperties(SerializedProperty propertySrc, SerializedProperty propertyDst, bool foldout)
         {
-            propertyDst.FindPropertyRelative(PropertyFoldout).boolValue                           = foldout;
-            propertyDst.FindPropertyRelative(PropertyGrabMode).enumValueIndex                     = propertySrc.FindPropertyRelative(PropertyGrabMode).enumValueIndex;
-            propertyDst.FindPropertyRelative(PropertyUseDefaultGrabButtons).boolValue             = propertySrc.FindPropertyRelative(PropertyUseDefaultGrabButtons).boolValue;
-            propertyDst.FindPropertyRelative(PropertyInputButtons).intValue                       = propertySrc.FindPropertyRelative(PropertyInputButtons).intValue;
-            propertyDst.FindPropertyRelative(PropertyBothHandsCompatible).boolValue               = propertySrc.FindPropertyRelative(PropertyBothHandsCompatible).boolValue;
-            propertyDst.FindPropertyRelative(PropertyHandSide).enumValueIndex                     = propertySrc.FindPropertyRelative(PropertyHandSide).enumValueIndex;
-            propertyDst.FindPropertyRelative(PropertyHideHandGrabberRenderer).boolValue           = propertySrc.FindPropertyRelative(PropertyHideHandGrabberRenderer).boolValue;
-            propertyDst.FindPropertyRelative(PropertySnapMode).enumValueIndex                     = propertySrc.FindPropertyRelative(PropertySnapMode).enumValueIndex;
-            propertyDst.FindPropertyRelative(PropertySnapDirection).enumValueIndex                = propertySrc.FindPropertyRelative(PropertySnapDirection).enumValueIndex;
-            propertyDst.FindPropertyRelative(PropertySnapReference).enumValueIndex                = propertySrc.FindPropertyRelative(PropertySnapReference).enumValueIndex;
-            propertyDst.FindPropertyRelative(PropertyAlignToController).boolValue                 = propertySrc.FindPropertyRelative(PropertyAlignToController).boolValue;
-            propertyDst.FindPropertyRelative(PropertyAlignToControllerAxes).objectReferenceValue  = propertySrc.FindPropertyRelative(PropertyAlignToControllerAxes).objectReferenceValue;
-            propertyDst.FindPropertyRelative(PropertyGrabProximityMode).enumValueIndex            = propertySrc.FindPropertyRelative(PropertyGrabProximityMode).enumValueIndex;
-            propertyDst.FindPropertyRelative(PropertyGrabProximityBox).objectReferenceValue       = null;
-            propertyDst.FindPropertyRelative(PropertyMaxDistanceGrab).floatValue                  = propertySrc.FindPropertyRelative(PropertyMaxDistanceGrab).floatValue;
-            propertyDst.FindPropertyRelative(PropertyGrabProximityTransformUseSelf).boolValue     = propertySrc.FindPropertyRelative(PropertyGrabProximityTransformUseSelf).boolValue;
+            propertyDst.FindPropertyRelative(PropertyFoldout).boolValue = foldout;
+            propertyDst.FindPropertyRelative(PropertyGrabMode).enumValueIndex = propertySrc.FindPropertyRelative(PropertyGrabMode).enumValueIndex;
+            propertyDst.FindPropertyRelative(PropertyUseDefaultGrabButtons).boolValue = propertySrc.FindPropertyRelative(PropertyUseDefaultGrabButtons).boolValue;
+            propertyDst.FindPropertyRelative(PropertyInputButtons).intValue = propertySrc.FindPropertyRelative(PropertyInputButtons).intValue;
+            propertyDst.FindPropertyRelative(PropertyBothHandsCompatible).boolValue = propertySrc.FindPropertyRelative(PropertyBothHandsCompatible).boolValue;
+            propertyDst.FindPropertyRelative(PropertyHandSide).enumValueIndex = propertySrc.FindPropertyRelative(PropertyHandSide).enumValueIndex;
+            propertyDst.FindPropertyRelative(PropertyHideHandGrabberRenderer).boolValue = propertySrc.FindPropertyRelative(PropertyHideHandGrabberRenderer).boolValue;
+            propertyDst.FindPropertyRelative(PropertySnapMode).enumValueIndex = propertySrc.FindPropertyRelative(PropertySnapMode).enumValueIndex;
+            propertyDst.FindPropertyRelative(PropertySnapDirection).enumValueIndex = propertySrc.FindPropertyRelative(PropertySnapDirection).enumValueIndex;
+            propertyDst.FindPropertyRelative(PropertySnapReference).enumValueIndex = propertySrc.FindPropertyRelative(PropertySnapReference).enumValueIndex;
+            propertyDst.FindPropertyRelative(PropertyAlignToController).boolValue = propertySrc.FindPropertyRelative(PropertyAlignToController).boolValue;
+            propertyDst.FindPropertyRelative(PropertyAlignToControllerAxes).objectReferenceValue = propertySrc.FindPropertyRelative(PropertyAlignToControllerAxes).objectReferenceValue;
+            propertyDst.FindPropertyRelative(PropertyGrabProximityMode).enumValueIndex = propertySrc.FindPropertyRelative(PropertyGrabProximityMode).enumValueIndex;
+            propertyDst.FindPropertyRelative(PropertyGrabProximityBox).objectReferenceValue = null;
+            propertyDst.FindPropertyRelative(PropertyMaxDistanceGrab).floatValue = propertySrc.FindPropertyRelative(PropertyMaxDistanceGrab).floatValue;
+            propertyDst.FindPropertyRelative(PropertyGrabProximityTransformUseSelf).boolValue = propertySrc.FindPropertyRelative(PropertyGrabProximityTransformUseSelf).boolValue;
             propertyDst.FindPropertyRelative(PropertyGrabProximityTransform).objectReferenceValue = null;
-            propertyDst.FindPropertyRelative(PropertyGrabberProximityUseDefault).boolValue        = propertySrc.FindPropertyRelative(PropertyGrabberProximityUseDefault).boolValue;
-            propertyDst.FindPropertyRelative(PropertyGrabberProximityIndex).intValue              = propertySrc.FindPropertyRelative(PropertyGrabberProximityIndex).intValue;
-            propertyDst.FindPropertyRelative(PropertyEnableOnHandNear).objectReferenceValue       = null;
-            
+            propertyDst.FindPropertyRelative(PropertyGrabberProximityUseDefault).boolValue = propertySrc.FindPropertyRelative(PropertyGrabberProximityUseDefault).boolValue;
+            propertyDst.FindPropertyRelative(PropertyGrabberProximityIndex).intValue = propertySrc.FindPropertyRelative(PropertyGrabberProximityIndex).intValue;
+            propertyDst.FindPropertyRelative(PropertyEnableOnHandNear).objectReferenceValue = null;
+
             // Create grip pose entries
 
             propertyDst.FindPropertyRelative(PropertyAvatarGripPoseEntries).arraySize = propertySrc.FindPropertyRelative(PropertyAvatarGripPoseEntries).arraySize;
 
-            for (int i = 0; i < propertySrc.FindPropertyRelative(PropertyAvatarGripPoseEntries).arraySize; ++i)
+            for (var i = 0; i < propertySrc.FindPropertyRelative(PropertyAvatarGripPoseEntries).arraySize; ++i)
             {
-                SerializedProperty gripPoseEntriesSrc = propertySrc.FindPropertyRelative(PropertyAvatarGripPoseEntries).GetArrayElementAtIndex(i);
-                SerializedProperty gripPoseEntriesDst = propertyDst.FindPropertyRelative(PropertyAvatarGripPoseEntries).GetArrayElementAtIndex(i);
+                var gripPoseEntriesSrc = propertySrc.FindPropertyRelative(PropertyAvatarGripPoseEntries).GetArrayElementAtIndex(i);
+                var gripPoseEntriesDst = propertyDst.FindPropertyRelative(PropertyAvatarGripPoseEntries).GetArrayElementAtIndex(i);
 
-                gripPoseEntriesDst.FindPropertyRelative(PropertyGripPoseAvatarGuid).stringValue                   = gripPoseEntriesSrc.FindPropertyRelative(PropertyGripPoseAvatarGuid).stringValue;
-                gripPoseEntriesDst.FindPropertyRelative(PropertyGripHandPose).objectReferenceValue                = null;
-                gripPoseEntriesDst.FindPropertyRelative(PropertyGripPoseBlendValue).floatValue                    = 0.5f;
-                gripPoseEntriesDst.FindPropertyRelative(PropertyGripAlignTransformHandLeft).objectReferenceValue  = null;
+                gripPoseEntriesDst.FindPropertyRelative(PropertyGripPoseAvatarGuid).stringValue = gripPoseEntriesSrc.FindPropertyRelative(PropertyGripPoseAvatarGuid).stringValue;
+                gripPoseEntriesDst.FindPropertyRelative(PropertyGripHandPose).objectReferenceValue = null;
+                gripPoseEntriesDst.FindPropertyRelative(PropertyGripPoseBlendValue).floatValue = 0.5f;
+                gripPoseEntriesDst.FindPropertyRelative(PropertyGripAlignTransformHandLeft).objectReferenceValue = null;
                 gripPoseEntriesDst.FindPropertyRelative(PropertyGripAlignTransformHandRight).objectReferenceValue = null;
             }
         }
@@ -197,49 +200,51 @@ namespace UltimateXR.Editor.Manipulation
 
             // Find grab point index
 
-            SerializedProperty propertyGrabPoint            = property.serializedObject.FindProperty(UxrGrabbableObjectEditor.PropertyGrabPoint);
-            SerializedProperty propertyAdditionalGrabPoints = property.serializedObject.FindProperty(UxrGrabbableObjectEditor.PropertyAdditionalGrabPoints);
+            var propertyGrabPoint = property.serializedObject.FindProperty(UxrGrabbableObjectEditor.PropertyGrabPoint);
+            var propertyAdditionalGrabPoints = property.serializedObject.FindProperty(UxrGrabbableObjectEditor.PropertyAdditionalGrabPoints);
 
-            int grabPointIndex = property.propertyPath == propertyGrabPoint.propertyPath ? 0 : -1;
+            var grabPointIndex = property.propertyPath == propertyGrabPoint.propertyPath ? 0 : -1;
 
             if (grabPointIndex == -1)
             {
-                for (int i = 0; i < propertyAdditionalGrabPoints.arraySize; ++i)
+                for (var i = 0; i < propertyAdditionalGrabPoints.arraySize; ++i)
                 {
                     if (propertyAdditionalGrabPoints.GetArrayElementAtIndex(i).propertyPath == property.propertyPath)
                     {
                         grabPointIndex = i + 1;
+
                         break;
                     }
                 }
             }
 
-            string grabPointEditorName = UxrGrabPointIndex.GetIndexDisplayName(property.serializedObject.targetObject as UxrGrabbableObject, grabPointIndex);
+            var grabPointEditorName = UxrGrabPointIndex.GetIndexDisplayName(property.serializedObject.targetObject as UxrGrabbableObject, grabPointIndex);
 
             // Create foldout
 
             property.FindPropertyRelative(PropertyFoldout).boolValue = EditorGUI.Foldout(UxrEditorUtils.GetRect(position, 0), property.FindPropertyRelative(PropertyFoldout).boolValue, grabPointEditorName);
 
-            int line = 1;
+            var line = 1;
 
             if (property.FindPropertyRelative(PropertyFoldout).boolValue)
             {
-                SerializedProperty gripPoseInfoProperty = GetGripPoseInfoSerializedProperty(property);
-                GameObject         selectedPrefab       = (property.serializedObject.targetObject as UxrGrabbableObject).Editor_GetSelectedAvatarPrefabForGrips();
-                UxrAvatar          selectedAvatarPrefab = selectedPrefab != null ? selectedPrefab.GetComponent<UxrAvatar>() : null;
+                var gripPoseInfoProperty = GetGripPoseInfoSerializedProperty(property);
+                var selectedPrefab = (property.serializedObject.targetObject as UxrGrabbableObject).Editor_GetSelectedAvatarPrefabForGrips();
+                var selectedAvatarPrefab = selectedPrefab != null ? selectedPrefab.GetComponent<UxrAvatar>() : null;
 
-                EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyEditorName),            ContentEditorName);
-                EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyGrabMode),              ContentGrabMode);
+                EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyEditorName), ContentEditorName);
+                EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyGrabMode), ContentGrabMode);
                 EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyUseDefaultGrabButtons), ContentUseDefaultGrabButtons);
 
                 if (property.FindPropertyRelative(PropertyUseDefaultGrabButtons).boolValue == false)
                 {
-                    int buttons = EditorGUI.MaskField(UxrEditorUtils.GetRect(position, line++), ContentInputButtons, property.FindPropertyRelative(PropertyInputButtons).intValue, UxrEditorUtils.GetControllerButtonNames().ToArray());
+                    var buttons = EditorGUI.MaskField(UxrEditorUtils.GetRect(position, line++), ContentInputButtons, property.FindPropertyRelative(PropertyInputButtons).intValue, UxrEditorUtils.GetControllerButtonNames().ToArray());
                     property.FindPropertyRelative(PropertyInputButtons).intValue = buttons;
                 }
 
                 EditorGUI.BeginChangeCheck();
                 EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyBothHandsCompatible), ContentBothHandsCompatible);
+
                 if (EditorGUI.EndChangeCheck())
                 {
                     SetGrabbableObjectGrabPoseMeshesDirty(property, grabPointIndex);
@@ -249,19 +254,22 @@ namespace UltimateXR.Editor.Manipulation
                 {
                     EditorGUI.BeginChangeCheck();
                     EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyHandSide), ContentHandSide);
+
                     if (EditorGUI.EndChangeCheck())
                     {
                         SetGrabbableObjectGrabPoseMeshesDirty(property, grabPointIndex);
                     }
                 }
 
-                bool leftHandCompatible = property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue ||
-                                          (property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue == false && property.FindPropertyRelative(PropertyHandSide).enumValueIndex == (int)UxrHandSide.Left);
-                bool rightHandCompatible = property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue ||
-                                           (property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue == false && property.FindPropertyRelative(PropertyHandSide).enumValueIndex == (int)UxrHandSide.Right);
+                var leftHandCompatible = property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue ||
+                                         (property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue == false && property.FindPropertyRelative(PropertyHandSide).enumValueIndex == (int) UxrHandSide.Left);
+
+                var rightHandCompatible = property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue ||
+                                          (property.FindPropertyRelative(PropertyBothHandsCompatible).boolValue == false && property.FindPropertyRelative(PropertyHandSide).enumValueIndex == (int) UxrHandSide.Right);
 
                 EditorGUI.BeginChangeCheck();
                 EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyHideHandGrabberRenderer), ContentHideHandGrabberRenderer);
+
                 if (EditorGUI.EndChangeCheck())
                 {
                     SetGrabbableObjectGrabPoseMeshesDirty(property, grabPointIndex);
@@ -269,24 +277,26 @@ namespace UltimateXR.Editor.Manipulation
 
                 EditorGUI.BeginChangeCheck();
                 EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertySnapMode), ContentSnapMode);
+
                 if (EditorGUI.EndChangeCheck())
                 {
                     SetGrabbableObjectGrabPoseMeshesDirty(property, grabPointIndex);
                 }
 
-                if (property.FindPropertyRelative(PropertySnapMode).enumValueIndex != (int)UxrSnapToHandMode.DontSnap)
+                if (property.FindPropertyRelative(PropertySnapMode).enumValueIndex != (int) UxrSnapToHandMode.DontSnap)
                 {
                     EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertySnapDirection), ContentSnapDirection);
 
                     EditorGUI.BeginChangeCheck();
                     EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertySnapReference), ContentSnapReference);
+
                     if (EditorGUI.EndChangeCheck())
                     {
                         SetGrabbableObjectGrabPoseMeshesDirty(property, grabPointIndex);
                     }
                 }
 
-                Color guiColor = GUI.color;
+                var guiColor = GUI.color;
 
                 if (selectedAvatarPrefab != null)
                 {
@@ -296,13 +306,14 @@ namespace UltimateXR.Editor.Manipulation
                     {
                         // Pose name
 
-                        List<UxrHandPoseAsset> handPoses         = selectedAvatarPrefab.GetAllHandPoses().ToList();
-                        int                    selectedPoseIndex = -1;
+                        var handPoses = selectedAvatarPrefab.GetAllHandPoses().ToList();
+                        var selectedPoseIndex = -1;
 
                         if (handPoses.Any())
                         {
                             EditorGUI.BeginChangeCheck();
-                            UxrHandPoseAsset handPose = gripPoseInfoProperty.FindPropertyRelative(PropertyGripHandPose).objectReferenceValue as UxrHandPoseAsset;
+                            var handPose = gripPoseInfoProperty.FindPropertyRelative(PropertyGripHandPose).objectReferenceValue as UxrHandPoseAsset;
+
                             if (EditorGUI.EndChangeCheck())
                             {
                                 if (handPose == null)
@@ -313,7 +324,7 @@ namespace UltimateXR.Editor.Manipulation
 
                             if (handPose != null)
                             {
-                                UxrHandPoseAsset selectedHandPoseAsset = handPoses.FirstOrDefault(p => p.name == handPose.name);
+                                var selectedHandPoseAsset = handPoses.FirstOrDefault(p => p.name == handPose.name);
 
                                 if (selectedHandPoseAsset != null)
                                 {
@@ -323,10 +334,12 @@ namespace UltimateXR.Editor.Manipulation
                         }
 
                         EditorGUI.BeginChangeCheck();
+
                         selectedPoseIndex = EditorGUI.Popup(UxrEditorUtils.GetRect(position, line++),
-                                                            ContentGripPoseName,
-                                                            selectedPoseIndex,
-                                                            UxrEditorUtils.ToGUIContentArray(handPoses.Select(p => p.name)));
+                            ContentGripPoseName,
+                            selectedPoseIndex,
+                            UxrEditorUtils.ToGUIContentArray(handPoses.Select(p => p.name)));
+
                         if (EditorGUI.EndChangeCheck())
                         {
                             gripPoseInfoProperty.FindPropertyRelative(PropertyGripHandPose).objectReferenceValue = handPoses[selectedPoseIndex];
@@ -339,6 +352,7 @@ namespace UltimateXR.Editor.Manipulation
                         {
                             EditorGUI.BeginChangeCheck();
                             EditorGUI.Slider(UxrEditorUtils.GetRect(position, line++), gripPoseInfoProperty.FindPropertyRelative(PropertyGripPoseBlendValue), 0.0f, 1.0f, ContentGripPoseBlendVarValue);
+
                             if (EditorGUI.EndChangeCheck())
                             {
                                 SetGrabbableObjectGrabPoseMeshesDirty(property, grabPointIndex, UxrPreviewPoseRegeneration.OnlyBlend);
@@ -351,20 +365,21 @@ namespace UltimateXR.Editor.Manipulation
                     // Default GripPoseInfo. No hand pose.
 
                     gripPoseInfoProperty.FindPropertyRelative(PropertyGripHandPose).objectReferenceValue = null;
-                    gripPoseInfoProperty.FindPropertyRelative(PropertyGripPoseBlendValue).floatValue     = -1.0f;
+                    gripPoseInfoProperty.FindPropertyRelative(PropertyGripPoseBlendValue).floatValue = -1.0f;
                 }
 
-                if (property.FindPropertyRelative(PropertySnapMode).enumValueIndex != (int)UxrSnapToHandMode.DontSnap && property.FindPropertyRelative(PropertySnapReference).enumValueIndex == (int)UxrSnapReference.UseOtherTransform)
+                if (property.FindPropertyRelative(PropertySnapMode).enumValueIndex != (int) UxrSnapToHandMode.DontSnap && property.FindPropertyRelative(PropertySnapReference).enumValueIndex == (int) UxrSnapReference.UseOtherTransform)
                 {
                     if (leftHandCompatible)
                     {
                         EditorGUI.BeginChangeCheck();
-                        Transform snapTransformOld = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandLeft).objectReferenceValue as Transform;
+                        var snapTransformOld = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandLeft).objectReferenceValue as Transform;
                         EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandLeft), ContentGripAlignTransformHandLeft);
+
                         if (EditorGUI.EndChangeCheck())
                         {
-                            Transform snapTransformNew = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandLeft).objectReferenceValue as Transform;
-                            Object[]  targetObjects    = property.serializedObject.targetObjects;
+                            var snapTransformNew = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandLeft).objectReferenceValue as Transform;
+                            var targetObjects = property.serializedObject.targetObjects;
 
                             if (targetObjects.Length == 1 && snapTransformNew != null && !snapTransformNew.HasParent((targetObjects[0] as UxrGrabbableObject).transform))
                             {
@@ -381,12 +396,13 @@ namespace UltimateXR.Editor.Manipulation
                     if (rightHandCompatible)
                     {
                         EditorGUI.BeginChangeCheck();
-                        Transform snapTransformOld = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandRight).objectReferenceValue as Transform;
+                        var snapTransformOld = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandRight).objectReferenceValue as Transform;
                         EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandRight), ContentGripAlignTransformHandRight);
+
                         if (EditorGUI.EndChangeCheck())
                         {
-                            Transform snapTransformNew = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandRight).objectReferenceValue as Transform;
-                            Object[]  targetObjects    = property.serializedObject.targetObjects;
+                            var snapTransformNew = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandRight).objectReferenceValue as Transform;
+                            var targetObjects = property.serializedObject.targetObjects;
 
                             if (targetObjects.Length == 1 && snapTransformNew && !snapTransformNew.HasParent((targetObjects[0] as UxrGrabbableObject).transform))
                             {
@@ -400,11 +416,11 @@ namespace UltimateXR.Editor.Manipulation
                         }
                     }
 
-                    int       snapButtonPadding    = 20;
-                    int       snapButtonSeparation = 20;
-                    bool      buttonDrawn          = false;
-                    Transform leftSnap             = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandLeft).objectReferenceValue as Transform;
-                    Transform rightSnap            = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandRight).objectReferenceValue as Transform;
+                    var snapButtonPadding = 20;
+                    var snapButtonSeparation = 20;
+                    var buttonDrawn = false;
+                    var leftSnap = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandLeft).objectReferenceValue as Transform;
+                    var rightSnap = gripPoseInfoProperty.FindPropertyRelative(PropertyGripAlignTransformHandRight).objectReferenceValue as Transform;
 
                     if (leftHandCompatible && leftSnap == null && property.serializedObject.targetObjects.Count() == 1)
                     {
@@ -447,8 +463,8 @@ namespace UltimateXR.Editor.Manipulation
                     GUI.color = guiColor;
                 }
 
-                if (property.FindPropertyRelative(PropertySnapMode).enumValueIndex == (int)UxrSnapToHandMode.RotationOnly ||
-                    property.FindPropertyRelative(PropertySnapMode).enumValueIndex == (int)UxrSnapToHandMode.PositionAndRotation)
+                if (property.FindPropertyRelative(PropertySnapMode).enumValueIndex == (int) UxrSnapToHandMode.RotationOnly ||
+                    property.FindPropertyRelative(PropertySnapMode).enumValueIndex == (int) UxrSnapToHandMode.PositionAndRotation)
                 {
                     EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyAlignToController), ContentAlignToController);
 
@@ -460,14 +476,14 @@ namespace UltimateXR.Editor.Manipulation
 
                 EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyGrabProximityMode), ContentGrabProximityMode);
 
-                if (property.FindPropertyRelative(PropertyGrabProximityMode).enumValueIndex == (int)UxrGrabProximityMode.UseProximity)
+                if (property.FindPropertyRelative(PropertyGrabProximityMode).enumValueIndex == (int) UxrGrabProximityMode.UseProximity)
                 {
                     EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, line++), property.FindPropertyRelative(PropertyMaxDistanceGrab), ContentMaxDistanceGrab);
 
-                    int popup = EditorGUI.Popup(UxrEditorUtils.GetRect(position, line++),
-                                                ContentGrabbableDistanceReference,
-                                                property.FindPropertyRelative(PropertyGrabProximityTransformUseSelf).boolValue ? 0 : 1,
-                                                new[] { new GUIContent("Grip"), new GUIContent("Use other transform") });
+                    var popup = EditorGUI.Popup(UxrEditorUtils.GetRect(position, line++),
+                        ContentGrabbableDistanceReference,
+                        property.FindPropertyRelative(PropertyGrabProximityTransformUseSelf).boolValue ? 0 : 1,
+                        new[] {new GUIContent("Grip"), new GUIContent("Use other transform")});
 
                     if (popup == 1)
                     {
@@ -513,11 +529,12 @@ namespace UltimateXR.Editor.Manipulation
         /// <returns>New snap transform or null if there was an error</returns>
         private static Transform CreateNewSnapTransform(SerializedProperty property, UxrHandSide handSide, UxrAvatar selectedAvatarPrefab, string grabPointEditorName, Transform leftSnap, Transform rightSnap)
         {
-            Transform snapParent = leftSnap != null  ? leftSnap.parent :
-                                   rightSnap != null ? rightSnap.parent : null;
-            string prefabName = selectedAvatarPrefab != null ? selectedAvatarPrefab.name : UxrGrabbableObject.DefaultAvatarName;
+            var snapParent = leftSnap != null ? leftSnap.parent :
+                rightSnap != null ? rightSnap.parent : null;
 
-            UxrGrabbableObject grabbableObject = property.serializedObject.targetObject as UxrGrabbableObject;
+            var prefabName = selectedAvatarPrefab != null ? selectedAvatarPrefab.name : UxrGrabbableObject.DefaultAvatarName;
+
+            var grabbableObject = property.serializedObject.targetObject as UxrGrabbableObject;
 
             if (grabbableObject)
             {
@@ -527,7 +544,7 @@ namespace UltimateXR.Editor.Manipulation
                 {
                     // Root was created?
 
-                    Transform grabsRoot = grabbableObject.transform.Find($"{GrabsRootName}");
+                    var grabsRoot = grabbableObject.transform.Find($"{GrabsRootName}");
 
                     if (grabsRoot == null)
                     {
@@ -539,7 +556,7 @@ namespace UltimateXR.Editor.Manipulation
 
                     // Avatar root was created?
 
-                    Transform avatarRoot = grabsRoot.transform.Find($"{prefabName}");
+                    var avatarRoot = grabsRoot.transform.Find($"{prefabName}");
 
                     if (avatarRoot == null)
                     {
@@ -564,18 +581,18 @@ namespace UltimateXR.Editor.Manipulation
                 if (hierarchyWindowType != null)
                 {
                     EditorApplication.ExecuteMenuItem("Window/General/Hierarchy");
-                    var methodInfo      = hierarchyWindowType.GetMethod("SetExpandedRecursive");
+                    var methodInfo = hierarchyWindowType.GetMethod("SetExpandedRecursive");
                     var hierarchyWindow = EditorWindow.focusedWindow;
 
                     if (methodInfo != null && hierarchyWindow != null)
                     {
-                        methodInfo.Invoke(hierarchyWindow, new object[] { snapParent.gameObject.GetInstanceID(), true });
+                        methodInfo.Invoke(hierarchyWindow, new object[] {snapParent.gameObject.GetInstanceID(), true});
                     }
                 }
 
                 // Create snap transform
 
-                Transform newSnap = new GameObject($"{handSide} Grab").transform;
+                var newSnap = new GameObject($"{handSide} Grab").transform;
                 newSnap.SetParent(snapParent);
                 newSnap.SetPositionAndRotation(snapParent);
                 Undo.RegisterCreatedObjectUndo(newSnap.gameObject, "New snap transform");
@@ -585,6 +602,7 @@ namespace UltimateXR.Editor.Manipulation
 
             return null;
         }
+
 
         /// <summary>
         ///     Using the SerializedProperty representing a GrabPointInfo, returns the SerializedProperty
@@ -598,14 +616,14 @@ namespace UltimateXR.Editor.Manipulation
         /// </returns>
         private static SerializedProperty GetGripPoseInfoSerializedProperty(SerializedProperty property)
         {
-            string selectedPrefabGuid = (property.serializedObject.targetObject as UxrGrabbableObject).Editor_GetSelectedAvatarPrefabGuidForGrips();
+            var selectedPrefabGuid = (property.serializedObject.targetObject as UxrGrabbableObject).Editor_GetSelectedAvatarPrefabGuidForGrips();
 
             if (!string.IsNullOrEmpty(selectedPrefabGuid))
             {
-                for (int i = 0; i < property.FindPropertyRelative(PropertyAvatarGripPoseEntries).arraySize; ++i)
+                for (var i = 0; i < property.FindPropertyRelative(PropertyAvatarGripPoseEntries).arraySize; ++i)
                 {
-                    SerializedProperty elementProperty           = property.FindPropertyRelative(PropertyAvatarGripPoseEntries).GetArrayElementAtIndex(i);
-                    SerializedProperty elementAvatarGuidProperty = elementProperty.FindPropertyRelative(PropertyGripPoseAvatarGuid);
+                    var elementProperty = property.FindPropertyRelative(PropertyAvatarGripPoseEntries).GetArrayElementAtIndex(i);
+                    var elementAvatarGuidProperty = elementProperty.FindPropertyRelative(PropertyGripPoseAvatarGuid);
 
                     if (elementAvatarGuidProperty.stringValue == selectedPrefabGuid)
                     {
@@ -617,6 +635,7 @@ namespace UltimateXR.Editor.Manipulation
             return property.FindPropertyRelative(PropertyDefaultGripPoseInfo);
         }
 
+
         /// <summary>
         ///     Sets the dirty flag of the UxrGrabbableObject(s) this grabPoint belongs to.
         ///     Supports multi-selection.
@@ -626,7 +645,7 @@ namespace UltimateXR.Editor.Manipulation
         /// <param name="regeneration">Which level of regeneration is required</param>
         private void SetGrabbableObjectGrabPoseMeshesDirty(SerializedProperty property, int grabPointIndex, UxrPreviewPoseRegeneration regeneration = UxrPreviewPoseRegeneration.Complete)
         {
-            property.serializedObject.FindProperty(PropertyPreviewPosesRegenerateType).intValue  = (int)regeneration;
+            property.serializedObject.FindProperty(PropertyPreviewPosesRegenerateType).intValue = (int) regeneration;
             property.serializedObject.FindProperty(PropertyPreviewPosesRegenerateIndex).intValue = grabPointIndex;
         }
 
@@ -636,67 +655,67 @@ namespace UltimateXR.Editor.Manipulation
 
         // Property labels and tooltip help 
 
-        private GUIContent ContentEditorName                        { get; } = new GUIContent("Name In Editor",                "The display name showed for this grab point in the editor's foldout label.");
-        private GUIContent ContentGrabMode                          { get; } = new GUIContent("Grab Mode",                     "Whether the object will a) Be grabbed while keeping the grab button pressed, b) Keep being grabbed until the grab button is pressed again or c) Keep being grabbed until another hand grabs it or it is requested through scripting.");
-        private GUIContent ContentUseDefaultGrabButtons             { get; } = new GUIContent("Default Grab Button(s)",        "Whether the object is grabbed using the grab button specified in the Avatar's Standard Controller component. This allows to override the grab button for certain objects.");
-        private GUIContent ContentInputButtons                      { get; } = new GUIContent("Grab Button(s)",                "The button or combination of buttons that will be required to grab this object.");
-        private GUIContent ContentBothHandsCompatible               { get; } = new GUIContent("Both Hands Compatible",         "Whether this object can be grabbed using both hands.");
-        private GUIContent ContentHandSide                          { get; } = new GUIContent("Compatible Hand",               "The hand/controller this object can be picked with, if the controller can only be grabbed with one hand.");
-        private GUIContent ContentHideHandGrabberRenderer           { get; } = new GUIContent("Hide Hand Renderer",            $"Whether the hand renderers specified in the {nameof(UxrGrabber)} component should be hidden while grabbing.");
-        private GUIContent ContentGripPoseName                      { get; } = new GUIContent("Grip Pose",                     "Selects the hand grip pose to use for the selected avatar/grab point combo.");
-        private GUIContent ContentGripPoseBlendVarValue             { get; } = new GUIContent("Pose Blend",                    "Move the slider to open/close the grip and adjust it to the object size and shape.");
-        private GUIContent ContentGripAlignTransformHandLeft        { get; } = new GUIContent("Grip Snap Left Hand",           $"The transform that will be aligned to the left {nameof(UxrGrabber)} transform if AlignToHandGrabAxes and/or PlaceInHandGrabPivot are active.");
-        private GUIContent ContentGripAlignTransformHandRight       { get; } = new GUIContent("Grip Snap Right Hand",          $"The transform that will be aligned to the right {nameof(UxrGrabber)} transform if AlignToHandGrabAxes and/or PlaceInHandGrabPivot are active.");
-        private GUIContent ContentCreateGripAlignTransformHandLeft  { get; } = new GUIContent("Create Left Snap",              "Create a dummy as left snap transform.");
-        private GUIContent ContentCreateGripAlignTransformHandRight { get; } = new GUIContent("Create Right Snap",             "Create a dummy as right snap transform.");
-        private GUIContent ContentSnapMode                          { get; } = new GUIContent("Snap Mode",                     $"How this object's grab-alignment-transform axes will snap to the {nameof(UxrGrabber)} transform after being grabbed.");
-        private GUIContent ContentSnapDirection                     { get; } = new GUIContent("Snap Direction",                "Whether this object will be snapped to the hand or the hand will snap to the object.");
-        private GUIContent ContentSnapReference                     { get; } = new GUIContent("Grip Snap Transform",           $"Whether the grabbed object will be aligned with the {nameof(UxrGrabber)} transform while being grabbed or another snap transform will be used.");
-        private GUIContent ContentAlignToController                 { get; } = new GUIContent("Align To Controller",           "Aligns the object to the controller when it is being grabbed. This is very important for objects like weapons where aiming correctly is key.");
-        private GUIContent ContentAlignToControllerAxes             { get; } = new GUIContent("Align To Controller Axes",      "By default, if no transform specified, it will use the objects axes as reference to align (z forward, etc.). Otherwise it can use another transform as reference.");
-        private GUIContent ContentGrabProximityMode                 { get; } = new GUIContent("Grabbable Valid Distance",      $"Tells which method to use to detect if a {nameof(UxrGrabber)} can grab this object.");
-        private GUIContent ContentGrabProximityBox                  { get; } = new GUIContent("Grabbable Valid Box",           $"Volume the {nameof(UxrGrabber)} needs to be in in order to grab this object.");
-        private GUIContent ContentMaxDistanceGrab                   { get; } = new GUIContent("Max Distance Grab",             $"The maximum distance the {nameof(UxrGrabber)} can be to be able to grab it. This is called the proximity.");
-        private GUIContent ContentGrabbableDistanceReference        { get; } = new GUIContent("Grabbable Distance Reference",  $"The reference from the grabbable object that will be used to know if the {nameof(UxrGrabber)} is close enough to grab it.");
-        private GUIContent ContentGrabProximityTransform            { get; } = new GUIContent("Grabbable Proximity Transform", $"Position the {nameof(UxrGrabber)} needs to be close to in order to grab this object.");
-        private GUIContent ContentGrabberProximityUseDefault        { get; } = new GUIContent("Use Grabber Default Proximity", "Uses the grabber's own transform for proximity computation (distance from hand to object). Optionally you can specify different transforms in the grabber component for more precise interactions, for example one for precise distance to a dummy in the palm of the hand and other for precise distance to the a dummy near the index finger.");
-        private GUIContent ContentGrabberProximityIndex             { get; } = new GUIContent("Grabber Proximity Index",       $"Allows to specify a different transform for proximity computation (distance from hand to object). This index tells which transform from the {nameof(UxrGrabber)} component's proximity list is used.");
-        private GUIContent ContentEnableOnHandNear                  { get; } = new GUIContent("Enable When Hand Near",         "Optional GameObject that will be enabled if a hand is close enough to grab this object.");
+        private GUIContent ContentEditorName { get; } = new("Name In Editor", "The display name showed for this grab point in the editor's foldout label.");
+        private GUIContent ContentGrabMode { get; } = new("Grab Mode", "Whether the object will a) Be grabbed while keeping the grab button pressed, b) Keep being grabbed until the grab button is pressed again or c) Keep being grabbed until another hand grabs it or it is requested through scripting.");
+        private GUIContent ContentUseDefaultGrabButtons { get; } = new("Default Grab Button(s)", "Whether the object is grabbed using the grab button specified in the Avatar's Standard Controller component. This allows to override the grab button for certain objects.");
+        private GUIContent ContentInputButtons { get; } = new("Grab Button(s)", "The button or combination of buttons that will be required to grab this object.");
+        private GUIContent ContentBothHandsCompatible { get; } = new("Both Hands Compatible", "Whether this object can be grabbed using both hands.");
+        private GUIContent ContentHandSide { get; } = new("Compatible Hand", "The hand/controller this object can be picked with, if the controller can only be grabbed with one hand.");
+        private GUIContent ContentHideHandGrabberRenderer { get; } = new("Hide Hand Renderer", $"Whether the hand renderers specified in the {nameof(UxrGrabber)} component should be hidden while grabbing.");
+        private GUIContent ContentGripPoseName { get; } = new("Grip Pose", "Selects the hand grip pose to use for the selected avatar/grab point combo.");
+        private GUIContent ContentGripPoseBlendVarValue { get; } = new("Pose Blend", "Move the slider to open/close the grip and adjust it to the object size and shape.");
+        private GUIContent ContentGripAlignTransformHandLeft { get; } = new("Grip Snap Left Hand", $"The transform that will be aligned to the left {nameof(UxrGrabber)} transform if AlignToHandGrabAxes and/or PlaceInHandGrabPivot are active.");
+        private GUIContent ContentGripAlignTransformHandRight { get; } = new("Grip Snap Right Hand", $"The transform that will be aligned to the right {nameof(UxrGrabber)} transform if AlignToHandGrabAxes and/or PlaceInHandGrabPivot are active.");
+        private GUIContent ContentCreateGripAlignTransformHandLeft { get; } = new("Create Left Snap", "Create a dummy as left snap transform.");
+        private GUIContent ContentCreateGripAlignTransformHandRight { get; } = new("Create Right Snap", "Create a dummy as right snap transform.");
+        private GUIContent ContentSnapMode { get; } = new("Snap Mode", $"How this object's grab-alignment-transform axes will snap to the {nameof(UxrGrabber)} transform after being grabbed.");
+        private GUIContent ContentSnapDirection { get; } = new("Snap Direction", "Whether this object will be snapped to the hand or the hand will snap to the object.");
+        private GUIContent ContentSnapReference { get; } = new("Grip Snap Transform", $"Whether the grabbed object will be aligned with the {nameof(UxrGrabber)} transform while being grabbed or another snap transform will be used.");
+        private GUIContent ContentAlignToController { get; } = new("Align To Controller", "Aligns the object to the controller when it is being grabbed. This is very important for objects like weapons where aiming correctly is key.");
+        private GUIContent ContentAlignToControllerAxes { get; } = new("Align To Controller Axes", "By default, if no transform specified, it will use the objects axes as reference to align (z forward, etc.). Otherwise it can use another transform as reference.");
+        private GUIContent ContentGrabProximityMode { get; } = new("Grabbable Valid Distance", $"Tells which method to use to detect if a {nameof(UxrGrabber)} can grab this object.");
+        private GUIContent ContentGrabProximityBox { get; } = new("Grabbable Valid Box", $"Volume the {nameof(UxrGrabber)} needs to be in in order to grab this object.");
+        private GUIContent ContentMaxDistanceGrab { get; } = new("Max Distance Grab", $"The maximum distance the {nameof(UxrGrabber)} can be to be able to grab it. This is called the proximity.");
+        private GUIContent ContentGrabbableDistanceReference { get; } = new("Grabbable Distance Reference", $"The reference from the grabbable object that will be used to know if the {nameof(UxrGrabber)} is close enough to grab it.");
+        private GUIContent ContentGrabProximityTransform { get; } = new("Grabbable Proximity Transform", $"Position the {nameof(UxrGrabber)} needs to be close to in order to grab this object.");
+        private GUIContent ContentGrabberProximityUseDefault { get; } = new("Use Grabber Default Proximity", "Uses the grabber's own transform for proximity computation (distance from hand to object). Optionally you can specify different transforms in the grabber component for more precise interactions, for example one for precise distance to a dummy in the palm of the hand and other for precise distance to the a dummy near the index finger.");
+        private GUIContent ContentGrabberProximityIndex { get; } = new("Grabber Proximity Index", $"Allows to specify a different transform for proximity computation (distance from hand to object). This index tells which transform from the {nameof(UxrGrabber)} component's proximity list is used.");
+        private GUIContent ContentEnableOnHandNear { get; } = new("Enable When Hand Near", "Optional GameObject that will be enabled if a hand is close enough to grab this object.");
 
         // Property names
 
-        private const string PropertyFoldout                 = "_editorFoldout";
-        private const string PropertyEditorName              = "_editorName";
-        private const string PropertyGrabMode                = "_grabMode";
-        private const string PropertyUseDefaultGrabButtons   = "_useDefaultGrabButtons";
-        private const string PropertyInputButtons            = "_inputButtons";
-        private const string PropertyBothHandsCompatible     = "_bothHandsCompatible";
-        private const string PropertyHandSide                = "_handSide";
+        private const string PropertyFoldout = "_editorFoldout";
+        private const string PropertyEditorName = "_editorName";
+        private const string PropertyGrabMode = "_grabMode";
+        private const string PropertyUseDefaultGrabButtons = "_useDefaultGrabButtons";
+        private const string PropertyInputButtons = "_inputButtons";
+        private const string PropertyBothHandsCompatible = "_bothHandsCompatible";
+        private const string PropertyHandSide = "_handSide";
         private const string PropertyHideHandGrabberRenderer = "_hideHandGrabberRenderer";
-        private const string PropertyDefaultGripPoseInfo     = "_defaultGripPoseInfo";
-        private const string PropertyAvatarGripPoseEntries   = "_avatarGripPoseEntries";
+        private const string PropertyDefaultGripPoseInfo = "_defaultGripPoseInfo";
+        private const string PropertyAvatarGripPoseEntries = "_avatarGripPoseEntries";
 
-        private const string PropertyGripPoseAvatarGuid          = "_avatarPrefabGuid";
-        private const string PropertyGripHandPose                = "_handPose";
-        private const string PropertyGripPoseBlendValue          = "_poseBlendValue";
-        private const string PropertyGripAlignTransformHandLeft  = "_gripAlignTransformHandLeft";
+        private const string PropertyGripPoseAvatarGuid = "_avatarPrefabGuid";
+        private const string PropertyGripHandPose = "_handPose";
+        private const string PropertyGripPoseBlendValue = "_poseBlendValue";
+        private const string PropertyGripAlignTransformHandLeft = "_gripAlignTransformHandLeft";
         private const string PropertyGripAlignTransformHandRight = "_gripAlignTransformHandRight";
 
-        private const string PropertySnapMode                      = "_snapMode";
-        private const string PropertySnapDirection                 = "_snapDirection";
-        private const string PropertySnapReference                 = "_snapReference";
-        private const string PropertyAlignToController             = "_alignToController";
-        private const string PropertyAlignToControllerAxes         = "_alignToControllerAxes";
-        private const string PropertyGrabProximityMode             = "_grabProximityMode";
-        private const string PropertyGrabProximityBox              = "_grabProximityBox";
-        private const string PropertyMaxDistanceGrab               = "_maxDistanceGrab";
+        private const string PropertySnapMode = "_snapMode";
+        private const string PropertySnapDirection = "_snapDirection";
+        private const string PropertySnapReference = "_snapReference";
+        private const string PropertyAlignToController = "_alignToController";
+        private const string PropertyAlignToControllerAxes = "_alignToControllerAxes";
+        private const string PropertyGrabProximityMode = "_grabProximityMode";
+        private const string PropertyGrabProximityBox = "_grabProximityBox";
+        private const string PropertyMaxDistanceGrab = "_maxDistanceGrab";
         private const string PropertyGrabProximityTransformUseSelf = "_grabProximityTransformUseSelf";
-        private const string PropertyGrabProximityTransform        = "_grabProximityTransform";
-        private const string PropertyGrabberProximityUseDefault    = "_grabberProximityUseDefault";
-        private const string PropertyGrabberProximityIndex         = "_grabberProximityIndex";
-        private const string PropertyEnableOnHandNear              = "_enableOnHandNear";
+        private const string PropertyGrabProximityTransform = "_grabProximityTransform";
+        private const string PropertyGrabberProximityUseDefault = "_grabberProximityUseDefault";
+        private const string PropertyGrabberProximityIndex = "_grabberProximityIndex";
+        private const string PropertyEnableOnHandNear = "_enableOnHandNear";
 
-        private const string PropertyPreviewPosesRegenerateType  = "_previewPosesRegenerationType";
+        private const string PropertyPreviewPosesRegenerateType = "_previewPosesRegenerationType";
         private const string PropertyPreviewPosesRegenerateIndex = "_previewPosesRegenerationIndex";
 
         // Other constants

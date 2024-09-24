@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.IO;
 using System.Threading;
@@ -11,6 +12,7 @@ using UltimateXR.Exceptions;
 using UnityEngine;
 using UnityEngine.Networking;
 
+
 namespace UltimateXR.Extensions.Unity.IO
 {
     /// <summary>
@@ -18,6 +20,27 @@ namespace UltimateXR.Extensions.Unity.IO
     /// </summary>
     public static class UnityWebRequestExt
     {
+        #region Private Methods
+
+        /// <summary>
+        ///     Fixes an URI string.
+        /// </summary>
+        /// <param name="uri">String to fix</param>
+        /// <returns>Fixed URI string</returns>
+        private static string FixUri(string uri)
+        {
+            var result = uri.Trim('\\', '/', ' ');
+
+            if (!IsUwrUri(uri))
+            {
+                result = FilePrefix + uri;
+            }
+
+            return result;
+        }
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>
@@ -32,6 +55,7 @@ namespace UltimateXR.Extensions.Unity.IO
                    || uri.StartsWith(HttpPrefix)
                    || uri.StartsWith(HttpsPrefix);
         }
+
 
         /// <summary>
         ///     Sends a <see cref="UnityWebRequest" /> asynchronously.
@@ -49,6 +73,7 @@ namespace UltimateXR.Extensions.Unity.IO
             }
 
             await self.SendWebRequest().Wait(ct);
+
             if (ct.IsCancellationRequested)
             {
                 self.Abort();
@@ -65,6 +90,7 @@ namespace UltimateXR.Extensions.Unity.IO
             }
         }
 
+
         /// <summary>
         ///     Sends a <see cref="UnityWebRequest" /> asynchronously.
         /// </summary>
@@ -80,6 +106,7 @@ namespace UltimateXR.Extensions.Unity.IO
             await self.Send(ct);
         }
 
+
         /// <summary>
         ///     Loads an <see cref="AudioClip" /> asynchronously from an URI.
         /// </summary>
@@ -92,14 +119,16 @@ namespace UltimateXR.Extensions.Unity.IO
         public static async Task<AudioClip> LoadAudioClip(string uri, CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
-            using UnityWebRequest req = UnityWebRequestMultimedia.GetAudioClip(FixUri(uri), AudioType.UNKNOWN);
+            using var req = UnityWebRequestMultimedia.GetAudioClip(FixUri(uri), AudioType.UNKNOWN);
             await req.Fetch(ct);
 
             ct.ThrowIfCancellationRequested();
-            AudioClip result = DownloadHandlerAudioClip.GetContent(req);
+            var result = DownloadHandlerAudioClip.GetContent(req);
             result.name = Path.GetFileNameWithoutExtension(uri);
+
             return result;
         }
+
 
         /// <summary>
         ///     Reads bytes asynchronously from an URI.
@@ -117,12 +146,14 @@ namespace UltimateXR.Extensions.Unity.IO
         public static async Task<byte[]> Read(string uri, CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
-            using UnityWebRequest req = UnityWebRequest.Get(FixUri(uri));
+            using var req = UnityWebRequest.Get(FixUri(uri));
             await req.Fetch(ct);
 
             ct.ThrowIfCancellationRequested();
+
             return req.downloadHandler.data;
         }
+
 
         /// <summary>
         ///     Reads a string asynchronously from an URI.
@@ -140,39 +171,20 @@ namespace UltimateXR.Extensions.Unity.IO
         public static async Task<string> ReadText(string uri, CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
-            using UnityWebRequest req = UnityWebRequest.Get(FixUri(uri));
+            using var req = UnityWebRequest.Get(FixUri(uri));
             await req.Fetch(ct);
 
             ct.ThrowIfCancellationRequested();
+
             return req.downloadHandler.text;
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Fixes an URI string.
-        /// </summary>
-        /// <param name="uri">String to fix</param>
-        /// <returns>Fixed URI string</returns>
-        private static string FixUri(string uri)
-        {
-            string result = uri.Trim('\\', '/', ' ');
-            if (!IsUwrUri(uri))
-            {
-                result = FilePrefix + uri;
-            }
-
-            return result;
         }
 
         #endregion
 
         #region Private Types & Data
 
-        private const string FilePrefix  = "file://";
-        private const string HttpPrefix  = "http://";
+        private const string FilePrefix = "file://";
+        private const string HttpPrefix = "http://";
         private const string HttpsPrefix = "https://";
 
         #endregion

@@ -3,11 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
-using UltimateXR.Core;
 using UltimateXR.Editor.Sdks;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Core
 {
@@ -17,6 +18,12 @@ namespace UltimateXR.Editor.Core
     /// </summary>
     public class UxrSdkManagerWindow : EditorWindow
     {
+        #region Private Types & Data
+
+        private Dictionary<UxrSdkLocator, bool> _foldouts;
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>
@@ -40,6 +47,7 @@ namespace UltimateXR.Editor.Core
             _foldouts = new Dictionary<UxrSdkLocator, bool>();
         }
 
+
         /// <summary>
         ///     Draws the UI and handles input events.
         /// </summary>
@@ -48,6 +56,7 @@ namespace UltimateXR.Editor.Core
             if (EditorApplication.isCompiling)
             {
                 EditorGUILayout.LabelField("Compiling...");
+
                 return;
             }
 
@@ -58,7 +67,7 @@ namespace UltimateXR.Editor.Core
 
             // SDK List
 
-            foreach (UxrSdkLocator sdkLocator in UxrSdkManager.SDKLocators)
+            foreach (var sdkLocator in UxrSdkManager.SDKLocators)
             {
                 if (!_foldouts.ContainsKey(sdkLocator))
                 {
@@ -108,12 +117,6 @@ namespace UltimateXR.Editor.Core
 
             EditorGUILayout.Space();
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private Dictionary<UxrSdkLocator, bool> _foldouts;
 
         #endregion
     }

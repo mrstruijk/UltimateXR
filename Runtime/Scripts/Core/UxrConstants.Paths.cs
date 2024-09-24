@@ -3,7 +3,6 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-using UnityEngine;
 
 namespace UltimateXR.Core
 {
@@ -19,7 +18,7 @@ namespace UltimateXR.Core
             #region Public Types & Data
 
             public const string SingletonResources = "Singletons/";
-          
+
             #endregion
         }
 

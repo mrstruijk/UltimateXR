@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Math;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Core.Math
 {
@@ -15,6 +17,15 @@ namespace UltimateXR.Editor.Core.Math
     [CustomPropertyDrawer(typeof(UxrAxis))]
     public class UxrAxisPropertyDrawer : PropertyDrawer
     {
+        #region Private Types & Data
+
+        /// <summary>
+        ///     Gets the possible axis values as strings.
+        /// </summary>
+        private static string[] AxesAsStrings { get; } = {"X", "Y", "Z"};
+
+        #endregion
+
         #region Public Types & Data
 
         public const string PropertyAxis = "_axis";
@@ -41,7 +52,7 @@ namespace UltimateXR.Editor.Core.Math
         /// <returns>New axis value</returns>
         public static UxrAxis EditorGuiLayout(GUIContent content, UxrAxis axis)
         {
-            return EditorGUILayout.Popup(content, (int)axis, AxesAsStrings);
+            return EditorGUILayout.Popup(content, (int) axis, AxesAsStrings);
         }
 
         #endregion
@@ -53,31 +64,22 @@ namespace UltimateXR.Editor.Core.Math
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            SerializedProperty propertyAxis = property.FindPropertyRelative(PropertyAxis);
+            var propertyAxis = property.FindPropertyRelative(PropertyAxis);
 
             if (property.serializedObject.isEditingMultipleObjects)
             {
                 // Multi-selection doesn't work correctly with PropertyDrawers when not using PropertyFields. Disable UI.
                 // https://answers.unity.com/questions/1214493/custompropertydrawer-cant-restrict-multi-editing.html
-                bool isGuiEnabled = GUI.enabled; 
+                var isGuiEnabled = GUI.enabled;
                 GUI.enabled = false;
                 EditorGUI.PropertyField(UxrEditorUtils.GetRect(position, 0), propertyAxis, label);
                 GUI.enabled = isGuiEnabled;
-        	}
+            }
             else
             {
                 propertyAxis.intValue = EditorGUI.Popup(UxrEditorUtils.GetRect(position, 0), label, propertyAxis.intValue, UxrEditorUtils.ToGUIContentArray(AxesAsStrings));
             }
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        /// <summary>
-        ///     Gets the possible axis values as strings.
-        /// </summary>
-        private static string[] AxesAsStrings { get; } = { "X", "Y", "Z" };
 
         #endregion
     }

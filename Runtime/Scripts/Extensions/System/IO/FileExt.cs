@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,6 +15,7 @@ using UltimateXR.Extensions.Unity.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
+
 namespace UltimateXR.Extensions.System.IO
 {
     /// <summary>
@@ -21,6 +23,12 @@ namespace UltimateXR.Extensions.System.IO
     /// </summary>
     public static class FileExt
     {
+        #region Private Types & Data
+
+        private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>
@@ -76,8 +84,9 @@ namespace UltimateXR.Extensions.System.IO
                 }
             }
 
-            List<byte> bytes  = new List<byte>();
-            byte[]     buffer = new byte[0x1000];
+            var bytes = new List<byte>();
+            var buffer = new byte[0x1000];
+
             using (var fs = new FileStream(uri, FileMode.Open, FileAccess.Read, FileShare.Read, buffer.Length, true))
             {
                 while (await fs.ReadAsync(buffer, 0, buffer.Length, ct).ConfigureAwait(false) != 0)
@@ -85,8 +94,10 @@ namespace UltimateXR.Extensions.System.IO
                     bytes.AddRange(buffer);
                 }
             }
+
             return bytes.ToArray();
         }
+
 
         /// <summary>
         ///     Reads text from a file asynchronously.
@@ -109,18 +120,21 @@ namespace UltimateXR.Extensions.System.IO
         public static async Task<(bool success, string text)> TryReadText(string uri, Encoding encoding = default, CancellationToken ct = default)
         {
             (bool success, string text) result;
+
             try
             {
-                result.text    = await ReadText(uri, encoding, ct).ConfigureAwait(false);
+                result.text = await ReadText(uri, encoding, ct).ConfigureAwait(false);
                 result.success = true;
             }
             catch
             {
-                result.text    = null;
+                result.text = null;
                 result.success = false;
             }
+
             return result;
         }
+
 
         /// <summary>
         ///     Reads text from a file asynchronously.
@@ -175,9 +189,11 @@ namespace UltimateXR.Extensions.System.IO
                 throw new FileNotFoundException("File does not exist", uri);
             }
 
-            using StreamReader sr = new StreamReader(uri, encoding, true);
+            using var sr = new StreamReader(uri, encoding, true);
+
             return await sr.ReadToEndAsync().ConfigureAwait(false);
         }
+
 
         /// <summary>
         ///     Asynchronously writes an <see cref="Array" /> of <see cref="byte" /> to a file at <paramref name="path" />.
@@ -212,6 +228,7 @@ namespace UltimateXR.Extensions.System.IO
             await Write(path, stream, ct);
         }
 
+
         /// <summary>
         ///     Asynchronously writes the content of an <paramref name="sourceStream" /> to a file at <paramref name="path" />.
         /// </summary>
@@ -245,8 +262,9 @@ namespace UltimateXR.Extensions.System.IO
             path.ThrowIfNullOrWhitespace(nameof(path));
             sourceStream.ThrowIfNull(nameof(sourceStream));
 
-            string    dirName    = Path.GetDirectoryName(path);
+            var dirName = Path.GetDirectoryName(path);
             const int bufferSize = 81920;
+
 
             async Task WriteInternal()
             {
@@ -255,13 +273,15 @@ namespace UltimateXR.Extensions.System.IO
                     Directory.CreateDirectory(dirName);
                 }
 
-                using FileStream outputStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None, bufferSize, FileOptions.Asynchronous);
+                using var outputStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None, bufferSize, FileOptions.Asynchronous);
                 await sourceStream.CopyToAsync(outputStream, bufferSize, ct).ConfigureAwait(false);
             }
+
 
             // Creating the new file has a performance impact that requires a new thread.
             return Task.Run(WriteInternal, ct);
         }
+
 
         /// <summary>
         ///     Asynchronously writes text to a file location.
@@ -281,7 +301,8 @@ namespace UltimateXR.Extensions.System.IO
             path.ThrowIfNullOrWhitespace(nameof(path));
 
             encoding ??= DefaultEncoding;
-            string dirName = Path.GetDirectoryName(path);
+            var dirName = Path.GetDirectoryName(path);
+
 
             async Task WriteInternal()
             {
@@ -290,19 +311,14 @@ namespace UltimateXR.Extensions.System.IO
                     Directory.CreateDirectory(dirName);
                 }
 
-                using StreamWriter sw = new StreamWriter(path, append, encoding);
+                using var sw = new StreamWriter(path, append, encoding);
                 await sw.WriteAsync(text).ConfigureAwait(false);
             }
+
 
             // Creating the new file has a performance impact that requires a new thread.
             return Task.Run(WriteInternal, ct);
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private static readonly Encoding DefaultEncoding = new UTF8Encoding(false);
 
         #endregion
     }

@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Guides
 {
@@ -17,6 +19,39 @@ namespace UltimateXR.Guides
     /// </summary>
     public class UxrCompassTargetHint : UxrComponent
     {
+        #region Public Methods
+
+        /// <summary>
+        ///     Gets the appropriate transform where the compass should point to.
+        /// </summary>
+        /// <param name="compass">Display mode to get the transform for</param>
+        /// <returns>Transform where the compass should point to</returns>
+        public Transform GetTransform(UxrCompass compass)
+        {
+            switch (compass.DisplayMode)
+            {
+                case UxrCompassDisplayMode.Location:
+                    return LocationTarget != null ? LocationTarget :
+                        DefaultTarget != null ? DefaultTarget : transform;
+
+                case UxrCompassDisplayMode.Grab:
+                    return GrabTarget != null ? GrabTarget :
+                        DefaultTarget != null ? DefaultTarget : transform;
+
+                case UxrCompassDisplayMode.Look:
+                    return LookTarget != null ? LookTarget :
+                        DefaultTarget != null ? DefaultTarget : transform;
+
+                case UxrCompassDisplayMode.Use:
+                    return UseTarget != null ? LookTarget :
+                        DefaultTarget != null ? DefaultTarget : transform;
+            }
+
+            return DefaultTarget != null ? DefaultTarget : transform;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private Transform _defaultTarget;
@@ -77,39 +112,6 @@ namespace UltimateXR.Guides
         {
             get => _useTarget;
             set => _useTarget = value;
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        ///     Gets the appropriate transform where the compass should point to.
-        /// </summary>
-        /// <param name="compass">Display mode to get the transform for</param>
-        /// <returns>Transform where the compass should point to</returns>
-        public Transform GetTransform(UxrCompass compass)
-        {
-            switch (compass.DisplayMode)
-            {
-                case UxrCompassDisplayMode.Location:
-                    return LocationTarget != null ? LocationTarget :
-                           DefaultTarget != null  ? DefaultTarget : transform;
-
-                case UxrCompassDisplayMode.Grab:
-                    return GrabTarget != null    ? GrabTarget :
-                           DefaultTarget != null ? DefaultTarget : transform;
-
-                case UxrCompassDisplayMode.Look:
-                    return LookTarget != null    ? LookTarget :
-                           DefaultTarget != null ? DefaultTarget : transform;
-
-                case UxrCompassDisplayMode.Use:
-                    return UseTarget != null     ? LookTarget :
-                           DefaultTarget != null ? DefaultTarget : transform;
-            }
-
-            return DefaultTarget != null ? DefaultTarget : transform;
         }
 
         #endregion

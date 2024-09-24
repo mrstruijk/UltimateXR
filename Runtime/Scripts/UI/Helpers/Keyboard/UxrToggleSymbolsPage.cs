@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.UI.Helpers.Keyboard
 {
@@ -14,10 +16,25 @@ namespace UltimateXR.UI.Helpers.Keyboard
     [Serializable]
     public class UxrToggleSymbolsPage
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="keysRoot">Root where are symbols in the page hang from</param>
+        /// <param name="label">Label that describes the symbols in the page</param>
+        public UxrToggleSymbolsPage(GameObject keysRoot, string label)
+        {
+            _keysRoot = keysRoot;
+            _label = label;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private GameObject _keysRoot;
-        [SerializeField] private string     _label;
+        [SerializeField] private string _label;
 
         #endregion
 
@@ -32,21 +49,6 @@ namespace UltimateXR.UI.Helpers.Keyboard
         ///     Gets the label that describes the symbols in the page.
         /// </summary>
         public string Label => _label;
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="keysRoot">Root where are symbols in the page hang from</param>
-        /// <param name="label">Label that describes the symbols in the page</param>
-        public UxrToggleSymbolsPage(GameObject keysRoot, string label)
-        {
-            _keysRoot = keysRoot;
-            _label    = label;
-        }
 
         #endregion
     }

@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.System.Math
 {
@@ -25,6 +27,7 @@ namespace UltimateXR.Extensions.System.Math
             return flags == (flags & self);
         }
 
+
         /// <summary>
         ///     Checks if the given uint value has one or more flags set.
         /// </summary>
@@ -35,6 +38,7 @@ namespace UltimateXR.Extensions.System.Math
         {
             return flags == (flags & self);
         }
+
 
         /// <summary>
         ///     Returns an int value with one or more flags set if they weren't set already.
@@ -47,6 +51,7 @@ namespace UltimateXR.Extensions.System.Math
             return self | flags;
         }
 
+
         /// <summary>
         ///     Returns an uint value with one or more flags set if they weren't set already.
         /// </summary>
@@ -57,6 +62,7 @@ namespace UltimateXR.Extensions.System.Math
         {
             return self | flags;
         }
+
 
         /// <summary>
         ///     Returns an int value with one or more flags cleared if they were set.
@@ -69,6 +75,7 @@ namespace UltimateXR.Extensions.System.Math
             return self & ~flags;
         }
 
+
         /// <summary>
         ///     Returns an uint value with one or more flags cleared if they were set.
         /// </summary>
@@ -80,6 +87,7 @@ namespace UltimateXR.Extensions.System.Math
             return self & ~flags;
         }
 
+
         /// <summary>
         ///     Clamps a value so that it doesn't go beyond a given range.
         /// </summary>
@@ -90,8 +98,10 @@ namespace UltimateXR.Extensions.System.Math
         public static int Clamp(this ref int self, int min, int max)
         {
             self = Mathf.Clamp(self, min, max);
+
             return self;
         }
+
 
         /// <summary>
         ///     Returns a clamped value.

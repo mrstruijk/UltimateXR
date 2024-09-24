@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections;
 using UltimateXR.Avatar;
 using UltimateXR.Core;
 using UltimateXR.Core.Components.Composite;
 using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.Devices.Visualization
 {
@@ -115,6 +117,32 @@ namespace UltimateXR.Devices.Visualization
 
         #endregion
 
+        #region Private Methods
+
+        /// <summary>
+        ///     Gets the UxrControllerHand component that belongs to the grabber passed. This basically
+        ///     just checks if it is the left or right one and looks for the UxrControllerHand component
+        ///     in the hand bone object.
+        /// </summary>
+        /// <param name="grabber">The grabber we want to get the UxrControllerHand for</param>
+        /// <returns>UxrControllerHand or null if none was found</returns>
+        private UxrControllerHand GetControllerHand(UxrGrabber grabber)
+        {
+            if (grabber && grabber.Side == UxrHandSide.Left && grabber.Avatar != null)
+            {
+                return grabber.Avatar.LeftHandBone.GetComponent<UxrControllerHand>();
+            }
+
+            if (grabber && grabber.Side == UxrHandSide.Right && grabber.Avatar != null)
+            {
+                return grabber.Avatar.RightHandBone.GetComponent<UxrControllerHand>();
+            }
+
+            return null;
+        }
+
+        #endregion
+
         #region Event Trigger Methods
 
         /// <summary>
@@ -126,7 +154,7 @@ namespace UltimateXR.Devices.Visualization
         {
             UxrManager.AvatarsUpdated += UxrManager_AvatarsUpdated;
 
-            UxrControllerHand controllerHand = GetControllerHand(e.Grabber);
+            var controllerHand = GetControllerHand(e.Grabber);
 
             if (controllerHand)
             {
@@ -168,17 +196,20 @@ namespace UltimateXR.Devices.Visualization
             }
         }
 
+
         /// <inheritdoc />
         protected override void OnObjectReleased(UxrManipulationEventArgs e)
         {
             OnControllerReleaseOrPlace(e);
         }
 
+
         /// <inheritdoc />
         protected override void OnObjectPlaced(UxrManipulationEventArgs e)
         {
             OnControllerReleaseOrPlace(e);
         }
+
 
         /// <summary>
         ///     Called when the user releases or places this controller. We remove the connection
@@ -189,7 +220,7 @@ namespace UltimateXR.Devices.Visualization
         {
             UxrManager.AvatarsUpdated -= UxrManager_AvatarsUpdated;
 
-            UxrControllerHand controllerHand = GetControllerHand(e.Grabber);
+            var controllerHand = GetControllerHand(e.Grabber);
 
             if (controllerHand)
             {
@@ -219,36 +250,11 @@ namespace UltimateXR.Devices.Visualization
 
         #endregion
 
-        #region Private Methods
-
-        /// <summary>
-        ///     Gets the UxrControllerHand component that belongs to the grabber passed. This basically
-        ///     just checks if it is the left or right one and looks for the UxrControllerHand component
-        ///     in the hand bone object.
-        /// </summary>
-        /// <param name="grabber">The grabber we want to get the UxrControllerHand for</param>
-        /// <returns>UxrControllerHand or null if none was found</returns>
-        private UxrControllerHand GetControllerHand(UxrGrabber grabber)
-        {
-            if (grabber && grabber.Side == UxrHandSide.Left && grabber.Avatar != null)
-            {
-                return grabber.Avatar.LeftHandBone.GetComponent<UxrControllerHand>();
-            }
-            if (grabber && grabber.Side == UxrHandSide.Right && grabber.Avatar != null)
-            {
-                return grabber.Avatar.RightHandBone.GetComponent<UxrControllerHand>();
-            }
-
-            return null;
-        }
-
-        #endregion
-
         #region Private Types & Data
 
         private UxrController3DModel _controller3DModel;
-        private bool                 _ignoreInputLeft;
-        private bool                 _ignoreInputRight;
+        private bool _ignoreInputLeft;
+        private bool _ignoreInputRight;
 
         #endregion
     }

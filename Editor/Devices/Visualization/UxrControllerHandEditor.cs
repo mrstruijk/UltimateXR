@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar;
 using UltimateXR.Avatar.Rig;
 using UltimateXR.Core;
@@ -11,6 +12,7 @@ using UltimateXR.Extensions.Unity;
 using UltimateXR.Manipulation.HandPoses;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Devices.Visualization
 {
@@ -25,26 +27,27 @@ namespace UltimateXR.Editor.Devices.Visualization
         private void OnEnable()
         {
             _propertyHasAvatarSource = serializedObject.FindProperty("_hasAvatarSource");
-            _propertyAvatarPrefab    = serializedObject.FindProperty("_avatarPrefab");
-            _propertyAvatarHandSide  = serializedObject.FindProperty("_avatarHandSide");
-            _propertyHandPose        = serializedObject.FindProperty("_handPose");
-            _propertyVariations      = serializedObject.FindProperty("_variations");
-            _propertyHandRig         = serializedObject.FindProperty("_hand");
-            _propertyThumb           = serializedObject.FindProperty("_thumb");
-            _propertyIndex           = serializedObject.FindProperty("_index");
-            _propertyMiddle          = serializedObject.FindProperty("_middle");
-            _propertyRing            = serializedObject.FindProperty("_ring");
-            _propertyLittle          = serializedObject.FindProperty("_little");
+            _propertyAvatarPrefab = serializedObject.FindProperty("_avatarPrefab");
+            _propertyAvatarHandSide = serializedObject.FindProperty("_avatarHandSide");
+            _propertyHandPose = serializedObject.FindProperty("_handPose");
+            _propertyVariations = serializedObject.FindProperty("_variations");
+            _propertyHandRig = serializedObject.FindProperty("_hand");
+            _propertyThumb = serializedObject.FindProperty("_thumb");
+            _propertyIndex = serializedObject.FindProperty("_index");
+            _propertyMiddle = serializedObject.FindProperty("_middle");
+            _propertyRing = serializedObject.FindProperty("_ring");
+            _propertyLittle = serializedObject.FindProperty("_little");
         }
+
 
         /// <inheritdoc />
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            UxrControllerHand controllerHand = serializedObject.targetObject as UxrControllerHand;
-            UxrAvatar         avatar         = _propertyAvatarPrefab.objectReferenceValue as UxrAvatar;
-            UxrHandSide       handSide       = _propertyAvatarHandSide.enumValueIndex == (int)UxrHandSide.Left ? UxrHandSide.Left : UxrHandSide.Right;
+            var controllerHand = serializedObject.targetObject as UxrControllerHand;
+            var avatar = _propertyAvatarPrefab.objectReferenceValue as UxrAvatar;
+            var handSide = _propertyAvatarHandSide.enumValueIndex == (int) UxrHandSide.Left ? UxrHandSide.Left : UxrHandSide.Right;
 
             _foldoutPoseBaking = UxrEditorUtils.FoldoutStylish("Pose Baking:", _foldoutPoseBaking);
 
@@ -58,24 +61,24 @@ namespace UltimateXR.Editor.Devices.Visualization
 
                     if (avatar != null)
                     {
-                        UxrEditorUtils.HandPoseDropdown(ContentHandPose, avatar, _propertyHandPose, out UxrHandPoseAsset selectedHandPose);
+                        UxrEditorUtils.HandPoseDropdown(ContentHandPose, avatar, _propertyHandPose, out var selectedHandPose);
                         EditorGUILayout.PropertyField(_propertyAvatarHandSide, ContentAvatarHandSide);
 
                         GUI.enabled = avatar != null;
 
                         if (UxrEditorUtils.CenteredButton(ContentLoadRig))
                         {
-                            UxrAvatarHand srcHand = avatar.GetHand(handSide);
+                            var srcHand = avatar.GetHand(handSide);
 
                             if (srcHand.Wrist != null && _propertyHandRig.FindPropertyRelative("_wrist").objectReferenceValue == null)
                             {
                                 _propertyHandRig.FindPropertyRelative("_wrist").objectReferenceValue = controllerHand.transform.FindRecursive(srcHand.Wrist.name);
                             }
 
-                            GetFingerTransforms(_propertyHandRig, "_thumb",  controllerHand, srcHand.Thumb);
-                            GetFingerTransforms(_propertyHandRig, "_index",  controllerHand, srcHand.Index);
+                            GetFingerTransforms(_propertyHandRig, "_thumb", controllerHand, srcHand.Thumb);
+                            GetFingerTransforms(_propertyHandRig, "_index", controllerHand, srcHand.Index);
                             GetFingerTransforms(_propertyHandRig, "_middle", controllerHand, srcHand.Middle);
-                            GetFingerTransforms(_propertyHandRig, "_ring",   controllerHand, srcHand.Ring);
+                            GetFingerTransforms(_propertyHandRig, "_ring", controllerHand, srcHand.Ring);
                             GetFingerTransforms(_propertyHandRig, "_little", controllerHand, srcHand.Little);
                         }
 
@@ -96,9 +99,9 @@ namespace UltimateXR.Editor.Devices.Visualization
                         if (UxrEditorUtils.CenteredButton(ContentBakePose))
                         {
                             UxrAvatarRig.UpdateHandUsingDescriptor(controllerHand.Hand,
-                                                                   selectedHandPose.GetHandDescriptor(handSide, selectedHandPose.PoseType, UxrBlendPoseType.OpenGrip),
-                                                                   avatar.AvatarRigInfo.GetArmInfo(handSide).HandUniversalLocalAxes,
-                                                                   avatar.AvatarRigInfo.GetArmInfo(handSide).FingerUniversalLocalAxes);
+                                selectedHandPose.GetHandDescriptor(handSide, selectedHandPose.PoseType, UxrBlendPoseType.OpenGrip),
+                                avatar.AvatarRigInfo.GetArmInfo(handSide).HandUniversalLocalAxes,
+                                avatar.AvatarRigInfo.GetArmInfo(handSide).FingerUniversalLocalAxes);
                         }
 
                         GUI.enabled = true;
@@ -117,10 +120,10 @@ namespace UltimateXR.Editor.Devices.Visualization
                     EditorGUILayout.PropertyField(_propertyHandRig, ContentHandRig, true);
                 }
 
-                EditorGUILayout.PropertyField(_propertyThumb,  ContentThumb,  true);
-                EditorGUILayout.PropertyField(_propertyIndex,  ContentIndex,  true);
+                EditorGUILayout.PropertyField(_propertyThumb, ContentThumb, true);
+                EditorGUILayout.PropertyField(_propertyIndex, ContentIndex, true);
                 EditorGUILayout.PropertyField(_propertyMiddle, ContentMiddle, true);
-                EditorGUILayout.PropertyField(_propertyRing,   ContentRing,   true);
+                EditorGUILayout.PropertyField(_propertyRing, ContentRing, true);
                 EditorGUILayout.PropertyField(_propertyLittle, ContentLittle, true);
             }
 
@@ -140,11 +143,12 @@ namespace UltimateXR.Editor.Devices.Visualization
         /// <param name="srcFinger">The avatar finger with data that is already solved and that will be used as reference</param>
         private void GetFingerTransforms(SerializedProperty propertyHandRig, string fingerField, UxrControllerHand controllerHand, UxrAvatarFinger srcFinger)
         {
-            GetFingerTransform(controllerHand.transform, srcFinger.Metacarpal,   propertyHandRig.FindPropertyRelative($"{fingerField}._metacarpal"));
-            GetFingerTransform(controllerHand.transform, srcFinger.Proximal,     propertyHandRig.FindPropertyRelative($"{fingerField}._proximal"));
+            GetFingerTransform(controllerHand.transform, srcFinger.Metacarpal, propertyHandRig.FindPropertyRelative($"{fingerField}._metacarpal"));
+            GetFingerTransform(controllerHand.transform, srcFinger.Proximal, propertyHandRig.FindPropertyRelative($"{fingerField}._proximal"));
             GetFingerTransform(controllerHand.transform, srcFinger.Intermediate, propertyHandRig.FindPropertyRelative($"{fingerField}._intermediate"));
-            GetFingerTransform(controllerHand.transform, srcFinger.Distal,       propertyHandRig.FindPropertyRelative($"{fingerField}._distal"));
+            GetFingerTransform(controllerHand.transform, srcFinger.Distal, propertyHandRig.FindPropertyRelative($"{fingerField}._distal"));
         }
+
 
         /// <summary>
         ///     Tries to solve a transform reference looking for a Transform that has the same name in an avatar as reference.
@@ -160,6 +164,7 @@ namespace UltimateXR.Editor.Devices.Visualization
             }
         }
 
+
         /// <summary>
         ///     Clears all the transforms in a finger.
         /// </summary>
@@ -167,30 +172,30 @@ namespace UltimateXR.Editor.Devices.Visualization
         /// <param name="fingerField">The name of the finger field</param>
         private void ClearFingerTransforms(SerializedProperty propertyHandRig, string fingerField)
         {
-            propertyHandRig.FindPropertyRelative($"{fingerField}._metacarpal").objectReferenceValue   = null;
-            propertyHandRig.FindPropertyRelative($"{fingerField}._proximal").objectReferenceValue     = null;
+            propertyHandRig.FindPropertyRelative($"{fingerField}._metacarpal").objectReferenceValue = null;
+            propertyHandRig.FindPropertyRelative($"{fingerField}._proximal").objectReferenceValue = null;
             propertyHandRig.FindPropertyRelative($"{fingerField}._intermediate").objectReferenceValue = null;
-            propertyHandRig.FindPropertyRelative($"{fingerField}._distal").objectReferenceValue       = null;
+            propertyHandRig.FindPropertyRelative($"{fingerField}._distal").objectReferenceValue = null;
         }
 
         #endregion
 
         #region Private Types & Data
 
-        private GUIContent ContentHasAvatarSource => new GUIContent("Has Avatar Source",   "Allows to specify an avatar that uses the same rig as this hand. It allows to bake avatar hand poses for controllers into the hand");
-        private GUIContent ContentAvatarPrefab    => new GUIContent("Avatar Prefab",       "Source avatar prefab with the same hand rig");
-        private GUIContent ContentAvatarHandSide  => new GUIContent("Hand Side",           "Which hand side it is");
-        private GUIContent ContentHandPose        => new GUIContent("Hand Pose",           "The hand pose from the avatar to bake into this hand");
-        private GUIContent ContentVariations      => new GUIContent("Hand Variations",     "Registers the different available hands and materials if there are any");
-        private GUIContent ContentHandRig         => new GUIContent("Hand Rig",            "The hand transforms");
-        private GUIContent ContentLoadRig         => new GUIContent("Load Rig Data",       "Loads the rig data from the avatar into the component");
-        private GUIContent ContentClearRig        => new GUIContent("Clear Rig Data",      "Clears all the hand rig references");
-        private GUIContent ContentBakePose        => new GUIContent("Bake Pose into Hand", "Bakes the selected pose into the hand");
-        private GUIContent ContentThumb           => new GUIContent("Thumb",               "Thumb finger information");
-        private GUIContent ContentIndex           => new GUIContent("Index",               "Index finger information");
-        private GUIContent ContentMiddle          => new GUIContent("Middle",              "Middle finger information");
-        private GUIContent ContentRing            => new GUIContent("Ring",                "Ring finger information");
-        private GUIContent ContentLittle          => new GUIContent("Little",              "Little finger information");
+        private GUIContent ContentHasAvatarSource => new("Has Avatar Source", "Allows to specify an avatar that uses the same rig as this hand. It allows to bake avatar hand poses for controllers into the hand");
+        private GUIContent ContentAvatarPrefab => new("Avatar Prefab", "Source avatar prefab with the same hand rig");
+        private GUIContent ContentAvatarHandSide => new("Hand Side", "Which hand side it is");
+        private GUIContent ContentHandPose => new("Hand Pose", "The hand pose from the avatar to bake into this hand");
+        private GUIContent ContentVariations => new("Hand Variations", "Registers the different available hands and materials if there are any");
+        private GUIContent ContentHandRig => new("Hand Rig", "The hand transforms");
+        private GUIContent ContentLoadRig => new("Load Rig Data", "Loads the rig data from the avatar into the component");
+        private GUIContent ContentClearRig => new("Clear Rig Data", "Clears all the hand rig references");
+        private GUIContent ContentBakePose => new("Bake Pose into Hand", "Bakes the selected pose into the hand");
+        private GUIContent ContentThumb => new("Thumb", "Thumb finger information");
+        private GUIContent ContentIndex => new("Index", "Index finger information");
+        private GUIContent ContentMiddle => new("Middle", "Middle finger information");
+        private GUIContent ContentRing => new("Ring", "Ring finger information");
+        private GUIContent ContentLittle => new("Little", "Little finger information");
 
         private SerializedProperty _propertyHasAvatarSource;
         private SerializedProperty _propertyAvatarPrefab;
@@ -205,7 +210,7 @@ namespace UltimateXR.Editor.Devices.Visualization
         private SerializedProperty _propertyLittle;
 
         private bool _foldoutPoseBaking = true;
-        private bool _foldoutHand       = true;
+        private bool _foldoutHand = true;
 
         #endregion
     }

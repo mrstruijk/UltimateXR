@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -166,6 +168,7 @@ namespace UltimateXR.Manipulation
         /// </summary>
         /// <param name="propagateEvents">Should <see cref="UxrManipulationEventArgs" /> events be generated?</param>
         public void ResetPositionAndState(bool propagateEvents);
+
 
         /// <summary>
         ///     Releases the object from all its grabs if there are any.

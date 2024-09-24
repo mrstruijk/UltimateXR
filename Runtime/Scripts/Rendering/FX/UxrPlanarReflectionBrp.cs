@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core.Components;
 using UltimateXR.Devices;
@@ -10,6 +11,7 @@ using UltimateXR.Extensions.Unity;
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
 using UnityEngine.XR;
+
 
 namespace UltimateXR.Rendering.FX
 {
@@ -33,12 +35,12 @@ namespace UltimateXR.Rendering.FX
 
         // Inspector
 
-        [SerializeField] private bool      _forceClearSkyBox;
+        [SerializeField] private bool _forceClearSkyBox;
         [SerializeField] private Transform _mirrorTransform;
-        [SerializeField] private bool      _disablePixelLights = true;
-        [SerializeField] private int       _textureSize        = 1024;
-        [SerializeField] private float     _clipPlaneOffset    = 0.07f;
-        [SerializeField] private LayerMask _reflectLayers      = -1;
+        [SerializeField] private bool _disablePixelLights = true;
+        [SerializeField] private int _textureSize = 1024;
+        [SerializeField] private float _clipPlaneOffset = 0.07f;
+        [SerializeField] private LayerMask _reflectLayers = -1;
 
         #endregion
 
@@ -51,7 +53,7 @@ namespace UltimateXR.Rendering.FX
         {
             base.OnDisable();
 
-            foreach (KeyValuePair<Camera, Camera> camPair in _reflectionCameras)
+            foreach (var camPair in _reflectionCameras)
             {
                 if (camPair.Value != null)
                 {
@@ -74,12 +76,13 @@ namespace UltimateXR.Rendering.FX
             _reflectionCameras.Clear();
         }
 
+
         /// <summary>
         ///     Called by Unity when the object will be rendered. It is used to render the reflection.
         /// </summary>
         private void OnWillRenderObject()
         {
-            Renderer mirrorRenderer = GetComponent<Renderer>();
+            var mirrorRenderer = GetComponent<Renderer>();
             _mirrorTransform = _mirrorTransform ? _mirrorTransform : transform;
 
             if (!enabled || !mirrorRenderer || !mirrorRenderer.sharedMaterial || !mirrorRenderer.enabled)
@@ -87,7 +90,7 @@ namespace UltimateXR.Rendering.FX
                 return;
             }
 
-            Camera cam = Camera.current;
+            var cam = Camera.current;
 
             if (!cam)
             {
@@ -108,11 +111,12 @@ namespace UltimateXR.Rendering.FX
 
             s_insideRendering = true;
 
-            CreateResources(cam, out Camera reflectionCamera);
+            CreateResources(cam, out var reflectionCamera);
 
             // Lower quality for reflection
 
-            int oldPixelLightCount = QualitySettings.pixelLightCount;
+            var oldPixelLightCount = QualitySettings.pixelLightCount;
+
             if (_disablePixelLights)
             {
                 QualitySettings.pixelLightCount = 0;
@@ -126,7 +130,7 @@ namespace UltimateXR.Rendering.FX
 
             if (TryGetComponent<Renderer>(out var theRenderer))
             {
-                foreach (Material m in theRenderer.sharedMaterials)
+                foreach (var m in theRenderer.sharedMaterials)
                 {
                     if (m.HasProperty(VarReflectionTexLeft))
                     {
@@ -138,7 +142,7 @@ namespace UltimateXR.Rendering.FX
                         m.SetTexture(VarReflectionTexRight, _reflectionTextureRight);
                     }
 
-                    m.SetFloat(VarReflectionTexelSize,  _reflectionTextureLeft.width == 0 ? 1.0f : 1.0f / _reflectionTextureLeft.width);
+                    m.SetFloat(VarReflectionTexelSize, _reflectionTextureLeft.width == 0 ? 1.0f : 1.0f / _reflectionTextureLeft.width);
                     m.SetFloat(VarReflectionMaxLodBias, _reflectionTextureLeft.width == 0 ? 0.0f : Mathf.Log(_reflectionTextureLeft.width, 2.0f));
                     m.SetInt(VarStereo, cam.stereoEnabled ? 1 : 0);
                 }
@@ -191,12 +195,14 @@ namespace UltimateXR.Rendering.FX
         /// <returns>Plane in camera space</returns>
         private Vector4 CameraSpacePlane(Camera targetCamera, float offset, Vector3 position, Vector3 normal, float sideSign)
         {
-            Vector3   offsetPos           = position + normal * offset;
-            Matrix4x4 worldToCameraMatrix = targetCamera.worldToCameraMatrix;
-            Vector3   localPos            = worldToCameraMatrix.MultiplyPoint(offsetPos);
-            Vector3   localNormal         = worldToCameraMatrix.MultiplyVector(normal).normalized * sideSign;
+            var offsetPos = position + normal * offset;
+            var worldToCameraMatrix = targetCamera.worldToCameraMatrix;
+            var localPos = worldToCameraMatrix.MultiplyPoint(offsetPos);
+            var localNormal = worldToCameraMatrix.MultiplyVector(normal).normalized * sideSign;
+
             return new Vector4(localNormal.x, localNormal.y, localNormal.z, -Vector3.Dot(localPos, localNormal));
         }
+
 
         /// <summary>
         ///     Renders the reflection.
@@ -212,29 +218,29 @@ namespace UltimateXR.Rendering.FX
             reflectionCamera.ResetWorldToCameraMatrix();
             reflectionCamera.ResetCullingMatrix();
 
-            Vector3    camPos = renderCamera.transform.position;
-            Quaternion camRot = renderCamera.transform.rotation;
+            var camPos = renderCamera.transform.position;
+            var camRot = renderCamera.transform.rotation;
 
             // Reflect camera using reflection plane
 
-            float   d               = -Vector3.Dot(normal, pos) - _clipPlaneOffset;
-            Vector4 reflectionPlane = new Vector4(normal.x, normal.y, normal.z, d);
+            var d = -Vector3.Dot(normal, pos) - _clipPlaneOffset;
+            var reflectionPlane = new Vector4(normal.x, normal.y, normal.z, d);
 
-            Matrix4x4 reflection = Matrix4x4Ext.GetReflectionMatrix(reflectionPlane);
-            Vector3   offset     = Vector3.zero;
+            var reflection = Matrix4x4Ext.GetReflectionMatrix(reflectionPlane);
+            var offset = Vector3.zero;
 
-            Matrix4x4 projection = renderCamera.projectionMatrix;
+            var projection = renderCamera.projectionMatrix;
 
-            if (stereo && UxrTrackingDevice.GetHeadsetDevice(out InputDevice headsetDevice))
+            if (stereo && UxrTrackingDevice.GetHeadsetDevice(out var headsetDevice))
             {
                 reflectionCamera.transform.parent = renderCamera.transform;
 
-                headsetDevice.TryGetFeatureValue(CommonUsages.centerEyePosition, out Vector3    centerEyePos);
-                headsetDevice.TryGetFeatureValue(CommonUsages.centerEyeRotation, out Quaternion centerEyeRot);
-                headsetDevice.TryGetFeatureValue(CommonUsages.leftEyePosition,   out Vector3    leftEyePos);
-                headsetDevice.TryGetFeatureValue(CommonUsages.leftEyeRotation,   out Quaternion leftEyeRot);
-                headsetDevice.TryGetFeatureValue(CommonUsages.rightEyePosition,  out Vector3    rightEyePos);
-                headsetDevice.TryGetFeatureValue(CommonUsages.rightEyeRotation,  out Quaternion rightEyeRot);
+                headsetDevice.TryGetFeatureValue(CommonUsages.centerEyePosition, out var centerEyePos);
+                headsetDevice.TryGetFeatureValue(CommonUsages.centerEyeRotation, out var centerEyeRot);
+                headsetDevice.TryGetFeatureValue(CommonUsages.leftEyePosition, out var leftEyePos);
+                headsetDevice.TryGetFeatureValue(CommonUsages.leftEyeRotation, out var leftEyeRot);
+                headsetDevice.TryGetFeatureValue(CommonUsages.rightEyePosition, out var rightEyePos);
+                headsetDevice.TryGetFeatureValue(CommonUsages.rightEyeRotation, out var rightEyeRot);
 
                 renderCamera.transform.SetPositionAndRotation(centerEyePos, centerEyeRot);
 
@@ -262,10 +268,10 @@ namespace UltimateXR.Rendering.FX
 
             // Create projection matrix. Near plane will be our reflection plane so that we will clip everything on the other side.
 
-            Vector4 clipPlane = CameraSpacePlane(reflectionCamera, _clipPlaneOffset, pos, normal, 1.0f);
-            projection                        = projection.GetObliqueMatrix(clipPlane);
+            var clipPlane = CameraSpacePlane(reflectionCamera, _clipPlaneOffset, pos, normal, 1.0f);
+            projection = projection.GetObliqueMatrix(clipPlane);
             reflectionCamera.projectionMatrix = projection;
-            reflectionCamera.cullingMatrix    = reflectionCamera.projectionMatrix * reflectionCamera.worldToCameraMatrix;
+            reflectionCamera.cullingMatrix = reflectionCamera.projectionMatrix * reflectionCamera.worldToCameraMatrix;
 
             // Render
 
@@ -276,6 +282,7 @@ namespace UltimateXR.Rendering.FX
             reflectionCamera.ResetWorldToCameraMatrix();
             reflectionCamera.ResetCullingMatrix();
         }
+
 
         /// <summary>
         ///     Copy data from one camera to another
@@ -291,12 +298,13 @@ namespace UltimateXR.Rendering.FX
 
             if (_forceClearSkyBox == false)
             {
-                dest.clearFlags      = src.clearFlags;
+                dest.clearFlags = src.clearFlags;
                 dest.backgroundColor = src.backgroundColor;
+
                 if (src.clearFlags == CameraClearFlags.Skybox)
                 {
-                    Skybox skySrc = src.GetComponent(typeof(Skybox)) as Skybox;
-                    Skybox skyDst = dest.GetComponent(typeof(Skybox)) as Skybox;
+                    var skySrc = src.GetComponent(typeof(Skybox)) as Skybox;
+                    var skyDst = dest.GetComponent(typeof(Skybox)) as Skybox;
 
                     if (skyDst)
                     {
@@ -306,25 +314,26 @@ namespace UltimateXR.Rendering.FX
                         }
                         else
                         {
-                            skyDst.enabled  = true;
+                            skyDst.enabled = true;
                             skyDst.material = skySrc.material;
                         }
                     }
                 }
             }
 
-            dest.farClipPlane  = src.farClipPlane;
+            dest.farClipPlane = src.farClipPlane;
             dest.nearClipPlane = src.nearClipPlane;
-            dest.orthographic  = src.orthographic;
+            dest.orthographic = src.orthographic;
 
             if (XRSettings.enabled == false)
             {
                 dest.fieldOfView = src.fieldOfView;
             }
 
-            dest.aspect           = src.aspect;
+            dest.aspect = src.aspect;
             dest.orthographicSize = src.orthographicSize;
         }
+
 
         /// <summary>
         ///     Creates the internal resources if necessary.
@@ -360,7 +369,7 @@ namespace UltimateXR.Rendering.FX
 
             if (!reflectionCamera)
             {
-                GameObject go = new GameObject($"{nameof(UxrPlanarReflectionBrp)} Camera", typeof(Camera), typeof(Skybox));
+                var go = new GameObject($"{nameof(UxrPlanarReflectionBrp)} Camera", typeof(Camera), typeof(Skybox));
                 reflectionCamera = go.GetComponent<Camera>();
 
                 if (XRSettings.enabled == false)
@@ -369,8 +378,8 @@ namespace UltimateXR.Rendering.FX
                 }
 
                 reflectionCamera.transform.SetPositionAndRotation(transform);
-                reflectionCamera.enabled          = true;
-                go.hideFlags                      = HideFlags.HideAndDontSave;
+                reflectionCamera.enabled = true;
+                go.hideFlags = HideFlags.HideAndDontSave;
                 _reflectionCameras[currentCamera] = reflectionCamera;
 
                 if (_forceClearSkyBox)
@@ -379,6 +388,7 @@ namespace UltimateXR.Rendering.FX
                 }
             }
         }
+
 
         /// <summary>
         ///     Creates a render texture.
@@ -393,12 +403,12 @@ namespace UltimateXR.Rendering.FX
 
             texture = new RenderTexture(_textureSize, _textureSize, 16);
 
-            texture.name             = $"{nameof(UxrPlanarReflectionBrp)} Reflection";
-            texture.isPowerOfTwo     = true;
-            texture.hideFlags        = HideFlags.DontSave;
-            texture.filterMode       = FilterMode.Trilinear;
+            texture.name = $"{nameof(UxrPlanarReflectionBrp)} Reflection";
+            texture.isPowerOfTwo = true;
+            texture.hideFlags = HideFlags.DontSave;
+            texture.filterMode = FilterMode.Trilinear;
             texture.autoGenerateMips = true;
-            texture.useMipMap        = true; // We will use auto mip-mapping in our shader for blur
+            texture.useMipMap = true; // We will use auto mip-mapping in our shader for blur
         }
 
         #endregion
@@ -407,11 +417,11 @@ namespace UltimateXR.Rendering.FX
 
         // Constants
 
-        private const string VarReflectionTexLeft    = "_ReflectionTexLeft";
-        private const string VarReflectionTexRight   = "_ReflectionTexRight";
+        private const string VarReflectionTexLeft = "_ReflectionTexLeft";
+        private const string VarReflectionTexRight = "_ReflectionTexRight";
         private const string VarReflectionMaxLodBias = "_ReflectionMaxLODBias";
-        private const string VarReflectionTexelSize  = "_ReflectionTexelSize";
-        private const string VarStereo               = "_Stereo";
+        private const string VarReflectionTexelSize = "_ReflectionTexelSize";
+        private const string VarStereo = "_Stereo";
 
         // Static
 
@@ -419,10 +429,10 @@ namespace UltimateXR.Rendering.FX
 
         // Internal
 
-        private readonly Dictionary<Camera, Camera> _reflectionCameras = new Dictionary<Camera, Camera>();
-        private          RenderTexture              _reflectionTextureLeft;
-        private          RenderTexture              _reflectionTextureRight;
-        private          int                        _oldReflectionTextureSize;
+        private readonly Dictionary<Camera, Camera> _reflectionCameras = new();
+        private RenderTexture _reflectionTextureLeft;
+        private RenderTexture _reflectionTextureRight;
+        private int _oldReflectionTextureSize;
 
         #endregion
     }

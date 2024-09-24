@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Utilities
 {
@@ -23,8 +25,9 @@ namespace UltimateXR.Editor.Utilities
             EditorGUILayout.HelpBox("This utility will make an object face a target. The look-at direction will be applied to the object's forward vector", MessageType.Info);
 
             EditorGUI.BeginChangeCheck();
-            Transform objectToLookAt = _object;
+            var objectToLookAt = _object;
             _object = EditorGUILayout.ObjectField(new GUIContent("Object", ""), _object, typeof(Transform), true) as Transform;
+
             if (EditorGUI.EndChangeCheck())
             {
                 if (EditorUtility.IsPersistent(_object))
@@ -43,7 +46,7 @@ namespace UltimateXR.Editor.Utilities
             if (UxrEditorUtils.CenteredButton(new GUIContent("Look At")))
             {
                 Undo.RegisterCompleteObjectUndo(_object.transform, "Look at object");
-                Vector3 forward = _target.position - _object.position;
+                var forward = _target.position - _object.position;
                 _object.rotation = Quaternion.LookRotation(_invertForward ? -forward : forward);
             }
 
@@ -60,7 +63,7 @@ namespace UltimateXR.Editor.Utilities
         [MenuItem("Tools/UltimateXR/Utils/LookAt Object")]
         private static void Init()
         {
-            LookAtWindow window = (LookAtWindow)GetWindow(typeof(LookAtWindow), true, "LookAt Object");
+            var window = (LookAtWindow) GetWindow(typeof(LookAtWindow), true, "LookAt Object");
             window.Show();
         }
 
@@ -70,7 +73,7 @@ namespace UltimateXR.Editor.Utilities
 
         private Transform _object;
         private Transform _target;
-        private bool      _invertForward;
+        private bool _invertForward;
 
         #endregion
     }

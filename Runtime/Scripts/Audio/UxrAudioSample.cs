@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Audio
 {
@@ -14,10 +16,39 @@ namespace UltimateXR.Audio
     [Serializable]
     public class UxrAudioSample
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Default constructor.
+        /// </summary>
+        public UxrAudioSample()
+        {
+            Clip = null;
+            Volume = 1.0f;
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        ///     Plays the audio in a given position in space.
+        /// </summary>
+        /// <param name="position">World space coordinates where the audio will be played.</param>
+        public void Play(Vector3 position)
+        {
+            if (Clip != null)
+            {
+                AudioSource.PlayClipAtPoint(Clip, position, Volume);
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField]               private AudioClip _clip;
-        [SerializeField] [Range(0, 1)] private float     _volume = 1.0f;
+        [SerializeField] private AudioClip _clip;
+        [SerializeField] [Range(0, 1)] private float _volume = 1.0f;
 
         #endregion
 
@@ -39,35 +70,6 @@ namespace UltimateXR.Audio
         {
             get => _volume;
             set => _volume = value;
-        }
-
-        #endregion
-
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Default constructor.
-        /// </summary>
-        public UxrAudioSample()
-        {
-            Clip   = null;
-            Volume = 1.0f;
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        ///     Plays the audio in a given position in space.
-        /// </summary>
-        /// <param name="position">World space coordinates where the audio will be played.</param>
-        public void Play(Vector3 position)
-        {
-            if (Clip != null)
-            {
-                AudioSource.PlayClipAtPoint(Clip, position, Volume);
-            }
         }
 
         #endregion

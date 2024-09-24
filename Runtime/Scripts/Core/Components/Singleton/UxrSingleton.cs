@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.IO;
 using System.Threading;
 using UltimateXR.Core.Threading;
 using UnityEngine;
+
 
 namespace UltimateXR.Core.Components.Singleton
 {
@@ -62,6 +64,7 @@ namespace UltimateXR.Core.Components.Singleton
                 if (GetInstance() is null)
                 {
                     UxrMonoDispatcher.RunOnMainThread(FindOrAddInstance);
+
                     while (GetInstance() is null && !UxrMonoDispatcher.IsCurrentThreadMain)
                     {
                         Thread.Sleep(25);
@@ -71,6 +74,12 @@ namespace UltimateXR.Core.Components.Singleton
                 return GetInstance();
             }
         }
+
+        #endregion
+
+        #region Private Types & Data
+
+        private static string ResourcesPrefabPath => Path.Combine(UxrConstants.Paths.SingletonResources, typeof(T).Name);
 
         #endregion
 
@@ -95,6 +104,7 @@ namespace UltimateXR.Core.Components.Singleton
         {
             return TrySetInstance(FindObjectOfType<T>());
         }
+
 
         /// <summary>
         ///     <para>
@@ -131,7 +141,7 @@ namespace UltimateXR.Core.Components.Singleton
 
             // Second: Try to instantiate it from Resources singleton folder
 
-            T prefab   = Resources.Load<T>(ResourcesPrefabPath);
+            var prefab = Resources.Load<T>(ResourcesPrefabPath);
             T instance = null;
 
             if (prefab != null)
@@ -160,12 +170,6 @@ namespace UltimateXR.Core.Components.Singleton
                 Debug.LogError($"[{typeof(T).Name}] singleton failed to initialize", instance);
             }
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private static string ResourcesPrefabPath => Path.Combine(UxrConstants.Paths.SingletonResources, typeof(T).Name);
 
         #endregion
     }

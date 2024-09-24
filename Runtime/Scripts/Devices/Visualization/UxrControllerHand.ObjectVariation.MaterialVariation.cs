@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Devices.Visualization
 {
@@ -24,7 +26,7 @@ namespace UltimateXR.Devices.Visualization
             {
                 #region Inspector Properties/Serialized Fields
 
-                [SerializeField] private string   _name;
+                [SerializeField] private string _name;
                 [SerializeField] private Material _material;
 
                 #endregion

@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.UI.UnityInputModule;
 using UnityEditor;
+
 
 namespace UltimateXR.Editor.UI
 {
@@ -21,13 +23,14 @@ namespace UltimateXR.Editor.UI
         /// </summary>
         private void OnEnable()
         {
-            _propertyDisableOtherInputModules    = serializedObject.FindProperty("_disableOtherInputModules");
-            _propertyAutoEnableOnWorldCanvases   = serializedObject.FindProperty("_autoEnableOnWorldCanvases");
-            _propertyAutoAssignEventCamera       = serializedObject.FindProperty("_autoAssignEventCamera");
+            _propertyDisableOtherInputModules = serializedObject.FindProperty("_disableOtherInputModules");
+            _propertyAutoEnableOnWorldCanvases = serializedObject.FindProperty("_autoEnableOnWorldCanvases");
+            _propertyAutoAssignEventCamera = serializedObject.FindProperty("_autoAssignEventCamera");
             _propertyInteractionTypeOnAutoEnable = serializedObject.FindProperty("_interactionTypeOnAutoEnable");
-            _propertyFingerTipMinHoverDistance   = serializedObject.FindProperty("_fingerTipMinHoverDistance");
-            _propertyDragThreshold               = serializedObject.FindProperty("_dragThreshold");
+            _propertyFingerTipMinHoverDistance = serializedObject.FindProperty("_fingerTipMinHoverDistance");
+            _propertyDragThreshold = serializedObject.FindProperty("_dragThreshold");
         }
+
 
         /// <summary>
         ///     Draws the custom inspector to show additional help.
@@ -37,9 +40,11 @@ namespace UltimateXR.Editor.UI
             serializedObject.Update();
 
             EditorGUILayout.Space();
+
             EditorGUILayout.HelpBox("If Auto Enable World Canvases is enabled below, the input module will automatically enable VR interaction on world-space canvases that have not been manually set up by adding them a UxrCanvas component.\n\n" +
                                     "Two types of interaction are supported: finger tips, where the user will be able to interact with the elements by touching them with the hands, and laser pointers, where the user will be able to interact with the elements by pointing at them with a laser and pressing a controller button.",
-                                    MessageType.Info);
+                MessageType.Info);
+
             EditorGUILayout.Space();
 
             EditorGUILayout.PropertyField(_propertyDisableOtherInputModules);

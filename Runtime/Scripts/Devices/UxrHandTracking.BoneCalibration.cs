@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Attributes;
 using UnityEngine;
+
 
 namespace UltimateXR.Devices
 {
@@ -19,13 +21,28 @@ namespace UltimateXR.Devices
         [Serializable]
         private class BoneCalibration
         {
+            #region Constructors & Finalizer
+
+            /// <summary>
+            ///     Constructor.
+            /// </summary>
+            /// <param name="transform">Transform</param>
+            /// <param name="rotation">Rotation relative to the calibration pose</param>
+            public BoneCalibration(Transform transform, Quaternion rotation)
+            {
+                _transform = transform;
+                Rotation = rotation;
+            }
+
+            #endregion
+
             #region Inspector Properties/Serialized Fields
 
-            [SerializeField]            private Transform _transform;
-            [SerializeField] [ReadOnly] private float     _x;
-            [SerializeField] [ReadOnly] private float     _y;
-            [SerializeField] [ReadOnly] private float     _z;
-            [SerializeField] [ReadOnly] private float     _w;
+            [SerializeField] private Transform _transform;
+            [SerializeField] [ReadOnly] private float _x;
+            [SerializeField] [ReadOnly] private float _y;
+            [SerializeField] [ReadOnly] private float _z;
+            [SerializeField] [ReadOnly] private float _w;
 
             #endregion
 
@@ -41,7 +58,7 @@ namespace UltimateXR.Devices
             /// </summary>
             public Quaternion Rotation
             {
-                get => new Quaternion(_x, _y, _z, _w);
+                get => new(_x, _y, _z, _w);
                 set
                 {
                     _x = value.x;
@@ -49,21 +66,6 @@ namespace UltimateXR.Devices
                     _z = value.z;
                     _w = value.w;
                 }
-            }
-
-            #endregion
-
-            #region Constructors & Finalizer
-
-            /// <summary>
-            ///     Constructor.
-            /// </summary>
-            /// <param name="transform">Transform</param>
-            /// <param name="rotation">Rotation relative to the calibration pose</param>
-            public BoneCalibration(Transform transform, Quaternion rotation)
-            {
-                _transform = transform;
-                Rotation   = rotation;
             }
 
             #endregion

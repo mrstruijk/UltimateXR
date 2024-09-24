@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Linq;
 using UltimateXR.Avatar;
@@ -15,6 +16,7 @@ using UltimateXR.Manipulation.HandPoses;
 using UnityEditor;
 using UnityEngine;
 
+
 namespace UltimateXR.Editor.Manipulation
 {
     /// <summary>
@@ -23,6 +25,18 @@ namespace UltimateXR.Editor.Manipulation
     [CustomEditor(typeof(UxrGrabbableObjectSnapTransform))]
     public class UxrGrabbableObjectSnapTransformEditor : UnityEditor.Editor
     {
+        #region Event Trigger Methods
+
+        /// <summary>
+        ///     Recomputes the preview poses.
+        /// </summary>
+        private void OnUndoRedo()
+        {
+            ComputeGrabPoseMeshes();
+        }
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>
@@ -33,11 +47,12 @@ namespace UltimateXR.Editor.Manipulation
         /// <param name="handPoseAsset">The pose asset to look for and update</param>
         public static void RefreshGrabPoseMeshes(UxrAvatar avatar, UxrHandPoseAsset handPoseAsset)
         {
-            foreach (KeyValuePair<SerializedObject, UxrGrabbableObjectSnapTransformEditor> editorPair in s_openEditors)
+            foreach (var editorPair in s_openEditors)
             {
                 editorPair.Value.RefreshGrabPoseMeshesInternal(avatar.GetAvatarPrefab(), handPoseAsset);
             }
         }
+
 
         /// <summary>
         ///     Creates a hand pose preview object.
@@ -49,17 +64,17 @@ namespace UltimateXR.Editor.Manipulation
         /// <returns>New preview GameObject</returns>
         public static GameObject CreateAndSetupPreviewMeshObject(Transform parent, UxrPreviewHandGripMesh previewMesh, Mesh mesh, Material[] sharedMaterials)
         {
-            GameObject grabPose = EditorUtility.CreateGameObjectWithHideFlags("GrabPose",
-                                                                              HideFlags.HideAndDontSave,
-                                                                              typeof(UxrGrabbableObjectPreviewMesh),
-                                                                              typeof(MeshFilter),
-                                                                              typeof(MeshRenderer));
+            var grabPose = EditorUtility.CreateGameObjectWithHideFlags("GrabPose",
+                HideFlags.HideAndDontSave,
+                typeof(UxrGrabbableObjectPreviewMesh),
+                typeof(MeshFilter),
+                typeof(MeshRenderer));
 
-            grabPose.transform.parent                                          = parent;
-            grabPose.transform.localPosition                                   = Vector3.zero;
-            grabPose.transform.localRotation                                   = Quaternion.identity;
-            grabPose.GetComponent<MeshFilter>().sharedMesh                     = mesh;
-            grabPose.GetComponent<MeshRenderer>().sharedMaterials              = sharedMaterials;
+            grabPose.transform.parent = parent;
+            grabPose.transform.localPosition = Vector3.zero;
+            grabPose.transform.localRotation = Quaternion.identity;
+            grabPose.GetComponent<MeshFilter>().sharedMesh = mesh;
+            grabPose.GetComponent<MeshRenderer>().sharedMaterials = sharedMaterials;
             grabPose.GetComponent<UxrGrabbableObjectPreviewMesh>().PreviewMesh = previewMesh;
 
             return grabPose;
@@ -74,9 +89,9 @@ namespace UltimateXR.Editor.Manipulation
         /// </summary>
         private void OnEnable()
         {
-            for (int i = 0; i < serializedObject.targetObjects.Length; ++i)
+            for (var i = 0; i < serializedObject.targetObjects.Length; ++i)
             {
-                UxrGrabbableObjectSnapTransform snapTransform = serializedObject.targetObject as UxrGrabbableObjectSnapTransform;
+                var snapTransform = serializedObject.targetObject as UxrGrabbableObjectSnapTransform;
                 snapTransform.hideFlags = HideFlags.DontSaveInBuild;
             }
 
@@ -93,11 +108,12 @@ namespace UltimateXR.Editor.Manipulation
 
             // Destroy objects that don't belong to any UxrGrabbableObject (duplicated in editor or moved from hierarchy)
 
-            foreach (Object targetObject in serializedObject.targetObjects)
+            foreach (var targetObject in serializedObject.targetObjects)
             {
                 CheckUnusedTransform(targetObject as UxrGrabbableObjectSnapTransform);
             }
         }
+
 
         /// <summary>
         ///     Destroys temporal grab pose editor objects.
@@ -114,6 +130,7 @@ namespace UltimateXR.Editor.Manipulation
             }
         }
 
+
         /// <summary>
         ///     Draws the custom inspector.
         /// </summary>
@@ -121,15 +138,15 @@ namespace UltimateXR.Editor.Manipulation
         {
             if (serializedObject.targetObjects.Length == 1)
             {
-                UxrGrabbableObjectSnapTransform snapTransform   = serializedObject.targetObject as UxrGrabbableObjectSnapTransform;
-                UxrGrabbableObject              grabbableObject = snapTransform.SafeGetComponentInParent<UxrGrabbableObject>();
+                var snapTransform = serializedObject.targetObject as UxrGrabbableObjectSnapTransform;
+                var grabbableObject = snapTransform.SafeGetComponentInParent<UxrGrabbableObject>();
 
                 if (grabbableObject == null)
                 {
                     return;
                 }
 
-                UxrAvatar avatarForGrip = UxrAvatarEditorExt.GetFromGuid(grabbableObject.Editor_GetGrabAlignTransformAvatar(snapTransform.transform));
+                var avatarForGrip = UxrAvatarEditorExt.GetFromGuid(grabbableObject.Editor_GetGrabAlignTransformAvatar(snapTransform.transform));
 
                 if (avatarForGrip)
                 {
@@ -141,20 +158,20 @@ namespace UltimateXR.Editor.Manipulation
                     }
                     else if (grabPointIndices.Count() == 1)
                     {
-                        UxrGrabPointInfo grabPoint     = grabbableObject.GetGrabPoint(grabPointIndices.First());
-                        UxrGripPoseInfo  gripPose      = grabPoint.GetGripPoseInfo(avatarForGrip);
-                        UxrHandPoseAsset gripPoseAsset = gripPose?.HandPose;
+                        var grabPoint = grabbableObject.GetGrabPoint(grabPointIndices.First());
+                        var gripPose = grabPoint.GetGripPoseInfo(avatarForGrip);
+                        var gripPoseAsset = gripPose?.HandPose;
 
                         if (gripPoseAsset != null && gripPoseAsset.PoseType == UxrHandPoseType.Blend)
                         {
                             EditorGUILayout.HelpBox($"This slider will affect both the left and right hand of pose {gripPoseAsset.name}. Grab points in {nameof(UxrGrabbableObject)} use the same slider for both hands.",
-                                                    MessageType.Info);
+                                MessageType.Info);
 
                             Undo.RecordObject(grabbableObject, "Change Pose Blend");
                             EditorGUILayout.Space();
 
-                            float oldBlend = gripPose.PoseBlendValue;
-                            float newBlend = EditorGUILayout.Slider($"Pose Blend ({gripPoseAsset.name})", oldBlend, 0.0f, 1.0f);
+                            var oldBlend = gripPose.PoseBlendValue;
+                            var newBlend = EditorGUILayout.Slider($"Pose Blend ({gripPoseAsset.name})", oldBlend, 0.0f, 1.0f);
                             gripPose.PoseBlendValue = newBlend;
 
                             if (!Mathf.Approximately(oldBlend, newBlend))
@@ -167,11 +184,12 @@ namespace UltimateXR.Editor.Manipulation
                         }
                     }
 
-                    UxrGrabber[] grabbers     = avatarForGrip.GetComponentsInChildren<UxrGrabber>();
-                    UxrGrabber   leftGrabber  = grabbers.FirstOrDefault(g => g.Side == UxrHandSide.Left);
-                    UxrGrabber   rightGrabber = grabbers.FirstOrDefault(g => g.Side == UxrHandSide.Right);
-                    UxrGrabber grabber = _previewMeshLeft != null  ? leftGrabber :
-                                         _previewMeshRight != null ? rightGrabber : null;
+                    var grabbers = avatarForGrip.GetComponentsInChildren<UxrGrabber>();
+                    var leftGrabber = grabbers.FirstOrDefault(g => g.Side == UxrHandSide.Left);
+                    var rightGrabber = grabbers.FirstOrDefault(g => g.Side == UxrHandSide.Right);
+
+                    var grabber = _previewMeshLeft != null ? leftGrabber :
+                        _previewMeshRight != null ? rightGrabber : null;
 
                     if (grabber)
                     {
@@ -189,8 +207,8 @@ namespace UltimateXR.Editor.Manipulation
 
                         if (grabPointIndices.Count() == 1)
                         {
-                            UxrGrabPointInfo grabPoint = grabbableObject.GetGrabPoint(grabPointIndices.First());
-                            UxrGripPoseInfo  gripPose  = grabPoint.GetGripPoseInfo(avatarForGrip);
+                            var grabPoint = grabbableObject.GetGrabPoint(grabPointIndices.First());
+                            var gripPose = grabPoint.GetGripPoseInfo(avatarForGrip);
 
                             if (gripPose.GripAlignTransformHandLeft != null && gripPose.GripAlignTransformHandRight != null)
                             {
@@ -208,18 +226,6 @@ namespace UltimateXR.Editor.Manipulation
 
         #endregion
 
-        #region Event Trigger Methods
-
-        /// <summary>
-        ///     Recomputes the preview poses.
-        /// </summary>
-        private void OnUndoRedo()
-        {
-            ComputeGrabPoseMeshes();
-        }
-
-        #endregion
-
         #region Private Methods
 
         /// <summary>
@@ -231,17 +237,17 @@ namespace UltimateXR.Editor.Manipulation
         /// <param name="previewMeshRight">Will contain the right grab pose mesh if it was found</param>
         private static void TryGetGrabPoseMeshes(UxrAvatar avatarPrefab, Transform transform, out UxrPreviewHandGripMesh previewMeshLeft, out UxrPreviewHandGripMesh previewMeshRight)
         {
-            previewMeshLeft  = null;
+            previewMeshLeft = null;
             previewMeshRight = null;
-            UxrGrabbableObject[] grabbableObjects = transform.GetComponentsInParent<UxrGrabbableObject>();
+            var grabbableObjects = transform.GetComponentsInParent<UxrGrabbableObject>();
 
-            UxrAvatar avatar = UxrGrabbableObjectEditor.TryGetSceneAvatar(avatarPrefab.gameObject);
+            var avatar = UxrGrabbableObjectEditor.TryGetSceneAvatar(avatarPrefab.gameObject);
 
-            foreach (UxrGrabbableObject grabbableObject in grabbableObjects)
+            foreach (var grabbableObject in grabbableObjects)
             {
-                for (int i = 0; i < grabbableObject.GrabPointCount; ++i)
+                for (var i = 0; i < grabbableObject.GrabPointCount; ++i)
                 {
-                    UxrGrabPointInfo grabPoint = grabbableObject.GetGrabPoint(i);
+                    var grabPoint = grabbableObject.GetGrabPoint(i);
 
                     if (grabPoint.HideHandGrabberRenderer == false && grabPoint.SnapMode == UxrSnapToHandMode.PositionAndRotation)
                     {
@@ -269,6 +275,7 @@ namespace UltimateXR.Editor.Manipulation
             }
         }
 
+
         /// <summary>
         ///     Regenerates the grab pose meshes
         /// </summary>
@@ -278,6 +285,7 @@ namespace UltimateXR.Editor.Manipulation
             CreateGrabPoseTempEditorObjects();
         }
 
+
         /// <summary>
         ///     Creates the temporal grab pose GameObjects that are used to quickly preview/edit grabbing mechanics
         ///     in the editor
@@ -286,13 +294,13 @@ namespace UltimateXR.Editor.Manipulation
         {
             // Create temporal grab pose objects
 
-            _previewMeshLeft  = null;
+            _previewMeshLeft = null;
             _previewMeshRight = null;
 
-            foreach (Object targetObject in serializedObject.targetObjects)
+            foreach (var targetObject in serializedObject.targetObjects)
             {
-                UxrGrabbableObjectSnapTransform snapTransform   = targetObject as UxrGrabbableObjectSnapTransform;
-                UxrGrabbableObject              grabbableObject = snapTransform.SafeGetComponentInParent<UxrGrabbableObject>();
+                var snapTransform = targetObject as UxrGrabbableObjectSnapTransform;
+                var grabbableObject = snapTransform.SafeGetComponentInParent<UxrGrabbableObject>();
 
                 if (grabbableObject == null)
                 {
@@ -301,7 +309,7 @@ namespace UltimateXR.Editor.Manipulation
 
                 // Get the avatar prefab
 
-                UxrAvatar avatarPrefab = UxrAvatarEditorExt.GetFromGuid(grabbableObject.Editor_GetGrabAlignTransformAvatar(snapTransform.transform));
+                var avatarPrefab = UxrAvatarEditorExt.GetFromGuid(grabbableObject.Editor_GetGrabAlignTransformAvatar(snapTransform.transform));
 
                 if (avatarPrefab == null)
                 {
@@ -310,7 +318,7 @@ namespace UltimateXR.Editor.Manipulation
 
                 // Try to get a compatible instance of the prefab in the scene
 
-                UxrAvatar avatar = UxrGrabbableObjectEditor.TryGetSceneAvatar(avatarPrefab.gameObject);
+                var avatar = UxrGrabbableObjectEditor.TryGetSceneAvatar(avatarPrefab.gameObject);
 
                 if (avatar == null)
                 {
@@ -321,9 +329,9 @@ namespace UltimateXR.Editor.Manipulation
 
                 // Get grabber renderers which will be used to know which materials to use when rendering grab poses
 
-                UxrGrabber[] grabbers             = avatar.GetComponentsInChildren<UxrGrabber>(false);
-                Renderer     leftGrabberRenderer  = grabbers.FirstOrDefault(g => g.Side == UxrHandSide.Left && g.HandRenderer != null)?.HandRenderer;
-                Renderer     rightGrabberRenderer = grabbers.FirstOrDefault(g => g.Side == UxrHandSide.Right && g.HandRenderer != null)?.HandRenderer;
+                var grabbers = avatar.GetComponentsInChildren<UxrGrabber>(false);
+                var leftGrabberRenderer = grabbers.FirstOrDefault(g => g.Side == UxrHandSide.Left && g.HandRenderer != null)?.HandRenderer;
+                var rightGrabberRenderer = grabbers.FirstOrDefault(g => g.Side == UxrHandSide.Right && g.HandRenderer != null)?.HandRenderer;
 
                 if (snapTransform && avatar)
                 {
@@ -331,16 +339,17 @@ namespace UltimateXR.Editor.Manipulation
 
                     if (_previewMeshLeft != null && leftGrabberRenderer)
                     {
-                        GameObject grabPose = CreateAndSetupPreviewMeshObject(snapTransform.transform, _previewMeshLeft, _previewMeshLeft.UnityMesh, leftGrabberRenderer.sharedMaterials);
+                        var grabPose = CreateAndSetupPreviewMeshObject(snapTransform.transform, _previewMeshLeft, _previewMeshLeft.UnityMesh, leftGrabberRenderer.sharedMaterials);
                     }
 
                     if (_previewMeshRight != null && rightGrabberRenderer)
                     {
-                        GameObject grabPose = CreateAndSetupPreviewMeshObject(snapTransform.transform, _previewMeshRight, _previewMeshRight.UnityMesh, rightGrabberRenderer.sharedMaterials);
+                        var grabPose = CreateAndSetupPreviewMeshObject(snapTransform.transform, _previewMeshRight, _previewMeshRight.UnityMesh, rightGrabberRenderer.sharedMaterials);
                     }
                 }
             }
         }
+
 
         /// <summary>
         ///     Refreshes the preview poses for a specific avatar and hand pose. Designed to be called
@@ -350,30 +359,30 @@ namespace UltimateXR.Editor.Manipulation
         /// <param name="handPoseAsset">The pose asset to look for and update</param>
         private void RefreshGrabPoseMeshesInternal(UxrAvatar avatarPrefab, UxrHandPoseAsset handPoseAsset)
         {
-            foreach (Object targetObject in serializedObject.targetObjects)
+            foreach (var targetObject in serializedObject.targetObjects)
             {
-                UxrGrabbableObjectSnapTransform snapTransform   = targetObject as UxrGrabbableObjectSnapTransform;
-                UxrGrabbableObject              grabbableObject = snapTransform.SafeGetComponentInParent<UxrGrabbableObject>();
+                var snapTransform = targetObject as UxrGrabbableObjectSnapTransform;
+                var grabbableObject = snapTransform.SafeGetComponentInParent<UxrGrabbableObject>();
 
-                UxrAvatar selectedAvatar = UxrAvatarEditorExt.GetFromGuid(grabbableObject.Editor_GetGrabAlignTransformAvatar(snapTransform.transform));
+                var selectedAvatar = UxrAvatarEditorExt.GetFromGuid(grabbableObject.Editor_GetGrabAlignTransformAvatar(snapTransform.transform));
 
                 if (selectedAvatar == null || grabbableObject == null || !selectedAvatar.IsPrefabCompatibleWith(avatarPrefab))
                 {
                     continue;
                 }
 
-                UxrAvatar avatar = UxrGrabbableObjectEditor.TryGetSceneAvatar(avatarPrefab.gameObject);
+                var avatar = UxrGrabbableObjectEditor.TryGetSceneAvatar(avatarPrefab.gameObject);
 
                 if (avatar == null)
                 {
                     continue;
                 }
 
-                for (int i = 0; i < grabbableObject.GrabPointCount; ++i)
+                for (var i = 0; i < grabbableObject.GrabPointCount; ++i)
                 {
-                    UxrGrabPointInfo grabPoint     = grabbableObject.GetGrabPoint(i);
-                    UxrGripPoseInfo  gripPose      = grabPoint.GetGripPoseInfo(avatar);
-                    UxrHandPoseAsset gripPoseAsset = gripPose?.HandPose;
+                    var grabPoint = grabbableObject.GetGrabPoint(i);
+                    var gripPose = grabPoint.GetGripPoseInfo(avatar);
+                    var gripPoseAsset = gripPose?.HandPose;
 
                     if (gripPoseAsset == null)
                     {
@@ -391,6 +400,7 @@ namespace UltimateXR.Editor.Manipulation
                 }
             }
         }
+
 
         /// <summary>
         ///     Checks if a given UxrGrabbableObjectSnapTransform's transform is referenced by
@@ -410,19 +420,20 @@ namespace UltimateXR.Editor.Manipulation
                 return;
             }
 
-            UxrGrabbableObject grabbableObject = snapTransform.SafeGetComponentInParent<UxrGrabbableObject>();
+            var grabbableObject = snapTransform.SafeGetComponentInParent<UxrGrabbableObject>();
 
             if (grabbableObject)
             {
                 // Check if it's still being referenced by grabbableObject
 
-                bool referenced = false;
+                var referenced = false;
 
-                for (int i = 0; i < grabbableObject.GrabPointCount; ++i)
+                for (var i = 0; i < grabbableObject.GrabPointCount; ++i)
                 {
                     if (grabbableObject.Editor_HasGrabPointWithGrabAlignTransform(snapTransform.transform))
                     {
                         referenced = true;
+
                         break;
                     }
                 }
@@ -442,17 +453,19 @@ namespace UltimateXR.Editor.Manipulation
             }
         }
 
+
         /// <summary>
         ///     Destroys the temporal grab pose objects created by CreateGrabPoseTempEditorObjects()
         /// </summary>
         private void DestroyGrabPoseTempEditorObjects()
         {
-            foreach (Object targetObject in serializedObject.targetObjects)
+            foreach (var targetObject in serializedObject.targetObjects)
             {
-                UxrGrabbableObjectSnapTransform snapTransform = targetObject as UxrGrabbableObjectSnapTransform;
+                var snapTransform = targetObject as UxrGrabbableObjectSnapTransform;
                 DestroyGrabPoseTempEditorObjects(snapTransform);
             }
         }
+
 
         /// <summary>
         ///     Destroys all temporal editor objects belonging to the snap transform
@@ -462,9 +475,9 @@ namespace UltimateXR.Editor.Manipulation
         {
             if (snapTransform)
             {
-                UxrGrabbableObjectPreviewMesh[] previewMeshComponents = snapTransform.GetComponentsInChildren<UxrGrabbableObjectPreviewMesh>();
+                var previewMeshComponents = snapTransform.GetComponentsInChildren<UxrGrabbableObjectPreviewMesh>();
 
-                foreach (UxrGrabbableObjectPreviewMesh previewMeshComponent in previewMeshComponents)
+                foreach (var previewMeshComponent in previewMeshComponents)
                 {
                     DestroyImmediate(previewMeshComponent.gameObject);
                 }
@@ -475,9 +488,9 @@ namespace UltimateXR.Editor.Manipulation
 
         #region Private Types & Data
 
-        private static readonly Dictionary<SerializedObject, UxrGrabbableObjectSnapTransformEditor> s_openEditors = new Dictionary<SerializedObject, UxrGrabbableObjectSnapTransformEditor>();
+        private static readonly Dictionary<SerializedObject, UxrGrabbableObjectSnapTransformEditor> s_openEditors = new();
 
-        private UxrAvatar              _cachedSingleObjectAvatar;
+        private UxrAvatar _cachedSingleObjectAvatar;
         private UxrPreviewHandGripMesh _previewMeshLeft;
         private UxrPreviewHandGripMesh _previewMeshRight;
 

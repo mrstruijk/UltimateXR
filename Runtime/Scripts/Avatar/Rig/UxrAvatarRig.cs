@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UltimateXR.Core;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Rig
 {
@@ -21,17 +23,29 @@ namespace UltimateXR.Avatar.Rig
     [Serializable]
     public partial class UxrAvatarRig
     {
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        public UxrAvatarRig()
+        {
+            ClearRigElements();
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private UxrAvatarHead _head;
-        [SerializeField] private UxrAvatarArm  _leftArm;
-        [SerializeField] private UxrAvatarArm  _rightArm;
-        [SerializeField] private Transform     _upperChest;
-        [SerializeField] private Transform     _chest;
-        [SerializeField] private Transform     _spine;
-        [SerializeField] private Transform     _hips;
-        [SerializeField] private UxrAvatarLeg  _leftLeg;
-        [SerializeField] private UxrAvatarLeg  _rightLeg;
+        [SerializeField] private UxrAvatarArm _leftArm;
+        [SerializeField] private UxrAvatarArm _rightArm;
+        [SerializeField] private Transform _upperChest;
+        [SerializeField] private Transform _chest;
+        [SerializeField] private Transform _spine;
+        [SerializeField] private Transform _hips;
+        [SerializeField] private UxrAvatarLeg _leftLeg;
+        [SerializeField] private UxrAvatarLeg _rightLeg;
 
         #endregion
 
@@ -49,27 +63,27 @@ namespace UltimateXR.Avatar.Rig
         {
             get
             {
-                foreach (Transform transform in Head.Transforms)
+                foreach (var transform in Head.Transforms)
                 {
                     yield return transform;
                 }
 
-                foreach (Transform transform in LeftArm.Transforms)
+                foreach (var transform in LeftArm.Transforms)
                 {
                     yield return transform;
                 }
 
-                foreach (Transform transform in RightArm.Transforms)
+                foreach (var transform in RightArm.Transforms)
                 {
                     yield return transform;
                 }
 
-                foreach (Transform transform in LeftLeg.Transforms)
+                foreach (var transform in LeftLeg.Transforms)
                 {
                     yield return transform;
                 }
 
-                foreach (Transform transform in RightLeg.Transforms)
+                foreach (var transform in RightLeg.Transforms)
                 {
                     yield return transform;
                 }
@@ -143,18 +157,6 @@ namespace UltimateXR.Avatar.Rig
 
         #endregion
 
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        public UxrAvatarRig()
-        {
-            ClearRigElements();
-        }
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -166,48 +168,56 @@ namespace UltimateXR.Avatar.Rig
         /// <returns>Whether a side was found</returns>
         public static bool GetHandSide(Transform transform, out UxrHandSide side)
         {
-            UxrAvatar avatar = transform.SafeGetComponentInParent<UxrAvatar>();
+            var avatar = transform.SafeGetComponentInParent<UxrAvatar>();
 
             if (avatar)
             {
                 if (transform.HasParent(avatar.LeftHandBone))
                 {
                     side = UxrHandSide.Left;
+
                     return true;
                 }
+
                 if (transform.HasParent(avatar.RightHandBone))
                 {
                     side = UxrHandSide.Right;
+
                     return true;
                 }
-                UxrHandIntegration handIntegration = transform.SafeGetComponentInParent<UxrHandIntegration>();
+
+                var handIntegration = transform.SafeGetComponentInParent<UxrHandIntegration>();
 
                 if (handIntegration)
                 {
                     side = handIntegration.HandSide;
+
                     return true;
                 }
             }
 
             side = UxrHandSide.Left;
+
             return false;
         }
+
 
         /// <summary>
         ///     Sets all the rig element references to null.
         /// </summary>
         public void ClearRigElements()
         {
-            _head       = new UxrAvatarHead();
-            _leftArm    = new UxrAvatarArm();
-            _rightArm   = new UxrAvatarArm();
-            _leftLeg    = new UxrAvatarLeg();
-            _rightLeg   = new UxrAvatarLeg();
+            _head = new UxrAvatarHead();
+            _leftArm = new UxrAvatarArm();
+            _rightArm = new UxrAvatarArm();
+            _leftLeg = new UxrAvatarLeg();
+            _rightLeg = new UxrAvatarLeg();
             _upperChest = null;
-            _chest      = null;
-            _spine      = null;
-            _hips       = null;
+            _chest = null;
+            _spine = null;
+            _hips = null;
         }
+
 
         /// <summary>
         ///     Gets the avatar arms.
@@ -226,6 +236,7 @@ namespace UltimateXR.Avatar.Rig
             }
         }
 
+
         /// <summary>
         ///     Gets whether the given rig has any of the references used in upper body IK (head, neck, upper chest, chest or
         ///     spine).
@@ -236,6 +247,7 @@ namespace UltimateXR.Avatar.Rig
             return _head.Head != null || _head.Neck != null || _upperChest != null || _chest != null || _spine != null;
         }
 
+
         /// <summary>
         ///     Gets whether the given rig has all arm references (upper arm, forearm and hand).
         /// </summary>
@@ -244,6 +256,7 @@ namespace UltimateXR.Avatar.Rig
         {
             return LeftArm.Hand.Wrist != null && RightArm.Hand.Wrist != null && LeftArm.Forearm != null && RightArm.Forearm != null && LeftArm.UpperArm != null && RightArm.UpperArm != null;
         }
+
 
         /// <summary>
         ///     Gets whether the given rig has all hand and finger bone references.
@@ -254,6 +267,7 @@ namespace UltimateXR.Avatar.Rig
             return LeftArm.Hand.Wrist != null && RightArm.Hand.Wrist != null && LeftArm.Hand.HasFingerData() && RightArm.Hand.HasFingerData();
         }
 
+
         /// <summary>
         ///     Gets whether the given rig has all finger data.
         /// </summary>
@@ -262,6 +276,7 @@ namespace UltimateXR.Avatar.Rig
         {
             return LeftArm.Hand.HasFingerData() && RightArm.Hand.HasFingerData();
         }
+
 
         /// <summary>
         ///     Gets whether the given rig has all finger data.

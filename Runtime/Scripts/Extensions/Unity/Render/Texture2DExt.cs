@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.IO;
 using System.Threading;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using UltimateXR.Extensions.System;
 using UltimateXR.Extensions.System.IO;
 using UnityEngine;
+
 
 namespace UltimateXR.Extensions.Unity.Render
 {
@@ -29,10 +31,11 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <returns>The created <see cref="Texture2D" /> object</returns>
         public static Texture2D Create(int width, int height, Color32 color)
         {
-            Texture2D tex = new Texture2D(width, height);
+            var tex = new Texture2D(width, height);
 
-            Color32[] pixels = new Color32[width * height];
-            for (int i = 0; i < pixels.Length; ++i)
+            var pixels = new Color32[width * height];
+
+            for (var i = 0; i < pixels.Length; ++i)
             {
                 pixels[i] = color;
             }
@@ -42,6 +45,7 @@ namespace UltimateXR.Extensions.Unity.Render
 
             return tex;
         }
+
 
         /// <summary>
         ///     Loads asynchronously a texture from a given file <paramref name="uri" />. See <see cref="FileExt.Read" /> for
@@ -58,9 +62,11 @@ namespace UltimateXR.Extensions.Unity.Render
         /// <exception cref="InvalidOperationException">The stream is currently in use by a previous read operation. </exception>
         public static async Task<Texture2D> FromFile(string uri, CancellationToken ct = default)
         {
-            byte[] bytes = await FileExt.Read(uri, ct);
+            var bytes = await FileExt.Read(uri, ct);
+
             return FromBytes(bytes);
         }
+
 
         /// <summary>
         ///     Loads asynchronously a texture from a file encoded in a base64 <seealso cref="string" />.
@@ -79,7 +85,8 @@ namespace UltimateXR.Extensions.Unity.Render
             base64.ThrowIfNullOrWhitespace(nameof(base64));
 
             // Screenshot is from a file embedded in a string in base64 format
-            byte[] bytes = await Task.Run(() => Convert.FromBase64String(base64), ct);
+            var bytes = await Task.Run(() => Convert.FromBase64String(base64), ct);
+
             return FromBytes(bytes);
         }
 
@@ -94,6 +101,7 @@ namespace UltimateXR.Extensions.Unity.Render
             bytes.ThrowIfNull(nameof(bytes));
             var tex = new Texture2D(2, 2);
             tex.LoadImage(bytes);
+
             return tex;
         }
 

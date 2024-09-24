@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.UI.UnityInputModule.Controls
 {
@@ -21,7 +23,7 @@ namespace UltimateXR.UI.UnityInputModule.Controls
         {
             #region Inspector Properties/Serialized Fields
 
-            [SerializeField] private Text  _text;
+            [SerializeField] private Text _text;
             [SerializeField] private Color _colorSelected;
             [SerializeField] private Color _colorNotSelected;
 

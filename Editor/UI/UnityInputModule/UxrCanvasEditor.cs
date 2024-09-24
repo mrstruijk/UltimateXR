@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.UI.UnityInputModule;
 using UnityEditor;
+
 
 namespace UltimateXR.Editor.UI.UnityInputModule
 {
@@ -21,13 +23,14 @@ namespace UltimateXR.Editor.UI.UnityInputModule
         /// </summary>
         private void OnEnable()
         {
-            _propertyInteractionType           = serializedObject.FindProperty("_interactionType");
+            _propertyInteractionType = serializedObject.FindProperty("_interactionType");
             _propertyFingerTipMinHoverDistance = serializedObject.FindProperty("_fingerTipMinHoverDistance");
-            _propertyAutoEnableLaserPointer    = serializedObject.FindProperty("_autoEnableLaserPointer");
-            _propertyAutoEnableDistance        = serializedObject.FindProperty("_autoEnableDistance");
-            _propertyAllowLeftHand             = serializedObject.FindProperty("_allowLeftHand");
-            _propertyAllowRightHand            = serializedObject.FindProperty("_allowRightHand");
+            _propertyAutoEnableLaserPointer = serializedObject.FindProperty("_autoEnableLaserPointer");
+            _propertyAutoEnableDistance = serializedObject.FindProperty("_autoEnableDistance");
+            _propertyAllowLeftHand = serializedObject.FindProperty("_allowLeftHand");
+            _propertyAllowRightHand = serializedObject.FindProperty("_allowRightHand");
         }
+
 
         /// <summary>
         ///     Draws the custom inspector and handles input.
@@ -43,6 +46,7 @@ namespace UltimateXR.Editor.UI.UnityInputModule
             {
                 EditorGUILayout.PropertyField(_propertyFingerTipMinHoverDistance);
             }
+
             if (_propertyInteractionType.enumNames[_propertyInteractionType.enumValueIndex] == UxrInteractionType.LaserPointers.ToString())
             {
                 EditorGUILayout.PropertyField(_propertyAutoEnableLaserPointer);

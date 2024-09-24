@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections;
 using UltimateXR.Avatar;
 using UltimateXR.Core;
@@ -10,6 +11,7 @@ using UltimateXR.Core.Components;
 using UltimateXR.Extensions.Unity.Render;
 using UltimateXR.Locomotion;
 using UnityEngine;
+
 
 namespace UltimateXR.Rendering.LOD
 {
@@ -29,53 +31,6 @@ namespace UltimateXR.Rendering.LOD
         ///     Gets the Unity LODGroup component.
         /// </summary>
         public LODGroup UnityLODGroup => GetCachedComponent<LODGroup>();
-
-        #endregion
-
-        #region Unity
-
-        /// <summary>
-        ///     Subscribes to the global event called whenever any <see cref="UxrLocomotion" /> component is enabled.
-        /// </summary>
-        protected override void Awake()
-        {
-            base.Awake();
-
-            UxrTeleportLocomotion.GlobalEnabled += UxrLocomotion_Enabled;
-        }
-
-        /// <summary>
-        ///     Unsubscribes from the global event called whenever any <see cref="UxrLocomotion" /> component is enabled.
-        /// </summary>
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-
-            UxrTeleportLocomotion.GlobalEnabled -= UxrLocomotion_Enabled;
-        }
-
-        /// <summary>
-        ///     Subscribes to the event called whenever an avatar was moved.
-        ///     Also starts the LOD Bias fix coroutine.
-        /// </summary>
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-
-            UxrManager.AvatarMoved += UxrManager_AvatarMoved;
-            StartCoroutine(FixLodBiasCoroutine());
-        }
-
-        /// <summary>
-        ///     Unsubscribes from the event called whenever an avatar was moved.
-        /// </summary>
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-
-            UxrManager.AvatarMoved -= UxrManager_AvatarMoved;
-            UnityLODGroup.enabled  =  true;
-        }
 
         #endregion
 
@@ -103,10 +58,60 @@ namespace UltimateXR.Rendering.LOD
 
             if (!s_lodGroupChanged)
             {
-                float editorCameraRadians = Mathf.PI / 3.0f;
+                var editorCameraRadians = Mathf.PI / 3.0f;
                 QualitySettings.lodBias *= Mathf.Tan(UxrAvatar.LocalAvatarCamera.fieldOfView * Mathf.Deg2Rad / 2) / Mathf.Tan(editorCameraRadians / 2);
-                s_lodGroupChanged       =  true;
+                s_lodGroupChanged = true;
             }
+        }
+
+        #endregion
+
+        #region Unity
+
+        /// <summary>
+        ///     Subscribes to the global event called whenever any <see cref="UxrLocomotion" /> component is enabled.
+        /// </summary>
+        protected override void Awake()
+        {
+            base.Awake();
+
+            UxrTeleportLocomotion.GlobalEnabled += UxrLocomotion_Enabled;
+        }
+
+
+        /// <summary>
+        ///     Unsubscribes from the global event called whenever any <see cref="UxrLocomotion" /> component is enabled.
+        /// </summary>
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            UxrTeleportLocomotion.GlobalEnabled -= UxrLocomotion_Enabled;
+        }
+
+
+        /// <summary>
+        ///     Subscribes to the event called whenever an avatar was moved.
+        ///     Also starts the LOD Bias fix coroutine.
+        /// </summary>
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+            UxrManager.AvatarMoved += UxrManager_AvatarMoved;
+            StartCoroutine(FixLodBiasCoroutine());
+        }
+
+
+        /// <summary>
+        ///     Unsubscribes from the event called whenever an avatar was moved.
+        /// </summary>
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            UxrManager.AvatarMoved -= UxrManager_AvatarMoved;
+            UnityLODGroup.enabled = true;
         }
 
         #endregion
@@ -124,7 +129,7 @@ namespace UltimateXR.Rendering.LOD
             if (locomotion.Avatar.AvatarMode == UxrAvatarMode.Local)
             {
                 _isSmoothLocomotionEnabled = locomotion.IsSmoothLocomotion;
-                UnityLODGroup.enabled      = locomotion.IsSmoothLocomotion;
+                UnityLODGroup.enabled = locomotion.IsSmoothLocomotion;
 
                 if (!locomotion.IsSmoothLocomotion)
                 {
@@ -132,6 +137,7 @@ namespace UltimateXR.Rendering.LOD
                 }
             }
         }
+
 
         /// <summary>
         ///     Called whenever an avatar moved. In non-smooth locomotion mode it will be used to switch LOD levels manually.
@@ -151,7 +157,7 @@ namespace UltimateXR.Rendering.LOD
         #region Private Types & Data
 
         private static bool s_lodGroupChanged;
-        private        bool _isSmoothLocomotionEnabled = true;
+        private bool _isSmoothLocomotionEnabled = true;
 
         #endregion
     }

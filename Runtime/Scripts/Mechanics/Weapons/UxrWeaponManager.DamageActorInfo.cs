@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -16,18 +18,18 @@ namespace UltimateXR.Mechanics.Weapons
         /// </summary>
         private class ActorInfo
         {
-            #region Public Types & Data
-
-            public Transform Transform { get; }
-
-            #endregion
-
             #region Constructors & Finalizer
 
             public ActorInfo(UxrActor target)
             {
                 Transform = target.GetComponent<Transform>();
             }
+
+            #endregion
+
+            #region Public Types & Data
+
+            public Transform Transform { get; }
 
             #endregion
         }

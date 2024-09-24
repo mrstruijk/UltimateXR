@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Materials
 {
@@ -13,12 +15,54 @@ namespace UltimateXR.Animation.Materials
     /// </summary>
     public class UxrMaterialRenderQueue : UxrComponent
     {
+        #region Private Types & Data
+
+        private Renderer _renderer;
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Internal method that applies the RenderQueue value.
+        /// </summary>
+        private void Apply()
+        {
+            if (_renderer != null)
+            {
+                if (_instanceOnly)
+                {
+                    var materials = _renderer.materials;
+
+                    if (_slot >= 0 && _slot < materials.Length)
+                    {
+                        materials[_slot].renderQueue = _value;
+                    }
+
+                    _renderer.materials = materials;
+                }
+                else
+                {
+                    var materials = _renderer.sharedMaterials;
+
+                    if (_slot >= 0 && _slot < materials.Length)
+                    {
+                        materials[_slot].renderQueue = _value;
+                    }
+
+                    _renderer.sharedMaterials = materials;
+                }
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private bool _instanceOnly;
         [SerializeField] private bool _everyFrame = true;
-        [SerializeField] private int  _slot;
-        [SerializeField] private int  _value;
+        [SerializeField] private int _slot;
+        [SerializeField] private int _value;
 
         #endregion
 
@@ -35,6 +79,7 @@ namespace UltimateXR.Animation.Materials
             Apply();
         }
 
+
         /// <summary>
         ///     Applies the RenderQueue each frame if required.
         /// </summary>
@@ -45,44 +90,6 @@ namespace UltimateXR.Animation.Materials
                 Apply();
             }
         }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Internal method that applies the RenderQueue value.
-        /// </summary>
-        private void Apply()
-        {
-            if (_renderer != null)
-            {
-                if (_instanceOnly)
-                {
-                    Material[] materials = _renderer.materials;
-                    if (_slot >= 0 && _slot < materials.Length)
-                    {
-                        materials[_slot].renderQueue = _value;
-                    }
-                    _renderer.materials = materials;
-                }
-                else
-                {
-                    Material[] materials = _renderer.sharedMaterials;
-                    if (_slot >= 0 && _slot < materials.Length)
-                    {
-                        materials[_slot].renderQueue = _value;
-                    }
-                    _renderer.sharedMaterials = materials;
-                }
-            }
-        }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private Renderer _renderer;
 
         #endregion
     }

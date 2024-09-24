@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Extensions.System;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Interpolation
 {
@@ -15,6 +17,15 @@ namespace UltimateXR.Animation.Interpolation
     /// </summary>
     public static class UxrInterpolator
     {
+        #region Private Types & Data
+
+        /// <summary>
+        ///     Constant used in SmoothDamp methods that controls the speed at which the interpolation will be performed.
+        /// </summary>
+        private const float MaxSmoothSpeed = 20.0f;
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>
@@ -29,6 +40,7 @@ namespace UltimateXR.Animation.Interpolation
             return Mathf.Lerp(oldValue, newValue, GetSmoothInterpolationValue(smooth, Time.deltaTime));
         }
 
+
         /// <summary>
         ///     Smooths a position value using the last position, new position and a smooth value between [0.0, 1.0].
         /// </summary>
@@ -40,6 +52,7 @@ namespace UltimateXR.Animation.Interpolation
         {
             return Vector3.Lerp(oldPos, newPos, GetSmoothInterpolationValue(smooth, Time.deltaTime));
         }
+
 
         /// <summary>
         ///     Smooths a rotation value using the last rotation, new rotation and a smooth value between [0.0, 1.0].
@@ -54,6 +67,7 @@ namespace UltimateXR.Animation.Interpolation
             return Quaternion.Slerp(oldRot, newRot, GetSmoothInterpolationValue(smooth, Time.deltaTime));
         }
 
+
         /// <summary>
         ///     Interpolates between two floating point values using a t between range [0.0, 1.0] and a given easing.
         /// </summary>
@@ -66,6 +80,7 @@ namespace UltimateXR.Animation.Interpolation
         {
             return Interpolate(a, b, 1.0f, 0.0f, Mathf.Clamp01(t), easing);
         }
+
 
         /// <summary>
         ///     Interpolates between two points using a t between range [0.0, 1.0] and a given easing.
@@ -80,6 +95,7 @@ namespace UltimateXR.Animation.Interpolation
             return Interpolate(a, b, 1.0f, 0.0f, Mathf.Clamp01(t), easing);
         }
 
+
         /// <summary>
         ///     Spherically interpolates (SLERP) between two quaternions using a t between range [0.0, 1.0] and a given easing.
         /// </summary>
@@ -92,6 +108,7 @@ namespace UltimateXR.Animation.Interpolation
         {
             return Interpolate(a, b, 1.0f, 0.0f, Mathf.Clamp01(t), easing);
         }
+
 
         /// <summary>
         ///     Interpolates between two floating point values.
@@ -119,18 +136,19 @@ namespace UltimateXR.Animation.Interpolation
         ///     specified. By default it's false, which means the interpolation start value is used during the delay.
         /// </param>
         /// <returns>Interpolated floating point value</returns>
-        public static float Interpolate(float       startValue,
-                                        float       endValue,
-                                        float       duration,
-                                        float       delay,
-                                        float       time,
-                                        UxrEasing   easing,
-                                        UxrLoopMode loopMode           = UxrLoopMode.None,
-                                        float       loopedDuration     = -1.0f,
-                                        bool        delayUsingEndValue = false)
+        public static float Interpolate(float startValue,
+                                        float endValue,
+                                        float duration,
+                                        float delay,
+                                        float time,
+                                        UxrEasing easing,
+                                        UxrLoopMode loopMode = UxrLoopMode.None,
+                                        float loopedDuration = -1.0f,
+                                        bool delayUsingEndValue = false)
         {
             return Interpolate(new Vector4(startValue, 0, 0, 0), new Vector4(endValue, 0, 0, 0), duration, delay, time, easing, loopMode, loopedDuration, delayUsingEndValue).x;
         }
+
 
         /// <summary>
         ///     Interpolates between two floating point values.
@@ -146,16 +164,18 @@ namespace UltimateXR.Animation.Interpolation
         public static float Interpolate(float startValue, float endValue, float time, UxrInterpolationSettings settings)
         {
             settings.ThrowIfNull(nameof(settings));
+
             return Interpolate(new Vector4(startValue, 0, 0, 0),
-                               new Vector4(endValue,   0, 0, 0),
-                               settings.DurationSeconds,
-                               settings.DelaySeconds,
-                               time,
-                               settings.Easing,
-                               settings.LoopMode,
-                               settings.LoopedDurationSeconds,
-                               settings.DelayUsingEndValue).x;
+                new Vector4(endValue, 0, 0, 0),
+                settings.DurationSeconds,
+                settings.DelaySeconds,
+                time,
+                settings.Easing,
+                settings.LoopMode,
+                settings.LoopedDurationSeconds,
+                settings.DelayUsingEndValue).x;
         }
+
 
         /// <summary>
         ///     Gets the T value used for linear interpolations like Vector3.Lerp or Quaternion.Slerp using easing and loop.
@@ -172,6 +192,7 @@ namespace UltimateXR.Animation.Interpolation
         {
             return Interpolate(0.0f, 1.0f, 1.0f, 0.0f, t, easing, loopMode, loopedDuration);
         }
+
 
         /// <summary>
         ///     Interpolates between two <see cref="Vector4" /> values
@@ -199,15 +220,15 @@ namespace UltimateXR.Animation.Interpolation
         ///     specified. By default it's false, which means the interpolation start value is used during the delay.
         /// </param>
         /// <returns>Interpolated <see cref="Vector4" /> value</returns>
-        public static Vector4 Interpolate(Vector4     startValue,
-                                          Vector4     endValue,
-                                          float       duration,
-                                          float       delay,
-                                          float       time,
-                                          UxrEasing   easing,
-                                          UxrLoopMode loopMode           = UxrLoopMode.None,
-                                          float       loopedDuration     = -1.0f,
-                                          bool        delayUsingEndValue = false)
+        public static Vector4 Interpolate(Vector4 startValue,
+                                          Vector4 endValue,
+                                          float duration,
+                                          float delay,
+                                          float time,
+                                          UxrEasing easing,
+                                          UxrLoopMode loopMode = UxrLoopMode.None,
+                                          float loopedDuration = -1.0f,
+                                          bool delayUsingEndValue = false)
         {
             if (time < delay)
             {
@@ -222,15 +243,15 @@ namespace UltimateXR.Animation.Interpolation
                 Mathf.Min(time, delay + (loopMode == UxrLoopMode.None ? duration : loopedDuration));
             }
 
-            float t = duration == 0.0f ? 0.0f : (time - delay) / duration;
+            var t = duration == 0.0f ? 0.0f : (time - delay) / duration;
 
             if (loopMode == UxrLoopMode.Loop)
             {
-                t = t - (int)t;
+                t = t - (int) t;
             }
             else if (loopMode == UxrLoopMode.PingPong)
             {
-                int loopCount = (int)t;
+                var loopCount = (int) t;
 
                 t = t - loopCount;
 
@@ -243,6 +264,7 @@ namespace UltimateXR.Animation.Interpolation
 
             return InterpolateVector4(startValue, endValue, t, easing);
         }
+
 
         /// <summary>
         ///     Interpolates between two <see cref="Vector4" /> values
@@ -258,8 +280,10 @@ namespace UltimateXR.Animation.Interpolation
         public static Vector4 Interpolate(Vector4 startValue, Vector4 endValue, float time, UxrInterpolationSettings settings)
         {
             settings.ThrowIfNull(nameof(settings));
+
             return Interpolate(startValue, endValue, settings.DurationSeconds, settings.DelaySeconds, time, settings.Easing, settings.LoopMode, settings.LoopedDurationSeconds, settings.DelayUsingEndValue);
         }
+
 
         /// <summary>
         ///     Interpolates between two <see cref="Quaternion" /> values. The interpolation uses SLERP.
@@ -287,19 +311,21 @@ namespace UltimateXR.Animation.Interpolation
         ///     specified. By default it's false, which means the interpolation start value is used during the delay.
         /// </param>
         /// <returns>Interpolated <see cref="Quaternion" /> value</returns>
-        public static Quaternion Interpolate(Quaternion  startValue,
-                                             Quaternion  endValue,
-                                             float       duration,
-                                             float       delay,
-                                             float       time,
-                                             UxrEasing   easing,
-                                             UxrLoopMode loopMode           = UxrLoopMode.None,
-                                             float       loopedDuration     = -1.0f,
-                                             bool        delayUsingEndValue = false)
+        public static Quaternion Interpolate(Quaternion startValue,
+                                             Quaternion endValue,
+                                             float duration,
+                                             float delay,
+                                             float time,
+                                             UxrEasing easing,
+                                             UxrLoopMode loopMode = UxrLoopMode.None,
+                                             float loopedDuration = -1.0f,
+                                             bool delayUsingEndValue = false)
         {
-            float t = Interpolate(0.0f, 1.0f, duration, delay, time, easing, loopMode, loopedDuration);
+            var t = Interpolate(0.0f, 1.0f, duration, delay, time, easing, loopMode, loopedDuration);
+
             return Quaternion.Slerp(startValue, endValue, t);
         }
+
 
         /// <summary>
         ///     Interpolates between two <see cref="Quaternion" /> values. The interpolation uses SLERP.
@@ -312,14 +338,16 @@ namespace UltimateXR.Animation.Interpolation
         /// <exception cref="ArgumentNullException">
         ///     When <paramref name="settings" /> is null.
         /// </exception>
-        public static Quaternion Interpolate(Quaternion               startValue,
-                                             Quaternion               endValue,
-                                             float                    time,
+        public static Quaternion Interpolate(Quaternion startValue,
+                                             Quaternion endValue,
+                                             float time,
                                              UxrInterpolationSettings settings)
         {
             settings.ThrowIfNull(nameof(settings));
+
             return Interpolate(startValue, endValue, settings.DurationSeconds, settings.DelaySeconds, time, settings.Easing, settings.LoopMode, settings.LoopedDurationSeconds, settings.DelayUsingEndValue);
         }
+
 
         /// <summary>
         ///     Interpolates text using a typewriter effect.
@@ -342,6 +370,7 @@ namespace UltimateXR.Animation.Interpolation
         {
             return InterpolateText(t, isForUnityTextUI, "{0}", startText, endText);
         }
+
 
         /// <summary>
         ///     Interpolates text using a typewriter effect
@@ -386,54 +415,58 @@ namespace UltimateXR.Animation.Interpolation
         /// <returns>Interpolated string</returns>
         public static string InterpolateText(float t, bool isForUnityTextUI, string formatString, params object[] formatStringArgs)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!(formatStringArgs.Length > 0 && formatStringArgs.Length % 2 == 0))
             {
                 Debug.LogError("The text has no arguments or the number of arguments is not even");
+
                 return string.Empty;
             }
-#endif
-            int numArgs = formatStringArgs.Length / 2;
+            #endif
+            var numArgs = formatStringArgs.Length / 2;
 
-            object[] finalArgs = new object[numArgs];
+            var finalArgs = new object[numArgs];
 
-            for (int i = 0; i < numArgs; i++)
+            for (var i = 0; i < numArgs; i++)
             {
                 if (formatStringArgs[i] == null)
                 {
                     Debug.LogError("Argument " + i + " is null");
+
                     return formatStringArgs[i + numArgs] != null ? formatStringArgs[i + numArgs].ToString() : string.Empty;
                 }
 
                 if (formatStringArgs[i + numArgs] == null)
                 {
                     Debug.LogError("Argument " + (i + numArgs) + " is null");
+
                     return formatStringArgs[i] != null ? formatStringArgs[i].ToString() : string.Empty;
                 }
 
-#if UNITY_EDITOR
+                #if UNITY_EDITOR
                 if (!(formatStringArgs[i].GetType() == formatStringArgs[i + numArgs].GetType()))
                 {
                     Debug.LogError("Type of argument " + i + " is not the same as argument " + (i + numArgs));
+
                     return string.Empty;
                 }
-#endif
+                #endif
                 if (formatStringArgs[i] is int)
                 {
-                    finalArgs[i] = Mathf.RoundToInt(Mathf.Lerp((int)formatStringArgs[i], (int)formatStringArgs[i + numArgs], Mathf.Clamp01(t)));
+                    finalArgs[i] = Mathf.RoundToInt(Mathf.Lerp((int) formatStringArgs[i], (int) formatStringArgs[i + numArgs], Mathf.Clamp01(t)));
                 }
                 else if (formatStringArgs[i] is float)
                 {
-                    finalArgs[i] = Mathf.Lerp((float)formatStringArgs[i], (float)formatStringArgs[i + numArgs], Mathf.Clamp01(t));
+                    finalArgs[i] = Mathf.Lerp((float) formatStringArgs[i], (float) formatStringArgs[i + numArgs], Mathf.Clamp01(t));
                 }
                 else if (formatStringArgs[i] is string)
                 {
-                    string a          = (string)formatStringArgs[i];
-                    string b          = (string)formatStringArgs[i + 1];
-                    int    startChars = a.Length;
-                    int    endChars   = b.Length;
+                    var a = (string) formatStringArgs[i];
+                    var b = (string) formatStringArgs[i + 1];
+                    var startChars = a.Length;
+                    var endChars = b.Length;
 
-                    int numChars = Mathf.Clamp(Mathf.RoundToInt(Mathf.Lerp(startChars, endChars, t)), 0, b.Length);
+                    var numChars = Mathf.Clamp(Mathf.RoundToInt(Mathf.Lerp(startChars, endChars, t)), 0, b.Length);
 
                     if (Mathf.Approximately(t, 1.0f))
                     {
@@ -441,12 +474,12 @@ namespace UltimateXR.Animation.Interpolation
                     }
                     else if (numChars > 0)
                     {
-                        float letterT       = Mathf.Clamp01(Mathf.Repeat(t, 1.0f / endChars) * endChars);
-                        int   changingIndex = Mathf.Max(0, numChars - 1);
-                        char  startCar      = char.IsUpper(b[changingIndex]) ? 'A' : 'a';
-                        char  endCar        = char.IsUpper(b[changingIndex]) ? 'Z' : 'z';
+                        var letterT = Mathf.Clamp01(Mathf.Repeat(t, 1.0f / endChars) * endChars);
+                        var changingIndex = Mathf.Max(0, numChars - 1);
+                        var startCar = char.IsUpper(b[changingIndex]) ? 'A' : 'a';
+                        var endCar = char.IsUpper(b[changingIndex]) ? 'Z' : 'z';
 
-                        finalArgs[i] = b.Substring(0, Mathf.Max(0, numChars - 1)) + (char)(startCar + letterT * (endCar - startCar));
+                        finalArgs[i] = b.Substring(0, Mathf.Max(0, numChars - 1)) + (char) (startCar + letterT * (endCar - startCar));
 
                         if (isForUnityTextUI)
                         {
@@ -479,6 +512,7 @@ namespace UltimateXR.Animation.Interpolation
             return smooth > 0.0f ? (1.0f - Mathf.Clamp01(smooth)) * deltaTime * MaxSmoothSpeed : 1.0f;
         }
 
+
         /// <summary>
         ///     Evaluates a curve using interpolation. This is the core math code that does the actual interpolation.
         /// </summary>
@@ -489,7 +523,7 @@ namespace UltimateXR.Animation.Interpolation
         /// <returns>Interpolated value</returns>
         private static Vector4 InterpolateVector4(Vector4 start, Vector4 end, float t, UxrEasing easing)
         {
-            Vector4 change = end - start;
+            var change = end - start;
 
             switch (easing)
             {
@@ -499,15 +533,15 @@ namespace UltimateXR.Animation.Interpolation
 
                 ///////////////////////////////////////// SINE //////////////////////////////////////////////////////
 
-                case UxrEasing.EaseInSine:                  return -change * Mathf.Cos(t * (Mathf.PI / 2.0f)) + change + start;
-                case UxrEasing.EaseOutSine:                 return change * Mathf.Sin(t * (Mathf.PI / 2.0f)) + start;
-                case UxrEasing.EaseInOutSine:               return -change / 2.0f * (Mathf.Cos(Mathf.PI * t) - 1.0f) + start;
-                case UxrEasing.EaseOutInSine when t < 0.5f: return InterpolateVector4(start,                 start + change * 0.5f, t * 2.0f,          UxrEasing.EaseOutSine);
-                case UxrEasing.EaseOutInSine:               return InterpolateVector4(start + change * 0.5f, end,                   (t - 0.5f) * 2.0f, UxrEasing.EaseInSine);
+                case UxrEasing.EaseInSine: return -change * Mathf.Cos(t * (Mathf.PI / 2.0f)) + change + start;
+                case UxrEasing.EaseOutSine: return change * Mathf.Sin(t * (Mathf.PI / 2.0f)) + start;
+                case UxrEasing.EaseInOutSine: return -change / 2.0f * (Mathf.Cos(Mathf.PI * t) - 1.0f) + start;
+                case UxrEasing.EaseOutInSine when t < 0.5f: return InterpolateVector4(start, start + change * 0.5f, t * 2.0f, UxrEasing.EaseOutSine);
+                case UxrEasing.EaseOutInSine: return InterpolateVector4(start + change * 0.5f, end, (t - 0.5f) * 2.0f, UxrEasing.EaseInSine);
 
                 ///////////////////////////////////////// QUAD //////////////////////////////////////////////////////
 
-                case UxrEasing.EaseInQuad:  return start + t * t * change;
+                case UxrEasing.EaseInQuad: return start + t * t * change;
                 case UxrEasing.EaseOutQuad: return (t - 2.0f) * t * -change + start;
 
                 case UxrEasing.EaseInOutQuad:
@@ -520,11 +554,12 @@ namespace UltimateXR.Animation.Interpolation
                     }
 
                     t -= 1.0f;
+
                     return -change / 2.0f * (t * (t - 2.0f) - 1.0f) + start;
                 }
 
-                case UxrEasing.EaseOutInQuad when t < 0.5f: return InterpolateVector4(start,                 start + change * 0.5f, t * 2.0f,          UxrEasing.EaseOutQuad);
-                case UxrEasing.EaseOutInQuad:               return InterpolateVector4(start + change * 0.5f, end,                   (t - 0.5f) * 2.0f, UxrEasing.EaseInQuad);
+                case UxrEasing.EaseOutInQuad when t < 0.5f: return InterpolateVector4(start, start + change * 0.5f, t * 2.0f, UxrEasing.EaseOutQuad);
+                case UxrEasing.EaseOutInQuad: return InterpolateVector4(start + change * 0.5f, end, (t - 0.5f) * 2.0f, UxrEasing.EaseInQuad);
 
                 ///////////////////////////////////////// CUBIC /////////////////////////////////////////////////////
 
@@ -532,6 +567,7 @@ namespace UltimateXR.Animation.Interpolation
 
                 case UxrEasing.EaseOutCubic:
                     t -= 1.0f;
+
                     return change * (t * t * t + 1.0f) + start;
 
                 case UxrEasing.EaseInOutCubic:
@@ -544,11 +580,12 @@ namespace UltimateXR.Animation.Interpolation
                     }
 
                     t -= 2.0f;
+
                     return change / 2.0f * (t * t * t + 2.0f) + start;
                 }
 
-                case UxrEasing.EaseOutInCubic when t < 0.5f: return InterpolateVector4(start,                 start + change * 0.5f, t * 2.0f,          UxrEasing.EaseOutCubic);
-                case UxrEasing.EaseOutInCubic:               return InterpolateVector4(start + change * 0.5f, end,                   (t - 0.5f) * 2.0f, UxrEasing.EaseInCubic);
+                case UxrEasing.EaseOutInCubic when t < 0.5f: return InterpolateVector4(start, start + change * 0.5f, t * 2.0f, UxrEasing.EaseOutCubic);
+                case UxrEasing.EaseOutInCubic: return InterpolateVector4(start + change * 0.5f, end, (t - 0.5f) * 2.0f, UxrEasing.EaseInCubic);
 
                 ///////////////////////////////////////// QUART /////////////////////////////////////////////////////
 
@@ -556,6 +593,7 @@ namespace UltimateXR.Animation.Interpolation
 
                 case UxrEasing.EaseOutQuart:
                     t -= 1.0f;
+
                     return -change * (t * t * t * t - 1.0f) + start;
 
                 case UxrEasing.EaseInOutQuart:
@@ -568,11 +606,12 @@ namespace UltimateXR.Animation.Interpolation
                     }
 
                     t -= 2.0f;
+
                     return -change / 2.0f * (t * t * t * t - 2.0f) + start;
                 }
 
-                case UxrEasing.EaseOutInQuart when t < 0.5f: return InterpolateVector4(start,                 start + change * 0.5f, t * 2.0f,          UxrEasing.EaseOutQuart);
-                case UxrEasing.EaseOutInQuart:               return InterpolateVector4(start + change * 0.5f, end,                   (t - 0.5f) * 2.0f, UxrEasing.EaseInQuart);
+                case UxrEasing.EaseOutInQuart when t < 0.5f: return InterpolateVector4(start, start + change * 0.5f, t * 2.0f, UxrEasing.EaseOutQuart);
+                case UxrEasing.EaseOutInQuart: return InterpolateVector4(start + change * 0.5f, end, (t - 0.5f) * 2.0f, UxrEasing.EaseInQuart);
 
                 ///////////////////////////////////////// QUINT /////////////////////////////////////////////////////
 
@@ -580,6 +619,7 @@ namespace UltimateXR.Animation.Interpolation
 
                 case UxrEasing.EaseOutQuint:
                     t -= 1.0f;
+
                     return change * (t * t * t * t * t + 1.0f) + start;
 
                 case UxrEasing.EaseInOutQuint:
@@ -592,15 +632,16 @@ namespace UltimateXR.Animation.Interpolation
                     }
 
                     t -= 2.0f;
+
                     return change / 2.0f * (t * t * t * t * t + 2.0f) + start;
                 }
 
-                case UxrEasing.EaseOutInQuint when t < 0.5f: return InterpolateVector4(start,                 start + change * 0.5f, t * 2.0f,          UxrEasing.EaseOutQuint);
-                case UxrEasing.EaseOutInQuint:               return InterpolateVector4(start + change * 0.5f, end,                   (t - 0.5f) * 2.0f, UxrEasing.EaseInQuint);
+                case UxrEasing.EaseOutInQuint when t < 0.5f: return InterpolateVector4(start, start + change * 0.5f, t * 2.0f, UxrEasing.EaseOutQuint);
+                case UxrEasing.EaseOutInQuint: return InterpolateVector4(start + change * 0.5f, end, (t - 0.5f) * 2.0f, UxrEasing.EaseInQuint);
 
                 ///////////////////////////////////////// EXPO //////////////////////////////////////////////////////
 
-                case UxrEasing.EaseInExpo:  return change * Mathf.Pow(2.0f, 10.0f * (t - 1.0f)) + start;
+                case UxrEasing.EaseInExpo: return change * Mathf.Pow(2.0f, 10.0f * (t - 1.0f)) + start;
                 case UxrEasing.EaseOutExpo: return change * (-Mathf.Pow(2.0f, -10.0f * t) + 1.0f) + start;
 
                 case UxrEasing.EaseInOutExpo:
@@ -613,11 +654,12 @@ namespace UltimateXR.Animation.Interpolation
                     }
 
                     t -= 1.0f;
+
                     return change / 2.0f * 1.0005f * (-Mathf.Pow(2.0f, -10.0f * t) + 2.0f) + start;
                 }
 
-                case UxrEasing.EaseOutInExpo when t < 0.5f: return InterpolateVector4(start,                 start + change * 0.5f, t * 2.0f,          UxrEasing.EaseOutExpo);
-                case UxrEasing.EaseOutInExpo:               return InterpolateVector4(start + change * 0.5f, end,                   (t - 0.5f) * 2.0f, UxrEasing.EaseInExpo);
+                case UxrEasing.EaseOutInExpo when t < 0.5f: return InterpolateVector4(start, start + change * 0.5f, t * 2.0f, UxrEasing.EaseOutExpo);
+                case UxrEasing.EaseOutInExpo: return InterpolateVector4(start + change * 0.5f, end, (t - 0.5f) * 2.0f, UxrEasing.EaseInExpo);
 
                 ///////////////////////////////////////// CIRC //////////////////////////////////////////////////////
 
@@ -625,6 +667,7 @@ namespace UltimateXR.Animation.Interpolation
 
                 case UxrEasing.EaseOutCirc:
                     t -= 1.0f;
+
                     return change * Mathf.Sqrt(1.0f - t * t) + start;
 
                 case UxrEasing.EaseInOutCirc:
@@ -637,52 +680,57 @@ namespace UltimateXR.Animation.Interpolation
                     }
 
                     t -= 2.0f;
+
                     return change / 2.0f * (Mathf.Sqrt(1.0f - t * t) + 1.0f) + start;
                 }
 
-                case UxrEasing.EaseOutInCirc when t < 0.5f: return InterpolateVector4(start,                 start + change * 0.5f, t * 2.0f,          UxrEasing.EaseOutCirc);
-                case UxrEasing.EaseOutInCirc:               return InterpolateVector4(start + change * 0.5f, end,                   (t - 0.5f) * 2.0f, UxrEasing.EaseInCirc);
+                case UxrEasing.EaseOutInCirc when t < 0.5f: return InterpolateVector4(start, start + change * 0.5f, t * 2.0f, UxrEasing.EaseOutCirc);
+                case UxrEasing.EaseOutInCirc: return InterpolateVector4(start + change * 0.5f, end, (t - 0.5f) * 2.0f, UxrEasing.EaseInCirc);
 
                 ///////////////////////////////////////// BACK //////////////////////////////////////////////////////
 
                 case UxrEasing.EaseInBack:
                 {
-                    float s = 1.70158f;
+                    var s = 1.70158f;
+
                     return change * (t * t * (s + 1.0f) * t - s) + start;
                 }
 
                 case UxrEasing.EaseOutBack:
                 {
-                    float s = 1.70158f;
+                    var s = 1.70158f;
+
                     return change * ((t - 1.0f) * t * ((s + 1.0f) * t + s) + 1.0f) + start;
                 }
 
                 case UxrEasing.EaseInOutBack:
                 {
-                    float s = 1.70158f;
+                    var s = 1.70158f;
                     t *= 2.0f;
 
                     if (t < 1.0f)
                     {
                         s *= 1.525f;
+
                         return change / 2.0f * (t * t * ((s + 1.0f) * t - s)) + start;
                     }
 
                     s *= 1.525f;
                     t -= 2.0f;
+
                     return change / 2.0f * (t * t * ((s + 1.0f) * t + s) + 2.0f) + start;
                 }
 
-                case UxrEasing.EaseOutInBack when t < 0.5f: return InterpolateVector4(start,                 start + change * 0.5f, t * 2.0f,          UxrEasing.EaseOutBack);
-                case UxrEasing.EaseOutInBack:               return InterpolateVector4(start + change * 0.5f, end,                   (t - 0.5f) * 2.0f, UxrEasing.EaseInBack);
+                case UxrEasing.EaseOutInBack when t < 0.5f: return InterpolateVector4(start, start + change * 0.5f, t * 2.0f, UxrEasing.EaseOutBack);
+                case UxrEasing.EaseOutInBack: return InterpolateVector4(start + change * 0.5f, end, (t - 0.5f) * 2.0f, UxrEasing.EaseInBack);
 
                 ///////////////////////////////////////// ELASTIC ///////////////////////////////////////////////////
 
                 case UxrEasing.EaseInElastic:
                 {
-                    float   p = 0.3f;
-                    Vector4 a = change;
-                    float   s = p / 4.0f;
+                    var p = 0.3f;
+                    var a = change;
+                    var s = p / 4.0f;
 
                     t -= 1.0f;
 
@@ -691,70 +739,67 @@ namespace UltimateXR.Animation.Interpolation
 
                 case UxrEasing.EaseOutElastic:
                 {
-                    float   p = 0.3f;
-                    Vector4 a = change;
-                    float   s = p / 4.0f;
+                    var p = 0.3f;
+                    var a = change;
+                    var s = p / 4.0f;
+
                     return Mathf.Pow(2.0f, -10.0f * t) * Mathf.Sin((t - s) * (2.0f * Mathf.PI) / p) * a + change + start;
                 }
 
                 case UxrEasing.EaseInOutElastic:
                 {
                     t *= 2.0f;
-                    float   p = 0.3f * 1.5f;
-                    Vector4 a = change;
-                    float   s = p / 4.0f;
+                    var p = 0.3f * 1.5f;
+                    var a = change;
+                    var s = p / 4.0f;
 
                     if (t < 1.0f)
                     {
                         t -= 1.0f;
+
                         return -0.5f * (Mathf.Pow(2.0f, 10.0f * t) * Mathf.Sin((t - s) * (2.0f * Mathf.PI) / p) * a) + start;
                     }
 
                     t -= 1.0f;
+
                     return 0.5f * Mathf.Pow(2.0f, -10.0f * t) * Mathf.Sin((t - s) * (2.0f * Mathf.PI) / p) * a + change + start;
                 }
 
-                case UxrEasing.EaseOutInElastic when t < 0.5f: return InterpolateVector4(start,                 start + change * 0.5f, t * 2.0f,          UxrEasing.EaseOutElastic);
-                case UxrEasing.EaseOutInElastic:               return InterpolateVector4(start + change * 0.5f, end,                   (t - 0.5f) * 2.0f, UxrEasing.EaseInElastic);
+                case UxrEasing.EaseOutInElastic when t < 0.5f: return InterpolateVector4(start, start + change * 0.5f, t * 2.0f, UxrEasing.EaseOutElastic);
+                case UxrEasing.EaseOutInElastic: return InterpolateVector4(start + change * 0.5f, end, (t - 0.5f) * 2.0f, UxrEasing.EaseInElastic);
 
                 ///////////////////////////////////////// BOUNCE ////////////////////////////////////////////////////
 
-                case UxrEasing.EaseInBounce:                        return change - InterpolateVector4(Vector4.zero, change, 1.0f - t, UxrEasing.EaseOutBounce) + start;
+                case UxrEasing.EaseInBounce: return change - InterpolateVector4(Vector4.zero, change, 1.0f - t, UxrEasing.EaseOutBounce) + start;
                 case UxrEasing.EaseOutBounce when t < 1.0f / 2.75f: return change * (7.5625f * t * t) + start;
 
                 case UxrEasing.EaseOutBounce when t < 2.0f / 2.75f:
                     t -= 1.5f / 2.75f;
+
                     return change * (7.5625f * t * t + 0.75f) + start;
 
                 case UxrEasing.EaseOutBounce when t < 2.5 / 2.75:
                     t -= 2.25f / 2.75f;
+
                     return change * (7.5625f * t * t + 0.9375f) + start;
 
                 case UxrEasing.EaseOutBounce:
                     t -= 2.625f / 2.75f;
+
                     return change * (7.5625f * t * t + 0.984375f) + start;
 
-                case UxrEasing.EaseInOutBounce when t < 0.5f: return InterpolateVector4(Vector4.zero, change, t * 2.0f,          UxrEasing.EaseInBounce) * 0.5f + start;
-                case UxrEasing.EaseInOutBounce:               return InterpolateVector4(Vector4.zero, change, (t - 0.5f) * 2.0f, UxrEasing.EaseOutBounce) * 0.5f + change * 0.5f + start;
-                case UxrEasing.EaseOutInBounce when t < 0.5f: return InterpolateVector4(start,                 start + change * 0.5f, t * 2.0f,          UxrEasing.EaseOutBounce);
-                case UxrEasing.EaseOutInBounce:               return InterpolateVector4(start + change * 0.5f, end,                   (t - 0.5f) * 2.0f, UxrEasing.EaseInBounce);
+                case UxrEasing.EaseInOutBounce when t < 0.5f: return InterpolateVector4(Vector4.zero, change, t * 2.0f, UxrEasing.EaseInBounce) * 0.5f + start;
+                case UxrEasing.EaseInOutBounce: return InterpolateVector4(Vector4.zero, change, (t - 0.5f) * 2.0f, UxrEasing.EaseOutBounce) * 0.5f + change * 0.5f + start;
+                case UxrEasing.EaseOutInBounce when t < 0.5f: return InterpolateVector4(start, start + change * 0.5f, t * 2.0f, UxrEasing.EaseOutBounce);
+                case UxrEasing.EaseOutInBounce: return InterpolateVector4(start + change * 0.5f, end, (t - 0.5f) * 2.0f, UxrEasing.EaseInBounce);
 
                 default:
-#if UNITY_EDITOR
+                    #if UNITY_EDITOR
                     Debug.LogError($"{nameof(UxrInterpolator)} Unknown easing mode");
-#endif
+                    #endif
                     return Vector4.zero;
             }
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        /// <summary>
-        ///     Constant used in SmoothDamp methods that controls the speed at which the interpolation will be performed.
-        /// </summary>
-        private const float MaxSmoothSpeed = 20.0f;
 
         #endregion
     }

@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
+
 
 namespace UltimateXR.Avatar
 {
@@ -12,15 +14,6 @@ namespace UltimateXR.Avatar
     /// </summary>
     public abstract class UxrAvatarEventArgs : EventArgs
     {
-        #region Public Types & Data
-
-        /// <summary>
-        ///     Gets the Avatar the event belongs to.
-        /// </summary>
-        public UxrAvatar Avatar { get; }
-
-        #endregion
-
         #region Constructors & Finalizer
 
         /// <summary>
@@ -31,6 +24,15 @@ namespace UltimateXR.Avatar
         {
             Avatar = avatar;
         }
+
+        #endregion
+
+        #region Public Types & Data
+
+        /// <summary>
+        ///     Gets the Avatar the event belongs to.
+        /// </summary>
+        public UxrAvatar Avatar { get; }
 
         #endregion
     }

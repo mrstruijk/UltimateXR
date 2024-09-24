@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Animation.Interpolation;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.Materials
 {
@@ -15,15 +17,79 @@ namespace UltimateXR.Animation.Materials
     /// </summary>
     public class UxrAnimatedMaterial : UxrAnimatedComponent<UxrAnimatedMaterial>
     {
+        #region Unity
+
+        /// <summary>
+        ///     Initializes internal variables
+        /// </summary>
+        protected override void Awake()
+        {
+            base.Awake();
+
+            Initialize();
+        }
+
+        #endregion
+
+        #region Event Trigger Methods
+
+        /// <inheritdoc cref="UxrAnimatedComponent{T}.OnFinished" />
+        protected override void OnFinished(UxrAnimatedMaterial anim)
+        {
+            base.OnFinished(anim);
+
+            if (RestoreWhenFinished && MaterialMode == UxrMaterialMode.InstanceOnly)
+            {
+                RestoreOriginalSharedMaterial();
+            }
+
+            _finishedCallback?.Invoke();
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Initializes internal data
+        /// </summary>
+        private void Initialize()
+        {
+            if (_renderer == null)
+            {
+                _renderer = _animateSelf || !_targetGameObject ? GetComponent<Renderer>() : _targetGameObject.GetComponent<Renderer>();
+
+                if (_renderer)
+                {
+                    if (_materialSlot == 0)
+                    {
+                        _originalMaterial = _renderer.sharedMaterial;
+                    }
+                    else
+                    {
+                        _originalMaterials = _renderer.sharedMaterials;
+                    }
+                }
+            }
+
+            if (_renderer && !string.IsNullOrEmpty(_parameterName) && !_valueBeforeAnimationInitialized)
+            {
+                _valueBeforeAnimation = GetParameterValue();
+                _valueBeforeAnimationInitialized = true;
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private bool                     _animateSelf = true;
-        [SerializeField] private GameObject               _targetGameObject;
-        [SerializeField] private int                      _materialSlot;
-        [SerializeField] private UxrMaterialMode          _materialMode        = UxrMaterialMode.InstanceOnly;
-        [SerializeField] private bool                     _restoreWhenFinished = true;
-        [SerializeField] private UxrMaterialParameterType _parameterType       = UxrMaterialParameterType.Vector4;
-        [SerializeField] private string                   _parameterName       = "";
+        [SerializeField] private bool _animateSelf = true;
+        [SerializeField] private GameObject _targetGameObject;
+        [SerializeField] private int _materialSlot;
+        [SerializeField] private UxrMaterialMode _materialMode = UxrMaterialMode.InstanceOnly;
+        [SerializeField] private bool _restoreWhenFinished = true;
+        [SerializeField] private UxrMaterialParameterType _parameterType = UxrMaterialParameterType.Vector4;
+        [SerializeField] private string _parameterName = "";
 
         #endregion
 
@@ -131,38 +197,38 @@ namespace UltimateXR.Animation.Materials
         /// </param>
         /// <param name="finishedCallback">Optional callback when the animation finished</param>
         /// <returns>The animation component</returns>
-        public static UxrAnimatedMaterial Animate(GameObject               gameObject,
-                                                  int                      materialSlot,
-                                                  UxrMaterialMode          materialMode,
+        public static UxrAnimatedMaterial Animate(GameObject gameObject,
+                                                  int materialSlot,
+                                                  UxrMaterialMode materialMode,
                                                   UxrMaterialParameterType parameterType,
-                                                  string                   parameterName,
-                                                  Vector4                  speed,
-                                                  float                    durationSeconds  = -1.0f,
-                                                  bool                     useUnscaledTime  = false,
-                                                  Action                   finishedCallback = null)
+                                                  string parameterName,
+                                                  Vector4 speed,
+                                                  float durationSeconds = -1.0f,
+                                                  bool useUnscaledTime = false,
+                                                  Action finishedCallback = null)
         {
-            UxrAnimatedMaterial component = gameObject.GetOrAddComponent<UxrAnimatedMaterial>();
+            var component = gameObject.GetOrAddComponent<UxrAnimatedMaterial>();
 
             if (component)
             {
                 component._restoreWhenFinished = false;
-                component._animateSelf         = true;
-                component._materialSlot        = materialSlot;
-                component._materialMode        = materialMode;
-                component._parameterType       = parameterType;
-                component._parameterName       = parameterName;
-                component.AnimationMode        = UxrAnimationMode.Speed;
-                component.Speed                = speed;
-                component.UseUnscaledTime      = useUnscaledTime;
+                component._animateSelf = true;
+                component._materialSlot = materialSlot;
+                component._materialMode = materialMode;
+                component._parameterType = parameterType;
+                component._parameterName = parameterName;
+                component.AnimationMode = UxrAnimationMode.Speed;
+                component.Speed = speed;
+                component.UseUnscaledTime = useUnscaledTime;
                 component.SpeedDurationSeconds = durationSeconds;
-                component._finishedCallback    = finishedCallback;
+                component._finishedCallback = finishedCallback;
                 component.Initialize();
                 component.StartTimer();
-                
             }
 
             return component;
         }
+
 
         /// <summary>
         ///     Starts a material parameter animation using an interpolation curve
@@ -189,31 +255,31 @@ namespace UltimateXR.Animation.Materials
         /// <param name="settings">The interpolation settings with the curve parameters</param>
         /// <param name="finishedCallback">Optional callback when the animation finished</param>
         /// <returns>The animation component</returns>
-        public static UxrAnimatedMaterial AnimateInterpolation(GameObject               gameObject,
-                                                               int                      materialSlot,
-                                                               UxrMaterialMode          materialMode,
+        public static UxrAnimatedMaterial AnimateInterpolation(GameObject gameObject,
+                                                               int materialSlot,
+                                                               UxrMaterialMode materialMode,
                                                                UxrMaterialParameterType parameterType,
-                                                               string                   parameterName,
-                                                               Vector4                  startValue,
-                                                               Vector4                  endValue,
+                                                               string parameterName,
+                                                               Vector4 startValue,
+                                                               Vector4 endValue,
                                                                UxrInterpolationSettings settings,
-                                                               Action                   finishedCallback = null)
+                                                               Action finishedCallback = null)
         {
-            UxrAnimatedMaterial component = gameObject.GetOrAddComponent<UxrAnimatedMaterial>();
+            var component = gameObject.GetOrAddComponent<UxrAnimatedMaterial>();
 
             if (component)
             {
-                component._restoreWhenFinished   = false;
-                component._animateSelf           = true;
-                component._materialSlot          = materialSlot;
-                component._materialMode          = materialMode;
-                component._parameterType         = parameterType;
-                component._parameterName         = parameterName;
-                component.AnimationMode          = UxrAnimationMode.Interpolate;
+                component._restoreWhenFinished = false;
+                component._animateSelf = true;
+                component._materialSlot = materialSlot;
+                component._materialMode = materialMode;
+                component._parameterType = parameterType;
+                component._parameterName = parameterName;
+                component.AnimationMode = UxrAnimationMode.Interpolate;
                 component.InterpolatedValueStart = startValue;
-                component.InterpolatedValueEnd   = endValue;
-                component.InterpolationSettings  = settings;
-                component._finishedCallback      = finishedCallback;
+                component.InterpolatedValueEnd = endValue;
+                component.InterpolationSettings = settings;
+                component._finishedCallback = finishedCallback;
                 component.Initialize();
                 component.StartTimer();
                 component.InterpolatedValueWhenDisabled = component._valueBeforeAnimation;
@@ -221,6 +287,7 @@ namespace UltimateXR.Animation.Materials
 
             return component;
         }
+
 
         /// <summary>
         ///     Starts a material parameter animation using noise
@@ -260,46 +327,47 @@ namespace UltimateXR.Animation.Materials
         /// </param>
         /// <param name="finishedCallback">Optional callback when the animation finished</param>
         /// <param name="useUnscaledTime">If true it will use Time.unscaledTime, if false it will use Time.time</param>
-        public static void AnimateNoise(GameObject               gameObject,
-                                        int                      materialSlot,
-                                        UxrMaterialMode          materialMode,
+        public static void AnimateNoise(GameObject gameObject,
+                                        int materialSlot,
+                                        UxrMaterialMode materialMode,
                                         UxrMaterialParameterType parameterType,
-                                        string                   parameterName,
-                                        float                    noiseTimeStart,
-                                        float                    noiseTimeDuration,
-                                        Vector4                  noiseValueStart,
-                                        Vector4                  noiseValueEnd,
-                                        Vector4                  noiseValueMin,
-                                        Vector4                  noiseValueMax,
-                                        Vector4                  noiseValueFrequency,
-                                        bool                     useUnscaledTime  = false,
-                                        Action                   finishedCallback = null)
+                                        string parameterName,
+                                        float noiseTimeStart,
+                                        float noiseTimeDuration,
+                                        Vector4 noiseValueStart,
+                                        Vector4 noiseValueEnd,
+                                        Vector4 noiseValueMin,
+                                        Vector4 noiseValueMax,
+                                        Vector4 noiseValueFrequency,
+                                        bool useUnscaledTime = false,
+                                        Action finishedCallback = null)
         {
-            UxrAnimatedMaterial component = gameObject.GetOrAddComponent<UxrAnimatedMaterial>();
+            var component = gameObject.GetOrAddComponent<UxrAnimatedMaterial>();
 
             if (component)
             {
                 component._restoreWhenFinished = false;
-                component._animateSelf         = true;
-                component._materialSlot        = materialSlot;
-                component._materialMode        = materialMode;
-                component._parameterType       = parameterType;
-                component._parameterName       = parameterName;
-                component.AnimationMode        = UxrAnimationMode.Noise;
-                component.NoiseTimeStart       = noiseTimeStart;
+                component._animateSelf = true;
+                component._materialSlot = materialSlot;
+                component._materialMode = materialMode;
+                component._parameterType = parameterType;
+                component._parameterName = parameterName;
+                component.AnimationMode = UxrAnimationMode.Noise;
+                component.NoiseTimeStart = noiseTimeStart;
                 component.NoiseDurationSeconds = noiseTimeDuration;
-                component.NoiseValueStart      = noiseValueStart;
-                component.NoiseValueEnd        = noiseValueEnd;
-                component.NoiseValueMin        = noiseValueMin;
-                component.NoiseValueMax        = noiseValueMax;
-                component.NoiseFrequency       = noiseValueFrequency;
-                component.UseUnscaledTime      = useUnscaledTime;
-                component._finishedCallback    = finishedCallback;
+                component.NoiseValueStart = noiseValueStart;
+                component.NoiseValueEnd = noiseValueEnd;
+                component.NoiseValueMin = noiseValueMin;
+                component.NoiseValueMax = noiseValueMax;
+                component.NoiseFrequency = noiseValueFrequency;
+                component.UseUnscaledTime = useUnscaledTime;
+                component._finishedCallback = finishedCallback;
                 component.Initialize();
                 component.StartTimer();
                 component.InterpolatedValueWhenDisabled = component._valueBeforeAnimation;
             }
         }
+
 
         /// <summary>
         ///     Starts animating a GameObject's material making one if its float parameters blink.
@@ -316,25 +384,26 @@ namespace UltimateXR.Animation.Materials
         /// <param name="materialMode">The material mode</param>
         /// <param name="finishedCallback">Optional callback when the animation finished</param>
         /// <returns>Material animation component</returns>
-        public static UxrAnimatedMaterial AnimateFloatBlink(GameObject      gameObject,
-                                                            string          varNameFloat,
-                                                            float           valueMin         = 0.0f,
-                                                            float           valueMax         = 1.0f,
-                                                            float           blinkFrequency   = DefaultBlinkFrequency,
-                                                            float           durationSeconds  = -1.0f,
-                                                            UxrMaterialMode materialMode     = UxrMaterialMode.InstanceOnly,
-                                                            Action          finishedCallback = null)
+        public static UxrAnimatedMaterial AnimateFloatBlink(GameObject gameObject,
+                                                            string varNameFloat,
+                                                            float valueMin = 0.0f,
+                                                            float valueMax = 1.0f,
+                                                            float blinkFrequency = DefaultBlinkFrequency,
+                                                            float durationSeconds = -1.0f,
+                                                            UxrMaterialMode materialMode = UxrMaterialMode.InstanceOnly,
+                                                            Action finishedCallback = null)
         {
             return AnimateInterpolation(gameObject,
-                                        0,
-                                        materialMode,
-                                        UxrMaterialParameterType.Float,
-                                        varNameFloat,
-                                        Vector4.one * valueMin,
-                                        Vector4.one * valueMax,
-                                        new UxrInterpolationSettings(1.0f / blinkFrequency * 0.5f, 0.0f, UxrEasing.EaseInOutSine, UxrLoopMode.PingPong, durationSeconds),
-                                        finishedCallback);
+                0,
+                materialMode,
+                UxrMaterialParameterType.Float,
+                varNameFloat,
+                Vector4.one * valueMin,
+                Vector4.one * valueMax,
+                new UxrInterpolationSettings(1.0f / blinkFrequency * 0.5f, 0.0f, UxrEasing.EaseInOutSine, UxrLoopMode.PingPong, durationSeconds),
+                finishedCallback);
         }
+
 
         /// <summary>
         ///     Starts animating a GameObject's material making one if its color parameters blink.
@@ -351,25 +420,26 @@ namespace UltimateXR.Animation.Materials
         /// <param name="materialMode">The material mode</param>
         /// <param name="finishedCallback">Optional callback when the animation finished</param>
         /// <returns>Material animation component</returns>
-        public static UxrAnimatedMaterial AnimateBlinkColor(GameObject      gameObject,
-                                                            string          varNameColor,
-                                                            Color           colorOff,
-                                                            Color           colorOn,
-                                                            float           blinkFrequency   = DefaultBlinkFrequency,
-                                                            float           durationSeconds  = -1.0f,
-                                                            UxrMaterialMode materialMode     = UxrMaterialMode.InstanceOnly,
-                                                            Action          finishedCallback = null)
+        public static UxrAnimatedMaterial AnimateBlinkColor(GameObject gameObject,
+                                                            string varNameColor,
+                                                            Color colorOff,
+                                                            Color colorOn,
+                                                            float blinkFrequency = DefaultBlinkFrequency,
+                                                            float durationSeconds = -1.0f,
+                                                            UxrMaterialMode materialMode = UxrMaterialMode.InstanceOnly,
+                                                            Action finishedCallback = null)
         {
             return AnimateInterpolation(gameObject,
-                                        0,
-                                        materialMode,
-                                        UxrMaterialParameterType.Color,
-                                        varNameColor,
-                                        colorOff,
-                                        colorOn,
-                                        new UxrInterpolationSettings(1.0f / blinkFrequency * 0.5f, 0.0f, UxrEasing.EaseInOutSine, UxrLoopMode.PingPong, durationSeconds),
-                                        finishedCallback);
+                0,
+                materialMode,
+                UxrMaterialParameterType.Color,
+                varNameColor,
+                colorOff,
+                colorOn,
+                new UxrInterpolationSettings(1.0f / blinkFrequency * 0.5f, 0.0f, UxrEasing.EaseInOutSine, UxrLoopMode.PingPong, durationSeconds),
+                finishedCallback);
         }
+
 
         /// <summary>
         ///     Restores the original (shared) material. This may have some performance advantages.
@@ -391,37 +461,6 @@ namespace UltimateXR.Animation.Materials
 
         #endregion
 
-        #region Unity
-
-        /// <summary>
-        ///     Initializes internal variables
-        /// </summary>
-        protected override void Awake()
-        {
-            base.Awake();
-
-            Initialize();
-        }
-
-        #endregion
-
-        #region Event Trigger Methods
-
-        /// <inheritdoc cref="UxrAnimatedComponent{T}.OnFinished" />
-        protected override void OnFinished(UxrAnimatedMaterial anim)
-        {
-            base.OnFinished(anim);
-
-            if (RestoreWhenFinished && MaterialMode == UxrMaterialMode.InstanceOnly)
-            {
-                RestoreOriginalSharedMaterial();
-            }
-
-            _finishedCallback?.Invoke();
-        }
-
-        #endregion
-
         #region Protected Overrides UxrAnimatedComponent<UxrAnimatedMaterial>
 
         /// <summary>
@@ -434,6 +473,7 @@ namespace UltimateXR.Animation.Materials
                 SetParameterValue(_valueBeforeAnimation);
             }
         }
+
 
         /// <summary>
         ///     Gets the parameter value from the material
@@ -453,10 +493,8 @@ namespace UltimateXR.Animation.Materials
                         {
                             return _materialSlot == 0 ? new Vector4(_renderer.material.GetInt(_parameterName), 0, 0, 0) : new Vector4(_renderer.materials[_materialSlot].GetInt(_parameterName), 0, 0, 0);
                         }
-                        else
-                        {
-                            return _materialSlot == 0 ? new Vector4(_renderer.sharedMaterial.GetInt(_parameterName), 0, 0, 0) : new Vector4(_renderer.sharedMaterials[_materialSlot].GetInt(_parameterName), 0, 0, 0);
-                        }
+
+                        return _materialSlot == 0 ? new Vector4(_renderer.sharedMaterial.GetInt(_parameterName), 0, 0, 0) : new Vector4(_renderer.sharedMaterials[_materialSlot].GetInt(_parameterName), 0, 0, 0);
 
                     case UxrMaterialParameterType.Float:
 
@@ -464,10 +502,8 @@ namespace UltimateXR.Animation.Materials
                         {
                             return _materialSlot == 0 ? new Vector4(_renderer.material.GetFloat(_parameterName), 0, 0, 0) : new Vector4(_renderer.materials[_materialSlot].GetFloat(_parameterName), 0, 0, 0);
                         }
-                        else
-                        {
-                            return _materialSlot == 0 ? new Vector4(_renderer.sharedMaterial.GetFloat(_parameterName), 0, 0, 0) : new Vector4(_renderer.sharedMaterials[_materialSlot].GetFloat(_parameterName), 0, 0, 0);
-                        }
+
+                        return _materialSlot == 0 ? new Vector4(_renderer.sharedMaterial.GetFloat(_parameterName), 0, 0, 0) : new Vector4(_renderer.sharedMaterials[_materialSlot].GetFloat(_parameterName), 0, 0, 0);
 
                     case UxrMaterialParameterType.Vector2:
                     case UxrMaterialParameterType.Vector3:
@@ -477,10 +513,8 @@ namespace UltimateXR.Animation.Materials
                         {
                             return _materialSlot == 0 ? _renderer.material.GetVector(_parameterName) : _renderer.materials[_materialSlot].GetVector(_parameterName);
                         }
-                        else
-                        {
-                            return _materialSlot == 0 ? _renderer.sharedMaterial.GetVector(_parameterName) : _renderer.sharedMaterials[_materialSlot].GetVector(_parameterName);
-                        }
+
+                        return _materialSlot == 0 ? _renderer.sharedMaterial.GetVector(_parameterName) : _renderer.sharedMaterials[_materialSlot].GetVector(_parameterName);
 
                     case UxrMaterialParameterType.Color:
 
@@ -488,16 +522,16 @@ namespace UltimateXR.Animation.Materials
                         {
                             return _materialSlot == 0 ? _renderer.material.GetColor(_parameterName) : _renderer.materials[_materialSlot].GetColor(_parameterName);
                         }
-                        else
-                        {
-                            return _materialSlot == 0 ? _renderer.sharedMaterial.GetColor(_parameterName) : _renderer.sharedMaterials[_materialSlot].GetColor(_parameterName);
-                        }
+
+                        return _materialSlot == 0 ? _renderer.sharedMaterial.GetColor(_parameterName) : _renderer.sharedMaterials[_materialSlot].GetColor(_parameterName);
                 }
             }
 
             Debug.LogWarning($"Material slot {_materialSlot} for {this.GetPathUnderScene()} is not valid");
+
             return Vector4.zero;
         }
+
 
         /// <summary>
         ///     Sets the material parameter value
@@ -646,47 +680,14 @@ namespace UltimateXR.Animation.Materials
 
         #endregion
 
-        #region Private Methods
-
-        /// <summary>
-        ///     Initializes internal data
-        /// </summary>
-        private void Initialize()
-        {
-            if (_renderer == null)
-            {
-                _renderer = _animateSelf || !_targetGameObject ? GetComponent<Renderer>() : _targetGameObject.GetComponent<Renderer>();
-
-                if (_renderer)
-                {
-                    if (_materialSlot == 0)
-                    {
-                        _originalMaterial = _renderer.sharedMaterial;
-                    }
-                    else
-                    {
-                        _originalMaterials = _renderer.sharedMaterials;
-                    }
-                }
-            }
-
-            if (_renderer && !string.IsNullOrEmpty(_parameterName) && !_valueBeforeAnimationInitialized)
-            {
-                _valueBeforeAnimation            = GetParameterValue();
-                _valueBeforeAnimationInitialized = true;
-            }
-        }
-
-        #endregion
-
         #region Private Types & Data
 
-        private Renderer   _renderer;
-        private Material   _originalMaterial;
+        private Renderer _renderer;
+        private Material _originalMaterial;
         private Material[] _originalMaterials;
-        private bool       _valueBeforeAnimationInitialized;
-        private Vector4    _valueBeforeAnimation;
-        private Action     _finishedCallback;
+        private bool _valueBeforeAnimationInitialized;
+        private Vector4 _valueBeforeAnimation;
+        private Action _finishedCallback;
 
         #endregion
     }

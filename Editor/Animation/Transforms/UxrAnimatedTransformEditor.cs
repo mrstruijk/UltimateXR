@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Animation;
 using UltimateXR.Animation.Transforms;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Animation.Transforms
 {
@@ -23,27 +25,28 @@ namespace UltimateXR.Editor.Animation.Transforms
         /// </summary>
         private void OnEnable()
         {
-            _propertyTranslationMode                 = serializedObject.FindProperty("_translationMode");
-            _propertyTranslationSpace                = serializedObject.FindProperty("_translationSpace");
-            _propertyTranslationSpeed                = serializedObject.FindProperty("_translationSpeed");
-            _propertyTranslationStart                = serializedObject.FindProperty("_translationStart");
-            _propertyTranslationEnd                  = serializedObject.FindProperty("_translationEnd");
-            _propertyTranslationUseUnscaledTime      = serializedObject.FindProperty("_translationUseUnscaledTime");
+            _propertyTranslationMode = serializedObject.FindProperty("_translationMode");
+            _propertyTranslationSpace = serializedObject.FindProperty("_translationSpace");
+            _propertyTranslationSpeed = serializedObject.FindProperty("_translationSpeed");
+            _propertyTranslationStart = serializedObject.FindProperty("_translationStart");
+            _propertyTranslationEnd = serializedObject.FindProperty("_translationEnd");
+            _propertyTranslationUseUnscaledTime = serializedObject.FindProperty("_translationUseUnscaledTime");
             _propertyTranslationInterpolationSetting = serializedObject.FindProperty("_translationInterpolationSettings");
-            _propertyRotationMode                    = serializedObject.FindProperty("_rotationMode");
-            _propertyRotationSpace                   = serializedObject.FindProperty("_rotationSpace");
-            _propertyEulerSpeed                      = serializedObject.FindProperty("_eulerSpeed");
-            _propertyEulerStart                      = serializedObject.FindProperty("_eulerStart");
-            _propertyEulerEnd                        = serializedObject.FindProperty("_eulerEnd");
-            _propertyRotationUseUnscaledTime         = serializedObject.FindProperty("_rotationUseUnscaledTime");
-            _propertyRotationInterpolationSettings   = serializedObject.FindProperty("_rotationInterpolationSettings");
-            _propertyScalingMode                     = serializedObject.FindProperty("_scalingMode");
-            _propertyScalingSpeed                    = serializedObject.FindProperty("_scalingSpeed");
-            _propertyScalingStart                    = serializedObject.FindProperty("_scalingStart");
-            _propertyScalingEnd                      = serializedObject.FindProperty("_scalingEnd");
-            _propertyScalingUseUnscaledTime          = serializedObject.FindProperty("_scalingUseUnscaledTime");
-            _propertyScalingInterpolationSettings    = serializedObject.FindProperty("_scalingInterpolationSettings");
+            _propertyRotationMode = serializedObject.FindProperty("_rotationMode");
+            _propertyRotationSpace = serializedObject.FindProperty("_rotationSpace");
+            _propertyEulerSpeed = serializedObject.FindProperty("_eulerSpeed");
+            _propertyEulerStart = serializedObject.FindProperty("_eulerStart");
+            _propertyEulerEnd = serializedObject.FindProperty("_eulerEnd");
+            _propertyRotationUseUnscaledTime = serializedObject.FindProperty("_rotationUseUnscaledTime");
+            _propertyRotationInterpolationSettings = serializedObject.FindProperty("_rotationInterpolationSettings");
+            _propertyScalingMode = serializedObject.FindProperty("_scalingMode");
+            _propertyScalingSpeed = serializedObject.FindProperty("_scalingSpeed");
+            _propertyScalingStart = serializedObject.FindProperty("_scalingStart");
+            _propertyScalingEnd = serializedObject.FindProperty("_scalingEnd");
+            _propertyScalingUseUnscaledTime = serializedObject.FindProperty("_scalingUseUnscaledTime");
+            _propertyScalingInterpolationSettings = serializedObject.FindProperty("_scalingInterpolationSettings");
         }
+
 
         /// <summary>
         ///     Draws the inspector and handles input.
@@ -52,7 +55,7 @@ namespace UltimateXR.Editor.Animation.Transforms
         {
             serializedObject.Update();
 
-            UxrAnimatedTransform animatedTransform = (UxrAnimatedTransform)serializedObject.targetObject;
+            var animatedTransform = (UxrAnimatedTransform) serializedObject.targetObject;
 
             if (animatedTransform == null)
             {
@@ -70,24 +73,24 @@ namespace UltimateXR.Editor.Animation.Transforms
                 EditorGUILayout.LabelField("Translation curve finished");
             }
 
-            if (_propertyTranslationMode.enumValueIndex == (int)UxrAnimationMode.Speed)
+            if (_propertyTranslationMode.enumValueIndex == (int) UxrAnimationMode.Speed)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(_propertyTranslationSpace,           ContentTranslationSpace);
-                EditorGUILayout.PropertyField(_propertyTranslationSpeed,           ContentTranslationSpeed);
+                EditorGUILayout.PropertyField(_propertyTranslationSpace, ContentTranslationSpace);
+                EditorGUILayout.PropertyField(_propertyTranslationSpeed, ContentTranslationSpeed);
                 EditorGUILayout.PropertyField(_propertyTranslationUseUnscaledTime, ContentTranslationUseUnscaledTime);
                 EditorGUI.indentLevel--;
             }
-            else if (_propertyTranslationMode.enumValueIndex == (int)UxrAnimationMode.Interpolate)
+            else if (_propertyTranslationMode.enumValueIndex == (int) UxrAnimationMode.Interpolate)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(_propertyTranslationSpace,                ContentTranslationSpace);
-                EditorGUILayout.PropertyField(_propertyTranslationStart,                ContentTranslationStart);
-                EditorGUILayout.PropertyField(_propertyTranslationEnd,                  ContentTranslationEnd);
+                EditorGUILayout.PropertyField(_propertyTranslationSpace, ContentTranslationSpace);
+                EditorGUILayout.PropertyField(_propertyTranslationStart, ContentTranslationStart);
+                EditorGUILayout.PropertyField(_propertyTranslationEnd, ContentTranslationEnd);
                 EditorGUILayout.PropertyField(_propertyTranslationInterpolationSetting, ContentTranslationInterpolationSetting);
                 EditorGUI.indentLevel--;
             }
-            else if (_propertyTranslationMode.enumValueIndex == (int)UxrAnimationMode.Noise)
+            else if (_propertyTranslationMode.enumValueIndex == (int) UxrAnimationMode.Noise)
             {
                 EditorGUILayout.LabelField("Unsupported for now");
             }
@@ -103,24 +106,24 @@ namespace UltimateXR.Editor.Animation.Transforms
                 EditorGUILayout.LabelField("Rotation curve finished");
             }
 
-            if (_propertyRotationMode.enumValueIndex == (int)UxrAnimationMode.Speed)
+            if (_propertyRotationMode.enumValueIndex == (int) UxrAnimationMode.Speed)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(_propertyRotationSpace,           ContentRotationSpace);
-                EditorGUILayout.PropertyField(_propertyEulerSpeed,              ContentEulerSpeed);
+                EditorGUILayout.PropertyField(_propertyRotationSpace, ContentRotationSpace);
+                EditorGUILayout.PropertyField(_propertyEulerSpeed, ContentEulerSpeed);
                 EditorGUILayout.PropertyField(_propertyRotationUseUnscaledTime, ContentRotationUseUnscaledTime);
                 EditorGUI.indentLevel--;
             }
-            else if (_propertyRotationMode.enumValueIndex == (int)UxrAnimationMode.Interpolate)
+            else if (_propertyRotationMode.enumValueIndex == (int) UxrAnimationMode.Interpolate)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(_propertyRotationSpace,                 ContentRotationSpace);
-                EditorGUILayout.PropertyField(_propertyEulerStart,                    ContentEulerStart);
-                EditorGUILayout.PropertyField(_propertyEulerEnd,                      ContentEulerEnd);
+                EditorGUILayout.PropertyField(_propertyRotationSpace, ContentRotationSpace);
+                EditorGUILayout.PropertyField(_propertyEulerStart, ContentEulerStart);
+                EditorGUILayout.PropertyField(_propertyEulerEnd, ContentEulerEnd);
                 EditorGUILayout.PropertyField(_propertyRotationInterpolationSettings, ContentRotationInterpolationSettings);
                 EditorGUI.indentLevel--;
             }
-            else if (_propertyRotationMode.enumValueIndex == (int)UxrAnimationMode.Noise)
+            else if (_propertyRotationMode.enumValueIndex == (int) UxrAnimationMode.Noise)
             {
                 EditorGUILayout.LabelField("Unsupported for now");
             }
@@ -136,22 +139,22 @@ namespace UltimateXR.Editor.Animation.Transforms
                 EditorGUILayout.LabelField("Scaling curve finished");
             }
 
-            if (_propertyScalingMode.enumValueIndex == (int)UxrAnimationMode.Speed)
+            if (_propertyScalingMode.enumValueIndex == (int) UxrAnimationMode.Speed)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(_propertyScalingSpeed,           ContentScalingSpeed);
+                EditorGUILayout.PropertyField(_propertyScalingSpeed, ContentScalingSpeed);
                 EditorGUILayout.PropertyField(_propertyScalingUseUnscaledTime, ContentScalingUseUnscaledTime);
                 EditorGUI.indentLevel--;
             }
-            else if (_propertyScalingMode.enumValueIndex == (int)UxrAnimationMode.Interpolate)
+            else if (_propertyScalingMode.enumValueIndex == (int) UxrAnimationMode.Interpolate)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(_propertyScalingStart,                 ContentScalingStart);
-                EditorGUILayout.PropertyField(_propertyScalingEnd,                   ContentScalingEnd);
+                EditorGUILayout.PropertyField(_propertyScalingStart, ContentScalingStart);
+                EditorGUILayout.PropertyField(_propertyScalingEnd, ContentScalingEnd);
                 EditorGUILayout.PropertyField(_propertyScalingInterpolationSettings, ContentScalingInterpolationSettings);
                 EditorGUI.indentLevel--;
             }
-            else if (_propertyScalingMode.enumValueIndex == (int)UxrAnimationMode.Noise)
+            else if (_propertyScalingMode.enumValueIndex == (int) UxrAnimationMode.Noise)
             {
                 EditorGUILayout.LabelField("Unsupported for now");
             }
@@ -165,26 +168,26 @@ namespace UltimateXR.Editor.Animation.Transforms
 
         #region Private Types & Data
 
-        private GUIContent ContentTranslationMode                 { get; } = new GUIContent("Translation Mode",       "");
-        private GUIContent ContentTranslationSpace                { get; } = new GUIContent("Translation Space",      "");
-        private GUIContent ContentTranslationSpeed                { get; } = new GUIContent("Translation Speed",      "");
-        private GUIContent ContentTranslationStart                { get; } = new GUIContent("Start Position",         "");
-        private GUIContent ContentTranslationEnd                  { get; } = new GUIContent("End Position",           "");
-        private GUIContent ContentTranslationUseUnscaledTime      { get; } = new GUIContent("Use Unscaled Time",      "");
-        private GUIContent ContentTranslationInterpolationSetting { get; } = new GUIContent("Interpolation Settings", "");
-        private GUIContent ContentRotationMode                    { get; } = new GUIContent("Rotation Mode",          "");
-        private GUIContent ContentRotationSpace                   { get; } = new GUIContent("Rotation Space",         "");
-        private GUIContent ContentEulerSpeed                      { get; } = new GUIContent("Angular Speed",          "");
-        private GUIContent ContentEulerStart                      { get; } = new GUIContent("Start Angles",           "");
-        private GUIContent ContentEulerEnd                        { get; } = new GUIContent("End Angles",             "");
-        private GUIContent ContentRotationUseUnscaledTime         { get; } = new GUIContent("Use Unscaled Time",      "");
-        private GUIContent ContentRotationInterpolationSettings   { get; } = new GUIContent("Interpolation Settings", "");
-        private GUIContent ContentScalingMode                     { get; } = new GUIContent("Scaling Mode",           "");
-        private GUIContent ContentScalingSpeed                    { get; } = new GUIContent("Scaling Speed",          "");
-        private GUIContent ContentScalingStart                    { get; } = new GUIContent("Start Scale",            "");
-        private GUIContent ContentScalingEnd                      { get; } = new GUIContent("End Scale",              "");
-        private GUIContent ContentScalingUseUnscaledTime          { get; } = new GUIContent("Use Unscaled Time",      "");
-        private GUIContent ContentScalingInterpolationSettings    { get; } = new GUIContent("Interpolation Settings", "");
+        private GUIContent ContentTranslationMode { get; } = new("Translation Mode", "");
+        private GUIContent ContentTranslationSpace { get; } = new("Translation Space", "");
+        private GUIContent ContentTranslationSpeed { get; } = new("Translation Speed", "");
+        private GUIContent ContentTranslationStart { get; } = new("Start Position", "");
+        private GUIContent ContentTranslationEnd { get; } = new("End Position", "");
+        private GUIContent ContentTranslationUseUnscaledTime { get; } = new("Use Unscaled Time", "");
+        private GUIContent ContentTranslationInterpolationSetting { get; } = new("Interpolation Settings", "");
+        private GUIContent ContentRotationMode { get; } = new("Rotation Mode", "");
+        private GUIContent ContentRotationSpace { get; } = new("Rotation Space", "");
+        private GUIContent ContentEulerSpeed { get; } = new("Angular Speed", "");
+        private GUIContent ContentEulerStart { get; } = new("Start Angles", "");
+        private GUIContent ContentEulerEnd { get; } = new("End Angles", "");
+        private GUIContent ContentRotationUseUnscaledTime { get; } = new("Use Unscaled Time", "");
+        private GUIContent ContentRotationInterpolationSettings { get; } = new("Interpolation Settings", "");
+        private GUIContent ContentScalingMode { get; } = new("Scaling Mode", "");
+        private GUIContent ContentScalingSpeed { get; } = new("Scaling Speed", "");
+        private GUIContent ContentScalingStart { get; } = new("Start Scale", "");
+        private GUIContent ContentScalingEnd { get; } = new("End Scale", "");
+        private GUIContent ContentScalingUseUnscaledTime { get; } = new("Use Unscaled Time", "");
+        private GUIContent ContentScalingInterpolationSettings { get; } = new("Interpolation Settings", "");
 
         private SerializedProperty _propertyTranslationMode;
         private SerializedProperty _propertyTranslationSpace;

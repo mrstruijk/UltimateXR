@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections;
 using UltimateXR.Avatar;
 using UltimateXR.Core;
 using UltimateXR.Core.Components.Composite;
 using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.Haptics.Helpers
 {
@@ -19,24 +21,81 @@ namespace UltimateXR.Haptics.Helpers
     [RequireComponent(typeof(UxrGrabbableObject))]
     public class UxrManipulationHapticFeedback : UxrGrabbableObjectComponent<UxrManipulationHapticFeedback>
     {
+        #region Unity
+
+        /// <summary>
+        ///     Stops the haptic coroutines.
+        /// </summary>
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            if (_leftHapticsCoroutine != null)
+            {
+                StopCoroutine(_leftHapticsCoroutine);
+                _leftHapticsCoroutine = null;
+            }
+
+            if (_rightHapticsCoroutine != null)
+            {
+                StopCoroutine(_rightHapticsCoroutine);
+                _rightHapticsCoroutine = null;
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Sends the continuous haptic feedback clip for a short amount of time defined by
+        ///     <see cref="SampleDurationSeconds" />.
+        /// </summary>
+        /// <param name="handSide">Target hand</param>
+        private void SendHapticClip(UxrHandSide handSide)
+        {
+            if (!UxrAvatar.LocalAvatar)
+            {
+                return;
+            }
+
+            var speed = _useExternalRigidbody && _externalRigidbody ? _externalRigidbody.velocity.magnitude : _linearSpeed;
+            var angularSpeed = _useExternalRigidbody && _externalRigidbody ? _externalRigidbody.angularVelocity.magnitude : _angularSpeed;
+
+            var quantityPos = _maxSpeed - _minSpeed <= 0.0f ? 0.0f : (speed - _minSpeed) / (_maxSpeed - _minSpeed);
+            var quantityRot = _maxAngularSpeed - _minAngularSpeed <= 0.0f ? 0.0f : (angularSpeed - _minAngularSpeed) / (_maxAngularSpeed - _minAngularSpeed);
+
+            if (quantityPos > 0.0f || quantityRot > 0.0f)
+            {
+                var frequencyPos = Mathf.Lerp(_minFrequency, _maxFrequency, Mathf.Clamp01(quantityPos));
+                var amplitudePos = Mathf.Lerp(_minAmplitude, _maxAmplitude, Mathf.Clamp01(quantityPos));
+                var frequencyRot = Mathf.Lerp(_minFrequency, _maxFrequency, Mathf.Clamp01(quantityRot));
+                var amplitudeRot = Mathf.Lerp(_minAmplitude, _maxAmplitude, Mathf.Clamp01(quantityRot));
+
+                UxrAvatar.LocalAvatarInput.SendHapticFeedback(handSide, Mathf.Max(frequencyPos, frequencyRot), Mathf.Max(amplitudePos, amplitudeRot), SampleDurationSeconds, _hapticMixMode);
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [Header("Continuous Manipulation:")] [SerializeField] private bool          _continuousManipulationHaptics;
-        [SerializeField]                                      private UxrHapticMode _hapticMixMode   = UxrHapticMode.Mix;
-        [SerializeField] [Range(0, 1)]                        private float         _minAmplitude    = 0.3f;
-        [SerializeField] [Range(0, 1)]                        private float         _maxAmplitude    = 1.0f;
-        [SerializeField]                                      private float         _minFrequency    = 10.0f;
-        [SerializeField]                                      private float         _maxFrequency    = 100.0f;
-        [SerializeField]                                      private float         _minSpeed        = 0.01f;
-        [SerializeField]                                      private float         _maxSpeed        = 1.0f;
-        [SerializeField]                                      private float         _minAngularSpeed = 1.0f;
-        [SerializeField]                                      private float         _maxAngularSpeed = 1800.0f;
-        [SerializeField]                                      private bool          _useExternalRigidbody;
-        [SerializeField]                                      private Rigidbody     _externalRigidbody;
+        [Header("Continuous Manipulation:")] [SerializeField] private bool _continuousManipulationHaptics;
+        [SerializeField] private UxrHapticMode _hapticMixMode = UxrHapticMode.Mix;
+        [SerializeField] [Range(0, 1)] private float _minAmplitude = 0.3f;
+        [SerializeField] [Range(0, 1)] private float _maxAmplitude = 1.0f;
+        [SerializeField] private float _minFrequency = 10.0f;
+        [SerializeField] private float _maxFrequency = 100.0f;
+        [SerializeField] private float _minSpeed = 0.01f;
+        [SerializeField] private float _maxSpeed = 1.0f;
+        [SerializeField] private float _minAngularSpeed = 1.0f;
+        [SerializeField] private float _maxAngularSpeed = 1800.0f;
+        [SerializeField] private bool _useExternalRigidbody;
+        [SerializeField] private Rigidbody _externalRigidbody;
 
-        [Header("Events Haptics:")] [SerializeField] private UxrHapticClip _hapticClipOnGrab    = new UxrHapticClip();
-        [SerializeField]                             private UxrHapticClip _hapticClipOnPlace   = new UxrHapticClip();
-        [SerializeField]                             private UxrHapticClip _hapticClipOnRelease = new UxrHapticClip();
+        [Header("Events Haptics:")] [SerializeField] private UxrHapticClip _hapticClipOnGrab = new();
+        [SerializeField] private UxrHapticClip _hapticClipOnPlace = new();
+        [SerializeField] private UxrHapticClip _hapticClipOnRelease = new();
 
         #endregion
 
@@ -197,30 +256,6 @@ namespace UltimateXR.Haptics.Helpers
 
         #endregion
 
-        #region Unity
-
-        /// <summary>
-        ///     Stops the haptic coroutines.
-        /// </summary>
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-
-            if (_leftHapticsCoroutine != null)
-            {
-                StopCoroutine(_leftHapticsCoroutine);
-                _leftHapticsCoroutine = null;
-            }
-
-            if (_rightHapticsCoroutine != null)
-            {
-                StopCoroutine(_rightHapticsCoroutine);
-                _rightHapticsCoroutine = null;
-            }
-        }
-
-        #endregion
-
         #region Coroutines
 
         /// <summary>
@@ -241,6 +276,7 @@ namespace UltimateXR.Haptics.Helpers
                 yield return new WaitForSeconds(SampleDurationSeconds);
             }
         }
+
 
         /// <summary>
         ///     Coroutine that sends haptic clip to the right controller if the object is being grabbed and continuous manipulation
@@ -293,6 +329,7 @@ namespace UltimateXR.Haptics.Helpers
             }
         }
 
+
         /// <summary>
         ///     Called when the object was placed. Sends haptic feedback if it's required.
         /// </summary>
@@ -318,6 +355,7 @@ namespace UltimateXR.Haptics.Helpers
                 }
             }
         }
+
 
         /// <summary>
         ///     Called when the object was released. Sends haptic feedback if it's required.
@@ -345,6 +383,7 @@ namespace UltimateXR.Haptics.Helpers
             }
         }
 
+
         /// <summary>
         ///     Called after all object manipulation has been processed and potential constraints have been applied.
         ///     It is used to update the speed information.
@@ -352,7 +391,7 @@ namespace UltimateXR.Haptics.Helpers
         /// <param name="e">Event parameters</param>
         protected override void OnObjectConstraintsFinished(UxrApplyConstraintsEventArgs e)
         {
-            _linearSpeed  = Vector3.Distance(_previousLocalPosition, e.Grabber.GrabbedObject.transform.localPosition) / Time.deltaTime;
+            _linearSpeed = Vector3.Distance(_previousLocalPosition, e.Grabber.GrabbedObject.transform.localPosition) / Time.deltaTime;
             _angularSpeed = Quaternion.Angle(_previousLocalRotation, e.Grabber.GrabbedObject.transform.localRotation) / Time.deltaTime;
 
             _previousLocalPosition = e.Grabber.GrabbedObject.transform.localPosition;
@@ -361,49 +400,16 @@ namespace UltimateXR.Haptics.Helpers
 
         #endregion
 
-        #region Private Methods
-
-        /// <summary>
-        ///     Sends the continuous haptic feedback clip for a short amount of time defined by
-        ///     <see cref="SampleDurationSeconds" />.
-        /// </summary>
-        /// <param name="handSide">Target hand</param>
-        private void SendHapticClip(UxrHandSide handSide)
-        {
-            if (!UxrAvatar.LocalAvatar)
-            {
-                return;
-            }
-
-            float speed        = _useExternalRigidbody && _externalRigidbody ? _externalRigidbody.velocity.magnitude : _linearSpeed;
-            float angularSpeed = _useExternalRigidbody && _externalRigidbody ? _externalRigidbody.angularVelocity.magnitude : _angularSpeed;
-
-            float quantityPos = _maxSpeed - _minSpeed <= 0.0f ? 0.0f : (speed - _minSpeed) / (_maxSpeed - _minSpeed);
-            float quantityRot = _maxAngularSpeed - _minAngularSpeed <= 0.0f ? 0.0f : (angularSpeed - _minAngularSpeed) / (_maxAngularSpeed - _minAngularSpeed);
-
-            if (quantityPos > 0.0f || quantityRot > 0.0f)
-            {
-                float frequencyPos = Mathf.Lerp(_minFrequency, _maxFrequency, Mathf.Clamp01(quantityPos));
-                float amplitudePos = Mathf.Lerp(_minAmplitude, _maxAmplitude, Mathf.Clamp01(quantityPos));
-                float frequencyRot = Mathf.Lerp(_minFrequency, _maxFrequency, Mathf.Clamp01(quantityRot));
-                float amplitudeRot = Mathf.Lerp(_minAmplitude, _maxAmplitude, Mathf.Clamp01(quantityRot));
-
-                UxrAvatar.LocalAvatarInput.SendHapticFeedback(handSide, Mathf.Max(frequencyPos, frequencyRot), Mathf.Max(amplitudePos, amplitudeRot), SampleDurationSeconds, _hapticMixMode);
-            }
-        }
-
-        #endregion
-
         #region Private Types & Data
 
         private const float SampleDurationSeconds = 0.1f;
 
-        private Coroutine  _leftHapticsCoroutine;
-        private Coroutine  _rightHapticsCoroutine;
-        private Vector3    _previousLocalPosition;
+        private Coroutine _leftHapticsCoroutine;
+        private Coroutine _rightHapticsCoroutine;
+        private Vector3 _previousLocalPosition;
         private Quaternion _previousLocalRotation;
-        private float      _linearSpeed;
-        private float      _angularSpeed;
+        private float _linearSpeed;
+        private float _angularSpeed;
 
         #endregion
     }

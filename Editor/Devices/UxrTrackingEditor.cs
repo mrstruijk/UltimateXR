@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Devices;
 using UltimateXR.Editor.Core;
 using UltimateXR.Editor.Sdks;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Editor.Devices
 {
@@ -32,7 +34,7 @@ namespace UltimateXR.Editor.Devices
         {
             serializedObject.Update();
 
-            UxrTrackingDevice tracking = serializedObject.targetObject as UxrTrackingDevice;
+            var tracking = serializedObject.targetObject as UxrTrackingDevice;
 
             if (string.IsNullOrEmpty(tracking.SDKDependency) == false)
             {
@@ -52,7 +54,7 @@ namespace UltimateXR.Editor.Devices
 
             if (tracking.IsMixedRealityDevice)
             {
-                DrawPropertiesExcluding(serializedObject, "m_Script");   
+                DrawPropertiesExcluding(serializedObject, "m_Script");
             }
             else
             {

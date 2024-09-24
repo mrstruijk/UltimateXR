@@ -3,12 +3,16 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 #if ULTIMATEXR_USE_UNITYINPUTSYSTEM_SDK
 using UnityEngine.InputSystem;
+
+
 #else
 using UnityEngine;
 using System.Collections.Generic;
 #endif
+
 
 namespace UltimateXR.Devices.Keyboard
 {
@@ -26,7 +30,7 @@ namespace UltimateXR.Devices.Keyboard
         /// <returns>Whether the key was pressed during the current frame</returns>
         public static bool GetPressDown(UxrKey key)
         {
-#if !ULTIMATEXR_USE_UNITYINPUTSYSTEM_SDK
+            #if !ULTIMATEXR_USE_UNITYINPUTSYSTEM_SDK
             CheckCreateLegacyToInputSystemMapping();
             
             if (s_mapInputSystemToLegacy.TryGetValue((int) key, out int mappedKey))
@@ -36,12 +40,13 @@ namespace UltimateXR.Devices.Keyboard
 
             Debug.LogError($"{nameof(UxrKeyboardInput)}.{nameof(GetPressDown)}: Key {key} has no mapping for Unity's legacy input system");
             return false;
-#else
+            #else
 
             // Our keyboard mapping is the same as Unity's InputSystem.
-            return UnityEngine.InputSystem.Keyboard.current[(Key)key].wasPressedThisFrame;
-#endif
+            return UnityEngine.InputSystem.Keyboard.current[(Key) key].wasPressedThisFrame;
+            #endif
         }
+
 
         /// <summary>
         ///     Gets if a given keyboard key was released during the current frame.
@@ -50,7 +55,7 @@ namespace UltimateXR.Devices.Keyboard
         /// <returns>Whether the key was released during the current frame</returns>
         public static bool GetPressUp(UxrKey key)
         {
-#if !ULTIMATEXR_USE_UNITYINPUTSYSTEM_SDK
+            #if !ULTIMATEXR_USE_UNITYINPUTSYSTEM_SDK
             CheckCreateLegacyToInputSystemMapping();
             
             if (s_mapInputSystemToLegacy.TryGetValue((int) key, out int mappedKey))
@@ -60,12 +65,13 @@ namespace UltimateXR.Devices.Keyboard
 
             Debug.LogError($"{nameof(UxrKeyboardInput)}.{nameof(GetPressUp)}: Key {key} has no mapping for Unity's legacy input system");
             return false;
-#else
+            #else
 
             // Our keyboard mapping is the same as Unity's InputSystem.
-            return UnityEngine.InputSystem.Keyboard.current[(Key)key].wasReleasedThisFrame;
-#endif
+            return UnityEngine.InputSystem.Keyboard.current[(Key) key].wasReleasedThisFrame;
+            #endif
         }
+
 
         /// <summary>
         ///     Gets if a given keyboard key is being pressed.
@@ -74,7 +80,7 @@ namespace UltimateXR.Devices.Keyboard
         /// <returns>Whether the key is being pressed</returns>
         public static bool GetPressed(UxrKey key)
         {
-#if !ULTIMATEXR_USE_UNITYINPUTSYSTEM_SDK
+            #if !ULTIMATEXR_USE_UNITYINPUTSYSTEM_SDK
             CheckCreateLegacyToInputSystemMapping();
             
             if (s_mapInputSystemToLegacy.TryGetValue((int) key, out int mappedKey))
@@ -84,18 +90,18 @@ namespace UltimateXR.Devices.Keyboard
 
             Debug.LogError($"{nameof(UxrKeyboardInput)}.{nameof(GetPressed)}: Key {key} has no mapping for Unity's legacy input system");
             return false;
-#else
+            #else
 
             // Our keyboard mapping is the same as Unity's InputSystem.
-            return UnityEngine.InputSystem.Keyboard.current[(Key)key].isPressed;
-#endif
+            return UnityEngine.InputSystem.Keyboard.current[(Key) key].isPressed;
+            #endif
         }
 
         #endregion
 
         #region Private Methods
 
-#if !ULTIMATEXR_USE_UNITYINPUTSYSTEM_SDK
+        #if !ULTIMATEXR_USE_UNITYINPUTSYSTEM_SDK
         /// <summary>
         /// Creates, if necessary, the key mapping dictionary to transform our key IDs to Unity's legacy input key IDs.
         /// </summary>
@@ -226,15 +232,15 @@ namespace UltimateXR.Devices.Keyboard
                 RegisterKey(UxrKey.F12,            KeyCode.F12);
             }
         }
-#endif
+        #endif
 
         #endregion
 
         #region Private types & Data
 
-#if !ULTIMATEXR_USE_UNITYINPUTSYSTEM_SDK
+        #if !ULTIMATEXR_USE_UNITYINPUTSYSTEM_SDK
         private static readonly Dictionary<int, int> s_mapInputSystemToLegacy = new Dictionary<int, int>();
-#endif
+        #endif
 
         #endregion
     }

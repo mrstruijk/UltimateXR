@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core;
 using UnityEngine;
 using UnityEngine.XR;
+
 
 namespace UltimateXR.Devices.Integrations
 {
@@ -25,29 +27,29 @@ namespace UltimateXR.Devices.Integrations
             if (Avatar.CameraComponent == null)
             {
                 Debug.LogWarning("No camera has been setup for this avatar");
+
                 return;
             }
 
-            List<XRNodeState> nodeStates = new List<XRNodeState>();
+            var nodeStates = new List<XRNodeState>();
             InputTracking.GetNodeStates(nodeStates);
 
-            foreach (XRNodeState nodeState in nodeStates)
+            foreach (var nodeState in nodeStates)
             {
                 if (nodeState.nodeType == XRNode.LeftHand)
                 {
-                    Vector3    localAvatarLeftHandSensorPos = LocalAvatarLeftHandSensorPos;
-                    Quaternion localAvatarLeftHandSensorRot = LocalAvatarLeftHandSensorRot;
-                    
+                    var localAvatarLeftHandSensorPos = LocalAvatarLeftHandSensorPos;
+                    var localAvatarLeftHandSensorRot = LocalAvatarLeftHandSensorRot;
+
                     nodeState.TryGetRotation(out localAvatarLeftHandSensorRot);
                     nodeState.TryGetPosition(out localAvatarLeftHandSensorPos);
-                    
-                    UpdateSensor(UxrHandSide.Left, localAvatarLeftHandSensorPos, localAvatarLeftHandSensorRot);
 
+                    UpdateSensor(UxrHandSide.Left, localAvatarLeftHandSensorPos, localAvatarLeftHandSensorRot);
                 }
                 else if (nodeState.nodeType == XRNode.RightHand)
                 {
-                    Vector3    localAvatarRightHandSensorPos = LocalAvatarRightHandSensorPos;
-                    Quaternion localAvatarRightHandSensorRot = LocalAvatarRightHandSensorRot;
+                    var localAvatarRightHandSensorPos = LocalAvatarRightHandSensorPos;
+                    var localAvatarRightHandSensorRot = LocalAvatarRightHandSensorRot;
 
                     nodeState.TryGetRotation(out localAvatarRightHandSensorRot);
                     nodeState.TryGetPosition(out localAvatarRightHandSensorPos);

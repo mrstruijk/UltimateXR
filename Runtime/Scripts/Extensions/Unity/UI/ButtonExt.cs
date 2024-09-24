@@ -3,12 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-using System.Collections.Generic;
+
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UltimateXR.Extensions.System.Threading;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.Extensions.Unity.UI
 {
@@ -27,17 +28,20 @@ namespace UltimateXR.Extensions.Unity.UI
         /// <returns>Awaitable task that will finish once the button was clicked or the <see cref="Task" /> was canceled</returns>
         public static async Task WaitForClickAsync(this Button self, CancellationToken ct = default)
         {
-            bool isClicked = false;
+            var isClicked = false;
+
 
             void ButtonClicked()
             {
                 isClicked = true;
             }
 
+
             self.onClick.AddListener(ButtonClicked);
             await TaskExt.WaitUntil(() => isClicked, ct);
             self.onClick.RemoveListener(ButtonClicked);
         }
+
 
         /// <summary>
         ///     Asynchronously waits until a <see cref="Button" /> is clicked. Returns the <see cref="Button" /> that was clicked.
@@ -51,8 +55,10 @@ namespace UltimateXR.Extensions.Unity.UI
         public static async Task<Button> ReadAsync(this Button self, CancellationToken ct)
         {
             await self.WaitForClickAsync(ct);
+
             return ct.IsCancellationRequested ? null : self;
         }
+
 
         /// <summary>
         ///     Asynchronously waits until a <see cref="Button" /> in a set is clicked. Returns the <see cref="Button" /> that was
@@ -69,6 +75,7 @@ namespace UltimateXR.Extensions.Unity.UI
             return buttons.ReadAsync(ct);
         }
 
+
         /// <summary>
         ///     Asynchronously waits until a <see cref="Button" /> in a set is clicked. Returns the <see cref="Button" /> that was
         ///     clicked.
@@ -81,9 +88,9 @@ namespace UltimateXR.Extensions.Unity.UI
         /// </returns>
         public static async Task<Button> ReadAsync(this Button[] buttons, CancellationToken ct)
         {
-            using CancellationTokenSource cts          = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            IEnumerable<Task<Button>>     tasks        = buttons.Select(b => b.ReadAsync(ct));
-            Task<Button>                  finishedTask = await Task.WhenAny(tasks);
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            var tasks = buttons.Select(b => b.ReadAsync(ct));
+            var finishedTask = await Task.WhenAny(tasks);
 
             if (!finishedTask.IsCanceled)
             {

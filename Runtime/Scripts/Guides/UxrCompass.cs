@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections;
 using System.Collections.Generic;
 using UltimateXR.Animation.Interpolation;
@@ -10,6 +11,7 @@ using UltimateXR.Avatar;
 using UltimateXR.Core.Components.Singleton;
 using UltimateXR.Extensions.Unity.Render;
 using UnityEngine;
+
 
 namespace UltimateXR.Guides
 {
@@ -30,22 +32,115 @@ namespace UltimateXR.Guides
     /// </remarks>
     public class UxrCompass : UxrSingleton<UxrCompass>
     {
+        #region Coroutines
+
+        /// <summary>
+        ///     Coroutine that transitions between the compass arrow to the arrow that moves to the target when it comes into
+        ///     sight.
+        /// </summary>
+        /// <param name="posStart"></param>
+        /// <param name="posEnd"></param>
+        /// <returns></returns>
+        private IEnumerator ArrowTransitionCoroutine(Vector3 posStart, Vector3 posEnd)
+        {
+            _transitionArrow.rotation = Quaternion.LookRotation(posEnd - posStart);
+
+            var duration = 0.2f;
+            var startTime = Time.unscaledTime;
+
+            while (Time.unscaledTime - startTime < duration)
+            {
+                var t = (Time.unscaledTime - startTime) / duration;
+                _transitionArrow.transform.position = Vector3.Lerp(posStart, posEnd, t);
+
+                yield return null;
+            }
+
+            _transitionArrow.gameObject.SetActive(false);
+
+            // _onScreenStartTime will ensure that the effects will align in a cool way when the transition arrow disappears. The animation curve will always start correctly.
+            _onScreenStartTime = Time.unscaledTime;
+            _rootOnScreenIcons.SetActive(true);
+            UpdateOnScreenIcon(Time.unscaledTime);
+
+            _coroutineArrowTransition = null;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Updates the icon.
+        /// </summary>
+        /// <param name="time">Time in seconds the icon has been on screen</param>
+        private void UpdateOnScreenIcon(float time)
+        {
+            if (UxrAvatar.LocalAvatarCamera == null)
+            {
+                return;
+            }
+
+            var frequency = 2.0f;
+            var timeSinceOnScreen = time - _onScreenStartTime;
+            var interpolationTime = timeSinceOnScreen * frequency;
+            var effectBounceT = UxrInterpolator.GetInterpolationFactor(interpolationTime, UxrEasing.EaseOutQuad, UxrLoopMode.PingPong);
+            var effectSineT = UxrInterpolator.GetInterpolationFactor(interpolationTime, UxrEasing.EaseInOutSine, UxrLoopMode.PingPong);
+
+            _rootOnScreenIcons.transform.position = TargetPosition;
+
+            _iconLocationPivot.gameObject.SetActive(DisplayMode == UxrCompassDisplayMode.Location);
+            _iconLookPivot.gameObject.SetActive(DisplayMode == UxrCompassDisplayMode.Look && timeSinceOnScreen < TemporaryDurationSeconds);
+            _iconGrabPivot.gameObject.SetActive(DisplayMode == UxrCompassDisplayMode.Grab);
+            _iconUsePivot.gameObject.SetActive(DisplayMode == UxrCompassDisplayMode.Use);
+
+            if (DisplayMode == UxrCompassDisplayMode.Location)
+            {
+                _iconLocationBottom.transform.localPosition = Vector3.up * (effectBounceT * 0.4f);
+            }
+            else if (DisplayMode == UxrCompassDisplayMode.Grab)
+            {
+                _iconGrabRenderer.material.color = ColorExt.ColorAlpha(Color.white, effectSineT);
+            }
+            else if (DisplayMode == UxrCompassDisplayMode.Look)
+            {
+                _iconLookRenderer.material.color = ColorExt.ColorAlpha(Color.white, effectSineT);
+            }
+            else if (DisplayMode == UxrCompassDisplayMode.Use)
+            {
+                _iconUseRenderer.material.color = ColorExt.ColorAlpha(Color.white, effectSineT);
+            }
+
+            // Scale visible icon based on size
+
+            foreach (var iconScale in _initialIconScales)
+            {
+                if (iconScale.Key.gameObject.activeInHierarchy)
+                {
+                    var distance = Vector3.Distance(iconScale.Key.transform.position, UxrAvatar.LocalAvatar.CameraPosition);
+                    iconScale.Key.transform.localScale = Vector3.Max(iconScale.Value * _iconScale, distance * 0.3f * _iconScale * iconScale.Value);
+                }
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private float        _distanceToCamera = 1.0f;
-        [SerializeField] private Transform    _focusedObjectTarget;
-        [SerializeField] private Transform    _compassArrowPivot;
-        [SerializeField] private Renderer     _compassArrowRenderer;
-        [SerializeField] private Transform    _transitionArrow;
-        [SerializeField] private GameObject   _rootOnScreenIcons;
-        [SerializeField] private Transform    _iconLocationPivot;
-        [SerializeField] private Transform    _iconLocationBottom;
+        [SerializeField] private float _distanceToCamera = 1.0f;
+        [SerializeField] private Transform _focusedObjectTarget;
+        [SerializeField] private Transform _compassArrowPivot;
+        [SerializeField] private Renderer _compassArrowRenderer;
+        [SerializeField] private Transform _transitionArrow;
+        [SerializeField] private GameObject _rootOnScreenIcons;
+        [SerializeField] private Transform _iconLocationPivot;
+        [SerializeField] private Transform _iconLocationBottom;
         [SerializeField] private MeshRenderer _iconLocationRenderer;
-        [SerializeField] private Transform    _iconLookPivot;
+        [SerializeField] private Transform _iconLookPivot;
         [SerializeField] private MeshRenderer _iconLookRenderer;
-        [SerializeField] private Transform    _iconGrabPivot;
+        [SerializeField] private Transform _iconGrabPivot;
         [SerializeField] private MeshRenderer _iconGrabRenderer;
-        [SerializeField] private Transform    _iconUsePivot;
+        [SerializeField] private Transform _iconUsePivot;
         [SerializeField] private MeshRenderer _iconUseRenderer;
 
         #endregion
@@ -95,15 +190,16 @@ namespace UltimateXR.Guides
         /// <param name="iconScale">The icon size multiplier</param>
         public void SetTarget(Transform target, UxrCompassDisplayMode displayMode = UxrCompassDisplayMode.OnlyCompass, float iconScale = 1.0f)
         {
-            DisplayMode          = displayMode;
+            DisplayMode = displayMode;
             _focusedObjectTarget = target;
-            _targetStartTime     = Time.unscaledTime;
-            _onScreenStartTime   = Time.unscaledTime;
-            _targetIsRawPos      = false;
-            _targetHint          = target != null ? target.gameObject.GetComponent<UxrCompassTargetHint>() : null;
-            _iconScale           = iconScale;
-            _isTemporary         = false;
+            _targetStartTime = Time.unscaledTime;
+            _onScreenStartTime = Time.unscaledTime;
+            _targetIsRawPos = false;
+            _targetHint = target != null ? target.gameObject.GetComponent<UxrCompassTargetHint>() : null;
+            _iconScale = iconScale;
+            _isTemporary = false;
         }
+
 
         /// <summary>
         ///     Sets the current target. When the object gets into sight it will show the icon described by
@@ -119,6 +215,7 @@ namespace UltimateXR.Guides
             _isTemporary = true;
         }
 
+
         /// <summary>
         ///     Sets the current target.
         /// </summary>
@@ -127,16 +224,17 @@ namespace UltimateXR.Guides
         /// <param name="iconScale">The icon size multiplier</param>
         public void SetTarget(Vector3 position, UxrCompassDisplayMode displayMode = UxrCompassDisplayMode.OnlyCompass, float iconScale = 1.0f)
         {
-            DisplayMode          = displayMode;
+            DisplayMode = displayMode;
             _focusedObjectTarget = null;
-            _targetStartTime     = Time.unscaledTime;
-            _onScreenStartTime   = Time.unscaledTime;
-            _targetIsRawPos      = true;
-            _rawTargetPos        = position;
-            _targetHint          = null;
-            _iconScale           = iconScale;
-            _isTemporary         = false;
+            _targetStartTime = Time.unscaledTime;
+            _onScreenStartTime = Time.unscaledTime;
+            _targetIsRawPos = true;
+            _rawTargetPos = position;
+            _targetHint = null;
+            _iconScale = iconScale;
+            _isTemporary = false;
         }
+
 
         /// <summary>
         ///     Sets the current target. When the object gets into sight it will show the icon described by
@@ -169,11 +267,12 @@ namespace UltimateXR.Guides
 
             _initialIconScales = new Dictionary<MeshRenderer, Vector3>();
 
-            foreach (MeshRenderer iconRenderer in IconRenderers)
+            foreach (var iconRenderer in IconRenderers)
             {
                 _initialIconScales.Add(iconRenderer, iconRenderer.transform.localScale);
             }
         }
+
 
         /// <summary>
         ///     Updates the compass.
@@ -209,14 +308,15 @@ namespace UltimateXR.Guides
                 if (_isTemporary && Time.unscaledTime - _targetStartTime > TemporaryDurationSeconds)
                 {
                     SetTarget(null);
+
                     return;
                 }
 
-                Camera  avatarCamera      = UxrAvatar.LocalAvatarCamera;
-                Vector3 targetInCameraPos = avatarCamera.WorldToScreenPoint(TargetPosition);
-                float   percentMargin     = 0.20f;
-                float   marginWidth       = avatarCamera.pixelWidth * percentMargin;
-                float   marginHeight      = avatarCamera.pixelHeight * percentMargin;
+                var avatarCamera = UxrAvatar.LocalAvatarCamera;
+                var targetInCameraPos = avatarCamera.WorldToScreenPoint(TargetPosition);
+                var percentMargin = 0.20f;
+                var marginWidth = avatarCamera.pixelWidth * percentMargin;
+                var marginHeight = avatarCamera.pixelHeight * percentMargin;
 
                 if (targetInCameraPos.x >= marginWidth &&
                     targetInCameraPos.x <= avatarCamera.pixelWidth - marginWidth &&
@@ -248,7 +348,7 @@ namespace UltimateXR.Guides
                     _rootOnScreenIcons.gameObject.SetActive(false);
                     _compassArrowPivot.gameObject.SetActive(true);
 
-                    Vector3 direction = avatarCamera.transform.InverseTransformPoint(TargetPosition);
+                    var direction = avatarCamera.transform.InverseTransformPoint(TargetPosition);
                     direction.z = 0.0f;
                     direction.Normalize();
                     direction = new Vector3(targetInCameraPos.x - avatarCamera.pixelWidth * 0.5f, targetInCameraPos.y - avatarCamera.pixelHeight * 0.5f, 0.0f).normalized;
@@ -262,101 +362,9 @@ namespace UltimateXR.Guides
                 }
             }
 
-            Color color = Color.white;
-            color.a                              = (Mathf.Sin(Time.unscaledTime * Mathf.PI * 2.0f * 5.0f) + 1.0f) * 0.5f;
+            var color = Color.white;
+            color.a = (Mathf.Sin(Time.unscaledTime * Mathf.PI * 2.0f * 5.0f) + 1.0f) * 0.5f;
             _compassArrowRenderer.material.color = color;
-        }
-
-        #endregion
-
-        #region Coroutines
-
-        /// <summary>
-        ///     Coroutine that transitions between the compass arrow to the arrow that moves to the target when it comes into
-        ///     sight.
-        /// </summary>
-        /// <param name="posStart"></param>
-        /// <param name="posEnd"></param>
-        /// <returns></returns>
-        private IEnumerator ArrowTransitionCoroutine(Vector3 posStart, Vector3 posEnd)
-        {
-            _transitionArrow.rotation = Quaternion.LookRotation(posEnd - posStart);
-
-            float duration  = 0.2f;
-            float startTime = Time.unscaledTime;
-
-            while (Time.unscaledTime - startTime < duration)
-            {
-                float t = (Time.unscaledTime - startTime) / duration;
-                _transitionArrow.transform.position = Vector3.Lerp(posStart, posEnd, t);
-                yield return null;
-            }
-
-            _transitionArrow.gameObject.SetActive(false);
-
-            // _onScreenStartTime will ensure that the effects will align in a cool way when the transition arrow disappears. The animation curve will always start correctly.
-            _onScreenStartTime = Time.unscaledTime;
-            _rootOnScreenIcons.SetActive(true);
-            UpdateOnScreenIcon(Time.unscaledTime);
-
-            _coroutineArrowTransition = null;
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Updates the icon.
-        /// </summary>
-        /// <param name="time">Time in seconds the icon has been on screen</param>
-        private void UpdateOnScreenIcon(float time)
-        {
-            if (UxrAvatar.LocalAvatarCamera == null)
-            {
-                return;
-            }
-
-            float frequency         = 2.0f;
-            float timeSinceOnScreen = time - _onScreenStartTime;
-            float interpolationTime = timeSinceOnScreen * frequency;
-            float effectBounceT     = UxrInterpolator.GetInterpolationFactor(interpolationTime, UxrEasing.EaseOutQuad,   UxrLoopMode.PingPong);
-            float effectSineT       = UxrInterpolator.GetInterpolationFactor(interpolationTime, UxrEasing.EaseInOutSine, UxrLoopMode.PingPong);
-
-            _rootOnScreenIcons.transform.position = TargetPosition;
-
-            _iconLocationPivot.gameObject.SetActive(DisplayMode == UxrCompassDisplayMode.Location);
-            _iconLookPivot.gameObject.SetActive(DisplayMode == UxrCompassDisplayMode.Look && timeSinceOnScreen < TemporaryDurationSeconds);
-            _iconGrabPivot.gameObject.SetActive(DisplayMode == UxrCompassDisplayMode.Grab);
-            _iconUsePivot.gameObject.SetActive(DisplayMode == UxrCompassDisplayMode.Use);
-
-            if (DisplayMode == UxrCompassDisplayMode.Location)
-            {
-                _iconLocationBottom.transform.localPosition = Vector3.up * (effectBounceT * 0.4f);
-            }
-            else if (DisplayMode == UxrCompassDisplayMode.Grab)
-            {
-                _iconGrabRenderer.material.color = ColorExt.ColorAlpha(Color.white, effectSineT);
-            }
-            else if (DisplayMode == UxrCompassDisplayMode.Look)
-            {
-                _iconLookRenderer.material.color = ColorExt.ColorAlpha(Color.white, effectSineT);
-            }
-            else if (DisplayMode == UxrCompassDisplayMode.Use)
-            {
-                _iconUseRenderer.material.color = ColorExt.ColorAlpha(Color.white, effectSineT);
-            }
-
-            // Scale visible icon based on size
-
-            foreach (KeyValuePair<MeshRenderer, Vector3> iconScale in _initialIconScales)
-            {
-                if (iconScale.Key.gameObject.activeInHierarchy)
-                {
-                    float distance = Vector3.Distance(iconScale.Key.transform.position, UxrAvatar.LocalAvatar.CameraPosition);
-                    iconScale.Key.transform.localScale = Vector3.Max(iconScale.Value * _iconScale, (distance * 0.3f) * _iconScale * iconScale.Value);
-                }
-            }
         }
 
         #endregion
@@ -383,16 +391,16 @@ namespace UltimateXR.Guides
         /// </summary>
         private const float TemporaryDurationSeconds = 3.0f;
 
-        private bool                              _targetFocused;
-        private bool                              _targetIsRawPos;
-        private Vector3                           _rawTargetPos;
-        private UxrCompassTargetHint              _targetHint;
-        private Coroutine                         _coroutineArrowTransition;
-        private float                             _targetStartTime;
-        private float                             _onScreenStartTime;
+        private bool _targetFocused;
+        private bool _targetIsRawPos;
+        private Vector3 _rawTargetPos;
+        private UxrCompassTargetHint _targetHint;
+        private Coroutine _coroutineArrowTransition;
+        private float _targetStartTime;
+        private float _onScreenStartTime;
         private Dictionary<MeshRenderer, Vector3> _initialIconScales;
-        private float                             _iconScale;
-        private bool                              _isTemporary;
+        private float _iconScale;
+        private bool _isTemporary;
 
         #endregion
     }

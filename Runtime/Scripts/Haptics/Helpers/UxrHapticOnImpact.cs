@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UltimateXR.Avatar;
@@ -12,7 +13,9 @@ using UltimateXR.Extensions.Unity;
 using UltimateXR.Manipulation;
 using UnityEngine;
 
+
 #pragma warning disable 414 // Disable warnings due to unused values
+
 
 namespace UltimateXR.Haptics.Helpers
 {
@@ -23,46 +26,6 @@ namespace UltimateXR.Haptics.Helpers
     [RequireComponent(typeof(UxrGrabbableObject))]
     public partial class UxrHapticOnImpact : UxrGrabbableObjectComponent<UxrHapticOnImpact>
     {
-        #region Inspector Properties/Serialized Fields
-
-        [Header("General")] [SerializeField] private List<Transform> _hitPoints;
-        [SerializeField]                     private LayerMask       _collisionLayers       = ~0;
-        [SerializeField] [Range(0, 180)]     private float           _forwardAngleThreshold = 30.0f;
-        [SerializeField] [Range(0, 180)]     private float           _surfaceAngleThreshold = 30.0f;
-        [SerializeField]                     private float           _minSpeed              = 0.01f;
-        [SerializeField]                     private float           _maxSpeed              = 1.0f;
-
-        [Header("Haptics")] [SerializeField] private UxrHapticClipType _hapticClip              = UxrHapticClipType.Shot;
-        [SerializeField]                     private UxrHapticMode     _hapticMode              = UxrHapticMode.Mix;
-        [SerializeField]                     private float             _hapticPulseDurationMin  = 0.05f;
-        [SerializeField]                     private float             _hapticPulseDurationMax  = 0.05f;
-        [SerializeField] [Range(0, 1)]       private float             _hapticPulseAmplitudeMin = 0.2f;
-        [SerializeField] [Range(0, 1)]       private float             _hapticPulseAmplitudeMax = 1.0f;
-
-        [Header("Physics")] [SerializeField] private float _minHitForce = 1.0f;
-        [SerializeField]                     private float _maxHitForce = 100.0f;
-
-        #endregion
-
-        #region Public Types & Data
-
-        /// <summary>
-        ///     Event triggered when the component detects a collision between any hit point and a collider.
-        /// </summary>
-        public event EventHandler<UxrHapticImpactEventArgs> Hit;
-
-        /// <summary>
-        ///     Gets the hit point transforms.
-        /// </summary>
-        public IEnumerable<Transform> HitPoints => _hitPoints;
-
-        /// <summary>
-        ///     Gets the total number of times something was hit.
-        /// </summary>
-        public int TotalHitCount { get; private set; }
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -82,50 +45,6 @@ namespace UltimateXR.Haptics.Helpers
 
         #endregion
 
-        #region Unity
-
-        /// <summary>
-        ///     Initializes internal data.
-        /// </summary>
-        protected override void Awake()
-        {
-            base.Awake();
-
-            CreateHitPointInfo();
-        }
-
-        /// <summary>
-        ///     Subscribes to events and re-initializes data.
-        /// </summary>
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-
-            UxrManager.AvatarsUpdated += UxrManager_AvatarsUpdated;
-
-            _hitPointInfos.ForEach(p =>
-                                   {
-                                       p.LastPos = p.HitPoint.position;
-
-                                       for (int i = 0; i < VelocityAverageSamples; ++i)
-                                       {
-                                           p.VelocitySamples[i] = Vector3.zero;
-                                       }
-                                   });
-        }
-
-        /// <summary>
-        ///     Unsubscribes from events.
-        /// </summary>
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-
-            UxrManager.AvatarsUpdated -= UxrManager_AvatarsUpdated;
-        }
-
-        #endregion
-
         #region Event Handling Methods
 
         /// <summary>
@@ -140,13 +59,13 @@ namespace UltimateXR.Haptics.Helpers
 
             if (Time.deltaTime > 0.0f)
             {
-                foreach (HitPointInfo hitPointInfo in _hitPointInfos)
+                foreach (var hitPointInfo in _hitPointInfos)
                 {
                     // Update velocity frame history
 
-                    Vector3 currentFrameVelocity = (hitPointInfo.HitPoint.position - hitPointInfo.LastPos) / Time.deltaTime;
+                    var currentFrameVelocity = (hitPointInfo.HitPoint.position - hitPointInfo.LastPos) / Time.deltaTime;
 
-                    for (int i = 0; i < hitPointInfo.VelocitySamples.Count - 1; ++i)
+                    for (var i = 0; i < hitPointInfo.VelocitySamples.Count - 1; ++i)
                     {
                         hitPointInfo.VelocitySamples[i] = hitPointInfo.VelocitySamples[i + 1];
                     }
@@ -157,7 +76,7 @@ namespace UltimateXR.Haptics.Helpers
 
                     hitPointInfo.Velocity = Vector3.zero;
 
-                    for (int i = 0; i < hitPointInfo.VelocitySamples.Count - 1; ++i)
+                    for (var i = 0; i < hitPointInfo.VelocitySamples.Count - 1; ++i)
                     {
                         hitPointInfo.Velocity += hitPointInfo.VelocitySamples[i];
                     }
@@ -166,20 +85,20 @@ namespace UltimateXR.Haptics.Helpers
                 }
             }
 
-            foreach (HitPointInfo hitPointInfo in _hitPointInfos)
+            foreach (var hitPointInfo in _hitPointInfos)
             {
-                float speed = hitPointInfo.Velocity.magnitude;
+                var speed = hitPointInfo.Velocity.magnitude;
 
                 // Check if we are grabbing the object and moving it with enough speed
-                if (UxrGrabManager.Instance && UxrGrabManager.Instance.GetGrabbingHand(GrabbableObject, out bool isLeft, out bool isRight) && speed > _minSpeed && speed > 0.0f)
+                if (UxrGrabManager.Instance && UxrGrabManager.Instance.GetGrabbingHand(GrabbableObject, out var isLeft, out var isRight) && speed > _minSpeed && speed > 0.0f)
                 {
-                    Vector3 direction = hitPointInfo.HitPoint.position - hitPointInfo.LastPos;
+                    var direction = hitPointInfo.HitPoint.position - hitPointInfo.LastPos;
 
                     // Raycast between the previous and current frame positions
 
-                    RaycastHit[] hits = Physics.RaycastAll(hitPointInfo.LastPos, direction, direction.magnitude, _collisionLayers, QueryTriggerInteraction.Ignore);
+                    var hits = Physics.RaycastAll(hitPointInfo.LastPos, direction, direction.magnitude, _collisionLayers, QueryTriggerInteraction.Ignore);
 
-                    foreach (RaycastHit hitInfo in hits)
+                    foreach (var hitInfo in hits)
                     {
                         // Avoid self collision first
                         if (hitInfo.collider.transform.HasParent(transform))
@@ -188,24 +107,24 @@ namespace UltimateXR.Haptics.Helpers
                         }
 
                         // We hit something! get the normalized force 0 = min, 1 = max
-                        float forceT = Mathf.Clamp01((speed - _minSpeed) / (_maxSpeed - _minSpeed));
+                        var forceT = Mathf.Clamp01((speed - _minSpeed) / (_maxSpeed - _minSpeed));
 
                         // Compute angles (forward motion angle and surface angle)
-                        float forwardVelocityAngle = Vector3.Angle(hitPointInfo.Velocity, hitPointInfo.HitPoint.forward);
-                        float surfaceAngle         = Vector3.Angle(direction,             -hitInfo.normal);
+                        var forwardVelocityAngle = Vector3.Angle(hitPointInfo.Velocity, hitPointInfo.HitPoint.forward);
+                        var surfaceAngle = Vector3.Angle(direction, -hitInfo.normal);
 
                         // Below thresholds to trigger event?
                         if (forwardVelocityAngle <= _forwardAngleThreshold && surfaceAngle <= _surfaceAngleThreshold)
                         {
                             // Yes
-                            UxrHapticImpactEventArgs eventArgs = new UxrHapticImpactEventArgs(hitInfo,
-                                                                                              forceT,
-                                                                                              hitPointInfo.Velocity,
-                                                                                              forwardVelocityAngle,
-                                                                                              Vector3.Angle(hitPointInfo.HitPoint.forward, -hitInfo.normal));
+                            var eventArgs = new UxrHapticImpactEventArgs(hitInfo,
+                                forceT,
+                                hitPointInfo.Velocity,
+                                forwardVelocityAngle,
+                                Vector3.Angle(hitPointInfo.HitPoint.forward, -hitInfo.normal));
 
                             // Apply physics to the other object if it is dynamic
-                            Rigidbody otherRigidbody = hitInfo.collider.GetComponent<Rigidbody>();
+                            var otherRigidbody = hitInfo.collider.GetComponent<Rigidbody>();
 
                             if (otherRigidbody && !otherRigidbody.isKinematic)
                             {
@@ -215,8 +134,8 @@ namespace UltimateXR.Haptics.Helpers
                             // Send haptic feedback
                             if (UxrAvatar.LocalAvatarInput)
                             {
-                                float amplitude = Mathf.Lerp(_hapticPulseAmplitudeMin, _hapticPulseAmplitudeMax, forceT);
-                                float duration  = Mathf.Lerp(_hapticPulseDurationMin,  _hapticPulseDurationMax,  forceT);
+                                var amplitude = Mathf.Lerp(_hapticPulseAmplitudeMin, _hapticPulseAmplitudeMax, forceT);
+                                var duration = Mathf.Lerp(_hapticPulseDurationMin, _hapticPulseDurationMax, forceT);
 
                                 if (isLeft)
                                 {
@@ -232,7 +151,7 @@ namespace UltimateXR.Haptics.Helpers
                             }
 
                             // Check if there is a receiver component to send the event
-                            UxrHapticImpactReceiver receiver = hitInfo.collider.GetComponentInParent<UxrHapticImpactReceiver>();
+                            var receiver = hitInfo.collider.GetComponentInParent<UxrHapticImpactReceiver>();
 
                             if (receiver)
                             {
@@ -243,7 +162,7 @@ namespace UltimateXR.Haptics.Helpers
                 }
             }
 
-            foreach (HitPointInfo hitPointInfo in _hitPointInfos)
+            foreach (var hitPointInfo in _hitPointInfos)
             {
                 hitPointInfo.LastPos = hitPointInfo.HitPoint.position;
             }
@@ -272,10 +191,96 @@ namespace UltimateXR.Haptics.Helpers
         /// </summary>
         private void CreateHitPointInfo()
         {
-            foreach (Transform hitPoint in _hitPoints)
+            foreach (var hitPoint in _hitPoints)
             {
                 _hitPointInfos.Add(new HitPointInfo(hitPoint));
             }
+        }
+
+        #endregion
+
+        #region Inspector Properties/Serialized Fields
+
+        [Header("General")] [SerializeField] private List<Transform> _hitPoints;
+        [SerializeField] private LayerMask _collisionLayers = ~0;
+        [SerializeField] [Range(0, 180)] private float _forwardAngleThreshold = 30.0f;
+        [SerializeField] [Range(0, 180)] private float _surfaceAngleThreshold = 30.0f;
+        [SerializeField] private float _minSpeed = 0.01f;
+        [SerializeField] private float _maxSpeed = 1.0f;
+
+        [Header("Haptics")] [SerializeField] private UxrHapticClipType _hapticClip = UxrHapticClipType.Shot;
+        [SerializeField] private UxrHapticMode _hapticMode = UxrHapticMode.Mix;
+        [SerializeField] private float _hapticPulseDurationMin = 0.05f;
+        [SerializeField] private float _hapticPulseDurationMax = 0.05f;
+        [SerializeField] [Range(0, 1)] private float _hapticPulseAmplitudeMin = 0.2f;
+        [SerializeField] [Range(0, 1)] private float _hapticPulseAmplitudeMax = 1.0f;
+
+        [Header("Physics")] [SerializeField] private float _minHitForce = 1.0f;
+        [SerializeField] private float _maxHitForce = 100.0f;
+
+        #endregion
+
+        #region Public Types & Data
+
+        /// <summary>
+        ///     Event triggered when the component detects a collision between any hit point and a collider.
+        /// </summary>
+        public event EventHandler<UxrHapticImpactEventArgs> Hit;
+
+        /// <summary>
+        ///     Gets the hit point transforms.
+        /// </summary>
+        public IEnumerable<Transform> HitPoints => _hitPoints;
+
+        /// <summary>
+        ///     Gets the total number of times something was hit.
+        /// </summary>
+        public int TotalHitCount { get; private set; }
+
+        #endregion
+
+        #region Unity
+
+        /// <summary>
+        ///     Initializes internal data.
+        /// </summary>
+        protected override void Awake()
+        {
+            base.Awake();
+
+            CreateHitPointInfo();
+        }
+
+
+        /// <summary>
+        ///     Subscribes to events and re-initializes data.
+        /// </summary>
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+            UxrManager.AvatarsUpdated += UxrManager_AvatarsUpdated;
+
+            _hitPointInfos.ForEach(p =>
+            {
+                p.LastPos = p.HitPoint.position;
+
+                for (var i = 0; i < VelocityAverageSamples; ++i)
+                {
+                    p.VelocitySamples[i] = Vector3.zero;
+                }
+            });
+        }
+
+
+        /// <summary>
+        ///     Unsubscribes from events.
+        /// </summary>
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            UxrManager.AvatarsUpdated -= UxrManager_AvatarsUpdated;
         }
 
         #endregion
@@ -287,10 +292,11 @@ namespace UltimateXR.Haptics.Helpers
         /// </summary>
         private const int VelocityAverageSamples = 3;
 
-        private readonly List<HitPointInfo> _hitPointInfos = new List<HitPointInfo>();
+        private readonly List<HitPointInfo> _hitPointInfos = new();
 
         #endregion
     }
 }
+
 
 #pragma warning restore 414

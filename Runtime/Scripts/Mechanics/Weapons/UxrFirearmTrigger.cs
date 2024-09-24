@@ -3,12 +3,14 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Audio;
 using UltimateXR.Core.Math;
 using UltimateXR.Haptics;
 using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -23,23 +25,23 @@ namespace UltimateXR.Mechanics.Weapons
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private int                      _projectileShotIndex;
-        [SerializeField] private UxrShotCycle             _cycleType;
-        [SerializeField] private int                      _maxShotFrequency;
-        [SerializeField] private UxrAudioSample           _shotAudio;
-        [SerializeField] private UxrAudioSample           _shotAudioNoAmmo;
-        [SerializeField] private UxrHapticClip            _shotHapticClip = new UxrHapticClip(null, UxrHapticClipType.Shot);
-        [SerializeField] private UxrGrabbableObject       _triggerGrabbable;
-        [SerializeField] private int                      _grabbableGrabPointIndex;
-        [SerializeField] private Transform                _triggerTransform;
-        [SerializeField] private UxrAxis                  _triggerRotationAxis    = UxrAxis.X;
-        [SerializeField] private float                    _triggerRotationDegrees = 40.0f;
+        [SerializeField] private int _projectileShotIndex;
+        [SerializeField] private UxrShotCycle _cycleType;
+        [SerializeField] private int _maxShotFrequency;
+        [SerializeField] private UxrAudioSample _shotAudio;
+        [SerializeField] private UxrAudioSample _shotAudioNoAmmo;
+        [SerializeField] private UxrHapticClip _shotHapticClip = new(null, UxrHapticClipType.Shot);
+        [SerializeField] private UxrGrabbableObject _triggerGrabbable;
+        [SerializeField] private int _grabbableGrabPointIndex;
+        [SerializeField] private Transform _triggerTransform;
+        [SerializeField] private UxrAxis _triggerRotationAxis = UxrAxis.X;
+        [SerializeField] private float _triggerRotationDegrees = 40.0f;
         [SerializeField] private UxrGrabbableObjectAnchor _ammunitionMagAnchor;
-        [SerializeField] private float                    _recoilAngleOneHand   = 0.5f;
-        [SerializeField] private float                    _recoilAngleTwoHands  = 2.0f;
-        [SerializeField] private Vector3                  _recoilOffsetOneHand  = -Vector3.forward * 0.03f;
-        [SerializeField] private Vector3                  _recoilOffsetTwoHands = -Vector3.forward * 0.01f;
-        [SerializeField] private float                    _recoilDurationSeconds;
+        [SerializeField] private float _recoilAngleOneHand = 0.5f;
+        [SerializeField] private float _recoilAngleTwoHands = 2.0f;
+        [SerializeField] private Vector3 _recoilOffsetOneHand = -Vector3.forward * 0.03f;
+        [SerializeField] private Vector3 _recoilOffsetTwoHands = -Vector3.forward * 0.01f;
+        [SerializeField] private float _recoilDurationSeconds;
 
         #endregion
 

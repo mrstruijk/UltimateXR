@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation
 {
@@ -42,19 +44,38 @@ namespace UltimateXR.Manipulation
     /// </summary>
     public class UxrGrabbableObjectAnchor : UxrComponent<UxrGrabbableObjectAnchor>
     {
+        #region Private Methods
+
+        /// <summary>
+        ///     Checking whether the given tag is compatible with the anchor.
+        /// </summary>
+        /// <param name="otherTag">Tag to check whether it is compatible</param>
+        /// <returns>Whether the tag is compatible</returns>
+        private bool IsCompatibleObjectTag(string otherTag)
+        {
+            if (_compatibleTags == null || _compatibleTags.Count == 0)
+            {
+                return string.IsNullOrEmpty(otherTag);
+            }
+
+            return _compatibleTags.Contains(otherTag);
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private List<string> _compatibleTags        = new List<string>();
-        [SerializeField] private float        _maxPlaceDistance      = 0.1f;
-        [SerializeField] private bool         _alignTransformUseSelf = true;
-        [SerializeField] private Transform    _alignTransform;
-        [SerializeField] private bool         _dropProximityTransformUseSelf = true;
-        [SerializeField] private Transform    _dropProximityTransform;
-        [SerializeField] private GameObject   _activateOnCompatibleNear;
-        [SerializeField] private GameObject   _activateOnCompatibleNotNear;
-        [SerializeField] private GameObject   _activateOnHandNearAndGrabbable;
-        [SerializeField] private GameObject   _activateOnPlaced;
-        [SerializeField] private GameObject   _activateOnEmpty;
+        [SerializeField] private List<string> _compatibleTags = new();
+        [SerializeField] private float _maxPlaceDistance = 0.1f;
+        [SerializeField] private bool _alignTransformUseSelf = true;
+        [SerializeField] private Transform _alignTransform;
+        [SerializeField] private bool _dropProximityTransformUseSelf = true;
+        [SerializeField] private Transform _dropProximityTransform;
+        [SerializeField] private GameObject _activateOnCompatibleNear;
+        [SerializeField] private GameObject _activateOnCompatibleNotNear;
+        [SerializeField] private GameObject _activateOnHandNearAndGrabbable;
+        [SerializeField] private GameObject _activateOnPlaced;
+        [SerializeField] private GameObject _activateOnEmpty;
 
         #endregion
 
@@ -202,6 +223,7 @@ namespace UltimateXR.Manipulation
             _compatibleTags.AddRange(tags);
         }
 
+
         /// <summary>
         ///     Removes compatible tags from the list of compatible tags that control which objects can be placed on the anchor.
         /// </summary>
@@ -214,11 +236,12 @@ namespace UltimateXR.Manipulation
                 throw new ArgumentNullException(nameof(tags));
             }
 
-            foreach (string tag in tags)
+            foreach (var tag in tags)
             {
                 _compatibleTags.Remove(tag);
             }
         }
+
 
         /// <summary>
         ///     Removes the currently placed object, if there is any, from the anchor.
@@ -231,6 +254,7 @@ namespace UltimateXR.Manipulation
                 UxrGrabManager.Instance.RemoveObjectFromAnchor(CurrentPlacedObject, propagateEvents);
             }
         }
+
 
         /// <summary>
         ///     Adds a placing validator to the internal list of validators. Placing validators are functions that are used in
@@ -254,6 +278,7 @@ namespace UltimateXR.Manipulation
             _placingValidators.Add(validator);
         }
 
+
         /// <summary>
         ///     Removes a placing validator added using <see cref="AddPlacingValidator" />.
         /// </summary>
@@ -268,6 +293,7 @@ namespace UltimateXR.Manipulation
 
             _placingValidators.Remove(validator);
         }
+
 
         /// <summary>
         ///     Checks whether the given <see cref="UxrGrabbableObject" /> is compatible with the anchor, which means that it can
@@ -309,6 +335,7 @@ namespace UltimateXR.Manipulation
             }
         }
 
+
         /// <summary>
         ///     Removes the validators.
         /// </summary>
@@ -318,6 +345,7 @@ namespace UltimateXR.Manipulation
 
             _placingValidators.Clear();
         }
+
 
         /// <summary>
         ///     Performs additional initialization.
@@ -350,6 +378,7 @@ namespace UltimateXR.Manipulation
             Placing?.Invoke(this, e);
         }
 
+
         /// <summary>
         ///     Event trigger for <see cref="Placed" />.
         /// </summary>
@@ -360,6 +389,7 @@ namespace UltimateXR.Manipulation
             _smoothPlaceEventArgs = e;
         }
 
+
         /// <summary>
         ///     Event trigger for <see cref="Removing" />.
         /// </summary>
@@ -369,6 +399,7 @@ namespace UltimateXR.Manipulation
             Removing?.Invoke(this, e);
         }
 
+
         /// <summary>
         ///     Event trigger for <see cref="Removed" />.
         /// </summary>
@@ -377,6 +408,7 @@ namespace UltimateXR.Manipulation
         {
             Removed?.Invoke(this, e);
         }
+
 
         /// <summary>
         ///     Event trigger for <see cref="SmoothPlaceTransitionEnded" />.
@@ -388,29 +420,10 @@ namespace UltimateXR.Manipulation
 
         #endregion
 
-        #region Private Methods
-
-        /// <summary>
-        ///     Checking whether the given tag is compatible with the anchor.
-        /// </summary>
-        /// <param name="otherTag">Tag to check whether it is compatible</param>
-        /// <returns>Whether the tag is compatible</returns>
-        private bool IsCompatibleObjectTag(string otherTag)
-        {
-            if (_compatibleTags == null || _compatibleTags.Count == 0)
-            {
-                return string.IsNullOrEmpty(otherTag);
-            }
-
-            return _compatibleTags.Contains(otherTag);
-        }
-
-        #endregion
-
         #region Private Types & Data
 
-        private readonly List<Func<UxrGrabbableObject, bool>> _placingValidators = new List<Func<UxrGrabbableObject, bool>>();
-        private          UxrManipulationEventArgs             _smoothPlaceEventArgs;
+        private readonly List<Func<UxrGrabbableObject, bool>> _placingValidators = new();
+        private UxrManipulationEventArgs _smoothPlaceEventArgs;
 
         #endregion
     }

@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Controllers
 {
@@ -24,15 +26,18 @@ namespace UltimateXR.Avatar.Controllers
         /// </summary>
         void UpdateAvatar();
 
+
         /// <summary>
         ///     Updates the avatar using the current tracking data.
         /// </summary>
         void UpdateAvatarUsingTrackingDevices();
 
+
         /// <summary>
         ///     Updates the avatar manipulation actions based on user input.
         /// </summary>
         void UpdateAvatarManipulation();
+
 
         /// <summary>
         ///     Updates the animation and rig transforms for the given frame. It is performed in a later stage than
@@ -40,6 +45,7 @@ namespace UltimateXR.Avatar.Controllers
         ///     built-in components such as <see cref="Animator" />.
         /// </summary>
         void UpdateAvatarAnimation();
+
 
         /// <summary>
         ///     Updates the avatar for a given frame, at the end of all stages and UltimateXR manager updates such as the

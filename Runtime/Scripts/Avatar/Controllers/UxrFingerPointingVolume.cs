@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UltimateXR.Core.Components;
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Avatar.Controllers
 {
@@ -24,7 +26,7 @@ namespace UltimateXR.Avatar.Controllers
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private bool _leftHand  = true;
+        [SerializeField] private bool _leftHand = true;
         [SerializeField] private bool _rightHand = true;
 
         #endregion
@@ -70,6 +72,7 @@ namespace UltimateXR.Avatar.Controllers
         {
             return point.IsInsideBox(Box, Vector3.one * margin);
         }
+
 
         /// <summary>
         ///     Checks if the volume is compatible with the given hand. This allows some volumes to work for the left or

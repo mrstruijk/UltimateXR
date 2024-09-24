@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar;
 using UltimateXR.Core;
 using UltimateXR.Core.Components;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.UI.UnityInputModule.Utils
 {
@@ -19,13 +21,32 @@ namespace UltimateXR.UI.UnityInputModule.Utils
     [RequireComponent(typeof(CanvasScaler))]
     public class UxrDynamicPixelsPerUnit : UxrComponent
     {
+        #region Event Handling Methods
+
+        /// <summary>
+        ///     Called when an avatar moved: Adjusts the dynamic pixels per unit.
+        /// </summary>
+        /// <param name="sender">Event sender</param>
+        /// <param name="e">Event parameters</param>
+        private void UxrManager_AvatarMoved(object sender, UxrAvatarMoveEventArgs e)
+        {
+            if (Time.time - _timeLastUpdate > _updateSeconds)
+            {
+                _timeLastUpdate = Time.time;
+                var distance = Vector3.Distance(e.Avatar.CameraPosition, _canvasScaler.transform.position);
+                _canvasScaler.dynamicPixelsPerUnit = Mathf.Lerp(_pixelsPerUnitNear, _pixelsPerUnitFar, Mathf.Clamp01((distance - _rangeNear) / (_rangeFar - _rangeNear)));
+            }
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private float _updateSeconds     = 0.3f;
-        [SerializeField] private float _rangeNear         = 0.3f;
-        [SerializeField] private float _rangeFar          = 4.0f;
+        [SerializeField] private float _updateSeconds = 0.3f;
+        [SerializeField] private float _rangeNear = 0.3f;
+        [SerializeField] private float _rangeFar = 4.0f;
         [SerializeField] private float _pixelsPerUnitNear = 1.0f;
-        [SerializeField] private float _pixelsPerUnitFar  = 0.1f;
+        [SerializeField] private float _pixelsPerUnitFar = 0.1f;
 
         #endregion
 
@@ -41,6 +62,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
             _canvasScaler = GetComponent<CanvasScaler>();
         }
 
+
         /// <summary>
         ///     Subscribes to events.
         /// </summary>
@@ -49,6 +71,7 @@ namespace UltimateXR.UI.UnityInputModule.Utils
             base.OnEnable();
             UxrManager.AvatarMoved += UxrManager_AvatarMoved;
         }
+
 
         /// <summary>
         ///     Unsubscribes from events.
@@ -61,28 +84,9 @@ namespace UltimateXR.UI.UnityInputModule.Utils
 
         #endregion
 
-        #region Event Handling Methods
-
-        /// <summary>
-        ///     Called when an avatar moved: Adjusts the dynamic pixels per unit.
-        /// </summary>
-        /// <param name="sender">Event sender</param>
-        /// <param name="e">Event parameters</param>
-        private void UxrManager_AvatarMoved(object sender, UxrAvatarMoveEventArgs e)
-        {
-            if (Time.time - _timeLastUpdate > _updateSeconds)
-            {
-                _timeLastUpdate = Time.time;
-                float distance = Vector3.Distance(e.Avatar.CameraPosition, _canvasScaler.transform.position);
-                _canvasScaler.dynamicPixelsPerUnit = Mathf.Lerp(_pixelsPerUnitNear, _pixelsPerUnitFar, Mathf.Clamp01((distance - _rangeNear) / (_rangeFar - _rangeNear)));
-            }
-        }
-
-        #endregion
-
         #region Private Types & Data
 
-        private float        _timeLastUpdate = -1.0f;
+        private float _timeLastUpdate = -1.0f;
         private CanvasScaler _canvasScaler;
 
         #endregion

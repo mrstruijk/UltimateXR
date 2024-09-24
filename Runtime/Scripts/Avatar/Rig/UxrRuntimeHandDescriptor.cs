@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
 using UltimateXR.Manipulation.HandPoses;
+
 
 namespace UltimateXR.Avatar.Rig
 {
@@ -21,11 +23,11 @@ namespace UltimateXR.Avatar.Rig
     {
         #region Public Types & Data
 
-        public UxrRuntimeFingerDescriptor Index  { get; }
+        public UxrRuntimeFingerDescriptor Index { get; }
         public UxrRuntimeFingerDescriptor Middle { get; }
-        public UxrRuntimeFingerDescriptor Ring   { get; }
+        public UxrRuntimeFingerDescriptor Ring { get; }
         public UxrRuntimeFingerDescriptor Little { get; }
-        public UxrRuntimeFingerDescriptor Thumb  { get; }
+        public UxrRuntimeFingerDescriptor Thumb { get; }
 
         #endregion
 
@@ -36,12 +38,13 @@ namespace UltimateXR.Avatar.Rig
         /// </summary>
         public UxrRuntimeHandDescriptor()
         {
-            Index  = new UxrRuntimeFingerDescriptor();
+            Index = new UxrRuntimeFingerDescriptor();
             Middle = new UxrRuntimeFingerDescriptor();
-            Ring   = new UxrRuntimeFingerDescriptor();
+            Ring = new UxrRuntimeFingerDescriptor();
             Little = new UxrRuntimeFingerDescriptor();
-            Thumb  = new UxrRuntimeFingerDescriptor();
+            Thumb = new UxrRuntimeFingerDescriptor();
         }
+
 
         /// <summary>
         ///     Constructor.
@@ -56,13 +59,13 @@ namespace UltimateXR.Avatar.Rig
         /// </param>
         public UxrRuntimeHandDescriptor(UxrAvatar avatar, UxrHandSide handSide, UxrHandPoseAsset handPoseAsset, UxrHandPoseType handPoseType, UxrBlendPoseType blendPoseType)
         {
-            UxrHandDescriptor handDescriptor = handPoseAsset.GetHandDescriptor(handSide, handPoseType, blendPoseType);
+            var handDescriptor = handPoseAsset.GetHandDescriptor(handSide, handPoseType, blendPoseType);
 
-            Index  = new UxrRuntimeFingerDescriptor(avatar, handSide, handDescriptor, UxrFingerType.Index);
+            Index = new UxrRuntimeFingerDescriptor(avatar, handSide, handDescriptor, UxrFingerType.Index);
             Middle = new UxrRuntimeFingerDescriptor(avatar, handSide, handDescriptor, UxrFingerType.Middle);
-            Ring   = new UxrRuntimeFingerDescriptor(avatar, handSide, handDescriptor, UxrFingerType.Ring);
+            Ring = new UxrRuntimeFingerDescriptor(avatar, handSide, handDescriptor, UxrFingerType.Ring);
             Little = new UxrRuntimeFingerDescriptor(avatar, handSide, handDescriptor, UxrFingerType.Little);
-            Thumb  = new UxrRuntimeFingerDescriptor(avatar, handSide, handDescriptor, UxrFingerType.Thumb);
+            Thumb = new UxrRuntimeFingerDescriptor(avatar, handSide, handDescriptor, UxrFingerType.Thumb);
         }
 
         #endregion
@@ -86,6 +89,7 @@ namespace UltimateXR.Avatar.Rig
             Little.CopyFrom(handDescriptor.Little);
             Thumb.CopyFrom(handDescriptor.Thumb);
         }
+
 
         /// <summary>
         ///     Interpolates towards another runtime hand descriptor.

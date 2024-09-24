@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using UltimateXR.Core;
@@ -10,6 +11,7 @@ using UltimateXR.Devices.Visualization;
 using UltimateXR.Haptics;
 using UltimateXR.Manipulation;
 using UnityEngine;
+
 
 namespace UltimateXR.Devices
 {
@@ -154,6 +156,7 @@ namespace UltimateXR.Devices
         /// <returns>Whether the given controller is enabled</returns>
         bool IsControllerEnabled(UxrHandSide handSide);
 
+
         /// <summary>
         ///     Checks if the given controller has specific elements.
         /// </summary>
@@ -165,6 +168,7 @@ namespace UltimateXR.Devices
         /// <returns>True if the controller has all the elements specified. If one is missing, it will return false</returns>
         bool HasControllerElements(UxrHandSide handSide, UxrControllerElements controllerElements);
 
+
         /// <summary>
         ///     Gets the capabilities of the XR controller.
         /// </summary>
@@ -174,6 +178,7 @@ namespace UltimateXR.Devices
         /// </param>
         /// <returns>Device capabilities flags</returns>
         UxrControllerInputCapabilities GetControllerCapabilities(UxrHandSide handSide);
+
 
         /// <summary>
         ///     Gets the state of an analog controller input element.
@@ -186,6 +191,7 @@ namespace UltimateXR.Devices
         /// <param name="getIgnoredInput">Whether to return ignored input by <see cref="SetIgnoreControllerInput" /></param>
         /// <returns>Input value [0.0, 1.0]</returns>
         float GetInput1D(UxrHandSide handSide, UxrInput1D input1D, bool getIgnoredInput = false);
+
 
         /// <summary>
         ///     Gets the state of a 2D input element (joystick, touchpad...).
@@ -201,6 +207,7 @@ namespace UltimateXR.Devices
         /// </returns>
         Vector2 GetInput2D(UxrHandSide handSide, UxrInput2D input2D, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Gets an uint value representing touch states for each the controller <see cref="UxrInputButtons" /> flags in the
         ///     current frame.
@@ -213,6 +220,7 @@ namespace UltimateXR.Devices
         /// <returns>Button flags representing touch states for each controller button in the current frame</returns>
         /// <seealso cref="UxrInputButtons" />
         uint GetButtonTouchFlags(UxrHandSide handSide, bool getIgnoredInput = false);
+
 
         /// <summary>
         ///     Gets an uint value representing touch states for each the controller <see cref="UxrInputButtons" /> flags in the
@@ -227,6 +235,7 @@ namespace UltimateXR.Devices
         /// <seealso cref="UxrInputButtons" />
         uint GetButtonTouchFlagsLastFrame(UxrHandSide handSide, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Gets an uint value representing press states for each the controller <see cref="UxrInputButtons" /> flags in the
         ///     current frame.
@@ -240,6 +249,7 @@ namespace UltimateXR.Devices
         /// <seealso cref="UxrInputButtons" />
         uint GetButtonPressFlags(UxrHandSide handSide, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Gets an uint value representing press states for each the in the last frame.
         /// </summary>
@@ -251,6 +261,7 @@ namespace UltimateXR.Devices
         /// <returns>Button flags representing press states for each controller button in the last frame</returns>
         /// <seealso cref="UxrInputButtons" />
         uint GetButtonPressFlagsLastFrame(UxrHandSide handSide, bool getIgnoredInput = false);
+
 
         /// <summary>
         ///     Checks if a given input event took place for a button or all buttons in a set in the current frame.
@@ -271,6 +282,7 @@ namespace UltimateXR.Devices
         /// </returns>
         bool GetButtonsEvent(UxrHandSide handSide, UxrInputButtons buttons, UxrButtonEventType buttonEventType, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Checks if a given input event took place for a button or any button in a set in the current frame.
         /// </summary>
@@ -290,6 +302,7 @@ namespace UltimateXR.Devices
         /// </returns>
         bool GetButtonsEventAny(UxrHandSide handSide, UxrInputButtons buttons, UxrButtonEventType buttonEventType, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Checks if the given button or all buttons in a set are being touched in the current frame.
         /// </summary>
@@ -305,6 +318,7 @@ namespace UltimateXR.Devices
         /// </returns>
         bool GetButtonsTouch(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Checks if the given button or any button in a set is being touched in the current frame.
         /// </summary>
@@ -319,6 +333,7 @@ namespace UltimateXR.Devices
         ///     flags it will return true if any button in the set is being touched.
         /// </returns>
         bool GetButtonsTouchAny(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
+
 
         /// <summary>
         ///     Checks if the given button or buttons are being touched in the current frame but weren't the previous frame
@@ -336,6 +351,7 @@ namespace UltimateXR.Devices
         /// </returns>
         bool GetButtonsTouchDown(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Checks if the given button or any button in a set is being touched in the current frame but not in the previous
         ///     frame (touch-down).
@@ -351,6 +367,7 @@ namespace UltimateXR.Devices
         ///     by using flags it will return true if any meets the condition.
         /// </returns>
         bool GetButtonsTouchDownAny(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
+
 
         /// <summary>
         ///     Checks if the given button or buttons aren't being touched in the current frame but were during the previous frame
@@ -368,6 +385,7 @@ namespace UltimateXR.Devices
         /// </returns>
         bool GetButtonsTouchUp(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Checks if the given button or any button in a set isn't being touched in the current frame but was during the
         ///     previous frame (release touch).
@@ -384,6 +402,7 @@ namespace UltimateXR.Devices
         /// </returns>
         bool GetButtonsTouchUpAny(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Checks if the given button or buttons are being pressed in the current frame.
         /// </summary>
@@ -399,6 +418,7 @@ namespace UltimateXR.Devices
         /// </returns>
         bool GetButtonsPress(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Checks if the given button or any button in a set is being pressed in the current frame.
         /// </summary>
@@ -413,6 +433,7 @@ namespace UltimateXR.Devices
         ///     flags it will return true as long as any is being pressed.
         /// </returns>
         bool GetButtonsPressAny(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
+
 
         /// <summary>
         ///     Checks if the given button or buttons are being pressed in the current frame but weren't the previous frame
@@ -430,6 +451,7 @@ namespace UltimateXR.Devices
         /// </returns>
         bool GetButtonsPressDown(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Checks if the given button or any button in a set is being pressed in the current frame but wasn't the previous
         ///     frame (press-down).
@@ -445,6 +467,7 @@ namespace UltimateXR.Devices
         ///     by using flags it will return true only if any meets the condition.
         /// </returns>
         bool GetButtonsPressDownAny(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
+
 
         /// <summary>
         ///     Checks if the given button or buttons aren't being pressed in the current frame but were during the previous frame
@@ -462,6 +485,7 @@ namespace UltimateXR.Devices
         /// </returns>
         bool GetButtonsPressUp(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Checks if the given button or any button in a set isn't being pressed in the current frame but was during the
         ///     previous frame (release press).
@@ -478,6 +502,7 @@ namespace UltimateXR.Devices
         /// </returns>
         bool GetButtonsPressUpAny(UxrHandSide handSide, UxrInputButtons buttons, bool getIgnoredInput = false);
 
+
         /// <summary>
         ///     Sends haptic feedback to a controller if the controller supports it.
         /// </summary>
@@ -487,6 +512,7 @@ namespace UltimateXR.Devices
         /// </param>
         /// <param name="hapticClip">Clip to send</param>
         void SendHapticFeedback(UxrHandSide handSide, UxrHapticClip hapticClip);
+
 
         /// <summary>
         ///     Sends haptic feedback to a controller if the controller supports it.
@@ -499,11 +525,12 @@ namespace UltimateXR.Devices
         /// <param name="amplitude">Amplitude of the feedback between range [0.0, 1.0]</param>
         /// <param name="durationSeconds">Feedback duration in seconds</param>
         /// <param name="hapticMode">The mode (stop and override all current haptics or mix it with the current existing haptics)</param>
-        void SendHapticFeedback(UxrHandSide   handSide,
-                                float         frequency,
-                                float         amplitude,
-                                float         durationSeconds,
+        void SendHapticFeedback(UxrHandSide handSide,
+                                float frequency,
+                                float amplitude,
+                                float durationSeconds,
                                 UxrHapticMode hapticMode = UxrHapticMode.Mix);
+
 
         /// <summary>
         ///     Sends a predefined haptic clip to a controller.
@@ -516,11 +543,12 @@ namespace UltimateXR.Devices
         /// <param name="amplitude">The intensity of the haptic feedback</param>
         /// <param name="durationSeconds">The duration in seconds. A zero/negative value will use a default duration.</param>
         /// <param name="hapticMode">Whether the clip will stop all currently playing haptics or mix with them</param>
-        public void SendHapticFeedback(UxrHandSide       handSide,
+        public void SendHapticFeedback(UxrHandSide handSide,
                                        UxrHapticClipType clipType,
-                                       float             amplitude,
-                                       float             durationSeconds = -1.0f,
-                                       UxrHapticMode     hapticMode      = UxrHapticMode.Mix);
+                                       float amplitude,
+                                       float durationSeconds = -1.0f,
+                                       UxrHapticMode hapticMode = UxrHapticMode.Mix);
+
 
         /// <summary>
         ///     Sends haptic feedback to XR controllers that are being used to manipulate a grabbable object.
@@ -532,10 +560,11 @@ namespace UltimateXR.Devices
         /// <param name="durationSeconds">Duration in seconds</param>
         /// <param name="hapticMode">Override current haptic feedback or mix it?</param>
         public void SendGrabbableHapticFeedback(UxrGrabbableObject grabbableObject,
-                                                UxrHapticClipType  clipType,
-                                                float              amplitude,
-                                                float              durationSeconds = -1.0f,
-                                                UxrHapticMode      hapticMode      = UxrHapticMode.Mix);
+                                                UxrHapticClipType clipType,
+                                                float amplitude,
+                                                float durationSeconds = -1.0f,
+                                                UxrHapticMode hapticMode = UxrHapticMode.Mix);
+
 
         /// <summary>
         ///     Sends haptic feedback to XR controllers that are being used to manipulate a grabbable object.
@@ -544,6 +573,7 @@ namespace UltimateXR.Devices
         /// <param name="grabbableObject">Grabbable object</param>
         /// <param name="hapticClip">Haptic clip to send</param>
         public void SendGrabbableHapticFeedback(UxrGrabbableObject grabbableObject, UxrHapticClip hapticClip);
+
 
         /// <summary>
         ///     Stops all current haptics in a given controller.
@@ -554,6 +584,7 @@ namespace UltimateXR.Devices
         /// </param>
         void StopHapticFeedback(UxrHandSide handSide);
 
+
         /// <summary>
         ///     Gets the instanced controller 3D model for a given hand.
         /// </summary>
@@ -562,6 +593,7 @@ namespace UltimateXR.Devices
         ///     <see cref="IsHandednessSupported" /> is false, such as in gamepads, both hands will address the single device.
         /// </param>
         UxrController3DModel GetController3DModel(UxrHandSide handSide);
+
 
         /// <summary>
         ///     Returns a list of GameObjects that represent parts of the instantiated controller. This can be useful
@@ -580,6 +612,7 @@ namespace UltimateXR.Devices
         /// <seealso cref="IsAnyControllerElementBlinking" />
         /// <seealso cref="AreAllControllerElementsBlinking" />
         IEnumerable<GameObject> GetControllerElementsGameObjects(UxrHandSide handSide, UxrControllerElements controllerElements);
+
 
         /// <summary>
         ///     Starts blinking one or more elements in a controller. This can be useful during tutorials to highlight which
@@ -601,11 +634,12 @@ namespace UltimateXR.Devices
         /// <seealso cref="StopAllBlinking" />
         /// <seealso cref="IsAnyControllerElementBlinking" />
         /// <seealso cref="AreAllControllerElementsBlinking" />
-        void StartControllerElementsBlinking(UxrHandSide           handSide,
+        void StartControllerElementsBlinking(UxrHandSide handSide,
                                              UxrControllerElements controllerElements,
-                                             Color                 emissionColor,
-                                             float                 blinksPerSec    = 3.0f,
-                                             float                 durationSeconds = -1.0f);
+                                             Color emissionColor,
+                                             float blinksPerSec = 3.0f,
+                                             float durationSeconds = -1.0f);
+
 
         /// <summary>
         ///     Stops controller elements to blink
@@ -622,6 +656,7 @@ namespace UltimateXR.Devices
         /// <seealso cref="AreAllControllerElementsBlinking" />
         void StopControllerElementsBlinking(UxrHandSide handSide, UxrControllerElements controllerElements);
 
+
         /// <summary>
         ///     Stops all controller elements to blink
         /// </summary>
@@ -635,6 +670,7 @@ namespace UltimateXR.Devices
         /// <seealso cref="IsAnyControllerElementBlinking" />
         /// <seealso cref="AreAllControllerElementsBlinking" />
         void StopAllBlinking(UxrHandSide handSide);
+
 
         /// <summary>
         ///     Checks if any specific controller element is currently blinking
@@ -651,6 +687,7 @@ namespace UltimateXR.Devices
         /// <seealso cref="StopAllBlinking" />
         /// <seealso cref="AreAllControllerElementsBlinking" />
         bool IsAnyControllerElementBlinking(UxrHandSide handSide, UxrControllerElements controllerElements);
+
 
         /// <summary>
         ///     Checks if all elements of a specific controller element are currently blinking

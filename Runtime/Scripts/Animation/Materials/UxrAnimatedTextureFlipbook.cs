@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Core;
 using UltimateXR.Core.Components;
 using UnityEngine;
 using Random = UnityEngine.Random;
+
 
 namespace UltimateXR.Animation.Materials
 {
@@ -18,17 +20,17 @@ namespace UltimateXR.Animation.Materials
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private bool                      _animateSelf = true;
-        [SerializeField] private GameObject                _targetGameObject;
-        [SerializeField] private string                    _scaleOffsetVarName = UxrConstants.Shaders.StandardMainTextureScaleOffsetVarName;
-        [SerializeField] private int                       _flipBookColumns    = 1;
-        [SerializeField] private int                       _flipBookRows       = 1;
-        [SerializeField] private int                       _totalFrames        = 1;
-        [SerializeField] private UxrFlipbookAnimationMode  _loopMode           = UxrFlipbookAnimationMode.SingleSequence;
-        [SerializeField] private bool                      _randomFrameStart;
-        [SerializeField] private float                     _fps          = 10;
+        [SerializeField] private bool _animateSelf = true;
+        [SerializeField] private GameObject _targetGameObject;
+        [SerializeField] private string _scaleOffsetVarName = UxrConstants.Shaders.StandardMainTextureScaleOffsetVarName;
+        [SerializeField] private int _flipBookColumns = 1;
+        [SerializeField] private int _flipBookRows = 1;
+        [SerializeField] private int _totalFrames = 1;
+        [SerializeField] private UxrFlipbookAnimationMode _loopMode = UxrFlipbookAnimationMode.SingleSequence;
+        [SerializeField] private bool _randomFrameStart;
+        [SerializeField] private float _fps = 10;
         [SerializeField] private UxrFlipbookFinishedAction _whenFinished = UxrFlipbookFinishedAction.DoNothing;
-        [SerializeField] private bool                      _useUnscaledTime;
+        [SerializeField] private bool _useUnscaledTime;
 
         #endregion
 
@@ -134,9 +136,10 @@ namespace UltimateXR.Animation.Materials
             }
 
             _hasFinished = false;
-            _frameStart  = 0;
+            _frameStart = 0;
             SetFrame(0);
         }
+
 
         /// <summary>
         ///     Called each time the object is enabled. Reset timer and set the curve state to unfinished.
@@ -145,9 +148,9 @@ namespace UltimateXR.Animation.Materials
         {
             base.OnEnable();
 
-            _startTime       = _useUnscaledTime ? Time.unscaledTime : Time.time;
-            _hasFinished     = false;
-            _lastFrame       = -1;
+            _startTime = _useUnscaledTime ? Time.unscaledTime : Time.time;
+            _hasFinished = false;
+            _lastFrame = -1;
             _lastLinearFrame = -1;
 
             if (_randomFrameStart)
@@ -161,6 +164,7 @@ namespace UltimateXR.Animation.Materials
             }
         }
 
+
         /// <summary>
         ///     Enables the correct flipbook frame and checks if it finished
         /// </summary>
@@ -171,8 +175,8 @@ namespace UltimateXR.Animation.Materials
                 return;
             }
 
-            float currentTime = _useUnscaledTime ? Time.unscaledTime : Time.time;
-            int   linearFrame = (int)((currentTime - _startTime) * _fps);
+            var currentTime = _useUnscaledTime ? Time.unscaledTime : Time.time;
+            var linearFrame = (int) ((currentTime - _startTime) * _fps);
 
             switch (_loopMode)
             {
@@ -206,8 +210,8 @@ namespace UltimateXR.Animation.Materials
                         }
                         else
                         {
-                            bool forward      = ((linearFrame - _totalFrames) / (_totalFrames - 1) & 1) == 1;
-                            int  correctFrame = (linearFrame - _totalFrames) % (_totalFrames - 1);
+                            var forward = (((linearFrame - _totalFrames) / (_totalFrames - 1)) & 1) == 1;
+                            var correctFrame = (linearFrame - _totalFrames) % (_totalFrames - 1);
                             SetFrame(forward ? correctFrame + 1 : _totalFrames - correctFrame - 2);
                         }
                     }
@@ -241,7 +245,7 @@ namespace UltimateXR.Animation.Materials
                         }
                         else
                         {
-                            int frame = Random.Range(0, _totalFrames);
+                            var frame = Random.Range(0, _totalFrames);
 
                             while (frame == _lastFrame)
                             {
@@ -272,18 +276,18 @@ namespace UltimateXR.Animation.Materials
         {
             if (TargetRenderer && _lastFrame != frame)
             {
-                Vector4 vecScaleOffset = TargetRenderer.material.GetVector(_scaleOffsetVarName);
+                var vecScaleOffset = TargetRenderer.material.GetVector(_scaleOffsetVarName);
 
                 if (_flipBookColumns > 0)
                 {
-                    int column = frame % _flipBookColumns;
+                    var column = frame % _flipBookColumns;
                     vecScaleOffset.x = 1.0f / _flipBookColumns;
                     vecScaleOffset.z = column * vecScaleOffset.x;
                 }
 
                 if (_flipBookRows > 0 && _flipBookColumns > 0)
                 {
-                    int row = frame / _flipBookColumns;
+                    var row = frame / _flipBookColumns;
                     vecScaleOffset.y = 1.0f / _flipBookRows;
                     vecScaleOffset.w = 1.0f - (row + 1) * vecScaleOffset.y;
                 }
@@ -292,6 +296,7 @@ namespace UltimateXR.Animation.Materials
                 _lastFrame = frame;
             }
         }
+
 
         /// <summary>
         ///     Executes the action when the animation finished.
@@ -339,11 +344,11 @@ namespace UltimateXR.Animation.Materials
 
         #region Private Types & Data
 
-        private int   _frameStart;
+        private int _frameStart;
         private float _startTime;
-        private bool  _hasFinished;
-        private int   _lastFrame       = -1;
-        private int   _lastLinearFrame = -1;
+        private bool _hasFinished;
+        private int _lastFrame = -1;
+        private int _lastLinearFrame = -1;
 
         #endregion
     }

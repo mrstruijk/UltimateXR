@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Core.Components;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -14,17 +16,119 @@ namespace UltimateXR.Mechanics.Weapons
     /// </summary>
     public class UxrActor : UxrComponent<UxrActor>
     {
+        #region Unity
+
+        /// <summary>
+        ///     Makes sure the <see cref="UxrWeaponManager" /> singleton instance is available so that actors are registered."/>
+        /// </summary>
+        protected override void Awake()
+        {
+            base.Awake();
+
+            UxrWeaponManager.Instance.Poke();
+        }
+
+        #endregion
+
+        #region Event Trigger Methods
+
+        /// <summary>
+        ///     Handles receiving damage and calls the appropriate events.
+        /// </summary>
+        /// <param name="e">Damage event parameters</param>
+        private void OnReceiveDamage(UxrDamageEventArgs e)
+        {
+            if (IsDead)
+            {
+                return;
+            }
+
+            DamageReceiving?.Invoke(this, e);
+
+            if (!e.IsCanceled)
+            {
+                var destroy = false;
+
+                if (_automaticDamageHandling)
+                {
+                    _life -= e.Damage;
+                }
+
+                if (_life <= 0.0f)
+                {
+                    // Deadly damage
+
+                    if (_automaticDeadHandling)
+                    {
+                        destroy = true;
+                    }
+                    else
+                    {
+                        IsDead = true;
+                    }
+                }
+                else
+                {
+                    // Non-deadly damage
+
+                    if (_animator != null && string.IsNullOrEmpty(_takeDamageAnimationTriggerVarName) == false)
+                    {
+                        _animator.SetTrigger(_takeDamageAnimationTriggerVarName);
+                    }
+
+                    if (_takeDamageAudioClip)
+                    {
+                        AudioSource.PlayClipAtPoint(_takeDamageAudioClip, transform.position);
+                    }
+                }
+
+                DamageReceived?.Invoke(this, e);
+
+                if (destroy)
+                {
+                    DieInternal();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        ///     Makes the actor die.
+        /// </summary>
+        private void DieInternal()
+        {
+            Life = 0.0f;
+            IsDead = true;
+
+            if (_animator != null && string.IsNullOrEmpty(_dieAnimationTriggerVarName) == false)
+            {
+                _animator.SetTrigger(_dieAnimationTriggerVarName);
+            }
+
+            if (_dieAudioClip)
+            {
+                AudioSource.PlayClipAtPoint(_dieAudioClip, transform.position);
+            }
+
+            Destroy(gameObject, _destroyAfterDeadSeconds > 0.0f ? _destroyAfterDeadSeconds : 0.0f);
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private float     _life;
-        [SerializeField] private Animator  _animator;
-        [SerializeField] private string    _takeDamageAnimationTriggerVarName;
-        [SerializeField] private string    _dieAnimationTriggerVarName;
+        [SerializeField] private float _life;
+        [SerializeField] private Animator _animator;
+        [SerializeField] private string _takeDamageAnimationTriggerVarName;
+        [SerializeField] private string _dieAnimationTriggerVarName;
         [SerializeField] private AudioClip _takeDamageAudioClip;
         [SerializeField] private AudioClip _dieAudioClip;
-        [SerializeField] private float     _destroyAfterDeadSeconds = -1.0f;
-        [SerializeField] private bool      _automaticDamageHandling = true;
-        [SerializeField] private bool      _automaticDeadHandling   = true;
+        [SerializeField] private float _destroyAfterDeadSeconds = -1.0f;
+        [SerializeField] private bool _automaticDamageHandling = true;
+        [SerializeField] private bool _automaticDeadHandling = true;
 
         #endregion
 
@@ -90,6 +194,7 @@ namespace UltimateXR.Mechanics.Weapons
             OnReceiveDamage(new UxrDamageEventArgs(actorSource, this, raycastHit, damage, damage >= Life));
         }
 
+
         /// <summary>
         ///     Makes the actor receive explosive damage.
         /// </summary>
@@ -101,6 +206,7 @@ namespace UltimateXR.Mechanics.Weapons
             OnReceiveDamage(new UxrDamageEventArgs(actorSource, this, position, damage, damage >= Life));
         }
 
+
         /// <summary>
         ///     Makes the actor receive generic damage.
         /// </summary>
@@ -110,6 +216,7 @@ namespace UltimateXR.Mechanics.Weapons
             OnReceiveDamage(new UxrDamageEventArgs(damage, damage >= Life));
         }
 
+
         /// <summary>
         ///     Forces the actor to die after a certain amount of seconds.
         /// </summary>
@@ -117,108 +224,6 @@ namespace UltimateXR.Mechanics.Weapons
         public void Die(float delaySeconds)
         {
             Invoke(nameof(DieInternal), delaySeconds);
-        }
-
-        #endregion
-
-        #region Unity
-
-        /// <summary>
-        ///     Makes sure the <see cref="UxrWeaponManager" /> singleton instance is available so that actors are registered."/>
-        /// </summary>
-        protected override void Awake()
-        {
-            base.Awake();
-
-            UxrWeaponManager.Instance.Poke();
-        }
-
-        #endregion
-
-        #region Event Trigger Methods
-
-        /// <summary>
-        ///     Handles receiving damage and calls the appropriate events.
-        /// </summary>
-        /// <param name="e">Damage event parameters</param>
-        private void OnReceiveDamage(UxrDamageEventArgs e)
-        {
-            if (IsDead)
-            {
-                return;
-            }
-
-            DamageReceiving?.Invoke(this, e);
-
-            if (!e.IsCanceled)
-            {
-                bool destroy = false;
-                
-                if (_automaticDamageHandling)
-                {
-                    _life -= e.Damage;
-                }
-
-                if (_life <= 0.0f)
-                {
-                    // Deadly damage
-
-                    if (_automaticDeadHandling)
-                    {
-                        destroy = true;
-                    }
-                    else
-                    {
-                        IsDead = true;
-                    }
-                }
-                else
-                {
-                    // Non-deadly damage
-
-                    if (_animator != null && string.IsNullOrEmpty(_takeDamageAnimationTriggerVarName) == false)
-                    {
-                        _animator.SetTrigger(_takeDamageAnimationTriggerVarName);
-                    }
-
-                    if (_takeDamageAudioClip)
-                    {
-                        AudioSource.PlayClipAtPoint(_takeDamageAudioClip, transform.position);
-                    }
-                }
-
-                DamageReceived?.Invoke(this, e);
-
-                if (destroy)
-                {
-                    DieInternal();
-                }
-            }
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Makes the actor die.
-        /// </summary>
-        private void DieInternal()
-        {
-            Life   = 0.0f;
-            IsDead = true;
-
-            if (_animator != null && string.IsNullOrEmpty(_dieAnimationTriggerVarName) == false)
-            {
-                _animator.SetTrigger(_dieAnimationTriggerVarName);
-            }
-
-            if (_dieAudioClip)
-            {
-                AudioSource.PlayClipAtPoint(_dieAudioClip, transform.position);
-            }
-
-            Destroy(gameObject, _destroyAfterDeadSeconds > 0.0f ? _destroyAfterDeadSeconds : 0.0f);
         }
 
         #endregion

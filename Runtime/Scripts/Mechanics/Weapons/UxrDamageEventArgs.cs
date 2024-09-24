@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -13,6 +15,18 @@ namespace UltimateXR.Mechanics.Weapons
     /// </summary>
     public class UxrDamageEventArgs : EventArgs
     {
+        #region Public Methods
+
+        /// <summary>
+        ///     Allows pre-events to cancel the damage. post-events can not be cancelled since the damage was already taken.
+        /// </summary>
+        public void Cancel()
+        {
+            IsCanceled = true;
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -72,13 +86,14 @@ namespace UltimateXR.Mechanics.Weapons
         /// <param name="dies">Whether the damage results in death</param>
         public UxrDamageEventArgs(UxrActor source, UxrActor target, RaycastHit raycastHit, float damage, bool dies)
         {
-            DamageType  = UxrDamageType.ProjectileHit;
+            DamageType = UxrDamageType.ProjectileHit;
             ActorSource = source;
             ActorTarget = target;
-            RaycastHit  = raycastHit;
-            Damage      = damage;
-            Dies        = dies;
+            RaycastHit = raycastHit;
+            Damage = damage;
+            Dies = dies;
         }
+
 
         /// <summary>
         ///     Constructor for explosive damage.
@@ -90,13 +105,14 @@ namespace UltimateXR.Mechanics.Weapons
         /// <param name="dies">Whether the damage results in death</param>
         public UxrDamageEventArgs(UxrActor source, UxrActor target, Vector3 explosionPosition, float damage, bool dies)
         {
-            DamageType        = UxrDamageType.Explosive;
-            ActorSource       = source;
-            ActorTarget       = target;
+            DamageType = UxrDamageType.Explosive;
+            ActorSource = source;
+            ActorTarget = target;
             ExplosionPosition = explosionPosition;
-            Damage            = damage;
-            Dies              = dies;
+            Damage = damage;
+            Dies = dies;
         }
+
 
         /// <summary>
         ///     Constructor for generic damage.
@@ -106,20 +122,8 @@ namespace UltimateXR.Mechanics.Weapons
         public UxrDamageEventArgs(float damage, bool dies)
         {
             DamageType = UxrDamageType.Other;
-            Damage     = damage;
-            Dies       = dies;
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        ///     Allows pre-events to cancel the damage. post-events can not be cancelled since the damage was already taken.
-        /// </summary>
-        public void Cancel()
-        {
-            IsCanceled = true;
+            Damage = damage;
+            Dies = dies;
         }
 
         #endregion

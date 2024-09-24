@@ -3,6 +3,7 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using UltimateXR.Animation.Interpolation;
 using UltimateXR.Extensions.System.Threading;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.UI
 {
@@ -68,16 +70,17 @@ namespace UltimateXR.Animation.UI
         /// </returns>
         public static UxrCanvasAlphaTween Animate(CanvasGroup canvasGroup, float startAlpha, float endAlpha, UxrInterpolationSettings settings, Action<UxrTween> finishedCallback = null)
         {
-            UxrCanvasAlphaTween canvasAlphaTween = canvasGroup.GetOrAddComponent<UxrCanvasAlphaTween>();
+            var canvasAlphaTween = canvasGroup.GetOrAddComponent<UxrCanvasAlphaTween>();
 
-            canvasAlphaTween.StartAlpha            = startAlpha;
-            canvasAlphaTween.EndAlpha              = endAlpha;
+            canvasAlphaTween.StartAlpha = startAlpha;
+            canvasAlphaTween.EndAlpha = endAlpha;
             canvasAlphaTween.InterpolationSettings = settings;
-            canvasAlphaTween.FinishedCallback      = finishedCallback;
+            canvasAlphaTween.FinishedCallback = finishedCallback;
             canvasAlphaTween.Restart();
 
             return canvasAlphaTween;
         }
+
 
         /// <summary>
         ///     Creates and starts a fade-in tweening animation for the <see cref="CanvasGroup.alpha" /> value of a
@@ -96,6 +99,7 @@ namespace UltimateXR.Animation.UI
             return Animate(canvasGroup, 0.0f, 1.0f, new UxrInterpolationSettings(durationSeconds, delaySeconds), finishedCallback);
         }
 
+
         /// <summary>
         ///     Creates and starts a fade-out tweening animation for the <see cref="CanvasGroup.alpha" /> value of a
         ///     <see cref="CanvasGroup" /> component. The alpha value will go from 1.0 to 0.0.
@@ -112,6 +116,7 @@ namespace UltimateXR.Animation.UI
         {
             return Animate(canvasGroup, 1.0f, 0.0f, new UxrInterpolationSettings(durationSeconds, delaySeconds), finishedCallback);
         }
+
 
         /// <summary>
         ///     Same as <see cref="Animate" /> but for use with async/await.
@@ -134,11 +139,13 @@ namespace UltimateXR.Animation.UI
                 return null;
             }
 
-            bool hasFinishedFading = false;
+            var hasFinishedFading = false;
 
-            UxrCanvasAlphaTween canvasAlphaTween = Animate(canvasGroup, startAlpha, endAlpha, settings, t => hasFinishedFading = true);
+            var canvasAlphaTween = Animate(canvasGroup, startAlpha, endAlpha, settings, t => hasFinishedFading = true);
+
             return TaskExt.WaitUntil(() => hasFinishedFading, settings.DelaySeconds + settings.DurationSeconds, () => canvasAlphaTween.Stop(), ct);
         }
+
 
         /// <summary>
         ///     Same as <see cref="FadeIn" /> but for use with async/await.
@@ -160,11 +167,13 @@ namespace UltimateXR.Animation.UI
                 return null;
             }
 
-            bool hasFinishedFading = false;
+            var hasFinishedFading = false;
 
-            UxrCanvasAlphaTween canvasAlphaTween = FadeIn(canvasGroup, durationSeconds, delaySeconds, t => hasFinishedFading = true);
+            var canvasAlphaTween = FadeIn(canvasGroup, durationSeconds, delaySeconds, t => hasFinishedFading = true);
+
             return TaskExt.WaitUntil(() => hasFinishedFading, delaySeconds + durationSeconds, () => canvasAlphaTween.Stop(), ct);
         }
+
 
         /// <summary>
         ///     Same as <see cref="FadeOut" /> but for use with async/await.
@@ -186,9 +195,10 @@ namespace UltimateXR.Animation.UI
                 return null;
             }
 
-            bool hasFinishedFading = false;
+            var hasFinishedFading = false;
 
-            UxrCanvasAlphaTween canvasAlphaTween = FadeOut(canvasGroup, durationSeconds, delaySeconds, t => hasFinishedFading = true);
+            var canvasAlphaTween = FadeOut(canvasGroup, durationSeconds, delaySeconds, t => hasFinishedFading = true);
+
             return TaskExt.WaitUntil(() => hasFinishedFading, delaySeconds + durationSeconds, () => canvasAlphaTween.Stop(), ct);
         }
 
@@ -199,17 +209,20 @@ namespace UltimateXR.Animation.UI
         /// <inheritdoc />
         protected override Behaviour TargetBehaviour => TargetCanvasGroup;
 
+
         /// <inheritdoc />
         protected override void StoreOriginalValue()
         {
             _originalAlpha = TargetCanvasGroup.alpha;
         }
 
+
         /// <inheritdoc />
         protected override void RestoreOriginalValue()
         {
             TargetCanvasGroup.alpha = _originalAlpha;
         }
+
 
         /// <inheritdoc />
         protected override void Interpolate(float t)
@@ -221,7 +234,7 @@ namespace UltimateXR.Animation.UI
 
         #region Private Types & Data
 
-        private float     _originalAlpha;
+        private float _originalAlpha;
         private Behaviour _targetBehaviour;
 
         #endregion

@@ -3,10 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Avatar;
 using UltimateXR.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
 
 namespace UltimateXR.UI.UnityInputModule
 {
@@ -22,7 +24,7 @@ namespace UltimateXR.UI.UnityInputModule
         ///     Gets whether the event data contains valid information.
         /// </summary>
         public bool HasData => pointerCurrentRaycast.isValid || IgnoredGameObject != null || IsNonUI;
-        
+
         /// <summary>
         ///     Gets the <see cref="UxrAvatar" /> responsible for the interaction.
         /// </summary>
@@ -52,9 +54,9 @@ namespace UltimateXR.UI.UnityInputModule
         ///     Gets the pointer world position during the last frame.
         /// </summary>
         public Vector3 PreviousWorldPos { get; internal set; }
-        
+
         /// <summary>
-        ///     Gets whether <see cref="FingerTipPosIsInsideControl"/> was initialized.
+        ///     Gets whether <see cref="FingerTipPosIsInsideControl" /> was initialized.
         /// </summary>
         public bool FingerTipPosInitialized { get; internal set; }
 
@@ -90,7 +92,7 @@ namespace UltimateXR.UI.UnityInputModule
 
         /// <summary>
         ///     Gets whether the current raycast UI element is not a UI GameObject.
-        ///     This happens when the raycast is valid and the object has either a 2D or 3D collider. 
+        ///     This happens when the raycast is valid and the object has either a 2D or 3D collider.
         /// </summary>
         public bool IsNonUI => GameObject2D != null || GameObject3D != null;
 
@@ -130,10 +132,11 @@ namespace UltimateXR.UI.UnityInputModule
         /// <param name="fingerTip">Finger tip responsible for the event</param>
         public UxrPointerEventData(EventSystem eventSystem, UxrFingerTip fingerTip) : base(eventSystem)
         {
-            Avatar    = fingerTip.Avatar;
-            HandSide  = fingerTip.Side;
+            Avatar = fingerTip.Avatar;
+            HandSide = fingerTip.Side;
             FingerTip = fingerTip;
         }
+
 
         /// <summary>
         ///     Constructor.
@@ -142,8 +145,8 @@ namespace UltimateXR.UI.UnityInputModule
         /// <param name="laserPointer">Laser pointer responsible for the event</param>
         public UxrPointerEventData(EventSystem eventSystem, UxrLaserPointer laserPointer) : base(eventSystem)
         {
-            Avatar       = laserPointer.Avatar;
-            HandSide     = laserPointer.HandSide;
+            Avatar = laserPointer.Avatar;
+            HandSide = laserPointer.HandSide;
             LaserPointer = laserPointer;
         }
 

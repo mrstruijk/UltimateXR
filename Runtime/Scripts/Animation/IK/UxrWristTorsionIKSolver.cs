@@ -3,11 +3,12 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UltimateXR.Core;
-using UltimateXR.Core.Math;
 using UltimateXR.Extensions.Unity;
 using UltimateXR.Extensions.Unity.Math;
 using UnityEngine;
+
 
 namespace UltimateXR.Animation.IK
 {
@@ -45,10 +46,10 @@ namespace UltimateXR.Animation.IK
         {
             base.Awake();
 
-            _handSide           = transform.HasParent(Avatar.AvatarRig.LeftArm.UpperArm) ? UxrHandSide.Left : UxrHandSide.Right;
+            _handSide = transform.HasParent(Avatar.AvatarRig.LeftArm.UpperArm) ? UxrHandSide.Left : UxrHandSide.Right;
             _startLocalRotation = transform.localRotation;
 
-            UxrUniversalLocalAxes handUniversalLocalAxes = Avatar.AvatarRigInfo.GetArmInfo(_handSide).HandUniversalLocalAxes;
+            var handUniversalLocalAxes = Avatar.AvatarRigInfo.GetArmInfo(_handSide).HandUniversalLocalAxes;
             _torsionLocalAxis = transform.InverseTransformDirection(handUniversalLocalAxes.WorldForward).GetClosestAxis();
         }
 
@@ -61,7 +62,7 @@ namespace UltimateXR.Animation.IK
         /// </summary>
         protected override void InternalSolveIK()
         {
-            float angle = Avatar.AvatarRigInfo.GetArmInfo(_handSide).WristTorsionInfo.WristTorsionAngle;
+            var angle = Avatar.AvatarRigInfo.GetArmInfo(_handSide).WristTorsionInfo.WristTorsionAngle;
             transform.localRotation = _startLocalRotation * Quaternion.AngleAxis(angle * Amount, _torsionLocalAxis);
         }
 
@@ -70,8 +71,8 @@ namespace UltimateXR.Animation.IK
         #region Private Types & Data
 
         private UxrHandSide _handSide;
-        private Quaternion  _startLocalRotation;
-        private Vector3     _torsionLocalAxis;
+        private Quaternion _startLocalRotation;
+        private Vector3 _torsionLocalAxis;
 
         #endregion
     }

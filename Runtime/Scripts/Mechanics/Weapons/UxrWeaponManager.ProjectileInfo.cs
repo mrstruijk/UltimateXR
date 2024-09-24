@@ -3,7 +3,9 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using UnityEngine;
+
 
 namespace UltimateXR.Mechanics.Weapons
 {
@@ -16,6 +18,56 @@ namespace UltimateXR.Mechanics.Weapons
         /// </summary>
         private class ProjectileInfo
         {
+            #region Private Types & Data
+
+            private LayerMask _shotLayerMask;
+
+            #endregion
+
+            #region Constructors & Finalizer
+
+            /// <summary>
+            ///     Constructor.
+            /// </summary>
+            /// <param name="weaponOwner">Weapon owner, that fired the shot</param>
+            /// <param name="projectileSource">Projectile source component</param>
+            /// <param name="shotDescriptor">Shot descriptor</param>
+            /// <param name="position">World-space position where the shot started</param>
+            /// <param name="orientation">
+            ///     World space orientation where the shot started. The shot will travel in the z (forward)
+            ///     position of these axes
+            /// </param>
+            public ProjectileInfo(UxrActor weaponOwner, UxrProjectileSource projectileSource, UxrShotDescriptor shotDescriptor, Vector3 position, Quaternion orientation)
+            {
+                WeaponOwner = weaponOwner;
+                ProjectileSource = projectileSource;
+                ShotDescriptor = shotDescriptor;
+                ShotLayerMask = shotDescriptor.CollisionLayerMask;
+                Projectile = Instantiate(shotDescriptor.ProjectilePrefab, position, orientation);
+                Projectile.transform.parent = null;
+                ProjectileOrigin = position;
+                ProjectileSpeed = shotDescriptor.ProjectileSpeed;
+                ProjectileLastPosition = ProjectileOrigin;
+                ProjectileDistanceTravelled = 0.0f;
+                ProjectileDeflectSource = null;
+                FirstFrame = true;
+            }
+
+            #endregion
+
+            #region Public Methods
+
+            /// <summary>
+            ///     Adds a value to the layer mask that is used to determine the objects the projectile can collide with.
+            /// </summary>
+            /// <param name="value">Value to add to the mask</param>
+            public void AddShotLayerMask(int value)
+            {
+                _shotLayerMask |= value;
+            }
+
+            #endregion
+
             #region Public Types & Data
 
             /// <summary>
@@ -73,56 +125,6 @@ namespace UltimateXR.Mechanics.Weapons
             ///     Gets or sets whether the current state is the first frame in the shot.
             /// </summary>
             public bool FirstFrame { get; set; }
-
-            #endregion
-
-            #region Constructors & Finalizer
-
-            /// <summary>
-            ///     Constructor.
-            /// </summary>
-            /// <param name="weaponOwner">Weapon owner, that fired the shot</param>
-            /// <param name="projectileSource">Projectile source component</param>
-            /// <param name="shotDescriptor">Shot descriptor</param>
-            /// <param name="position">World-space position where the shot started</param>
-            /// <param name="orientation">
-            ///     World space orientation where the shot started. The shot will travel in the z (forward)
-            ///     position of these axes
-            /// </param>
-            public ProjectileInfo(UxrActor weaponOwner, UxrProjectileSource projectileSource, UxrShotDescriptor shotDescriptor, Vector3 position, Quaternion orientation)
-            {
-                WeaponOwner                 = weaponOwner;
-                ProjectileSource            = projectileSource;
-                ShotDescriptor              = shotDescriptor;
-                ShotLayerMask               = shotDescriptor.CollisionLayerMask;
-                Projectile                  = Instantiate(shotDescriptor.ProjectilePrefab, position, orientation);
-                Projectile.transform.parent = null;
-                ProjectileOrigin            = position;
-                ProjectileSpeed             = shotDescriptor.ProjectileSpeed;
-                ProjectileLastPosition      = ProjectileOrigin;
-                ProjectileDistanceTravelled = 0.0f;
-                ProjectileDeflectSource     = null;
-                FirstFrame                  = true;
-            }
-
-            #endregion
-
-            #region Public Methods
-
-            /// <summary>
-            ///     Adds a value to the layer mask that is used to determine the objects the projectile can collide with.
-            /// </summary>
-            /// <param name="value">Value to add to the mask</param>
-            public void AddShotLayerMask(int value)
-            {
-                _shotLayerMask |= value;
-            }
-
-            #endregion
-
-            #region Private Types & Data
-
-            private LayerMask _shotLayerMask;
 
             #endregion
         }

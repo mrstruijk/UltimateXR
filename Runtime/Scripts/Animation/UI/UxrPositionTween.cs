@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Animation.Interpolation;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.Animation.UI
 {
@@ -62,16 +64,17 @@ namespace UltimateXR.Animation.UI
         /// </returns>
         public static UxrPositionTween Animate(Graphic graphic, Vector2 startPosition, Vector2 endPosition, UxrInterpolationSettings settings, Action<UxrTween> finishedCallback = null)
         {
-            UxrPositionTween positionTween = graphic.GetOrAddComponent<UxrPositionTween>();
+            var positionTween = graphic.GetOrAddComponent<UxrPositionTween>();
 
-            positionTween.StartPosition         = startPosition;
-            positionTween.EndPosition           = endPosition;
+            positionTween.StartPosition = startPosition;
+            positionTween.EndPosition = endPosition;
             positionTween.InterpolationSettings = settings;
-            positionTween.FinishedCallback      = finishedCallback;
+            positionTween.FinishedCallback = finishedCallback;
             positionTween.Restart();
 
             return positionTween;
         }
+
 
         /// <summary>
         ///     Creates and starts a position tweening animation for the <see cref="RectTransform.anchoredPosition" /> of a Unity
@@ -89,17 +92,18 @@ namespace UltimateXR.Animation.UI
         /// </returns>
         public static UxrPositionTween MoveIn(Graphic graphic, float horizontalOffset, float verticalOffset, UxrInterpolationSettings settings, Action<UxrTween> finishedCallback = null)
         {
-            UxrPositionTween positionTween = graphic.GetOrAddComponent<UxrPositionTween>();
+            var positionTween = graphic.GetOrAddComponent<UxrPositionTween>();
 
             positionTween.RestoreOriginalValue();
-            positionTween.StartPosition         = positionTween.TargetRectTransform.anchoredPosition + new Vector2(horizontalOffset, verticalOffset);
-            positionTween.EndPosition           = positionTween.TargetRectTransform.anchoredPosition;
+            positionTween.StartPosition = positionTween.TargetRectTransform.anchoredPosition + new Vector2(horizontalOffset, verticalOffset);
+            positionTween.EndPosition = positionTween.TargetRectTransform.anchoredPosition;
             positionTween.InterpolationSettings = settings;
-            positionTween.FinishedCallback      = finishedCallback;
+            positionTween.FinishedCallback = finishedCallback;
             positionTween.Restart();
 
             return positionTween;
         }
+
 
         /// <summary>
         ///     Creates and starts a position tweening animation for the <see cref="RectTransform.anchoredPosition" /> of a Unity
@@ -117,13 +121,13 @@ namespace UltimateXR.Animation.UI
         /// </returns>
         public static UxrPositionTween MoveOut(Graphic graphic, float horizontalOffset, float verticalOffset, UxrInterpolationSettings settings, Action<UxrTween> finishedCallback = null)
         {
-            UxrPositionTween positionTween = graphic.GetOrAddComponent<UxrPositionTween>();
+            var positionTween = graphic.GetOrAddComponent<UxrPositionTween>();
 
             positionTween.RestoreOriginalValue();
-            positionTween.StartPosition         = positionTween.TargetRectTransform.anchoredPosition;
-            positionTween.EndPosition           = positionTween.TargetRectTransform.anchoredPosition + new Vector2(horizontalOffset, verticalOffset);
+            positionTween.StartPosition = positionTween.TargetRectTransform.anchoredPosition;
+            positionTween.EndPosition = positionTween.TargetRectTransform.anchoredPosition + new Vector2(horizontalOffset, verticalOffset);
             positionTween.InterpolationSettings = settings;
-            positionTween.FinishedCallback      = finishedCallback;
+            positionTween.FinishedCallback = finishedCallback;
             positionTween.Restart();
 
             return positionTween;
@@ -138,6 +142,7 @@ namespace UltimateXR.Animation.UI
         {
             RestoreAnchoredPosition();
         }
+
 
         /// <inheritdoc />
         protected override void Interpolate(float t)

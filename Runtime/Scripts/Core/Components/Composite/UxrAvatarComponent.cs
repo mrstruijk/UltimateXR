@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Linq;
 using UltimateXR.Avatar;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
+
 
 namespace UltimateXR.Core.Components.Composite
 {
@@ -20,6 +22,29 @@ namespace UltimateXR.Core.Components.Composite
     /// <typeparam name="T">Component type</typeparam>
     public abstract class UxrAvatarComponent<T> : UxrComponent<T> where T : UxrAvatarComponent<T>
     {
+        #region Private Types & Data
+
+        private UxrAvatar _avatar;
+
+        #endregion
+
+        #region Unity
+
+        /// <summary>
+        ///     Pre-caches the avatar component.
+        /// </summary>
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (_avatar == null)
+            {
+                _avatar = GetComponentInParent<UxrAvatar>();
+            }
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -44,7 +69,8 @@ namespace UltimateXR.Core.Components.Composite
         {
             get
             {
-                T component = AllComponents.FirstOrDefault(c => c.Avatar != null && c.Avatar.AvatarMode == UxrAvatarMode.Local);
+                var component = AllComponents.FirstOrDefault(c => c.Avatar != null && c.Avatar.AvatarMode == UxrAvatarMode.Local);
+
                 return component == null ? null : component.Avatar;
             }
         }
@@ -102,8 +128,10 @@ namespace UltimateXR.Core.Components.Composite
             {
                 return AllComponents.Where(c => c.Avatar == avatar);
             }
+
             return AllComponents.Where(c => c.Avatar == avatar && c.enabled);
         }
+
 
         /// <summary>
         ///     Gets the components of a specific avatar.
@@ -126,29 +154,6 @@ namespace UltimateXR.Core.Components.Composite
 
             return AllComponents.OfType<TC>().Where(c => c.Avatar == avatar && c.enabled);
         }
-
-        #endregion
-
-        #region Unity
-
-        /// <summary>
-        ///     Pre-caches the avatar component.
-        /// </summary>
-        protected override void Awake()
-        {
-            base.Awake();
-
-            if (_avatar == null)
-            {
-                _avatar = GetComponentInParent<UxrAvatar>();
-            }
-        }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private UxrAvatar _avatar;
 
         #endregion
     }

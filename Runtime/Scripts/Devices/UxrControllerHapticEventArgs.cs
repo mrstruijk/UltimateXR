@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Core;
 using UltimateXR.Haptics;
+
 
 namespace UltimateXR.Devices
 {
@@ -14,6 +16,23 @@ namespace UltimateXR.Devices
     /// </summary>
     public class UxrControllerHapticEventArgs : EventArgs
     {
+        #region Public Methods
+
+        /// <summary>
+        ///     Generates a <see cref="UxrHapticEventType.Stop" /> event for the given hand
+        /// </summary>
+        /// <param name="handSide">Haptic feedback target hand</param>
+        public static UxrControllerHapticEventArgs GetHapticStopEvent(UxrHandSide handSide)
+        {
+            return new UxrControllerHapticEventArgs
+            {
+                HapticEventType = UxrHapticEventType.Stop,
+                HandSide = handSide
+            };
+        }
+
+        #endregion
+
         #region Public Types & Data
 
         /// <summary>
@@ -62,10 +81,11 @@ namespace UltimateXR.Devices
         /// <param name="clip">Clip that was requested</param>
         public UxrControllerHapticEventArgs(UxrHandSide handSide, UxrHapticClip clip)
         {
-            HandSide        = handSide;
+            HandSide = handSide;
             HapticEventType = UxrHapticEventType.Clip;
-            HapticClip      = clip;
+            HapticClip = clip;
         }
+
 
         /// <summary>
         ///     Constructor that registers a <see cref="UxrHapticEventType.Raw" /> event.
@@ -78,35 +98,19 @@ namespace UltimateXR.Devices
         public UxrControllerHapticEventArgs(UxrHandSide handSide, float frequency, float amplitude, float durationSeconds, UxrHapticMode hapticMode)
         {
             HapticEventType = UxrHapticEventType.Raw;
-            HandSide        = handSide;
-            Frequency       = frequency;
-            Amplitude       = amplitude;
+            HandSide = handSide;
+            Frequency = frequency;
+            Amplitude = amplitude;
             DurationSeconds = durationSeconds;
-            HapticMode      = hapticMode;
+            HapticMode = hapticMode;
         }
+
 
         /// <summary>
         ///     Default constructor is private
         /// </summary>
         private UxrControllerHapticEventArgs()
         {
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        ///     Generates a <see cref="UxrHapticEventType.Stop" /> event for the given hand
-        /// </summary>
-        /// <param name="handSide">Haptic feedback target hand</param>
-        public static UxrControllerHapticEventArgs GetHapticStopEvent(UxrHandSide handSide)
-        {
-            return new UxrControllerHapticEventArgs
-                   {
-                               HapticEventType = UxrHapticEventType.Stop,
-                               HandSide        = handSide
-                   };
         }
 
         #endregion

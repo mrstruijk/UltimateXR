@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Avatar.Rig;
 using UltimateXR.Core.Math;
 using UnityEditor;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation.HandPoses
 {
@@ -19,7 +21,7 @@ namespace UltimateXR.Manipulation.HandPoses
     {
         #region Inspector Properties/Serialized Fields
 
-        [SerializeField] private bool                    _hasMetacarpalInfo;
+        [SerializeField] private bool _hasMetacarpalInfo;
         [SerializeField] private UxrFingerNodeDescriptor _metacarpal;
         [SerializeField] private UxrFingerNodeDescriptor _proximal;
         [SerializeField] private UxrFingerNodeDescriptor _proximalNoMetacarpal;
@@ -94,6 +96,7 @@ namespace UltimateXR.Manipulation.HandPoses
             _distal.Compute(wrist, finger.Intermediate, finger.Distal, fingerLocalAxes, fingerLocalAxes, computeRelativeMatrixOnly);
         }
 
+
         /// <summary>
         ///     Mirrors the bone information, so that it can be used for the opposite hand.
         /// </summary>
@@ -109,6 +112,7 @@ namespace UltimateXR.Manipulation.HandPoses
             _intermediate.Mirror();
             _distal.Mirror();
         }
+
 
         /// <summary>
         ///     Interpolates the data towards another descriptor.
@@ -128,7 +132,9 @@ namespace UltimateXR.Manipulation.HandPoses
             _distal.InterpolateTo(to._distal, t);
         }
 
-#if UNITY_EDITOR
+
+        #if UNITY_EDITOR
+
 
         /// <summary>
         ///     Outputs transform information to the editor window.
@@ -141,7 +147,9 @@ namespace UltimateXR.Manipulation.HandPoses
             EditorGUILayout.LabelField(prefix + _proximal.Forward);
         }
 
-#endif
+
+        #endif
+
 
         /// <summary>
         ///     Compares the transform information with another finger.
@@ -159,6 +167,7 @@ namespace UltimateXR.Manipulation.HandPoses
             {
                 return _metacarpal.Equals(other._metacarpal) && _proximal.Equals(other._proximal) && _intermediate.Equals(other._intermediate) && _distal.Equals(other._distal);
             }
+
             return _proximal.Equals(other._proximal) && _intermediate.Equals(other._intermediate) && _distal.Equals(other._distal);
         }
 

@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UltimateXR.Animation.Interpolation;
 using UltimateXR.Extensions.Unity;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace UltimateXR.Animation.UI
 {
@@ -18,6 +20,52 @@ namespace UltimateXR.Animation.UI
     [RequireComponent(typeof(Image))]
     public class UxrImageFillTween : UxrGraphicTween
     {
+        #region Private Types & Data
+
+        private float _originalFillAmount;
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        ///     Creates and starts a tweening animation for the <see cref="Image.fillAmount" /> value in an <see cref="Image" />
+        ///     component.
+        /// </summary>
+        /// <param name="image">Target image</param>
+        /// <param name="startFillAmount">Start fill amount</param>
+        /// <param name="endFillAmount">End fill amount</param>
+        /// <param name="settings">Interpolation settings that control the animation</param>
+        /// <param name="finishedCallback">Optional callback when the animation finished</param>
+        /// <returns>
+        ///     Tweening component that will update itself automatically. Can be used to stop the animation prematurely or
+        ///     change parameters on the fly.
+        /// </returns>
+        public static UxrImageFillTween Animate(Image image, float startFillAmount, float endFillAmount, UxrInterpolationSettings settings, Action<UxrTween> finishedCallback = null)
+        {
+            var imageFillTween = image.GetOrAddComponent<UxrImageFillTween>();
+
+            imageFillTween.StartFillAmount = startFillAmount;
+            imageFillTween.EndFillAmount = endFillAmount;
+            imageFillTween.InterpolationSettings = settings;
+            imageFillTween.FinishedCallback = finishedCallback;
+            imageFillTween.Restart();
+
+            return imageFillTween;
+        }
+
+        #endregion
+
+        #region Protected Overrides UxrGraphicTween
+
+        /// <inheritdoc />
+        protected override void StoreOriginalValue()
+        {
+            _originalFillAmount = TargetImage.fillAmount;
+        }
+
+        #endregion
+
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private float _startFillAmount;
@@ -49,46 +97,6 @@ namespace UltimateXR.Animation.UI
 
         #endregion
 
-        #region Public Methods
-
-        /// <summary>
-        ///     Creates and starts a tweening animation for the <see cref="Image.fillAmount" /> value in an <see cref="Image" />
-        ///     component.
-        /// </summary>
-        /// <param name="image">Target image</param>
-        /// <param name="startFillAmount">Start fill amount</param>
-        /// <param name="endFillAmount">End fill amount</param>
-        /// <param name="settings">Interpolation settings that control the animation</param>
-        /// <param name="finishedCallback">Optional callback when the animation finished</param>
-        /// <returns>
-        ///     Tweening component that will update itself automatically. Can be used to stop the animation prematurely or
-        ///     change parameters on the fly.
-        /// </returns>
-        public static UxrImageFillTween Animate(Image image, float startFillAmount, float endFillAmount, UxrInterpolationSettings settings, Action<UxrTween> finishedCallback = null)
-        {
-            UxrImageFillTween imageFillTween = image.GetOrAddComponent<UxrImageFillTween>();
-
-            imageFillTween.StartFillAmount       = startFillAmount;
-            imageFillTween.EndFillAmount         = endFillAmount;
-            imageFillTween.InterpolationSettings = settings;
-            imageFillTween.FinishedCallback      = finishedCallback;
-            imageFillTween.Restart();
-
-            return imageFillTween;
-        }
-
-        #endregion
-
-        #region Protected Overrides UxrGraphicTween
-
-        /// <inheritdoc />
-        protected override void StoreOriginalValue()
-        {
-            _originalFillAmount = TargetImage.fillAmount;
-        }
-
-        #endregion
-
         #region Protected Overrides UxrTween
 
         /// <inheritdoc />
@@ -100,17 +108,12 @@ namespace UltimateXR.Animation.UI
             }
         }
 
+
         /// <inheritdoc />
         protected override void Interpolate(float t)
         {
             TargetImage.fillAmount = Mathf.Lerp(StartFillAmount, EndFillAmount, t);
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private float _originalFillAmount;
 
         #endregion
     }

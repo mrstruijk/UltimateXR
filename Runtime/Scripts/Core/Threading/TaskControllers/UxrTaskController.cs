@@ -3,9 +3,11 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace UltimateXR.Core.Threading.TaskControllers
 {
@@ -16,6 +18,12 @@ namespace UltimateXR.Core.Threading.TaskControllers
     /// </summary>
     public sealed class UxrTaskController : UxrCancellableController
     {
+        #region Private Types & Data
+
+        private readonly Func<CancellationToken, Task> _taskFunc;
+
+        #endregion
+
         #region Constructors & Finalizer
 
         /// <summary>
@@ -43,6 +51,7 @@ namespace UltimateXR.Core.Threading.TaskControllers
         public UxrTaskController(Func<CancellationToken, Task> taskFunc, bool autoStart = false)
         {
             _taskFunc = taskFunc;
+
             if (autoStart)
             {
                 Start();
@@ -78,12 +87,6 @@ namespace UltimateXR.Core.Threading.TaskControllers
             await _taskFunc(ct).ConfigureAwait(true);
             onCompleted();
         }
-
-        #endregion
-
-        #region Private Types & Data
-
-        private readonly Func<CancellationToken, Task> _taskFunc;
 
         #endregion
     }

@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core;
+
 
 namespace UltimateXR.Devices.Integrations.Pico
 {
@@ -13,6 +15,22 @@ namespace UltimateXR.Devices.Integrations.Pico
     /// </summary>
     public class UxrPicoNeo3Input : UxrUnityXRControllerInput
     {
+        #region Public Overrides UxrUnityXRControllerInput
+
+        /// <inheritdoc />
+        public override IEnumerable<string> ControllerNames
+        {
+            get
+            {
+                yield return "PicoXR Controller-Left";
+                yield return "PicoXR Controller-Right";
+                yield return "PICO Controller-Left";
+                yield return "PICO Controller-Right";
+            }
+        }
+
+        #endregion
+
         #region Public Overrides UxrControllerInput
 
         /// <summary>
@@ -29,10 +47,11 @@ namespace UltimateXR.Devices.Integrations.Pico
         /// <inheritdoc />
         public override bool MainJoystickIsTouchpad => false;
 
+
         /// <inheritdoc />
         public override bool HasControllerElements(UxrHandSide handSide, UxrControllerElements controllerElements)
         {
-            uint validElements = (uint)(UxrControllerElements.Joystick |
+            var validElements = (uint) (UxrControllerElements.Joystick |
                                         UxrControllerElements.Grip |
                                         UxrControllerElements.Trigger |
                                         UxrControllerElements.Button1 |
@@ -41,23 +60,7 @@ namespace UltimateXR.Devices.Integrations.Pico
                                         UxrControllerElements.Back |
                                         UxrControllerElements.DPad);
 
-            return (validElements & (uint)controllerElements) == (uint)controllerElements;
-        }
-
-        #endregion
-
-        #region Public Overrides UxrUnityXRControllerInput
-
-        /// <inheritdoc />
-        public override IEnumerable<string> ControllerNames
-        {
-            get
-            {
-                yield return "PicoXR Controller-Left";
-                yield return "PicoXR Controller-Right";
-                yield return "PICO Controller-Left";
-                yield return "PICO Controller-Right";
-            }
+            return (validElements & (uint) controllerElements) == (uint) controllerElements;
         }
 
         #endregion

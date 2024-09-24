@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
+
 
 namespace UltimateXR.Core.Math
 {
@@ -19,6 +21,47 @@ namespace UltimateXR.Core.Math
         #region Inspector Properties/Serialized Fields
 
         [SerializeField] private int _axis;
+
+        #endregion
+
+        #region Constructors & Finalizer
+
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="axis">Axis as an integer value</param>
+        public UxrAxis(int axis)
+        {
+            #if UNITY_EDITOR
+
+            if (axis < 0 || axis > 3)
+            {
+                Debug.LogError($"Assigning invalid value to axis: {axis}");
+            }
+
+            #endif
+            _axis = Mathf.Clamp(axis, 0, 2);
+        }
+
+        #endregion
+
+        #region Implicit IEquatable<UxrAxis>
+
+        /// <inheritdoc />
+        public bool Equals(UxrAxis other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return _axis == other._axis;
+        }
 
         #endregion
 
@@ -40,46 +83,6 @@ namespace UltimateXR.Core.Math
 
         #endregion
 
-        #region Constructors & Finalizer
-
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="axis">Axis as an integer value</param>
-        public UxrAxis(int axis)
-        {
-#if UNITY_EDITOR
-            
-            if (axis < 0 || axis > 3)
-            {
-                Debug.LogError($"Assigning invalid value to axis: {axis}");
-            }
-            
-#endif
-            _axis = Mathf.Clamp(axis, 0, 2);
-        }
-
-        #endregion
-
-        #region Implicit IEquatable<UxrAxis>
-
-        /// <inheritdoc />
-        public bool Equals(UxrAxis other)
-        {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            
-            return _axis == other._axis;
-        }
-
-        #endregion
-
         #region Public Overrides object
 
         /// <inheritdoc />
@@ -87,11 +90,12 @@ namespace UltimateXR.Core.Math
         {
             return _axis switch
                    {
-                               0 => "Right",
-                               1 => "Up",
-                               _ => "Forward"
+                       0 => "Right",
+                       1 => "Up",
+                       _ => "Forward"
                    };
         }
+
 
         /// <inheritdoc />
         public override bool Equals(object obj)
@@ -100,17 +104,20 @@ namespace UltimateXR.Core.Math
             {
                 return false;
             }
+
             if (ReferenceEquals(this, obj))
             {
                 return true;
             }
+
             if (obj.GetType() != GetType())
             {
                 return false;
             }
 
-            return Equals((UxrAxis)obj);
+            return Equals((UxrAxis) obj);
         }
+
 
         /// <inheritdoc />
         public override int GetHashCode()
@@ -133,16 +140,18 @@ namespace UltimateXR.Core.Math
             if (axis1 == axis2)
             {
                 Debug.LogError($"{nameof(UxrAxis)}: Got same axis for {nameof(OtherThan)} (axis1)");
+
                 return axis1.Perpendicular;
             }
 
-            int smaller = axis1._axis < axis2._axis ? axis1._axis : axis2._axis;
-            int bigger  = axis1._axis > axis2._axis ? axis1._axis : axis2._axis;
+            var smaller = axis1._axis < axis2._axis ? axis1._axis : axis2._axis;
+            var bigger = axis1._axis > axis2._axis ? axis1._axis : axis2._axis;
 
             if (smaller == 0 && bigger == 1)
             {
                 return 2;
             }
+
             if (smaller == 0 && bigger == 2)
             {
                 return 1;
@@ -150,6 +159,7 @@ namespace UltimateXR.Core.Math
 
             return 0;
         }
+
 
         /// <summary>
         ///     Gets the color representing
@@ -159,6 +169,7 @@ namespace UltimateXR.Core.Math
         public Color GetColor(float alpha)
         {
             Vector3 axis = this;
+
             return new Color(Mathf.Abs(axis.x), Mathf.Abs(axis.y), Mathf.Abs(axis.z), alpha);
         }
 
@@ -173,8 +184,9 @@ namespace UltimateXR.Core.Math
         /// <returns>Negated axis</returns>
         public static Vector3 operator -(UxrAxis axis)
         {
-            return -(Vector3)axis;
+            return -(Vector3) axis;
         }
+
 
         /// <summary>
         ///     Implicit conversion from an <see cref="UxrAxis" /> to a <see cref="Vector3" />.
@@ -185,11 +197,12 @@ namespace UltimateXR.Core.Math
         {
             return axis._axis switch
                    {
-                               0 => Vector3.right,
-                               1 => Vector3.up,
-                               _ => Vector3.forward
+                       0 => Vector3.right,
+                       1 => Vector3.up,
+                       _ => Vector3.forward
                    };
         }
+
 
         /// <summary>
         ///     Implicit conversion from an integer to an <see cref="UxrAxis" />.
@@ -200,6 +213,7 @@ namespace UltimateXR.Core.Math
         {
             return new UxrAxis(axis);
         }
+
 
         /// <summary>
         ///     Equality operator.
@@ -222,6 +236,7 @@ namespace UltimateXR.Core.Math
             return a.Equals(b);
         }
 
+
         /// <summary>
         ///     Inequality operator.
         /// </summary>
@@ -232,6 +247,7 @@ namespace UltimateXR.Core.Math
         {
             return !(a == b);
         }
+
 
         /// <summary>
         ///     Implicit conversion from an <see cref="UxrAxis" /> to an integer.

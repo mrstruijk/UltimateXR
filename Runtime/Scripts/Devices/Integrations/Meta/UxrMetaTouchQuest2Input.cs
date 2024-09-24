@@ -3,8 +3,10 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UltimateXR.Core;
+
 
 namespace UltimateXR.Devices.Integrations.Meta
 {
@@ -13,6 +15,23 @@ namespace UltimateXR.Devices.Integrations.Meta
     /// </summary>
     public class UxrMetaTouchQuest2Input : UxrUnityXRControllerInput
     {
+        #region Public Overrides UxrUnityXRControllerInput
+
+        /// <inheritdoc />
+        public override IEnumerable<string> ControllerNames
+        {
+            get
+            {
+                if (UxrTrackingDevice.HeadsetDeviceName is "Oculus Quest2")
+                {
+                    yield return "Oculus Touch Controller - Left";
+                    yield return "Oculus Touch Controller - Right";
+                }
+            }
+        }
+
+        #endregion
+
         #region Public Overrides UxrControllerInput
 
         /// <summary>
@@ -29,10 +48,11 @@ namespace UltimateXR.Devices.Integrations.Meta
         /// <inheritdoc />
         public override bool MainJoystickIsTouchpad => false;
 
+
         /// <inheritdoc />
         public override bool HasControllerElements(UxrHandSide handSide, UxrControllerElements controllerElements)
         {
-            uint validElements = (uint)(UxrControllerElements.Joystick |
+            var validElements = (uint) (UxrControllerElements.Joystick |
                                         UxrControllerElements.Grip |
                                         UxrControllerElements.Trigger |
                                         UxrControllerElements.ThumbCapSense |
@@ -44,27 +64,10 @@ namespace UltimateXR.Devices.Integrations.Meta
             if (handSide == UxrHandSide.Right)
             {
                 // Remove menu button from right controller, which is reserved.
-                validElements = validElements & ~(uint)UxrControllerElements.Menu;
+                validElements = validElements & ~(uint) UxrControllerElements.Menu;
             }
 
-            return (validElements & (uint)controllerElements) == (uint)controllerElements;
-        }
-
-        #endregion
-
-        #region Public Overrides UxrUnityXRControllerInput
-
-        /// <inheritdoc />
-        public override IEnumerable<string> ControllerNames
-        {
-            get
-            {
-                if (UxrTrackingDevice.HeadsetDeviceName is "Oculus Quest2")
-                {
-                    yield return "Oculus Touch Controller - Left";
-                    yield return "Oculus Touch Controller - Right";
-                }
-            }
+            return (validElements & (uint) controllerElements) == (uint) controllerElements;
         }
 
         #endregion

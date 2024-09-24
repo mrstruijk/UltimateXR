@@ -3,11 +3,13 @@
 //   Copyright (c) VRMADA, All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections;
 using UltimateXR.Avatar;
 using UltimateXR.Core;
 using UltimateXR.Core.Components.Composite;
 using UnityEngine;
+
 
 namespace UltimateXR.Manipulation.Helpers
 {
@@ -18,13 +20,6 @@ namespace UltimateXR.Manipulation.Helpers
     [RequireComponent(typeof(UxrGrabbableObject))]
     public class UxrReturnGrabbableObject : UxrGrabbableObjectComponent<UxrReturnGrabbableObject>
     {
-        #region Inspector Properties/Serialized Fields
-
-        [SerializeField] private bool  _smoothTransition   = true;
-        [SerializeField] private float _returnDelaySeconds = -1.0f;
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -65,6 +60,29 @@ namespace UltimateXR.Manipulation.Helpers
 
         #endregion
 
+        #region Private Methods
+
+        /// <summary>
+        ///     Cancels a return if there was one programmed.
+        /// </summary>
+        private void CancelReturn()
+        {
+            if (_returnCoroutine != null)
+            {
+                StopCoroutine(_returnCoroutine);
+                _returnCoroutine = null;
+            }
+        }
+
+        #endregion
+
+        #region Inspector Properties/Serialized Fields
+
+        [SerializeField] private bool _smoothTransition = true;
+        [SerializeField] private float _returnDelaySeconds = -1.0f;
+
+        #endregion
+
         #region Event Trigger Methods
 
         /// <summary>
@@ -80,6 +98,7 @@ namespace UltimateXR.Manipulation.Helpers
                 StopCoroutine(_returnCoroutine);
             }
         }
+
 
         /// <summary>
         ///     Called by the base class whenever the object is released.
@@ -115,26 +134,10 @@ namespace UltimateXR.Manipulation.Helpers
 
         #endregion
 
-        #region Private Methods
-
-        /// <summary>
-        ///     Cancels a return if there was one programmed.
-        /// </summary>
-        private void CancelReturn()
-        {
-            if (_returnCoroutine != null)
-            {
-                StopCoroutine(_returnCoroutine);
-                _returnCoroutine = null;
-            }
-        }
-
-        #endregion
-
         #region Private Types & Data
 
         private UxrGrabbableObjectAnchor _grabbableObjectAnchor;
-        private Coroutine                _returnCoroutine;
+        private Coroutine _returnCoroutine;
 
         #endregion
     }
